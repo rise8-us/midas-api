@@ -1,0 +1,23 @@
+version: '3.7'
+
+services:
+  db:
+    platform: linux/x86_64
+    image: mysql:8.0.21
+    command: --default-authentication-plugin=mysql_native_password --log-bin-trust-function-creators
+    restart: unless-stopped
+    container_name: app-db
+    environment:
+      MYSQL_DATABASE: appDB
+      MYSQL_USER: localDBUser
+      MYSQL_PASSWORD: localDBPassword
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - 3306:3306
+
+  adminer:
+    image: adminer
+    restart: always
+    container_name: app-db-adminer
+    ports:
+      - 8181:8080

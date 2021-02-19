@@ -1,0 +1,15 @@
+#dependencies
+.gradle/*
+
+#production
+build/*
+out/*
+.DS_Store
+
+# IDE
+.idea/*
+.vscode/*
+
+# config file
+*.envrc
+

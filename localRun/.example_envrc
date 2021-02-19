@@ -1,0 +1,16 @@
+# Steps
+# 1. Make a copy of this file and name it .envrc
+# NOTE: verify your system did not add a '.txt' to the .envrc file
+# 2. Verify required DB variables (DB_* should match what is in docker-compose.yml)
+
+# REQUIRED
+export MYSQL_HOST=localhost
+export MYSQL_PORT=3306
+export MYSQL_DB_NAME=appDB
+export MYSQL_DB_ADMIN_USER=localDBUser
+export MYSQL_DB_ADMIN_PASSWORD=localDBPassword
+export ENVIRONMENT=local # require for local dev
+
+# OPTIONAL
+# export CLASSIFICATION=  # Options: UNCLASS,CUI,SECRET,SCI.  defaults to UNCLASS when null
+# export CAVEAT=
