@@ -1,0 +1,24 @@
+package mil.af.abms.midas.api.user.dto;
+
+import java.time.LocalDateTime;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import mil.af.abms.midas.api.AbstractDTO;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class UserDTO implements AbstractDTO {
+    private Long id;
+    private String keycloakUid;
+    private String username;
+    private String email;
+    private String displayName;
+    private LocalDateTime creationDate;
+    private Long dodId;
+    private Boolean isDisabled;
+    private Long roles;
+}
