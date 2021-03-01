@@ -42,17 +42,17 @@ public class UserEntity extends AbstractEntity<UserDTO> {
     @Column(columnDefinition = "VARCHAR(100)")
     private String displayName;
 
-    @Column(columnDefinition = "BIGINT(20)")
+    @Column(columnDefinition = "BIGINT")
     private Long dodId;
 
     @Column(columnDefinition = "BIT(1) DEFAULT 0", nullable = false)
     private Boolean isDisabled = false;
 
-    @Column(columnDefinition = "BIGINT(20) DEFAULT 0", nullable = false)
+    @Column(columnDefinition = "BIGINT DEFAULT 0", nullable = false)
     private Long roles = 0L;
 
     @CreationTimestamp
-    @Column(columnDefinition = "datetime DEFAULT CURRENT_TIMESTAMP", nullable = false)
+    @Column(columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP", nullable = false)
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
