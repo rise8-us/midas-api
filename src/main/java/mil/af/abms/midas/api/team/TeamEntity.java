@@ -44,13 +44,13 @@ public class TeamEntity extends AbstractEntity<TeamDTO> {
     private Set<ProductEntity> products = new HashSet<>();
 
     @CreationTimestamp
-    @Column(columnDefinition = "datetime DEFAULT CURRENT_TIMESTAMP", nullable = false)
+    @Column(columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP", nullable = false)
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime creationDate = LocalDateTime.now();
 
-    @Column(columnDefinition = "BIGINT(20)", nullable = false)
+    @Column(columnDefinition = "BIGINT", nullable = false)
     private Long gitlabGroupId;
 
     @ManyToMany(cascade = CascadeType.ALL)

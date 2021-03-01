@@ -37,7 +37,7 @@ public class ProductEntity extends AbstractEntity<ProductDTO> {
     private Boolean isArchived = false;
 
     @CreationTimestamp
-    @Column(columnDefinition = "datetime DEFAULT CURRENT_TIMESTAMP", nullable = false)
+    @Column(columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP", nullable = false)
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -47,7 +47,7 @@ public class ProductEntity extends AbstractEntity<ProductDTO> {
     @JoinColumn(name = "team_id")
     private TeamEntity team;
 
-    @Column(columnDefinition = "BIGINT(20)", nullable = false)
+    @Column(columnDefinition = "BIGINT", nullable = false)
     private Long gitlabProjectId;
 
     public ProductDTO toDto() {
