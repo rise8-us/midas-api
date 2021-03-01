@@ -3,8 +3,6 @@ package mil.af.abms.midas.config;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import mil.af.abms.midas.config.auth.platform1.PlatformOneAuthenticationFilter;
-import mil.af.abms.midas.helpers.MockJWT;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -13,6 +11,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import mil.af.abms.midas.config.auth.platform1.PlatformOneAuthenticationFilter;
+import mil.af.abms.midas.helpers.MockJWT;
 
 @ExtendWith(SpringExtension.class)
 public class PlatformOneAuthenticationFilterTest {

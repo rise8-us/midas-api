@@ -6,11 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import mil.af.abms.midas.helpers.RequestContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import mil.af.abms.midas.helpers.RequestContext;
 
 @ExtendWith(SpringExtension.class)
 public class HttpPathVariableIdGrabberTests {

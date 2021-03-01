@@ -2,7 +2,6 @@ package mil.af.abms.midas.api.user;
 
 import javax.validation.Valid;
 
-import mil.af.abms.midas.config.auth.IsAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,11 +15,12 @@ import mil.af.abms.midas.api.user.dto.UpdateUserDTO;
 import mil.af.abms.midas.api.user.dto.UpdateUserDisabledDTO;
 import mil.af.abms.midas.api.user.dto.UpdateUserRolesDTO;
 import mil.af.abms.midas.api.user.dto.UserDTO;
+import mil.af.abms.midas.config.auth.IsAdmin;
 
 @CrossOrigin
 @RestController
 @RequestMapping("/api/users")
-public class UserController extends AbstractCRUDController<UserModel, UserDTO, UserService> {
+public class UserController extends AbstractCRUDController<UserEntity, UserDTO, UserService> {
 
     @Autowired private UserService service;
     public UserController(UserService service) {

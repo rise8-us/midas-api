@@ -9,46 +9,32 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.user.UserModel;
-import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.api.user.dto.UserDTO;
 import mil.af.abms.midas.config.CustomProperty;
 
 @WebMvcTest(InitController.class)
 public class InitControllerTest extends ControllerTestHarness {
 
-    @Autowired
-    private MockMvc mockMvc;
-
     @MockBean
     private CustomProperty property;
-    @MockBean
-    private UserService userService;
 
     @BeforeEach
     public void init() {
-        UserModel authUser = Builder.build(UserModel.class)
-                .with(u -> u.setRoles(1L))
-                .with(u -> u.setKeycloakUid("abc-123"))
-                .with(u -> u.setUsername("grogu")).get();
         when(userService.findByKeycloakUid(any())).thenReturn(Optional.of(authUser));
         when(userService.getUserFromAuth(any())).thenReturn(authUser);
     }
 
     @Test
-    public void shouldGetPublicInfo() throws Exception {
-
+    public void should_Get_Public_Info() throws Exception {
         String endpoint = "/init/info";
 
         when(property.getClassification()).thenReturn("UNCLASS");
@@ -61,7 +47,7 @@ public class InitControllerTest extends ControllerTestHarness {
     }
 
     @Test
-    public void shouldGetFromPublicInfo() throws Exception {
+    public void should_Get_From_PublicInfo() throws Exception {
         when(property.getClassification()).thenReturn("UNCLASS");
         when(property.getCaveat()).thenReturn("IL2");
 
@@ -78,7 +64,7 @@ public class InitControllerTest extends ControllerTestHarness {
     }
 
     @Test
-    public void loginInitLocally() throws Exception {
+    public void login_Init_Locally() throws Exception {
         UserDTO userDTO = Builder.build(UserDTO.class).with(u -> u.setId(1L)).get();
 
         mockMvc.perform(get("/init/user"))

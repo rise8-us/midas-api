@@ -2,7 +2,6 @@ package mil.af.abms.midas.api.search;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import mil.af.abms.midas.api.user.UserModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.jpa.domain.Specification;
@@ -11,6 +10,8 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.jupiter.api.Test;
+
+import mil.af.abms.midas.api.user.UserEntity;
 
 public class RestQueryParserTests {
 
@@ -39,9 +40,9 @@ public class RestQueryParserTests {
     @Test
     public void shouldReturnSpecs() {
         String urlPath = "id:1 AND username:foo";
-        CriteriaParser<UserModel> parser = new CriteriaParser<>();
-        Specification<UserModel> expectedSpecs = new NullSpecification<UserModel>();
-        Specification<UserModel> specs = parser.parse(urlPath);
+        CriteriaParser<UserEntity> parser = new CriteriaParser<>();
+        Specification<UserEntity> expectedSpecs = new NullSpecification<UserEntity>();
+        Specification<UserEntity> specs = parser.parse(urlPath);
 
     }
 }

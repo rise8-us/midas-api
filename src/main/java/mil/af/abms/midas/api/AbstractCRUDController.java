@@ -4,8 +4,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.util.List;
 
-import mil.af.abms.midas.api.search.annotation.SearchSpec;
-import mil.af.abms.midas.config.auth.IsAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
@@ -13,6 +11,9 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import mil.af.abms.midas.api.search.annotation.SearchSpec;
+import mil.af.abms.midas.config.auth.IsAdmin;
 
 @CrossOrigin
 public abstract class AbstractCRUDController<

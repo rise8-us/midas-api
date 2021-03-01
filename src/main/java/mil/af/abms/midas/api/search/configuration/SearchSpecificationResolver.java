@@ -1,6 +1,5 @@
 package mil.af.abms.midas.api.search.configuration;
 
-import mil.af.abms.midas.api.search.SpecificationsBuilder;
 import org.springframework.core.MethodParameter;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
@@ -9,6 +8,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import mil.af.abms.midas.api.search.SpecificationsBuilder;
 import mil.af.abms.midas.api.search.annotation.SearchSpec;
 
 class SearchSpecificationResolver implements HandlerMethodArgumentResolver {

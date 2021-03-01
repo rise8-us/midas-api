@@ -1,8 +1,5 @@
 package mil.af.abms.midas.api.init;
 
-import mil.af.abms.midas.api.user.UserService;
-import mil.af.abms.midas.api.user.dto.UserDTO;
-import mil.af.abms.midas.config.CustomProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +11,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 import mil.af.abms.midas.api.init.dto.InfoDTO;
+import mil.af.abms.midas.api.user.UserService;
+import mil.af.abms.midas.api.user.dto.UserDTO;
+import mil.af.abms.midas.config.CustomProperty;
 
 @RestController
 @RequestMapping("/init")

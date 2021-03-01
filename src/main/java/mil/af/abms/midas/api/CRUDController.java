@@ -4,12 +4,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.util.List;
 
-import mil.af.abms.midas.api.search.annotation.SearchSpec;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import mil.af.abms.midas.api.search.annotation.SearchSpec;
 
 
 public interface CRUDController<D extends AbstractDTO, E extends AbstractEntity<D>> {

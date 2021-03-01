@@ -24,43 +24,44 @@ public class UserRepositoryTests {
     UserRepository userRepository;
 
     @Test
-    public void shouldFindByUsername() {
+    public void should_Find_By_Username() {
 
-        UserModel testUser = Builder.build(UserModel.class)
+        UserEntity testUser = Builder.build(UserEntity.class)
                 .with(u -> u.setUsername("foo")).get();
 
         entityManager.persist(testUser);
         entityManager.flush();
 
-        Optional<UserModel> foundUser = userRepository.findByUsername(testUser.getUsername());
+        Optional<UserEntity> foundUser = userRepository.findByUsername(testUser.getUsername());
 
-        assertThat(foundUser.orElse(new UserModel())).isEqualTo(testUser);
+        assertThat(foundUser.orElse(new UserEntity())).isEqualTo(testUser);
     }
 
     @Test
-    public void shouldFindByDodId() {
-        UserModel testUser = Builder.build(UserModel.class)
+    public void should_Find_By_DodId() {
+        UserEntity testUser = Builder.build(UserEntity.class)
+                .with(u -> u.setUsername("Foo"))
                 .with(u -> u.setDodId(1L)).get();
 
         entityManager.persist(testUser);
         entityManager.flush();
 
-        Optional<UserModel> foundUser = userRepository.findByDodId(testUser.getDodId());
+        Optional<UserEntity> foundUser = userRepository.findByDodId(testUser.getDodId());
 
-        assertThat(foundUser.orElse(new UserModel())).isEqualTo(testUser);
+        assertThat(foundUser.orElse(new UserEntity())).isEqualTo(testUser);
     }
 
     @Test
-    public void shouldFindByKeycloakId() {
-        UserModel testUser = Builder.build(UserModel.class)
+    public void should_Find_By_KeycloakUId() {
+        UserEntity testUser = Builder.build(UserEntity.class)
+                .with(u -> u.setUsername("foo"))
                 .with(u -> u.setKeycloakUid("abc-123-efg")).get();
 
         entityManager.persist(testUser);
         entityManager.flush();
 
-        Optional<UserModel> foundUser = userRepository.findByKeycloakUid(testUser.getKeycloakUid());
+        Optional<UserEntity> foundUser = userRepository.findByKeycloakUid(testUser.getKeycloakUid());
 
-        assertThat(foundUser.orElse(new UserModel())).isEqualTo(testUser);
+        assertThat(foundUser.orElse(new UserEntity())).isEqualTo(testUser);
     }
-
 }

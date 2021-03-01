@@ -10,11 +10,6 @@ import javax.validation.ConstraintValidatorContext;
 
 import java.time.LocalDateTime;
 
-import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.user.UserService;
-import mil.af.abms.midas.api.user.dto.UserDTO;
-import mil.af.abms.midas.exception.EntityNotFoundException;
-import mil.af.abms.midas.helpers.RequestContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -26,6 +21,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+
+import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.user.UserService;
+import mil.af.abms.midas.api.user.dto.UserDTO;
+import mil.af.abms.midas.exception.EntityNotFoundException;
+import mil.af.abms.midas.helpers.RequestContext;
 
 @ExtendWith(SpringExtension.class)
 @Import({UniqueUsernameValidator.class})

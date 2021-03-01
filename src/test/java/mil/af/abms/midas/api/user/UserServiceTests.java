@@ -43,7 +43,7 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 public class UserServiceTests {
 
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
-    private final UserModel expectedUser = Builder.build(UserModel.class)
+    private final UserEntity expectedUser = Builder.build(UserEntity.class)
             .with(u -> u.setId(1L))
             .with(u -> u.setKeycloakUid("abc-123"))
             .with(u -> u.setUsername("grogu"))
@@ -51,7 +51,7 @@ public class UserServiceTests {
             .with(u -> u.setDisplayName("Baby Yoda"))
             .with(u -> u.setDodId(1L))
             .with(u -> u.setCreationDate(CREATION_DATE)).get();
-    private final UserModel expectedUser2 = Builder.build(UserModel.class)
+    private final UserEntity expectedUser2 = Builder.build(UserEntity.class)
             .with(u -> u.setId(1L))
             .with(u -> u.setKeycloakUid("def-456"))
             .with(u -> u.setUsername("yoda"))
@@ -62,8 +62,8 @@ public class UserServiceTests {
     private final List<String> groups = List.of("ADMIN");
     private final PlatformOneAuthenticationToken token = new PlatformOneAuthenticationToken(
             "abc-123", 1L, "grogu", "a.b@c", groups);
-    private final List<UserModel> users = List.of(expectedUser, expectedUser2);
-    private final Page<UserModel> page = new PageImpl<UserModel>(users);
+    private final List<UserEntity> users = List.of(expectedUser, expectedUser2);
+    private final Page<UserEntity> page = new PageImpl<UserEntity>(users);
     @Autowired
     UserService userService;
     @MockBean
@@ -71,20 +71,18 @@ public class UserServiceTests {
 
     @Test
     public void should_Create_User() {
-        UserModel tokenUser = Builder.build(UserModel.class)
+        UserEntity tokenUser = Builder.build(UserEntity.class)
                 .with(u -> u.setKeycloakUid("abc-123"))
                 .with(u -> u.setDodId(1L))
                 .with(u -> u.setUsername("grogu"))
                 .with(u -> u.setEmail("a.b@c"))
                 .with(u -> u.setRoles(1L)).get();
 
-        when(userRepository.save(any())).thenReturn(new UserModel());
+        when(userRepository.save(any())).thenReturn(new UserEntity());
 
         userService.create(token);
-        System.out.println(tokenUser.toString());
 
         verify(userRepository, times(1)).save(tokenUser);
-
 
     }
 
@@ -140,7 +138,7 @@ public class UserServiceTests {
 
     @Test
     public void should_Get_User_And_Return_UserDTO() throws EntityNotFoundException {
-        when(userRepository.findById(any())).thenReturn(java.util.Optional.of(new UserModel()));
+        when(userRepository.findById(any())).thenReturn(java.util.Optional.of(new UserEntity()));
 
         assertThat(userService.findById(1L).getClass()).isEqualTo(UserDTO.class);
     }
@@ -153,7 +151,7 @@ public class UserServiceTests {
                 .with(u -> u.setDisplayName("YoDiddy")).get();
         UserDTO expectedDTO = expectedUser.toDto();
         expectedDTO.setDisplayName("YoDiddy");
-        UserModel savedUser = UserModel.fromDTO(expectedDTO);
+        UserEntity savedUser = UserEntity.fromDTO(expectedDTO);
 
         when(userRepository.findById(any())).thenReturn(Optional.of(expectedUser));
         when(userRepository.save(any())).thenReturn(expectedUser);
@@ -169,7 +167,7 @@ public class UserServiceTests {
                 .with(p -> p.setRoles(0L)).get();
         UserDTO expectedDTO = expectedUser.toDto();
         expectedDTO.setRoles(1L);
-        UserModel savedUser = UserModel.fromDTO(expectedDTO);
+        UserEntity savedUser = UserEntity.fromDTO(expectedDTO);
 
         when(userRepository.findById(any())).thenReturn(Optional.of(expectedUser));
         when(userRepository.save(any())).thenReturn(expectedUser);
@@ -185,7 +183,7 @@ public class UserServiceTests {
                 .with(p -> p.setDisabled(true)).get();
         UserDTO expectedDTO = expectedUser.toDto();
         expectedDTO.setIsDisabled(true);
-        UserModel savedUser = UserModel.fromDTO(expectedDTO);
+        UserEntity savedUser = UserEntity.fromDTO(expectedDTO);
 
         when(userRepository.findById(any())).thenReturn(Optional.of(expectedUser));
         when(userRepository.save(any())).thenReturn(expectedUser);
@@ -199,13 +197,13 @@ public class UserServiceTests {
     public void should_Prepare_Paged_Response() {
         List<UserDTO> results = userService.preparePageResponse(page, new MockHttpServletResponse());
 
-        assertThat(results).isEqualTo(users.stream().map(UserModel::toDto).collect(Collectors.toList()));
+        assertThat(results).isEqualTo(users.stream().map(UserEntity::toDto).collect(Collectors.toList()));
     }
 
     @Test
     public void should_Retrieve_All_Users() {
-        SpecificationsBuilder<UserModel> builder = new SpecificationsBuilder<>();
-        Specification<UserModel> specs = builder.withSearch("id:1").build();
+        SpecificationsBuilder<UserEntity> builder = new SpecificationsBuilder<>();
+        Specification<UserEntity> specs = builder.withSearch("id:1").build();
 
         when(userRepository.findAll(eq(specs), any(PageRequest.class))).thenReturn(page);
 
