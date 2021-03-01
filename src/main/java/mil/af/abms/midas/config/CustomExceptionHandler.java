@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import mil.af.abms.midas.exception.AbstractRuntimeException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
@@ -18,7 +17,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.WebRequest;
 
-import lombok.Data;
+import lombok.Getter;
+import mil.af.abms.midas.exception.AbstractRuntimeException;
 
 @ControllerAdvice
 public class CustomExceptionHandler {
@@ -47,12 +47,11 @@ public class CustomExceptionHandler {
         return new ResponseEntity<>(body, ex.getStatus());
     }
 
-
-    @Data
+    @Getter
     public static class ValidationError {
 
-        String message;
-        List<String> errors;
+        private final String message;
+        private List<String> errors;
 
         ValidationError(String message) {
             this.message = message;

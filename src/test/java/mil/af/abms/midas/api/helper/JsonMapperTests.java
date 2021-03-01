@@ -8,8 +8,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-import mil.af.abms.midas.api.user.UserModel;
-import mil.af.abms.midas.config.auth.platform1.PlatformOneAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,9 +15,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import org.junit.jupiter.api.Test;
 
+import mil.af.abms.midas.api.user.UserEntity;
+import mil.af.abms.midas.config.auth.platform1.PlatformOneAuthenticationToken;
+
 public class JsonMapperTests {
 
-    private final UserModel user = Builder.build(UserModel.class)
+    private final UserEntity user = Builder.build(UserEntity.class)
             .with(u -> u.setId(1L))
             .with(u -> u.setKeycloakUid("Hello")).get();
 

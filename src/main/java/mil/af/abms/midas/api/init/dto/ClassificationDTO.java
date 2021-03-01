@@ -1,6 +1,7 @@
 package mil.af.abms.midas.api.init.dto;
 
 import lombok.Getter;
+
 import mil.af.abms.midas.enums.Classification;
 
 @Getter

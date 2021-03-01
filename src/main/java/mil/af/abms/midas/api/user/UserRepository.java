@@ -5,11 +5,11 @@ import java.util.Optional;
 import mil.af.abms.midas.api.RepositoryInterface;
 import mil.af.abms.midas.api.user.dto.UserDTO;
 
-public interface UserRepository extends RepositoryInterface<UserModel, UserDTO> {
+public interface UserRepository extends RepositoryInterface<UserEntity, UserDTO> {
 
-    Optional<UserModel> findByUsername(String username);
+    Optional<UserEntity> findByUsername(String username);
 
-    Optional<UserModel> findByDodId(Long dodId);
+    Optional<UserEntity> findByDodId(Long dodId);
 
-    Optional<UserModel> findByKeycloakUid(String keycloakId);
+    Optional<UserEntity> findByKeycloakUid(String keycloakId);
 }

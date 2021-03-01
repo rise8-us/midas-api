@@ -4,14 +4,14 @@ package mil.af.abms.midas.api.user.validation;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-import mil.af.abms.midas.api.helper.HttpPathVariableIdGrabber;
-import mil.af.abms.midas.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import lombok.Setter;
 
-import mil.af.abms.midas.api.user.dto.UserDTO;
+import mil.af.abms.midas.api.helper.HttpPathVariableIdGrabber;
 import mil.af.abms.midas.api.user.UserService;
+import mil.af.abms.midas.api.user.dto.UserDTO;
+import mil.af.abms.midas.exception.EntityNotFoundException;
 
 public class UniqueUsernameValidator implements ConstraintValidator<UniqueUsername, String> {
 

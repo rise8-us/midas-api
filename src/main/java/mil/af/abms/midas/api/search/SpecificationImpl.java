@@ -10,8 +10,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import mil.af.abms.midas.api.search.parsing.ParsingStrategy;
 import org.springframework.data.jpa.domain.Specification;
+
+import mil.af.abms.midas.api.search.parsing.ParsingStrategy;
 
 public class SpecificationImpl<T> implements Specification<T> {
 

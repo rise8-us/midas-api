@@ -1,14 +1,18 @@
 package mil.af.abms.midas.api.user;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
 
-import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.user.dto.UserDTO;
 import org.junit.jupiter.api.Test;
 
-public class UserModelTests {
+import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.team.TeamEntity;
+import mil.af.abms.midas.api.user.dto.UserDTO;
+
+public class UserEntityTests {
 
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
     private final UserDTO userDTO = Builder.build(UserDTO.class)
@@ -21,7 +25,7 @@ public class UserModelTests {
             .with(u -> u.setDodId(1L))
             .with(u -> u.setIsDisabled(false))
             .with(u -> u.setRoles(0L)).get();
-    private final UserModel expectedUser = Builder.build(UserModel.class)
+    private final UserEntity expectedUser = Builder.build(UserEntity.class)
             .with(u -> u.setId(1L))
             .with(u -> u.setKeycloakUid("abc-123"))
             .with(u -> u.setUsername("grogu"))
@@ -34,7 +38,7 @@ public class UserModelTests {
 
     @Test
     public void shouldSetAndGetProperties() {
-        UserModel user = Builder.build(UserModel.class)
+        UserEntity user = Builder.build(UserEntity.class)
                 .with(u -> u.setId(1L))
                 .with(u -> u.setKeycloakUid("abc-123"))
                 .with(u -> u.setUsername("foo"))
@@ -63,8 +67,18 @@ public class UserModelTests {
 
     @Test
     public void shouldCreateUserFromUserDTO() {
-        UserModel user = UserModel.fromDTO(userDTO);
+        UserEntity user = UserEntity.fromDTO(userDTO);
         assertThat(user).isEqualTo(expectedUser);
     }
 
+    @Test
+    public void should_Be_Equal() {
+        UserEntity user2 = Builder.build(UserEntity.class)
+                .with(u -> u.setKeycloakUid("abc-123")).get();
+
+        assertTrue(expectedUser.equals(expectedUser));
+        assertFalse(expectedUser.equals(null));
+        assertFalse(expectedUser.equals(new TeamEntity()));
+        assertTrue(expectedUser.equals(user2));
+    }
 }

@@ -14,7 +14,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import mil.af.abms.midas.api.user.UserModel;
+import mil.af.abms.midas.api.user.UserEntity;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.enums.Roles;
 
@@ -33,8 +33,8 @@ public class PlatformOneAuthenticationProvider implements AuthenticationProvider
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
         PlatformOneAuthenticationToken token = (PlatformOneAuthenticationToken) authentication;
-        Optional<UserModel> optionalUser = userService.findByKeycloakUid(token.getKeycloakUid());
-        UserModel user = optionalUser.orElseGet(() -> userService.create(token));
+        Optional<UserEntity> optionalUser = userService.findByKeycloakUid(token.getKeycloakUid());
+        UserEntity user = optionalUser.orElseGet(() -> userService.create(token));
 
         List<GrantedAuthority> authorityList = new ArrayList<>(getRoles(user));
         authorityList.add(new SimpleGrantedAuthority("IS_AUTHENTICATED"));
@@ -44,7 +44,7 @@ public class PlatformOneAuthenticationProvider implements AuthenticationProvider
         return auth;
     }
 
-    private List<GrantedAuthority> getRoles(UserModel user) {
+    private List<GrantedAuthority> getRoles(UserEntity user) {
 
         List<GrantedAuthority> authorityList = new ArrayList<>();
         Map<Roles, Boolean> rolesMap = Roles.getRoles((user.getRoles()));
