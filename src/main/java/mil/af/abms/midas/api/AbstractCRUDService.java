@@ -53,8 +53,8 @@ public abstract class AbstractCRUDService<E extends AbstractEntity<D>, D extends
 
     @Override
     @Transactional
-    public D findById(Long id) {
-        return getObject(id).toDto();
+    public E findById(Long id) {
+        return getObject(id);
     }
 
     @Override

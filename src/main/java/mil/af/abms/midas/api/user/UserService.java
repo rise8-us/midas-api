@@ -27,7 +27,7 @@ public class UserService extends AbstractCRUDService<UserEntity, UserDTO, UserRe
     }
 
     public UserEntity create(PlatformOneAuthenticationToken token) {
-        Boolean isAdmin = token.getGroups().stream().anyMatch(g -> g.contains("mixer-IL2-admin"));  //add group name in application.yml
+        Boolean isAdmin = token.getGroups().stream().anyMatch(g -> g.contains("midas-IL2-admin"));  //add group name in application.yml
         Long rolesAsLong = Roles.setRoles(0L, Map.of(Roles.ADMIN, isAdmin));
         UserEntity user = Builder.build(UserEntity.class)
                 .with(u -> u.setKeycloakUid(token.getKeycloakUid()))
@@ -38,34 +38,34 @@ public class UserService extends AbstractCRUDService<UserEntity, UserDTO, UserRe
         return repository.save(user);
     }
 
-    public UserDTO updateById(Long id, UpdateUserDTO updateUserDTO) {
+    public UserEntity updateById(Long id, UpdateUserDTO updateUserDTO) {
         UserEntity user = getObject(id);
         user.setUsername(updateUserDTO.getUsername());
         user.setEmail(updateUserDTO.getEmail());
         user.setDisplayName(updateUserDTO.getDisplayName());
 
-        return repository.save(user).toDto();
+        return repository.save(user);
     }
 
-    public UserDTO updateRolesById(Long id, UpdateUserRolesDTO updateUserRolesDTO) {
+    public UserEntity updateRolesById(Long id, UpdateUserRolesDTO updateUserRolesDTO) {
         UserEntity user = getObject(id);
         user.setRoles(updateUserRolesDTO.getRoles());
 
-        return repository.save(user).toDto();
+        return repository.save(user);
     }
 
-    public UserDTO updateIsDisabledById(Long id, UpdateUserDisabledDTO updateUserDisabledDTO) {
+    public UserEntity updateIsDisabledById(Long id, UpdateUserDisabledDTO updateUserDisabledDTO) {
         UserEntity user = getObject(id);
 
         user.setIsDisabled(updateUserDisabledDTO.isDisabled());
 
-        return repository.save(user).toDto();
+        return repository.save(user);
     }
 
-    public UserDTO findByUsername(String username) {
+    public UserEntity findByUsername(String username) {
         UserEntity user = repository.findByUsername(username).orElseThrow(
                 () -> new EntityNotFoundException(UserEntity.class.getSimpleName(), "username", username));
-        return user.toDto();
+        return user;
     }
 
     public Optional<UserEntity> findByKeycloakUid(String keycloakUid) {

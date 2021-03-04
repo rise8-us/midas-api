@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import lombok.Setter;
 
 import mil.af.abms.midas.api.helper.HttpPathVariableIdGrabber;
+import mil.af.abms.midas.api.user.UserEntity;
 import mil.af.abms.midas.api.user.UserService;
-import mil.af.abms.midas.api.user.dto.UserDTO;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 public class UniqueUsernameValidator implements ConstraintValidator<UniqueUsername, String> {
@@ -29,7 +29,7 @@ public class UniqueUsernameValidator implements ConstraintValidator<UniqueUserna
     @Override
     public boolean isValid(String username, ConstraintValidatorContext constraintContext) {
         try {
-            UserDTO existingUser = userService.findByUsername(username);
+            UserEntity existingUser = userService.findByUsername(username);
             if (isNew) {
                 return false;
             } else {

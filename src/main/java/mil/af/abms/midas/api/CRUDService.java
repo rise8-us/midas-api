@@ -13,7 +13,7 @@ public interface CRUDService<E extends AbstractEntity<D>, D extends AbstractDTO>
 
     E getObject(Long id);
 
-    D findById(Long id);
+    E findById(Long id);
 
     Page<E> search(Specification<E> specs, Integer page, Integer size, String sortBy, String orderBy);
 

@@ -31,7 +31,7 @@ public abstract class AbstractCRUDController<
 
     @Override
     public D getById(Long id) {
-        return service.findById(id);
+        return service.findById(id).toDto();
     }
 
     @Override

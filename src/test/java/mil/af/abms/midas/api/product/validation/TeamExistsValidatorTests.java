@@ -65,7 +65,7 @@ public class TeamExistsValidatorTests {
 
     @Test
     public void should_Validate_Team_Exists_True() {
-        when(teamService.findById(1L)).thenReturn(foundTeam.toDto());
+        when(teamService.findById(1L)).thenReturn(foundTeam);
 
         assertTrue(validator.isValid(1L, context));
     }

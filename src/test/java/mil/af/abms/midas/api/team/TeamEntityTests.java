@@ -9,11 +9,12 @@ import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
 
+import org.junit.jupiter.api.Test;
+
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.ProductEntity;
 import mil.af.abms.midas.api.team.dto.TeamDTO;
 import mil.af.abms.midas.api.user.UserEntity;
-import org.junit.jupiter.api.Test;
 
 public class TeamEntityTests {
 
@@ -61,9 +62,4 @@ public class TeamEntityTests {
         assertThat(team.toDto()).isEqualTo(teamDTOExpected);
     }
 
-    @Test
-    public void should_Create_User_From_User_DTO() {
-        TeamEntity expectedTeam = TeamEntity.fromDTO(teamDTOExpected);
-        assertThat(team).isEqualTo(expectedTeam);
-    }
 }

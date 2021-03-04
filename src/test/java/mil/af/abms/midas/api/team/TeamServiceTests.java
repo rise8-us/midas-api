@@ -15,10 +15,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.team.dto.CreateTeamDTO;
-import mil.af.abms.midas.api.team.dto.TeamDTO;
 import mil.af.abms.midas.api.team.dto.UpdateTeamDTO;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
@@ -28,9 +29,10 @@ public class TeamServiceTests {
 
     @Autowired
     TeamService teamService;
-
     @MockBean
     TeamRepository teamRepository;
+    @Captor
+    ArgumentCaptor<TeamEntity> teamCaptor;
 
     TeamEntity team = Builder.build(TeamEntity.class)
             .with(t -> t.setName("MIDAS"))
@@ -44,7 +46,11 @@ public class TeamServiceTests {
 
         teamService.create(createTeamDTO);
 
-        verify(teamRepository, times(1)).save(team);
+        verify(teamRepository, times(1)).save(teamCaptor.capture());
+        TeamEntity teamSaved = teamCaptor.getValue();
+
+        assertThat(teamSaved.getName()).isEqualTo(createTeamDTO.getName());
+        assertThat(teamSaved.getGitlabGroupId()).isEqualTo(createTeamDTO.getGitlabGroupId());
     }
 
     @Test
@@ -62,17 +68,18 @@ public class TeamServiceTests {
 
     @Test
     public void should_Update_Team_By_Id() {
-        UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO(team.getName(), team.getIsArchived(), team.getGitlabGroupId());
-        TeamDTO expectedDTO = team.toDto();
-        expectedDTO.setId(1L);
-
-        TeamEntity savedTeam = TeamEntity.fromDTO(expectedDTO);
+        UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("Home One", true, 22L);
 
         when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
         when(teamRepository.save(team)).thenReturn(team);
 
         teamService.updateById(1L, updateTeamDTO);
 
-        verify(teamRepository, times(1)).save(savedTeam);
+        verify(teamRepository, times(1)).save(teamCaptor.capture());
+        TeamEntity teamSaved = teamCaptor.getValue();
+
+        assertThat(teamSaved.getName()).isEqualTo(updateTeamDTO.getName());
+        assertThat(teamSaved.getGitlabGroupId()).isEqualTo(updateTeamDTO.getGitlabGroupId());
+        assertThat(teamSaved.getIsArchived()).isEqualTo(updateTeamDTO.getIsArchived());
     }
 }

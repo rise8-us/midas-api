@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.team.dto.CreateTeamDTO;
-import mil.af.abms.midas.api.team.dto.TeamDTO;
 import mil.af.abms.midas.api.team.dto.UpdateTeamDTO;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
@@ -37,7 +36,6 @@ public class TeamControllerTests extends ControllerTestHarness {
 
     private UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("MIDAS", false, 5L);
     private CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 1L);
-    private TeamDTO teamDTO = new TeamDTO(1L, "MIDAS", true, CREATION_DATE, 2L);
     private TeamEntity team = Builder.build(TeamEntity.class)
             .with(t -> t.setId(2L))
             .with(t -> t.setName("MIDAS"))
@@ -52,7 +50,7 @@ public class TeamControllerTests extends ControllerTestHarness {
     @Test
     public void should_Create_Team() throws Exception {
         when(teamService.findByName("MIDAS")).thenThrow(EntityNotFoundException.class);
-        when(teamService.create(any(CreateTeamDTO.class))).thenReturn(TeamEntity.fromDTO(teamDTO));
+        when(teamService.create(any(CreateTeamDTO.class))).thenReturn(team);
 
         mockMvc.perform(post("/api/teams")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)

@@ -74,7 +74,7 @@ public class UserControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_Get_User_By_Id() throws Exception {
-        when(userService.findById(any())).thenReturn(userDTO);
+        when(userService.findById(any())).thenReturn(user);
 
         mockMvc.perform(get("/api/users/1"))
                 .andExpect(status().isOk())
@@ -84,11 +84,10 @@ public class UserControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_Update_User() throws Exception {
-        UserDTO UserDTOUpdated = user.toDto();
-        UserDTOUpdated.setDisplayName("YoDiddy");
+       user.setDisplayName("YoDiddy");
 
-        when(userService.findByUsername(any())).thenReturn(userDTO);
-        when(userService.updateById(1L, updateUserDTO)).thenReturn(UserDTOUpdated);
+        when(userService.findByUsername(any())).thenReturn(user);
+        when(userService.updateById(1L, updateUserDTO)).thenReturn(user);
 
         mockMvc.perform(put("/api/users/1")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -102,12 +101,10 @@ public class UserControllerTests extends ControllerTestHarness {
     @Test
     public void should_Throw_Unique_Name_Exception_On_Update_User() throws Exception {
         String expectedMessage = "username already in use";
-        UserDTO UserDTOExisting = user2.toDto();
-        UserDTOExisting.setId(2L);
 
-        when(userService.findByUsername(any())).thenReturn(UserDTOExisting);
+        when(userService.findByUsername(any())).thenReturn(user);
 
-        mockMvc.perform(put("/api/users/1")
+        mockMvc.perform(put("/api/users/2")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(mapper.writeValueAsString(updateUserDTO))
         )
@@ -123,7 +120,7 @@ public class UserControllerTests extends ControllerTestHarness {
         UserDTO userDTOUpdated = user.toDto();
         userDTOUpdated.setRoles(0L);
 
-        when(userService.updateRolesById(1L, updateUserRolesDTO)).thenReturn(userDTOUpdated);
+        when(userService.updateRolesById(1L, updateUserRolesDTO)).thenReturn(user);
 
         mockMvc.perform(put("/api/users/1/admin/roles")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -138,10 +135,9 @@ public class UserControllerTests extends ControllerTestHarness {
     public void should_Toggle_User_Disabled() throws Exception {
         UpdateUserDisabledDTO updateUserDisabledDTO = Builder.build(UpdateUserDisabledDTO.class)
                 .with(p -> p.setDisabled(true)).get();
-        UserDTO userDTOUpdated = user.toDto();
-        userDTOUpdated.setIsDisabled(true);
+        user.setIsDisabled(true);
 
-        when(userService.updateIsDisabledById(1L, updateUserDisabledDTO)).thenReturn(userDTOUpdated);
+        when(userService.updateIsDisabledById(1L, updateUserDisabledDTO)).thenReturn(user);
 
         mockMvc.perform(put("/api/users/1/admin/disable")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -149,7 +145,7 @@ public class UserControllerTests extends ControllerTestHarness {
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.isDisabled").value(userDTOUpdated.getIsDisabled()));
+                .andExpect(jsonPath("$.isDisabled").value(user.getIsDisabled()));
     }
 
     @Test

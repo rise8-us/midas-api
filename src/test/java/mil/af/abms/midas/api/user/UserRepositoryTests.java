@@ -38,20 +38,6 @@ public class UserRepositoryTests {
     }
 
     @Test
-    public void should_Find_By_DodId() {
-        UserEntity testUser = Builder.build(UserEntity.class)
-                .with(u -> u.setUsername("Foo"))
-                .with(u -> u.setDodId(1L)).get();
-
-        entityManager.persist(testUser);
-        entityManager.flush();
-
-        Optional<UserEntity> foundUser = userRepository.findByDodId(testUser.getDodId());
-
-        assertThat(foundUser.orElse(new UserEntity())).isEqualTo(testUser);
-    }
-
-    @Test
     public void should_Find_By_KeycloakUId() {
         UserEntity testUser = Builder.build(UserEntity.class)
                 .with(u -> u.setUsername("foo"))

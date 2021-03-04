@@ -29,19 +29,19 @@ public class UserController extends AbstractCRUDController<UserEntity, UserDTO, 
 
     @PutMapping("/{id}")
     public UserDTO updateById(@Valid @RequestBody UpdateUserDTO updateUserDTO, @PathVariable Long id) {
-        return service.updateById(id, updateUserDTO);
+        return service.updateById(id, updateUserDTO).toDto();
     }
 
     @IsAdmin
     @PutMapping("/{id}/admin/roles")
     public UserDTO updateRolesById(@RequestBody UpdateUserRolesDTO updateUserRolesDTO, @PathVariable Long id) {
-        return service.updateRolesById(id, updateUserRolesDTO);
+        return service.updateRolesById(id, updateUserRolesDTO).toDto();
     }
 
     @IsAdmin
     @PutMapping("/{id}/admin/disable")
     public UserDTO updateIsDisabledById(@RequestBody UpdateUserDisabledDTO updateUserDisabledDTO,
                                         @PathVariable Long id) {
-        return service.updateIsDisabledById(id, updateUserDisabledDTO);
+        return service.updateIsDisabledById(id, updateUserDisabledDTO).toDto();
     }
 }

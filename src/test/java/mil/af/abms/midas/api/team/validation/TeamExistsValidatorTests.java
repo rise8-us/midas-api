@@ -24,7 +24,6 @@ import org.mockito.Mock;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.team.TeamEntity;
 import mil.af.abms.midas.api.team.TeamService;
-import mil.af.abms.midas.api.team.dto.TeamDTO;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 import mil.af.abms.midas.helpers.RequestContext;
 
@@ -33,7 +32,7 @@ import mil.af.abms.midas.helpers.RequestContext;
 public class TeamExistsValidatorTests {
 
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
-    private final TeamDTO foundTeam = Builder.build(TeamDTO.class)
+    private final TeamEntity foundTeam = Builder.build(TeamEntity.class)
             .with(t -> t.setId(1L))
             .with(t -> t.setName("foo"))           
             .with(t -> t.setCreationDate(CREATION_DATE)).get();
@@ -72,7 +71,7 @@ public class TeamExistsValidatorTests {
         RequestContext.setRequestContext("id", "2");
         validator.setNew(true);
 
-        when(teamService.findByName("foo")).thenReturn(TeamEntity.fromDTO(foundTeam));
+        when(teamService.findByName("foo")).thenReturn(foundTeam);
 
         assertFalse(validator.isValid(foundTeam.getName(), context));
     }
@@ -82,7 +81,7 @@ public class TeamExistsValidatorTests {
         RequestContext.setRequestContext("id", "1");
         validator.setNew(false);
 
-        when(teamService.findByName("foo")).thenReturn(TeamEntity.fromDTO(foundTeam));
+        when(teamService.findByName("foo")).thenReturn(foundTeam);
 
         assertTrue(validator.isValid(foundTeam.getName(), context));
     }
@@ -92,7 +91,7 @@ public class TeamExistsValidatorTests {
         RequestContext.setRequestContext("id", "2");
         validator.setNew(false);
 
-        when(teamService.findByName("foo")).thenReturn(TeamEntity.fromDTO(foundTeam));
+        when(teamService.findByName("foo")).thenReturn(foundTeam);
 
         assertFalse(validator.isValid(foundTeam.getName(), context));
     }

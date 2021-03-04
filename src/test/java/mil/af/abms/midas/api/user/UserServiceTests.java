@@ -28,6 +28,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.search.SpecificationsBuilder;
@@ -50,40 +52,44 @@ public class UserServiceTests {
             .with(u -> u.setEmail("a.b@c"))
             .with(u -> u.setDisplayName("Baby Yoda"))
             .with(u -> u.setDodId(1L))
+            .with(u -> u.setIsDisabled(false))
             .with(u -> u.setCreationDate(CREATION_DATE)).get();
     private final UserEntity expectedUser2 = Builder.build(UserEntity.class)
-            .with(u -> u.setId(1L))
+            .with(u -> u.setId(2L))
             .with(u -> u.setKeycloakUid("def-456"))
             .with(u -> u.setUsername("yoda"))
             .with(u -> u.setEmail("d.e@f"))
             .with(u -> u.setDisplayName("Yoda he is"))
             .with(u -> u.setCreationDate(CREATION_DATE))
             .with(u -> u.setDodId(1L)).get();
-    private final List<String> groups = List.of("ADMIN");
+    private final List<String> groups = List.of("midas-IL2-admin");
     private final PlatformOneAuthenticationToken token = new PlatformOneAuthenticationToken(
             "abc-123", 1L, "grogu", "a.b@c", groups);
     private final List<UserEntity> users = List.of(expectedUser, expectedUser2);
     private final Page<UserEntity> page = new PageImpl<UserEntity>(users);
+
     @Autowired
     UserService userService;
     @MockBean
     UserRepository userRepository;
 
+    @Captor
+    ArgumentCaptor<UserEntity> userCaptor;
+
     @Test
     public void should_Create_User() {
-        UserEntity tokenUser = Builder.build(UserEntity.class)
-                .with(u -> u.setKeycloakUid("abc-123"))
-                .with(u -> u.setDodId(1L))
-                .with(u -> u.setUsername("grogu"))
-                .with(u -> u.setEmail("a.b@c"))
-                .with(u -> u.setRoles(1L)).get();
-
         when(userRepository.save(any())).thenReturn(new UserEntity());
 
         userService.create(token);
 
-        verify(userRepository, times(1)).save(tokenUser);
+        verify(userRepository, times(1)).save(userCaptor.capture());
+        UserEntity userCaptured = userCaptor.getValue();
 
+        assertThat(userCaptured.getKeycloakUid()).isEqualTo(token.getKeycloakUid());
+        assertThat(userCaptured.getDodId()).isEqualTo(token.getDodId());
+        assertThat(userCaptured.getDisplayName()).isEqualTo(token.getDisplayName());
+        assertThat(userCaptured.getEmail()).isEqualTo(token.getEmail());
+        assertThat(userCaptured.getRoles()).isEqualTo(1L);
     }
 
     @Test
@@ -97,7 +103,7 @@ public class UserServiceTests {
     public void should_Get_User_By_Username() throws EntityNotFoundException {
         when(userRepository.findByUsername(any())).thenReturn(Optional.of(expectedUser));
 
-        assertThat(userService.findByUsername("foo")).isEqualTo(expectedUser.toDto());
+        assertThat(userService.findByUsername("foo")).isEqualTo(expectedUser);
     }
 
     @Test
@@ -137,60 +143,64 @@ public class UserServiceTests {
     }
 
     @Test
-    public void should_Get_User_And_Return_UserDTO() throws EntityNotFoundException {
+    public void should_Get_User_And_Return_User() throws EntityNotFoundException {
         when(userRepository.findById(any())).thenReturn(java.util.Optional.of(new UserEntity()));
 
-        assertThat(userService.findById(1L).getClass()).isEqualTo(UserDTO.class);
+        userService.findById(1L);
+
+        verify(userRepository).findById(1L);
     }
 
     @Test
     public void should_Update_User() {
         UpdateUserDTO updateDTO = Builder.build(UpdateUserDTO.class)
-                .with(u -> u.setUsername(expectedUser.getUsername()))
-                .with(u -> u.setEmail(expectedUser.getEmail()))
+                .with(u -> u.setUsername("foobar"))
+                .with(u -> u.setEmail("foo.bar@rise8.us"))
                 .with(u -> u.setDisplayName("YoDiddy")).get();
-        UserDTO expectedDTO = expectedUser.toDto();
-        expectedDTO.setDisplayName("YoDiddy");
-        UserEntity savedUser = UserEntity.fromDTO(expectedDTO);
 
-        when(userRepository.findById(any())).thenReturn(Optional.of(expectedUser));
-        when(userRepository.save(any())).thenReturn(expectedUser);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(expectedUser));
+        when(userRepository.save(any(UserEntity.class))).thenReturn(new UserEntity());
 
         userService.updateById(1L, updateDTO);
 
-        verify(userRepository, times(1)).save(savedUser);
+        verify(userRepository, times(1)).save(userCaptor.capture());
+        UserEntity userSaved = userCaptor.getValue();
+
+        assertThat(userSaved.getDisplayName()).isEqualTo(updateDTO.getDisplayName());
+        assertThat(userSaved.getUsername()).isEqualTo(updateDTO.getUsername());
+        assertThat(userSaved.getEmail()).isEqualTo(updateDTO.getEmail());
     }
 
     @Test
     public void should_Update_User_Roles_By_Id() {
         UpdateUserRolesDTO updateDTO = Builder.build(UpdateUserRolesDTO.class)
                 .with(p -> p.setRoles(0L)).get();
-        UserDTO expectedDTO = expectedUser.toDto();
-        expectedDTO.setRoles(1L);
-        UserEntity savedUser = UserEntity.fromDTO(expectedDTO);
 
-        when(userRepository.findById(any())).thenReturn(Optional.of(expectedUser));
-        when(userRepository.save(any())).thenReturn(expectedUser);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(expectedUser));
+        when(userRepository.save(expectedUser)).thenReturn(expectedUser);
 
         userService.updateRolesById(1L, updateDTO);
 
-        verify(userRepository, times(1)).save(savedUser);
+        verify(userRepository, times(1)).save(userCaptor.capture());
+        UserEntity userSaved = userCaptor.getValue();
+
+        assertThat(userSaved.getRoles()).isEqualTo(updateDTO.getRoles());
     }
 
     @Test
     public void should_Update_Is_Disabled_By_Id() {
         UpdateUserDisabledDTO updateDTO = Builder.build(UpdateUserDisabledDTO.class)
                 .with(p -> p.setDisabled(true)).get();
-        UserDTO expectedDTO = expectedUser.toDto();
-        expectedDTO.setIsDisabled(true);
-        UserEntity savedUser = UserEntity.fromDTO(expectedDTO);
 
         when(userRepository.findById(any())).thenReturn(Optional.of(expectedUser));
         when(userRepository.save(any())).thenReturn(expectedUser);
 
         userService.updateIsDisabledById(1L, updateDTO);
 
-        verify(userRepository, times(1)).save(savedUser);
+        verify(userRepository, times(1)).save(userCaptor.capture());
+        UserEntity userSaved = userCaptor.getValue();
+
+        assertThat(userSaved.getIsDisabled()).isEqualTo(updateDTO.isDisabled());
     }
 
     @Test
