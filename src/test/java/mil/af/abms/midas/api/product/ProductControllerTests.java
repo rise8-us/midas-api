@@ -23,12 +23,10 @@ import org.junit.jupiter.api.Test;
 import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
-import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductTeamDTO;
 import mil.af.abms.midas.api.team.TeamEntity;
 import mil.af.abms.midas.api.team.TeamService;
-import mil.af.abms.midas.api.team.dto.TeamDTO;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @WebMvcTest({ProductController.class})
@@ -48,15 +46,8 @@ public class ProductControllerTests extends ControllerTestHarness {
     private final static Long GITLAB_PROJECT_ID = 2L;
     private final static Long GITLAB_GROUP_ID = 3L;
 
-    private final ProductDTO productDTO = Builder.build(ProductDTO.class)
-            .with(p -> p.setName(NAME))
-            .with(p -> p.setId(ID))
-            .with(p -> p.setDescription(DESCRIPTION))
-            .with(p -> p.setIsArchived(IS_ARCHIVED))
-            .with(p -> p.setTeamId(TEAM_ID))
-            .with(p -> p.setCreationDate(CREATION_DATE))
-            .with(p -> p.setGitlabProjectId(GITLAB_PROJECT_ID)).get();
     private final UpdateProductTeamDTO updateProductTeamDTO = new UpdateProductTeamDTO(2L);
+
     private final TeamEntity team = Builder.build(TeamEntity.class)
             .with(t -> t.setId(TEAM_ID))
             .with(t -> t.setName("MIDAS_TEAM"))
@@ -79,14 +70,6 @@ public class ProductControllerTests extends ControllerTestHarness {
     @Test
     public void should_Create_Product() throws Exception {
         CreateProductDTO createProductDTO = new CreateProductDTO(NAME, DESCRIPTION, GITLAB_PROJECT_ID);
-        ProductEntity product = Builder.build(ProductEntity.class)
-                .with(p -> p.setId(ID))
-                .with(p -> p.setName(NAME))
-                .with(p -> p.setGitlabProjectId(GITLAB_PROJECT_ID))
-                .with(p -> p.setDescription(DESCRIPTION))
-                .with(p -> p.setTeam(new TeamEntity()))
-                .with(p -> p.setCreationDate(CREATION_DATE))
-                .with(p -> p.setIsArchived(IS_ARCHIVED)).get();
 
         when(productService.findByName(NAME)).thenThrow(EntityNotFoundException.class);
         when(productService.create(any(CreateProductDTO.class))).thenReturn(product);
@@ -103,14 +86,6 @@ public class ProductControllerTests extends ControllerTestHarness {
     @Test
     public void should_Update_Product() throws Exception {
         UpdateProductDTO updateProductDTO = new UpdateProductDTO(NAME, "", false, 0L);
-        ProductEntity product = Builder.build(ProductEntity.class)
-                .with(p -> p.setId(ID))
-                .with(p -> p.setName(NAME))
-                .with(p -> p.setGitlabProjectId(GITLAB_PROJECT_ID))
-                .with(p -> p.setTeam(new TeamEntity()))
-                .with(p -> p.setDescription(DESCRIPTION))
-                .with(p -> p.setCreationDate(CREATION_DATE))
-                .with(p -> p.setIsArchived(IS_ARCHIVED)).get();
 
         when(productService.findByName(NAME)).thenReturn(product);
         when(productService.updateById(anyLong(), any(UpdateProductDTO.class))).thenReturn(product);
@@ -135,8 +110,10 @@ public class ProductControllerTests extends ControllerTestHarness {
         newTeam.setId(4L);
         updatedProduct.setTeam(newTeam);
 
+        when(teamService.findById(any())).thenReturn(new TeamEntity());
         when(productService.findByName(NAME)).thenReturn(product);
         when(productService.updateProductTeamByTeamId(anyLong(), any(UpdateProductTeamDTO.class))).thenReturn(updatedProduct);
+
 
         mockMvc.perform(put("/api/products/1/team")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -161,8 +138,6 @@ public class ProductControllerTests extends ControllerTestHarness {
     @Test
     public void should_Throw_Team_Exists_Exception_On_Update_Product_Team() throws Exception {
         String expectedMessage = "team does not exists";
-        TeamDTO teamDTOExisting = team.toDto();
-        teamDTOExisting.setId(4L);
 
         when(teamService.findById(anyLong())).thenThrow(new EntityNotFoundException("Team"));
 

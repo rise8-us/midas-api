@@ -9,7 +9,5 @@ public interface UserRepository extends RepositoryInterface<UserEntity, UserDTO>
 
     Optional<UserEntity> findByUsername(String username);
 
-    Optional<UserEntity> findByDodId(Long dodId);
-
     Optional<UserEntity> findByKeycloakUid(String keycloakId);
 }

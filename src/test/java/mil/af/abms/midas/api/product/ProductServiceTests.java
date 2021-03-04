@@ -9,15 +9,15 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
@@ -38,28 +38,30 @@ public class ProductServiceTests {
     @MockBean
     ProductRepository productRepository;
 
+    @Captor
+    ArgumentCaptor<ProductEntity> productCaptor;
+
     ProductEntity product = Builder.build(ProductEntity.class)
             .with(p -> p.setName("MIDAS"))
             .with(p -> p.setId(1L)).get();
-    ProductEntity savedProduct = Builder.build(ProductEntity.class).get();
     TeamEntity team = Builder.build(TeamEntity.class)
             .with(t -> t.setId(2L))
             .with(t -> t.setName("Team")).get();
 
-    @BeforeEach
-    public void init() {
-        BeanUtils.copyProperties(product, savedProduct);
-    }
-
     @Test
     public void should_Create_Product() {
-        CreateProductDTO createProductDTO = new CreateProductDTO("MIDAS", "", 2L);
+        CreateProductDTO createProductDTO = new CreateProductDTO("MIDAS", "Product Description", 2L);
 
         when(productRepository.save(product)).thenReturn(new ProductEntity());
 
         productService.create(createProductDTO);
 
-        verify(productRepository, times(1)).save(product);
+        verify(productRepository, times(1)).save(productCaptor.capture());
+        ProductEntity productSaved = productCaptor.getValue();
+
+        assertThat(productSaved.getName()).isEqualTo(createProductDTO.getName());
+        assertThat(productSaved.getDescription()).isEqualTo(createProductDTO.getDescription());
+        assertThat(productSaved.getGitlabProjectId()).isEqualTo(createProductDTO.getGitlabProjectId());
     }
 
     @Test
@@ -78,21 +80,25 @@ public class ProductServiceTests {
     @Test
     public void should_Update_Product_By_Id() {
         UpdateProductDTO updateProductDTO = new UpdateProductDTO(
-                "MIDAS_TWO", product.getDescription(), product.getIsArchived(), product.getGitlabProjectId());
-        savedProduct.setName("MIDAS_TWO");
+                "MIDAS_TWO", "New Description", true, 22L);
 
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         when(productRepository.save(product)).thenReturn(product);
 
         productService.updateById(1L, updateProductDTO);
 
-        verify(productRepository, times(1)).save(savedProduct);
+        verify(productRepository, times(1)).save(productCaptor.capture());
+        ProductEntity productSaved = productCaptor.getValue();
+
+        assertThat(productSaved.getName()).isEqualTo(updateProductDTO.getName());
+        assertThat(productSaved.getDescription()).isEqualTo(updateProductDTO.getDescription());
+        assertThat(productSaved.getIsArchived()).isEqualTo(updateProductDTO.getIsArchived());
+        assertThat(productSaved.getGitlabProjectId()).isEqualTo(updateProductDTO.getGitlabProjectId());
     }
 
     @Test
     public void should_Update_Product_Team_By_Team_Id() {
         UpdateProductTeamDTO updateProductTeamDTO = new UpdateProductTeamDTO(2L);
-        savedProduct.setTeam(team);
 
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         when(teamService.getObject(any())).thenReturn(team);
@@ -100,6 +106,9 @@ public class ProductServiceTests {
 
         productService.updateProductTeamByTeamId(1L, updateProductTeamDTO);
 
-        verify(productRepository, times(1)).save(savedProduct);
+        verify(productRepository, times(1)).save(productCaptor.capture());
+        ProductEntity productSaved = productCaptor.getValue();
+
+        assertThat(productSaved.getTeam().getId()).isEqualTo(updateProductTeamDTO.getTeamId());
     }
 }
