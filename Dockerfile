@@ -2,6 +2,6 @@ FROM registry.il2.dso.mil/platform-one/devops/pipeline-templates/base-image/hard
 
 USER appuser
 
-COPY build/libs/mixerApi-0.0.1-SNAPSHOT.jar /app/
+COPY build/libs/midasApi-0.0.1-SNAPSHOT.jar /app/
 
-ENTRYPOINT ["java", "-jar", "/app/mixerApi-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "/app/midasApi-0.0.1-SNAPSHOT.jar"]
