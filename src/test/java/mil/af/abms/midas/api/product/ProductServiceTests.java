@@ -23,7 +23,7 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductTeamDTO;
-import mil.af.abms.midas.api.team.TeamEntity;
+import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
@@ -39,12 +39,12 @@ public class ProductServiceTests {
     ProductRepository productRepository;
 
     @Captor
-    ArgumentCaptor<ProductEntity> productCaptor;
+    ArgumentCaptor<Product> productCaptor;
 
-    ProductEntity product = Builder.build(ProductEntity.class)
+    Product product = Builder.build(Product.class)
             .with(p -> p.setName("MIDAS"))
             .with(p -> p.setId(1L)).get();
-    TeamEntity team = Builder.build(TeamEntity.class)
+    Team team = Builder.build(Team.class)
             .with(t -> t.setId(2L))
             .with(t -> t.setName("Team")).get();
 
@@ -52,12 +52,12 @@ public class ProductServiceTests {
     public void should_Create_Product() {
         CreateProductDTO createProductDTO = new CreateProductDTO("MIDAS", "Product Description", 2L);
 
-        when(productRepository.save(product)).thenReturn(new ProductEntity());
+        when(productRepository.save(product)).thenReturn(new Product());
 
         productService.create(createProductDTO);
 
         verify(productRepository, times(1)).save(productCaptor.capture());
-        ProductEntity productSaved = productCaptor.getValue();
+        Product productSaved = productCaptor.getValue();
 
         assertThat(productSaved.getName()).isEqualTo(createProductDTO.getName());
         assertThat(productSaved.getDescription()).isEqualTo(createProductDTO.getDescription());
@@ -88,7 +88,7 @@ public class ProductServiceTests {
         productService.updateById(1L, updateProductDTO);
 
         verify(productRepository, times(1)).save(productCaptor.capture());
-        ProductEntity productSaved = productCaptor.getValue();
+        Product productSaved = productCaptor.getValue();
 
         assertThat(productSaved.getName()).isEqualTo(updateProductDTO.getName());
         assertThat(productSaved.getDescription()).isEqualTo(updateProductDTO.getDescription());
@@ -107,7 +107,7 @@ public class ProductServiceTests {
         productService.updateProductTeamByTeamId(1L, updateProductTeamDTO);
 
         verify(productRepository, times(1)).save(productCaptor.capture());
-        ProductEntity productSaved = productCaptor.getValue();
+        Product productSaved = productCaptor.getValue();
 
         assertThat(productSaved.getTeam().getId()).isEqualTo(updateProductTeamDTO.getTeamId());
     }

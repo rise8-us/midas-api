@@ -9,8 +9,8 @@ import org.springframework.data.repository.query.Param;
 import mil.af.abms.midas.api.RepositoryInterface;
 import mil.af.abms.midas.api.announcement.dto.AnnouncementDTO;
 
-public interface AnnouncementRepository extends RepositoryInterface<AnnouncementEntity, AnnouncementDTO> {
+public interface AnnouncementRepository extends RepositoryInterface<Announcement, AnnouncementDTO> {
 
     @Query(value = "SELECT * FROM announcements a WHERE a.creation_date > :date", nativeQuery = true)
-    List<AnnouncementEntity> findAnnouncementsNewerThan(@Param("date") LocalDateTime date);
+    List<Announcement> findAnnouncementsNewerThan(@Param("date") LocalDateTime date);
 }

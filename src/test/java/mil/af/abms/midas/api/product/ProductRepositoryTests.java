@@ -26,15 +26,15 @@ public class ProductRepositoryTests {
     @Test
     public void should_Find_By_Name() {
 
-        ProductEntity testProduct = Builder.build(ProductEntity.class)
+        Product testProduct = Builder.build(Product.class)
                 .with(u -> u.setGitlabProjectId(1L))
                 .with(u -> u.setName("foo")).get();
 
         entityManager.persist(testProduct);
         entityManager.flush();
 
-        Optional<ProductEntity> foundProduct = productRepository.findByName(testProduct.getName());
+        Optional<Product> foundProduct = productRepository.findByName(testProduct.getName());
 
-        assertThat(foundProduct.orElse(new ProductEntity())).isEqualTo(testProduct);
+        assertThat(foundProduct.orElse(new Product())).isEqualTo(testProduct);
     }
 }

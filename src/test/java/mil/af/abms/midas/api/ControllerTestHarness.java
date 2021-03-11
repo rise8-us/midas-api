@@ -12,7 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.helper.JsonMapper;
-import mil.af.abms.midas.api.user.UserEntity;
+import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.config.auth.platform1.PlatformOneAuthenticationProvider;
 import mil.af.abms.midas.config.auth.platform1.PlatformOneSecurityConfigurerAdapter;
@@ -33,7 +33,7 @@ public abstract class ControllerTestHarness {
 
     protected ObjectMapper mapper = JsonMapper.dateMapper();
 
-    protected UserEntity authUser = Builder.build(UserEntity.class)
+    protected User authUser = Builder.build(User.class)
             .with(u -> u.setRoles(1L))
             .with(u -> u.setKeycloakUid("abc-123"))
             .with(u -> u.setUsername("grogu")).get();

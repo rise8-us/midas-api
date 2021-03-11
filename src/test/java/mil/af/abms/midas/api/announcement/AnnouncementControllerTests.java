@@ -30,7 +30,7 @@ public class AnnouncementControllerTests extends ControllerTestHarness {
     @MockBean
     private AnnouncementService announcementService;
 
-    private final AnnouncementEntity announcementEntity = Builder.build(AnnouncementEntity.class)
+    private final Announcement announcement = Builder.build(Announcement.class)
             .with(a -> a.setId(1L))
             .with(a -> a.setCreationDate(LocalDateTime.now()))
             .with(a -> a.setMessage("Test Me")).get();
@@ -45,7 +45,7 @@ public class AnnouncementControllerTests extends ControllerTestHarness {
         CreateAnnouncementDTO createAnnouncementDTO = Builder.build(CreateAnnouncementDTO.class)
                 .with(c -> c.setMessage("Test Me")).get();
 
-        when(announcementService.create(createAnnouncementDTO)).thenReturn(announcementEntity);
+        when(announcementService.create(createAnnouncementDTO)).thenReturn(announcement);
 
         mockMvc.perform(post("/api/announcements")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -71,8 +71,8 @@ public class AnnouncementControllerTests extends ControllerTestHarness {
     public void should_update_announcement_by_id() throws Exception {
         UpdateAnnouncementDTO updateAnnouncementDTO = Builder.build(UpdateAnnouncementDTO.class)
                 .with(d -> d.setMessage("Diff test")).get();
-        AnnouncementEntity expectedAnnouncement = new AnnouncementEntity();
-        BeanUtils.copyProperties(announcementEntity, expectedAnnouncement);
+        Announcement expectedAnnouncement = new Announcement();
+        BeanUtils.copyProperties(announcement, expectedAnnouncement);
         expectedAnnouncement.setMessage(updateAnnouncementDTO.getMessage());
 
         when(announcementService.update(any(), any())).thenReturn(expectedAnnouncement);

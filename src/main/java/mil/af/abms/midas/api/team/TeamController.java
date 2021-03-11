@@ -17,7 +17,7 @@ import mil.af.abms.midas.api.team.dto.UpdateTeamDTO;
 
 @RestController
 @RequestMapping("/api/teams")
-public class TeamController extends AbstractCRUDController<TeamEntity, TeamDTO, TeamService> {
+public class TeamController extends AbstractCRUDController<Team, TeamDTO, TeamService> {
 
     @Autowired
     private TeamService service;

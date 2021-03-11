@@ -14,19 +14,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.user.UserEntity;
+import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserRepository;
 
 @DataJpaTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class LongParsingStrategyTests {
 
-    private final UserEntity testUser1 = Builder.build(UserEntity.class)
+    private final User testUser1 = Builder.build(User.class)
             .with(u -> u.setKeycloakUid("abc-123"))
             .with(u -> u.setUsername("foo"))
             .with(u -> u.setEmail("a.b@c"))
             .with(u -> u.setDisplayName("Mr. Foo")).get();
-    private final UserEntity testUser2 = Builder.build(UserEntity.class)
+    private final User testUser2 = Builder.build(User.class)
             .with(u -> u.setKeycloakUid("def-456"))
             .with(u -> u.setUsername("foobar"))
             .with(u -> u.setEmail("d.e@f"))
@@ -46,8 +46,8 @@ public class LongParsingStrategyTests {
     @Test
     public void shouldSearchBySpecAndParsingStratLongGreaterThanEqualTo() {
         SearchCriteria criteria = new SearchCriteria("id", ">=", null, "1", null);
-        Specification<UserEntity> specs = new SpecificationImpl<>(criteria);
-        List<UserEntity> users = userRepository.findAll(specs);
+        Specification<User> specs = new SpecificationImpl<>(criteria);
+        List<User> users = userRepository.findAll(specs);
 
         assertThat(users.size()).isEqualTo(2);
     }
@@ -55,8 +55,8 @@ public class LongParsingStrategyTests {
     @Test
     public void shouldSearchBySpecAndParsingStratLongGreaterThan() {
         SearchCriteria criteria = new SearchCriteria("id", ">", null, "1", null);
-        Specification<UserEntity> specs = new SpecificationImpl<>(criteria);
-        List<UserEntity> users = userRepository.findAll(specs);
+        Specification<User> specs = new SpecificationImpl<>(criteria);
+        List<User> users = userRepository.findAll(specs);
 
         assertThat(users.size()).isEqualTo(1);
     }
@@ -64,8 +64,8 @@ public class LongParsingStrategyTests {
     @Test
     public void shouldSearchBySpecAndParsingStratLongLessThan() {
         SearchCriteria criteria = new SearchCriteria("id", "<", null, "2", null);
-        Specification<UserEntity> specs = new SpecificationImpl<>(criteria);
-        List<UserEntity> users = userRepository.findAll(specs);
+        Specification<User> specs = new SpecificationImpl<>(criteria);
+        List<User> users = userRepository.findAll(specs);
 
         assertThat(users.size()).isEqualTo(1);
     }
@@ -73,8 +73,8 @@ public class LongParsingStrategyTests {
     @Test
     public void shouldSearchBySpecAndParsingStratLongLessThanEqualTo() {
         SearchCriteria criteria = new SearchCriteria("id", "<=", null, "2", null);
-        Specification<UserEntity> specs = new SpecificationImpl<>(criteria);
-        List<UserEntity> users = userRepository.findAll(specs);
+        Specification<User> specs = new SpecificationImpl<>(criteria);
+        List<User> users = userRepository.findAll(specs);
 
         assertThat(users.size()).isEqualTo(2);
     }
@@ -82,8 +82,8 @@ public class LongParsingStrategyTests {
     @Test
     public void shouldSearchBySpecAndParsingStratLongEqualTo() {
         SearchCriteria criteria = new SearchCriteria("id", ":", null, "2", null);
-        Specification<UserEntity> specs = new SpecificationImpl<>(criteria);
-        List<UserEntity> users = userRepository.findAll(specs);
+        Specification<User> specs = new SpecificationImpl<>(criteria);
+        List<User> users = userRepository.findAll(specs);
 
         assertThat(users.size()).isEqualTo(1);
     }
@@ -91,8 +91,8 @@ public class LongParsingStrategyTests {
     @Test
     public void shouldSearchBySpecAndParsingStratLongNotEqualTo() {
         SearchCriteria criteria = new SearchCriteria("id", "!", null, "2", null);
-        Specification<UserEntity> specs = new SpecificationImpl<>(criteria);
-        List<UserEntity> users = userRepository.findAll(specs);
+        Specification<User> specs = new SpecificationImpl<>(criteria);
+        List<User> users = userRepository.findAll(specs);
 
         assertThat(users.size()).isEqualTo(1);
     }

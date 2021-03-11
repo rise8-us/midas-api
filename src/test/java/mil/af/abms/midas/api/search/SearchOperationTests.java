@@ -16,7 +16,6 @@ public class SearchOperationTests {
         assertThat(SearchOperation.getSimpleOperation("<")).isEqualTo(SearchOperation.LESS_THAN);
         assertThat(SearchOperation.getSimpleOperation("<=")).isEqualTo(SearchOperation.LESS_THAN_OR_EQUAL);
         assertThat(SearchOperation.getSimpleOperation("::")).isEqualTo(SearchOperation.INCLUDES);
-
     }
 
     @Test

@@ -26,28 +26,28 @@ public class UserRepositoryTests {
     @Test
     public void should_find_by_username() {
 
-        UserEntity testUser = Builder.build(UserEntity.class)
+        User testUser = Builder.build(User.class)
                 .with(u -> u.setUsername("foo")).get();
 
         entityManager.persist(testUser);
         entityManager.flush();
 
-        Optional<UserEntity> foundUser = userRepository.findByUsername(testUser.getUsername());
+        Optional<User> foundUser = userRepository.findByUsername(testUser.getUsername());
 
-        assertThat(foundUser.orElse(new UserEntity())).isEqualTo(testUser);
+        assertThat(foundUser.orElse(new User())).isEqualTo(testUser);
     }
 
     @Test
     public void should_find_by_keycloakUid() {
-        UserEntity testUser = Builder.build(UserEntity.class)
+        User testUser = Builder.build(User.class)
                 .with(u -> u.setUsername("foo"))
                 .with(u -> u.setKeycloakUid("abc-123-efg")).get();
 
         entityManager.persist(testUser);
         entityManager.flush();
 
-        Optional<UserEntity> foundUser = userRepository.findByKeycloakUid(testUser.getKeycloakUid());
+        Optional<User> foundUser = userRepository.findByKeycloakUid(testUser.getKeycloakUid());
 
-        assertThat(foundUser.orElse(new UserEntity())).isEqualTo(testUser);
+        assertThat(foundUser.orElse(new User())).isEqualTo(testUser);
     }
 }

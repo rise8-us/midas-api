@@ -5,8 +5,8 @@ import java.util.Optional;
 import mil.af.abms.midas.api.RepositoryInterface;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
 
-public interface ProductRepository extends RepositoryInterface<ProductEntity, ProductDTO> {
+public interface ProductRepository extends RepositoryInterface<Product, ProductDTO> {
 
-    Optional<ProductEntity> findByName(String name);
+    Optional<Product> findByName(String name);
 
 }

@@ -23,7 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.user.UserEntity;
+import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 import mil.af.abms.midas.helpers.RequestContext;
@@ -33,7 +33,7 @@ import mil.af.abms.midas.helpers.RequestContext;
 public class UniqueUsernameValidatorTests {
 
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
-    private final UserEntity foundUser = Builder.build(UserEntity.class)
+    private final User foundUser = Builder.build(User.class)
             .with(u -> u.setId(1L))
             .with(u -> u.setKeycloakUid("abc-123"))
             .with(u -> u.setUsername("foo"))

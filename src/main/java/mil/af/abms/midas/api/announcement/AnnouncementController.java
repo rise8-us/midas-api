@@ -18,7 +18,7 @@ import mil.af.abms.midas.api.announcement.dto.UpdateAnnouncementDTO;
 @RestController
 @RequestMapping("/api/announcements")
 public class AnnouncementController extends AbstractCRUDController<
-        AnnouncementEntity, AnnouncementDTO, AnnouncementService> {
+        Announcement, AnnouncementDTO, AnnouncementService> {
 
     @Autowired
     private AnnouncementService service;

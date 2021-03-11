@@ -32,9 +32,9 @@ public class TeamServiceTests {
     @MockBean
     TeamRepository teamRepository;
     @Captor
-    ArgumentCaptor<TeamEntity> teamCaptor;
+    ArgumentCaptor<Team> teamCaptor;
 
-    TeamEntity team = Builder.build(TeamEntity.class)
+    Team team = Builder.build(Team.class)
             .with(t -> t.setName("MIDAS"))
             .with(t -> t.setDescription("dev team"))
             .with(t -> t.setId(1L)).get();
@@ -43,12 +43,12 @@ public class TeamServiceTests {
     public void should_Create_Team() {
         CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 2L, "dev team");
 
-        when(teamRepository.save(team)).thenReturn(new TeamEntity());
+        when(teamRepository.save(team)).thenReturn(new Team());
 
         teamService.create(createTeamDTO);
 
         verify(teamRepository, times(1)).save(teamCaptor.capture());
-        TeamEntity teamSaved = teamCaptor.getValue();
+        Team teamSaved = teamCaptor.getValue();
 
         assertThat(teamSaved.getName()).isEqualTo(createTeamDTO.getName());
         assertThat(teamSaved.getGitlabGroupId()).isEqualTo(createTeamDTO.getGitlabGroupId());
@@ -78,7 +78,7 @@ public class TeamServiceTests {
         teamService.updateById(1L, updateTeamDTO);
 
         verify(teamRepository, times(1)).save(teamCaptor.capture());
-        TeamEntity teamSaved = teamCaptor.getValue();
+        Team teamSaved = teamCaptor.getValue();
 
         assertThat(teamSaved.getName()).isEqualTo(updateTeamDTO.getName());
         assertThat(teamSaved.getGitlabGroupId()).isEqualTo(updateTeamDTO.getGitlabGroupId());

@@ -15,12 +15,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import org.junit.jupiter.api.Test;
 
-import mil.af.abms.midas.api.user.UserEntity;
+import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.config.auth.platform1.PlatformOneAuthenticationToken;
 
 public class JsonMapperTests {
 
-    private final UserEntity user = Builder.build(UserEntity.class)
+    private final User user = Builder.build(User.class)
             .with(u -> u.setId(1L))
             .with(u -> u.setKeycloakUid("Hello")).get();
 

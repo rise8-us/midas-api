@@ -42,7 +42,7 @@ public class UserControllerTests extends ControllerTestHarness {
     private final static String DISPLAY_NAME = "baby yoda";
     private final static LocalDateTime CREATION_DATE = LocalDateTime.now();
 
-    private final UserEntity user = Builder.build(UserEntity.class)
+    private final User user = Builder.build(User.class)
             .with(u -> u.setUsername(USERNAME))
             .with(u -> u.setEmail(EMAIL))
             .with(u -> u.setId(1L))
@@ -51,7 +51,7 @@ public class UserControllerTests extends ControllerTestHarness {
             .with(u -> u.setDodId(1L))
             .with(u -> u.setCreationDate(CREATION_DATE))
             .with(u -> u.setRoles(0L)).get();
-    private final UserEntity user2 = Builder.build(UserEntity.class)
+    private final User user2 = Builder.build(User.class)
             .with(u -> u.setId(2L))
             .with(u -> u.setKeycloakUid("def-456"))
             .with(u -> u.setUsername("yoda"))
@@ -65,7 +65,7 @@ public class UserControllerTests extends ControllerTestHarness {
             .with(u -> u.setUsername(USERNAME))
             .with(u -> u.setEmail("a.b@c"))
             .with(u -> u.setDisplayName("YoDiddy")).get();
-    private final List<UserEntity> users = List.of(user, user2);
+    private final List<User> users = List.of(user, user2);
 
     @BeforeEach
     public void init() throws Exception {
@@ -150,8 +150,8 @@ public class UserControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_Search_Users() throws Exception {
-        Page<UserEntity> page = new PageImpl<>(users);
-        List<UserDTO> userDTOs = users.stream().map(UserEntity::toDto).collect(Collectors.toList());
+        Page<User> page = new PageImpl<>(users);
+        List<UserDTO> userDTOs = users.stream().map(User::toDto).collect(Collectors.toList());
 
         when(userService.search(any(), any(), any(), any(), any())).thenReturn(page);
         when(userService.preparePageResponse(any(), any())).thenReturn(userDTOs);
@@ -165,7 +165,7 @@ public class UserControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_Throw_EntityNotFound_When_Id_Not_Found() throws Exception {
-        EntityNotFoundException expectedError = new EntityNotFoundException(UserEntity.class.getSimpleName(), 1L);
+        EntityNotFoundException expectedError = new EntityNotFoundException(User.class.getSimpleName(), 1L);
         when(userService.findById(any())).thenThrow(expectedError);
 
         mockMvc.perform(get("/api/users/1"))

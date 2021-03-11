@@ -11,7 +11,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.jupiter.api.Test;
 
-import mil.af.abms.midas.api.user.UserEntity;
+import mil.af.abms.midas.api.user.User;
 
 public class RestQueryParserTests {
 
@@ -40,9 +40,9 @@ public class RestQueryParserTests {
     @Test
     public void shouldReturnSpecs() {
         String urlPath = "id:1 AND username:foo";
-        CriteriaParser<UserEntity> parser = new CriteriaParser<>();
-        Specification<UserEntity> expectedSpecs = new NullSpecification<UserEntity>();
-        Specification<UserEntity> specs = parser.parse(urlPath);
+        CriteriaParser<User> parser = new CriteriaParser<>();
+        Specification<User> expectedSpecs = new NullSpecification<User>();
+        Specification<User> specs = parser.parse(urlPath);
 
     }
 }

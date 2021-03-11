@@ -23,7 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.product.ProductEntity;
+import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 import mil.af.abms.midas.helpers.RequestContext;
@@ -33,7 +33,7 @@ import mil.af.abms.midas.helpers.RequestContext;
 public class UniqueNameValidatorTests {
 
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
-    private final ProductEntity foundProduct = Builder.build(ProductEntity.class)
+    private final Product foundProduct = Builder.build(Product.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setName("MIDAS"))
             .with(p -> p.setDescription("MIDAS Project"))

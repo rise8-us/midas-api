@@ -12,17 +12,17 @@ import org.springframework.beans.BeanUtils;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.product.ProductEntity;
+import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.team.dto.TeamDTO;
-import mil.af.abms.midas.api.user.UserEntity;
+import mil.af.abms.midas.api.user.User;
 
-public class TeamEntityTests {
+public class TeamTests {
 
     private static final LocalDateTime TEST_TIME = LocalDateTime.now();
 
-    private Set<UserEntity> users = Set.of(Builder.build(UserEntity.class).with(u -> u.setId(3L)).get());
-    private Set<ProductEntity> products = Set.of(Builder.build(ProductEntity.class).with(u -> u.setId(3L)).get());
-    private final TeamEntity team = Builder.build(TeamEntity.class)
+    private Set<User> users = Set.of(Builder.build(User.class).with(u -> u.setId(3L)).get());
+    private Set<Product> products = Set.of(Builder.build(Product.class).with(u -> u.setId(3L)).get());
+    private final Team team = Builder.build(Team.class)
             .with(t -> t.setId(1L))
             .with(t -> t.setName("MIDAS"))
             .with(t -> t.setIsArchived(false))
@@ -39,13 +39,13 @@ public class TeamEntityTests {
 
     @Test
     public void should_Be_Equal() {
-        TeamEntity team2 = new TeamEntity();
+        Team team2 = new Team();
         BeanUtils.copyProperties(team, team2);
 
         assertTrue(team.equals(team));
         assertFalse(team.equals(null));
-        assertFalse(team.equals(new UserEntity()));
-        assertFalse(team.equals(new TeamEntity()));
+        assertFalse(team.equals(new User()));
+        assertFalse(team.equals(new Team()));
         assertTrue(team.equals(team2));
     }
 

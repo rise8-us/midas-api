@@ -14,7 +14,7 @@ import mil.af.abms.midas.api.announcement.dto.AnnouncementDTO;
 
 @Entity @Getter @Setter
 @Table(name = "announcements")
-public class AnnouncementEntity extends AbstractEntity<AnnouncementDTO> {
+public class Announcement extends AbstractEntity<AnnouncementDTO> {
 
     @Column(columnDefinition = "TEXT")
     private String message;
@@ -33,7 +33,7 @@ public class AnnouncementEntity extends AbstractEntity<AnnouncementDTO> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AnnouncementEntity that = (AnnouncementEntity) o;
+        Announcement that = (Announcement) o;
         return this.hashCode() == that.hashCode();
     }
 }

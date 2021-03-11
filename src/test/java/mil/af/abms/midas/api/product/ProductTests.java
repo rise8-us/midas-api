@@ -12,21 +12,21 @@ import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
-import mil.af.abms.midas.api.team.TeamEntity;
+import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.team.TeamService;
-import mil.af.abms.midas.api.user.UserEntity;
+import mil.af.abms.midas.api.user.User;
 
-public class ProductModelTests {
+public class ProductTests {
 
     @MockBean
     TeamService teamService;
 
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
 
-    TeamEntity team = Builder.build(TeamEntity.class)
+    Team team = Builder.build(Team.class)
             .with(t -> t.setId(3L)).get();
 
-    ProductEntity expectedProduct = Builder.build(ProductEntity.class)
+    Product expectedProduct = Builder.build(Product.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setName("MIDAS"))
             .with(p -> p.setDescription("testDescription"))
@@ -62,11 +62,11 @@ public class ProductModelTests {
 
     @Test
     public void should_Be_Equal() {
-        ProductEntity product2 = Builder.build(ProductEntity.class)
+        Product product2 = Builder.build(Product.class)
                 .with(p -> p.setName("MIDAS")).get();
 
         assertTrue(expectedProduct.equals(expectedProduct));
-        assertFalse(expectedProduct.equals(new UserEntity()));
+        assertFalse(expectedProduct.equals(new User()));
         assertTrue(expectedProduct.equals(product2));
     }
 }

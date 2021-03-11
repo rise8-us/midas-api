@@ -13,35 +13,35 @@ import mil.af.abms.midas.api.announcement.dto.AnnouncementDTO;
 import mil.af.abms.midas.api.announcement.dto.CreateAnnouncementDTO;
 import mil.af.abms.midas.api.announcement.dto.UpdateAnnouncementDTO;
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.user.UserEntity;
+import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserRepository;
 
 @Service
-public class AnnouncementService extends AbstractCRUDService<AnnouncementEntity, AnnouncementDTO, AnnouncementRepository> {
+public class AnnouncementService extends AbstractCRUDService<Announcement, AnnouncementDTO, AnnouncementRepository> {
 
     UserRepository userRepository;
 
     @Autowired
     public AnnouncementService(AnnouncementRepository repository, UserRepository userRepository) {
-        super(repository, AnnouncementEntity.class, AnnouncementDTO.class);
+        super(repository, Announcement.class, AnnouncementDTO.class);
         this.userRepository = userRepository;
     }
 
     @Transactional
-    public AnnouncementEntity create(CreateAnnouncementDTO dto) {
-        AnnouncementEntity announcement = Builder.build(AnnouncementEntity.class)
+    public Announcement create(CreateAnnouncementDTO dto) {
+        Announcement announcement = Builder.build(Announcement.class)
                 .with(a -> a.setMessage(dto.getMessage())).get();
         return repository.save(announcement);
     }
 
-    public AnnouncementEntity update(UpdateAnnouncementDTO dto, Long id) {
-        AnnouncementEntity announcement = findById(id);
+    public Announcement update(UpdateAnnouncementDTO dto, Long id) {
+        Announcement announcement = findById(id);
         announcement.setMessage(dto.getMessage());
         announcement.setCreationDate(LocalDateTime.now());
         return repository.save(announcement);
     }
 
-    public List<AnnouncementEntity> getUnseenAnnouncements(UserEntity user) {
+    public List<Announcement> getUnseenAnnouncements(User user) {
         LocalDateTime announcementsNewThan = getAnnouncementsNoOlderThanMaxDays(user.getLastLogin(), 30L);
         user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);

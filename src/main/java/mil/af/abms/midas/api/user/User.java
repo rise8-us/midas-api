@@ -22,12 +22,12 @@ import lombok.Setter;
 import org.hibernate.annotations.NaturalId;
 
 import mil.af.abms.midas.api.AbstractEntity;
-import mil.af.abms.midas.api.team.TeamEntity;
+import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.user.dto.UserDTO;
 
 @Entity @Getter @Setter
 @Table(name = "users")
-public class UserEntity extends AbstractEntity<UserDTO> {
+public class User extends AbstractEntity<UserDTO> {
 
     @NaturalId(mutable = false)
     private String keycloakUid;
@@ -62,12 +62,12 @@ public class UserEntity extends AbstractEntity<UserDTO> {
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "team_id", referencedColumnName = "id", nullable = true)
     )
-    private Set<TeamEntity> teams = new HashSet<>();
+    private Set<Team> teams = new HashSet<>();
 
     public UserDTO toDto() {
         return new UserDTO(id, keycloakUid, username, email, displayName,
                 creationDate, dodId, isDisabled, roles, lastLogin,
-                teams.stream().map(TeamEntity::getId).collect(Collectors.toSet())
+                teams.stream().map(Team::getId).collect(Collectors.toSet())
         );
     }
 
@@ -80,7 +80,7 @@ public class UserEntity extends AbstractEntity<UserDTO> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        UserEntity that = (UserEntity) o;
+        User that = (User) o;
         return this.hashCode() == that.hashCode();
     }
 

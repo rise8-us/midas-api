@@ -36,7 +36,7 @@ public class TeamControllerTests extends ControllerTestHarness {
 
     private UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("MIDAS", false, 5L, "dev team");
     private CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 1L, "dev team");
-    private TeamEntity team = Builder.build(TeamEntity.class)
+    private Team team = Builder.build(Team.class)
             .with(t -> t.setId(2L))
             .with(t -> t.setName("MIDAS"))
             .with(t -> t.setIsArchived(false))
@@ -79,7 +79,7 @@ public class TeamControllerTests extends ControllerTestHarness {
     @Test
     public void should_Throw_Unique_Name_Validation_Error_Update_Team_By_Id() throws Exception {
         String expectedMessage = "team name already exists";
-        TeamEntity existingTeam = new TeamEntity();
+        Team existingTeam = new Team();
         BeanUtils.copyProperties(team, existingTeam);
         existingTeam.setId(3L);
 

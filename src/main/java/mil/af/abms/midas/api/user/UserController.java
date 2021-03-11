@@ -20,7 +20,7 @@ import mil.af.abms.midas.config.auth.IsAdmin;
 @CrossOrigin
 @RestController
 @RequestMapping("/api/users")
-public class UserController extends AbstractCRUDController<UserEntity, UserDTO, UserService> {
+public class UserController extends AbstractCRUDController<User, UserDTO, UserService> {
 
     @Autowired private UserService service;
     public UserController(UserService service) {
