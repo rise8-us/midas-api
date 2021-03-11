@@ -21,6 +21,7 @@ public class TeamService extends AbstractCRUDService<TeamEntity, TeamDTO, TeamRe
     public TeamEntity create(CreateTeamDTO createTeamDTO) {
         TeamEntity newTeam = Builder.build(TeamEntity.class)
                 .with(t -> t.setName(createTeamDTO.getName()))
+                .with(t -> t.setDescription(createTeamDTO.getDescription()))
                 .with(t -> t.setGitlabGroupId(createTeamDTO.getGitlabGroupId())).get();
 
         return repository.save(newTeam);
@@ -36,6 +37,7 @@ public class TeamService extends AbstractCRUDService<TeamEntity, TeamDTO, TeamRe
         foundTeam.setName(updateTeamDTO.getName());
         foundTeam.setGitlabGroupId(updateTeamDTO.getGitlabGroupId());
         foundTeam.setIsArchived(updateTeamDTO.getIsArchived());
+        foundTeam.setDescription(updateTeamDTO.getDescription());
 
         return repository.save(foundTeam);
     }

@@ -29,6 +29,7 @@ public class TeamRepositoryTests {
 
         TeamEntity testTeam = Builder.build(TeamEntity.class)
                 .with(t -> t.setGitlabGroupId(1L))
+                .with(t -> t.setDescription("dev team"))
                 .with(t -> t.setName("foo")).get();
 
         entityManager.persist(testTeam);

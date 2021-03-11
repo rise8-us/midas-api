@@ -35,8 +35,11 @@ public class TeamEntity extends AbstractEntity<TeamDTO> {
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
     private Set<ProductEntity> products = new HashSet<>();
 
-    @Column(columnDefinition = "BIGINT", nullable = false)
+    @Column(columnDefinition = "BIGINT")
     private Long gitlabGroupId;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
@@ -46,7 +49,7 @@ public class TeamEntity extends AbstractEntity<TeamDTO> {
     private Set<UserEntity> users = new HashSet<>();
 
     public TeamDTO toDto() {
-        return new TeamDTO(id, name, isArchived, creationDate, gitlabGroupId);
+        return new TeamDTO(id, name, isArchived, creationDate, gitlabGroupId, description);
     }
 
     @Override

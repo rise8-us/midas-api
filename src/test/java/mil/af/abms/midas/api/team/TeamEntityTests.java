@@ -28,11 +28,13 @@ public class TeamEntityTests {
             .with(t -> t.setIsArchived(false))
             .with(t -> t.setCreationDate(TEST_TIME))
             .with(t -> t.setProducts(products))
+            .with(t -> t.setDescription("dev team"))
             .with(t -> t.setUsers(users)).get();
     private final TeamDTO teamDTOExpected = Builder.build(TeamDTO.class)
             .with(t -> t.setId(1L))
             .with(t -> t.setName("MIDAS"))
             .with(t -> t.setIsArchived(false))
+            .with(t -> t.setDescription("dev team"))
             .with(t -> t.setCreationDate(TEST_TIME)).get();
 
     @Test
@@ -53,6 +55,7 @@ public class TeamEntityTests {
         assertThat(team.getName()).isEqualTo("MIDAS");
         assertFalse(team.getIsArchived());
         assertThat(team.getCreationDate()).isEqualTo(TEST_TIME);
+        assertThat(team.getDescription()).isEqualTo("dev team");
         assertTrue(team.getProducts().equals(products));
         assertTrue(team.getUsers().equals(users));
     }
@@ -61,5 +64,4 @@ public class TeamEntityTests {
     public void can_Return_DTO() {
         assertThat(team.toDto()).isEqualTo(teamDTOExpected);
     }
-
 }

@@ -34,12 +34,13 @@ public class TeamControllerTests extends ControllerTestHarness {
 
     private final static LocalDateTime CREATION_DATE = LocalDateTime.now();
 
-    private UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("MIDAS", false, 5L);
-    private CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 1L);
+    private UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("MIDAS", false, 5L, "dev team");
+    private CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 1L, "dev team");
     private TeamEntity team = Builder.build(TeamEntity.class)
             .with(t -> t.setId(2L))
             .with(t -> t.setName("MIDAS"))
             .with(t -> t.setIsArchived(false))
+            .with(t -> t.setDescription("design team"))
             .with(t -> t.setGitlabGroupId(5L)).get();
 
     @BeforeEach

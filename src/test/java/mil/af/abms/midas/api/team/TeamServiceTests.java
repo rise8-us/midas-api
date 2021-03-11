@@ -36,11 +36,12 @@ public class TeamServiceTests {
 
     TeamEntity team = Builder.build(TeamEntity.class)
             .with(t -> t.setName("MIDAS"))
+            .with(t -> t.setDescription("dev team"))
             .with(t -> t.setId(1L)).get();
 
     @Test
     public void should_Create_Team() {
-        CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 2L);
+        CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 2L, "dev team");
 
         when(teamRepository.save(team)).thenReturn(new TeamEntity());
 
@@ -51,6 +52,7 @@ public class TeamServiceTests {
 
         assertThat(teamSaved.getName()).isEqualTo(createTeamDTO.getName());
         assertThat(teamSaved.getGitlabGroupId()).isEqualTo(createTeamDTO.getGitlabGroupId());
+        assertThat(teamSaved.getDescription()).isEqualTo(createTeamDTO.getDescription());
     }
 
     @Test
@@ -68,7 +70,7 @@ public class TeamServiceTests {
 
     @Test
     public void should_Update_Team_By_Id() {
-        UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("Home One", true, 22L);
+        UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("Home One", true, 22L, "dev team");
 
         when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
         when(teamRepository.save(team)).thenReturn(team);
@@ -81,5 +83,6 @@ public class TeamServiceTests {
         assertThat(teamSaved.getName()).isEqualTo(updateTeamDTO.getName());
         assertThat(teamSaved.getGitlabGroupId()).isEqualTo(updateTeamDTO.getGitlabGroupId());
         assertThat(teamSaved.getIsArchived()).isEqualTo(updateTeamDTO.getIsArchived());
+        assertThat(teamSaved.getDescription()).isEqualTo(updateTeamDTO.getDescription());
     }
 }
