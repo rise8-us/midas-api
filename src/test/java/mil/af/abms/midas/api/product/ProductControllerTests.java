@@ -26,7 +26,7 @@ import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductTeamDTO;
 import mil.af.abms.midas.api.team.TeamEntity;
-import mil.af.abms.midas.api.team.TeamService;
+import mil.af.abms.midas.api.team.TeamRepository;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @WebMvcTest({ProductController.class})
@@ -35,7 +35,7 @@ public class ProductControllerTests extends ControllerTestHarness {
     @MockBean
     private ProductService productService;
     @MockBean
-    private TeamService teamService;
+    private TeamRepository teamRepository;
 
     private final static Long ID = 1L;
     private final static String NAME = "MIDAS";
@@ -68,7 +68,7 @@ public class ProductControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_Create_Product() throws Exception {
+    public void should_create_product() throws Exception {
         CreateProductDTO createProductDTO = new CreateProductDTO(NAME, DESCRIPTION, GITLAB_PROJECT_ID);
 
         when(productService.findByName(NAME)).thenThrow(EntityNotFoundException.class);
@@ -84,7 +84,7 @@ public class ProductControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_Update_Product() throws Exception {
+    public void should_update_product() throws Exception {
         UpdateProductDTO updateProductDTO = new UpdateProductDTO(NAME, "", false, 0L);
 
         when(productService.findByName(NAME)).thenReturn(product);
@@ -100,7 +100,7 @@ public class ProductControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_Update_Product_Team_By_Team_Id() throws Exception {
+    public void should_update_product_team_by_team_id() throws Exception {
         TeamEntity newTeam = new TeamEntity();
         BeanUtils.copyProperties(team, newTeam);
 
@@ -110,7 +110,7 @@ public class ProductControllerTests extends ControllerTestHarness {
         newTeam.setId(4L);
         updatedProduct.setTeam(newTeam);
 
-        when(teamService.findById(any())).thenReturn(new TeamEntity());
+        when(teamRepository.existsById(any())).thenReturn(true);
         when(productService.findByName(NAME)).thenReturn(product);
         when(productService.updateProductTeamByTeamId(anyLong(), any(UpdateProductTeamDTO.class))).thenReturn(updatedProduct);
 
@@ -125,21 +125,21 @@ public class ProductControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_Throw_Null_Error_On_Update_Product_Team_By_Team_Id() throws Exception {
+    public void should_throw_null_error_on_update_product_team_by_team_id() throws Exception {
         mockMvc.perform(put("/api/products/1/team")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(mapper.writeValueAsString(new UpdateProductTeamDTO()))
         )
                 .andExpect(status().is4xxClientError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.errors[0]").value("must not be null"));
+                .andExpect(jsonPath("$.message").value("Validation failed. 2 error(s)"));
     }
 
     @Test
-    public void should_Throw_Team_Exists_Exception_On_Update_Product_Team() throws Exception {
+    public void should_throw_team_exists_exception_on_update_product_team() throws Exception {
         String expectedMessage = "team does not exists";
 
-        when(teamService.findById(anyLong())).thenThrow(new EntityNotFoundException("Team"));
+        when(teamRepository.existsById(anyLong())).thenReturn(false);
 
         mockMvc.perform(put("/api/products/1/team")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)

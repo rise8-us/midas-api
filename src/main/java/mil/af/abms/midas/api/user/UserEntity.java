@@ -7,9 +7,16 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.NaturalId;
@@ -43,17 +50,25 @@ public class UserEntity extends AbstractEntity<UserDTO> {
     @Column(columnDefinition = "BIGINT DEFAULT 0", nullable = false)
     private Long roles = 0L;
 
+    @Column(name = "last_login")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    protected LocalDateTime lastLogin;
+
     @ManyToMany
     @JoinTable(
             name = "user_team",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "team_id", referencedColumnName = "id", nullable = true)
     )
-    private Set<TeamEntity> team = new HashSet<>();
+    private Set<TeamEntity> teams = new HashSet<>();
 
     public UserDTO toDto() {
         return new UserDTO(id, keycloakUid, username, email, displayName,
-                creationDate, dodId, isDisabled, roles);
+                creationDate, dodId, isDisabled, roles, lastLogin,
+                teams.stream().map(TeamEntity::getId).collect(Collectors.toSet())
+        );
     }
 
     @Override
@@ -68,4 +83,5 @@ public class UserEntity extends AbstractEntity<UserDTO> {
         UserEntity that = (UserEntity) o;
         return this.hashCode() == that.hashCode();
     }
+
 }

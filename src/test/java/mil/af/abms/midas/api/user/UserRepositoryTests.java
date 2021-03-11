@@ -24,7 +24,7 @@ public class UserRepositoryTests {
     UserRepository userRepository;
 
     @Test
-    public void should_Find_By_Username() {
+    public void should_find_by_username() {
 
         UserEntity testUser = Builder.build(UserEntity.class)
                 .with(u -> u.setUsername("foo")).get();
@@ -38,7 +38,7 @@ public class UserRepositoryTests {
     }
 
     @Test
-    public void should_Find_By_KeycloakUId() {
+    public void should_find_by_keycloakUid() {
         UserEntity testUser = Builder.build(UserEntity.class)
                 .with(u -> u.setUsername("foo"))
                 .with(u -> u.setKeycloakUid("abc-123-efg")).get();

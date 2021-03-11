@@ -16,7 +16,6 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
-import org.hibernate.annotations.CreationTimestamp;
 
 import mil.af.abms.midas.api.helper.JsonMapper;
 
@@ -29,7 +28,6 @@ public abstract class AbstractEntity<D extends AbstractDTO> implements Serializa
     @GeneratedValue
     protected Long id;
 
-    @CreationTimestamp
     @Column(columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP", nullable = false)
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)

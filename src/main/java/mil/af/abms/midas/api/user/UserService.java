@@ -82,4 +82,5 @@ public class UserService extends AbstractCRUDService<UserEntity, UserDTO, UserRe
                         String.valueOf(keycloakUid)
                 ));
     }
+
 }

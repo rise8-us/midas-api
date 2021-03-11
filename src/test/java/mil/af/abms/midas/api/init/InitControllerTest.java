@@ -7,6 +7,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -17,8 +19,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
+import mil.af.abms.midas.api.announcement.AnnouncementEntity;
+import mil.af.abms.midas.api.announcement.AnnouncementService;
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.user.dto.UserDTO;
 import mil.af.abms.midas.config.CustomProperty;
 
 @WebMvcTest(InitController.class)
@@ -26,6 +29,8 @@ public class InitControllerTest extends ControllerTestHarness {
 
     @MockBean
     private CustomProperty property;
+    @MockBean
+    private AnnouncementService announcementService;
 
     @BeforeEach
     public void init() {
@@ -34,7 +39,7 @@ public class InitControllerTest extends ControllerTestHarness {
     }
 
     @Test
-    public void should_Get_Public_Info() throws Exception {
+    public void should_get_public_info() throws Exception {
         String endpoint = "/init/info";
 
         when(property.getClassification()).thenReturn("UNCLASS");
@@ -47,7 +52,7 @@ public class InitControllerTest extends ControllerTestHarness {
     }
 
     @Test
-    public void should_Get_From_PublicInfo() throws Exception {
+    public void should_get_from_public_info() throws Exception {
         when(property.getClassification()).thenReturn("UNCLASS");
         when(property.getCaveat()).thenReturn("IL2");
 
@@ -64,12 +69,26 @@ public class InitControllerTest extends ControllerTestHarness {
     }
 
     @Test
-    public void login_Init_Locally() throws Exception {
-        UserDTO userDTO = Builder.build(UserDTO.class).with(u -> u.setId(1L)).get();
-
+    public void should_login_locally() throws Exception {
         mockMvc.perform(get("/init/user"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.keycloakUid").value("abc-123"));
+    }
+    
+    @Test
+    public void should_return_unseen_comments() throws Exception {
+        AnnouncementEntity announcementEntity = Builder.build(AnnouncementEntity.class)
+                .with(a -> a.setId(1L))
+                .with(a -> a.setCreationDate(LocalDateTime.now()))
+                .with(a -> a.setMessage("HELLO")).get();
+
+        when(userService.getUserFromAuth(any())).thenReturn(authUser);
+        when(announcementService.getUnseenAnnouncements(any())).thenReturn(List.of(announcementEntity));
+
+        mockMvc.perform(get("/init/announcements"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$[0].message").value("HELLO"));
     }
 }
