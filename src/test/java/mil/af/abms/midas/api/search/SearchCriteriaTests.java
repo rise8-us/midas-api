@@ -22,7 +22,6 @@ public class SearchCriteriaTests {
 
             assertThat(criteria.getOperation()).isEqualTo(SearchOperation.getSimpleOperation(op));
         }
-
     }
 
     @Test

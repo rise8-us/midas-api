@@ -23,7 +23,7 @@ import org.mockito.Captor;
 import mil.af.abms.midas.api.announcement.dto.CreateAnnouncementDTO;
 import mil.af.abms.midas.api.announcement.dto.UpdateAnnouncementDTO;
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.user.UserEntity;
+import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserRepository;
 
 @ExtendWith(SpringExtension.class)
@@ -38,20 +38,20 @@ public class AnnouncementServiceTests {
     private UserRepository userRepository;
 
     @Captor
-    private ArgumentCaptor<AnnouncementEntity> announcementCaptor;
+    private ArgumentCaptor<Announcement> announcementCaptor;
     @Captor
-    private ArgumentCaptor<UserEntity> userCaptor;
+    private ArgumentCaptor<User> userCaptor;
     @Captor
     ArgumentCaptor<LocalDateTime> dateCaptor;
 
     private static final LocalDateTime LAST_TIME_LOGGED_IN = LocalDateTime.now().minusDays(10L);
     private static final LocalDateTime NOW = LocalDateTime.now();
 
-    AnnouncementEntity oldAnnouncement = Builder.build(AnnouncementEntity.class)
+    Announcement oldAnnouncement = Builder.build(Announcement.class)
             .with(a -> a.setId(1L))
             .with(a -> a.setMessage("Test Test Test, is this thing on?"))
             .with(a -> a.setCreationDate(LocalDateTime.now().minusDays(11L))).get();
-    AnnouncementEntity newAnnouncement = Builder.build(AnnouncementEntity.class)
+    Announcement newAnnouncement = Builder.build(Announcement.class)
             .with(a -> a.setId(2L))
             .with(a -> a.setMessage("hot mic! hot mic!"))
             .with(a -> a.setCreationDate(LocalDateTime.now().minusDays(11L))).get();
@@ -61,11 +61,11 @@ public class AnnouncementServiceTests {
         CreateAnnouncementDTO createAnnouncementDTO = Builder.build(CreateAnnouncementDTO.class)
                 .with(d -> d.setMessage("This is my announcement")).get();
 
-        when(announcementRepository.save(any())).thenReturn(new AnnouncementEntity());
+        when(announcementRepository.save(any())).thenReturn(new Announcement());
         announcementService.create(createAnnouncementDTO);
         verify(announcementRepository).save(announcementCaptor.capture());
 
-        AnnouncementEntity announcementCaptured = announcementCaptor.getValue();
+        Announcement announcementCaptured = announcementCaptor.getValue();
         assertThat(announcementCaptured.getMessage()).isEqualTo(createAnnouncementDTO.getMessage());
     }
 
@@ -74,19 +74,19 @@ public class AnnouncementServiceTests {
         UpdateAnnouncementDTO updateAnnouncementDTO = Builder.build(UpdateAnnouncementDTO.class)
                 .with(d -> d.setMessage("updated announcement")).get();
 
-        when(announcementRepository.findById(any())).thenReturn(Optional.of(new AnnouncementEntity()));
-        when(announcementRepository.save(any())).thenReturn(new AnnouncementEntity());
+        when(announcementRepository.findById(any())).thenReturn(Optional.of(new Announcement()));
+        when(announcementRepository.save(any())).thenReturn(new Announcement());
         announcementService.update(updateAnnouncementDTO, 1L);
         verify(announcementRepository).save(announcementCaptor.capture());
 
-        AnnouncementEntity announcementCaptured = announcementCaptor.getValue();
+        Announcement announcementCaptured = announcementCaptor.getValue();
         assertThat(announcementCaptured.getMessage()).isEqualTo(updateAnnouncementDTO.getMessage());
     }
 
     @Test
     public void should_return_unseen_announcements() {
-        UserEntity user = Builder.build(UserEntity.class).with(u -> u.setId(1L)).get();
-        when(userRepository.save(any())).thenReturn(new UserEntity());
+        User user = Builder.build(User.class).with(u -> u.setId(1L)).get();
+        when(userRepository.save(any())).thenReturn(new User());
         when(announcementRepository.findAnnouncementsNewerThan(any())).thenReturn(List.of(newAnnouncement));
 
         announcementService.getUnseenAnnouncements(user);

@@ -25,7 +25,7 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductTeamDTO;
-import mil.af.abms.midas.api.team.TeamEntity;
+import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.team.TeamRepository;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
@@ -48,12 +48,12 @@ public class ProductControllerTests extends ControllerTestHarness {
 
     private final UpdateProductTeamDTO updateProductTeamDTO = new UpdateProductTeamDTO(2L);
 
-    private final TeamEntity team = Builder.build(TeamEntity.class)
+    private final Team team = Builder.build(Team.class)
             .with(t -> t.setId(TEAM_ID))
             .with(t -> t.setName("MIDAS_TEAM"))
             .with(t -> t.setCreationDate(CREATION_DATE))
             .with(t -> t.setGitlabGroupId(GITLAB_GROUP_ID)).get();
-    private final ProductEntity product = Builder.build(ProductEntity.class)
+    private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(ID))
             .with(p -> p.setName(NAME))
             .with(p -> p.setGitlabProjectId(GITLAB_PROJECT_ID))
@@ -101,10 +101,10 @@ public class ProductControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_update_product_team_by_team_id() throws Exception {
-        TeamEntity newTeam = new TeamEntity();
+        Team newTeam = new Team();
         BeanUtils.copyProperties(team, newTeam);
 
-        ProductEntity updatedProduct = new ProductEntity();
+        Product updatedProduct = new Product();
         BeanUtils.copyProperties(product, updatedProduct);
 
         newTeam.setId(4L);

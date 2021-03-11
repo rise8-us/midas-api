@@ -27,7 +27,7 @@ public class TeamRepositoryTests {
     @Test
     public void should_Find_By_Name() {
 
-        TeamEntity testTeam = Builder.build(TeamEntity.class)
+        Team testTeam = Builder.build(Team.class)
                 .with(t -> t.setGitlabGroupId(1L))
                 .with(t -> t.setDescription("dev team"))
                 .with(t -> t.setName("foo")).get();
@@ -35,8 +35,8 @@ public class TeamRepositoryTests {
         entityManager.persist(testTeam);
         entityManager.flush();
 
-        Optional<TeamEntity> foundTeam = teamRepository.findByName(testTeam.getName());
+        Optional<Team> foundTeam = teamRepository.findByName(testTeam.getName());
 
-        assertThat(foundTeam.orElse(new TeamEntity())).isEqualTo(testTeam);
+        assertThat(foundTeam.orElse(new Team())).isEqualTo(testTeam);
     }
 }

@@ -28,10 +28,10 @@ public class AnnouncementRepositoryTests {
 
     @Test
     public void should_find_unseen_announcements_for_user() {
-        AnnouncementEntity announcement1 = Builder.build(AnnouncementEntity.class)
+        Announcement announcement1 = Builder.build(Announcement.class)
                 .with(a -> a.setMessage("foo"))
                 .with(a -> a.setCreationDate(NOW)).get();
-        AnnouncementEntity announcement2 = Builder.build(AnnouncementEntity.class)
+        Announcement announcement2 = Builder.build(Announcement.class)
                 .with(a -> a.setMessage("foo"))
                 .with(a -> a.setCreationDate(NOW.minusDays(304L))).get();
 
@@ -39,7 +39,7 @@ public class AnnouncementRepositoryTests {
         entityManager.persist(announcement2);
         entityManager.flush();
 
-        List<AnnouncementEntity> a = announcementRepository.findAnnouncementsNewerThan(NOW.minusDays(10L));
+        List<Announcement> a = announcementRepository.findAnnouncementsNewerThan(NOW.minusDays(10L));
         assertThat(a.size()).isEqualTo(1L);
     }
 }

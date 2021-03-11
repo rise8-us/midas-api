@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
-import mil.af.abms.midas.api.announcement.AnnouncementEntity;
+import mil.af.abms.midas.api.announcement.Announcement;
 import mil.af.abms.midas.api.announcement.AnnouncementService;
 import mil.af.abms.midas.api.announcement.dto.AnnouncementDTO;
 import mil.af.abms.midas.api.init.dto.InfoDTO;
@@ -57,6 +57,6 @@ public class InitController {
     public List<AnnouncementDTO> getUnseenAnnouncement(Authentication auth) {
 
         return announcementService.getUnseenAnnouncements(userService.getUserFromAuth(auth))
-                .stream().map(AnnouncementEntity::toDto).collect(Collectors.toList());
+                .stream().map(Announcement::toDto).collect(Collectors.toList());
     }
 }

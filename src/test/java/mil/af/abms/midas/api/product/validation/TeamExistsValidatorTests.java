@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.team.TeamEntity;
+import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.team.TeamRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ import org.mockito.Mock;
 public class TeamExistsValidatorTests {
 
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
-    private final TeamEntity foundTeam = Builder.build(TeamEntity.class)
+    private final Team foundTeam = Builder.build(Team.class)
             .with(t -> t.setId(1L))
             .with(t -> t.setName("MIDAS"))
             .with(t -> t.setCreationDate(CREATION_DATE))

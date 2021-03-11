@@ -17,11 +17,11 @@ import mil.af.abms.midas.api.announcement.dto.AnnouncementDTO;
 import mil.af.abms.midas.api.helper.Builder;
 
 
-public class AnnouncementEntityTests {
+public class AnnouncementTests {
 
     private static final LocalDateTime CREATION_DATE = LocalDateTime.now();
 
-    AnnouncementEntity announcement = Builder.build(AnnouncementEntity.class)
+    Announcement announcement = Builder.build(Announcement.class)
             .with(a -> a.setId(1L))
             .with(a -> a.setCreationDate(CREATION_DATE))
             .with(a -> a.setMessage("This is an announcement")).get();
@@ -44,12 +44,12 @@ public class AnnouncementEntityTests {
 
     @Test
     public void should_be_equal() {
-        AnnouncementEntity announcement2 = Builder.build(AnnouncementEntity.class)
+        Announcement announcement2 = Builder.build(Announcement.class)
                 .with(u -> u.setMessage("This is an announcement")).get();
 
         assertTrue(announcement.equals(announcement));
         assertFalse(announcement.equals(null));
-        assertFalse(announcement.equals(new AnnouncementEntity()));
+        assertFalse(announcement.equals(new Announcement()));
         assertTrue(announcement.equals(announcement2));
     }
 

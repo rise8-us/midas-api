@@ -45,7 +45,7 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 public class UserServiceTests {
 
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
-    private final UserEntity expectedUser = Builder.build(UserEntity.class)
+    private final User expectedUser = Builder.build(User.class)
             .with(u -> u.setId(1L))
             .with(u -> u.setKeycloakUid("abc-123"))
             .with(u -> u.setUsername("grogu"))
@@ -54,7 +54,7 @@ public class UserServiceTests {
             .with(u -> u.setDodId(1L))
             .with(u -> u.setIsDisabled(false))
             .with(u -> u.setCreationDate(CREATION_DATE)).get();
-    private final UserEntity expectedUser2 = Builder.build(UserEntity.class)
+    private final User expectedUser2 = Builder.build(User.class)
             .with(u -> u.setId(2L))
             .with(u -> u.setKeycloakUid("def-456"))
             .with(u -> u.setUsername("yoda"))
@@ -65,8 +65,8 @@ public class UserServiceTests {
     private final List<String> groups = List.of("midas-IL2-admin");
     private final PlatformOneAuthenticationToken token = new PlatformOneAuthenticationToken(
             "abc-123", 1L, "grogu", "a.b@c", groups);
-    private final List<UserEntity> users = List.of(expectedUser, expectedUser2);
-    private final Page<UserEntity> page = new PageImpl<UserEntity>(users);
+    private final List<User> users = List.of(expectedUser, expectedUser2);
+    private final Page<User> page = new PageImpl<User>(users);
 
     @Autowired
     UserService userService;
@@ -74,16 +74,16 @@ public class UserServiceTests {
     UserRepository userRepository;
 
     @Captor
-    ArgumentCaptor<UserEntity> userCaptor;
+    ArgumentCaptor<User> userCaptor;
 
     @Test
     public void should_Create_User() {
-        when(userRepository.save(any())).thenReturn(new UserEntity());
+        when(userRepository.save(any())).thenReturn(new User());
 
         userService.create(token);
 
         verify(userRepository, times(1)).save(userCaptor.capture());
-        UserEntity userCaptured = userCaptor.getValue();
+        User userCaptured = userCaptor.getValue();
 
         assertThat(userCaptured.getKeycloakUid()).isEqualTo(token.getKeycloakUid());
         assertThat(userCaptured.getDodId()).isEqualTo(token.getDodId());
@@ -144,7 +144,7 @@ public class UserServiceTests {
 
     @Test
     public void should_Get_User_And_Return_User() throws EntityNotFoundException {
-        when(userRepository.findById(any())).thenReturn(java.util.Optional.of(new UserEntity()));
+        when(userRepository.findById(any())).thenReturn(java.util.Optional.of(new User()));
 
         userService.findById(1L);
 
@@ -159,12 +159,12 @@ public class UserServiceTests {
                 .with(u -> u.setDisplayName("YoDiddy")).get();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(expectedUser));
-        when(userRepository.save(any(UserEntity.class))).thenReturn(new UserEntity());
+        when(userRepository.save(any(User.class))).thenReturn(new User());
 
         userService.updateById(1L, updateDTO);
 
         verify(userRepository, times(1)).save(userCaptor.capture());
-        UserEntity userSaved = userCaptor.getValue();
+        User userSaved = userCaptor.getValue();
 
         assertThat(userSaved.getDisplayName()).isEqualTo(updateDTO.getDisplayName());
         assertThat(userSaved.getUsername()).isEqualTo(updateDTO.getUsername());
@@ -182,7 +182,7 @@ public class UserServiceTests {
         userService.updateRolesById(1L, updateDTO);
 
         verify(userRepository, times(1)).save(userCaptor.capture());
-        UserEntity userSaved = userCaptor.getValue();
+        User userSaved = userCaptor.getValue();
 
         assertThat(userSaved.getRoles()).isEqualTo(updateDTO.getRoles());
     }
@@ -198,7 +198,7 @@ public class UserServiceTests {
         userService.updateIsDisabledById(1L, updateDTO);
 
         verify(userRepository, times(1)).save(userCaptor.capture());
-        UserEntity userSaved = userCaptor.getValue();
+        User userSaved = userCaptor.getValue();
 
         assertThat(userSaved.getIsDisabled()).isEqualTo(updateDTO.isDisabled());
     }
@@ -207,13 +207,13 @@ public class UserServiceTests {
     public void should_Prepare_Paged_Response() {
         List<UserDTO> results = userService.preparePageResponse(page, new MockHttpServletResponse());
 
-        assertThat(results).isEqualTo(users.stream().map(UserEntity::toDto).collect(Collectors.toList()));
+        assertThat(results).isEqualTo(users.stream().map(User::toDto).collect(Collectors.toList()));
     }
 
     @Test
     public void should_Retrieve_All_Users() {
-        SpecificationsBuilder<UserEntity> builder = new SpecificationsBuilder<>();
-        Specification<UserEntity> specs = builder.withSearch("id:1").build();
+        SpecificationsBuilder<User> builder = new SpecificationsBuilder<>();
+        Specification<User> specs = builder.withSearch("id:1").build();
 
         when(userRepository.findAll(eq(specs), any(PageRequest.class))).thenReturn(page);
 

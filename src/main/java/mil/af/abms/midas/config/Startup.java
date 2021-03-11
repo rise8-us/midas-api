@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mil.af.abms.midas.api.user.UserEntity;
+import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserRepository;
 import mil.af.abms.midas.api.user.UserService;
 
@@ -28,7 +28,7 @@ public class Startup {
     public void init() {
         LOG.info("ENVIRONMENT: " + property.getEnvironment());
         if (!property.getEnvironment().equalsIgnoreCase("local")) {
-            UserEntity rootUser = userService.getObject(1L);
+            User rootUser = userService.getObject(1L);
 
             if (Boolean.FALSE.equals(rootUser.getIsDisabled())) {
                 LOG.info("DISABLING ROOT USER");

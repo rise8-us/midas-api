@@ -14,14 +14,14 @@ import org.springframework.util.ReflectionUtils;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.team.TeamEntity;
+import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.user.dto.UserDTO;
 
-public class UserEntityTests {
+public class UserTests {
 
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
 
-    private final UserEntity expectedUser = Builder.build(UserEntity.class)
+    private final User expectedUser = Builder.build(User.class)
             .with(u -> u.setId(1L))
             .with(u -> u.setKeycloakUid("abc-123"))
             .with(u -> u.setUsername("grogu"))
@@ -37,7 +37,7 @@ public class UserEntityTests {
     @Test
     public void should_have_all_UserDTO_fields() {
         List<Field> fields = new LinkedList<>();
-        ReflectionUtils.doWithFields(UserEntity.class, fields::add);
+        ReflectionUtils.doWithFields(User.class, fields::add);
 
         assertThat(fields.size()).isEqualTo(UserDTO.class.getDeclaredFields().length);
     }
@@ -63,12 +63,12 @@ public class UserEntityTests {
 
     @Test
     public void should_Be_Equal() {
-        UserEntity user2 = Builder.build(UserEntity.class)
+        User user2 = Builder.build(User.class)
                 .with(u -> u.setKeycloakUid("abc-123")).get();
 
         assertTrue(expectedUser.equals(expectedUser));
         assertFalse(expectedUser.equals(null));
-        assertFalse(expectedUser.equals(new TeamEntity()));
+        assertFalse(expectedUser.equals(new Team()));
         assertTrue(expectedUser.equals(user2));
     }
 }

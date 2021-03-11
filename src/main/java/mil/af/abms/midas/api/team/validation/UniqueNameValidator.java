@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import lombok.Setter;
 
 import mil.af.abms.midas.api.helper.HttpPathVariableIdGrabber;
-import mil.af.abms.midas.api.team.TeamEntity;
+import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
@@ -28,7 +28,7 @@ public class UniqueNameValidator implements ConstraintValidator<UniqueName, Stri
     @Override
     public boolean isValid(String name, ConstraintValidatorContext constraintContext) {
         try {
-            TeamEntity existingTeam = teamService.findByName(name);
+            Team existingTeam = teamService.findByName(name);
             if (isNew) {
                 return false;
             } else {

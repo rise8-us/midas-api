@@ -14,11 +14,11 @@ import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
-import mil.af.abms.midas.api.team.TeamEntity;
+import mil.af.abms.midas.api.team.Team;
 
 @Entity @Getter @Setter
 @Table(name = "products")
-public class ProductEntity extends AbstractEntity<ProductDTO> {
+public class Product extends AbstractEntity<ProductDTO> {
 
     @Column(columnDefinition = "VARCHAR(70)", nullable = false, unique = true)
     private String name;
@@ -31,7 +31,7 @@ public class ProductEntity extends AbstractEntity<ProductDTO> {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
-    private TeamEntity team;
+    private Team team;
 
     @Column(columnDefinition = "BIGINT", nullable = false)
     private Long gitlabProjectId;
@@ -49,7 +49,7 @@ public class ProductEntity extends AbstractEntity<ProductDTO> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ProductEntity that = (ProductEntity) o;
+        Product that = (Product) o;
         return this.hashCode() == that.hashCode();
     }
 }

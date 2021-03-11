@@ -19,7 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
-import mil.af.abms.midas.api.announcement.AnnouncementEntity;
+import mil.af.abms.midas.api.announcement.Announcement;
 import mil.af.abms.midas.api.announcement.AnnouncementService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.config.CustomProperty;
@@ -78,7 +78,7 @@ public class InitControllerTest extends ControllerTestHarness {
     
     @Test
     public void should_return_unseen_comments() throws Exception {
-        AnnouncementEntity announcementEntity = Builder.build(AnnouncementEntity.class)
+        Announcement announcementEntity = Builder.build(Announcement.class)
                 .with(a -> a.setId(1L))
                 .with(a -> a.setCreationDate(LocalDateTime.now()))
                 .with(a -> a.setMessage("HELLO")).get();
