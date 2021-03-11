@@ -11,4 +11,5 @@ public class CreateTeamDTO {
     @UniqueName(isNew = true)
     String name;
     Long gitlabGroupId;
+    String description;
 }

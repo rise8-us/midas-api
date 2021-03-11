@@ -18,4 +18,5 @@ public class TeamDTO implements AbstractDTO {
     private Boolean isArchived;
     private LocalDateTime creationDate;
     private Long GitlabGroupId;
+    private String description;
 }
