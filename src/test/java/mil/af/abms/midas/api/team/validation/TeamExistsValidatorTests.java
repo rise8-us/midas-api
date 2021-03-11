@@ -13,34 +13,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.web.context.request.RequestContextHolder;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 
-import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.team.TeamEntity;
-import mil.af.abms.midas.api.team.TeamService;
-import mil.af.abms.midas.exception.EntityNotFoundException;
-import mil.af.abms.midas.helpers.RequestContext;
+import mil.af.abms.midas.api.product.validation.TeamExistsValidator;
+import mil.af.abms.midas.api.team.TeamRepository;
 
 @ExtendWith(SpringExtension.class)
-@Import({UniqueNameValidator.class})
+@Import({TeamExistsValidator.class})
 public class TeamExistsValidatorTests {
 
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
-    private final TeamEntity foundTeam = Builder.build(TeamEntity.class)
-            .with(t -> t.setId(1L))
-            .with(t -> t.setName("foo"))           
-            .with(t -> t.setCreationDate(CREATION_DATE)).get();
-            
+
     @Autowired
-    UniqueNameValidator validator;
+    TeamExistsValidator validator;
     @MockBean
-    private TeamService teamService;
+    private TeamRepository teamRepository;
     @Mock
     private ConstraintValidatorContext context;
     @Mock
@@ -51,52 +42,17 @@ public class TeamExistsValidatorTests {
         when(context.buildConstraintViolationWithTemplate(anyString())).thenReturn(builder);
     }
 
-    @AfterEach
-    public void tearDown() {
-        clearRequestContext();
+    @Test
+    public void should_validate_team_exists_true() {
+        when(teamRepository.existsById(1L)).thenReturn(true);
+
+        assertTrue(validator.isValid(1L, context));
     }
 
     @Test
-    public void should_Validate_New_Team_True() {
-        RequestContext.setRequestContext("id", "1");
-        validator.setNew(true);
+    public void should_validate_team_exists_false() {
+        when(teamRepository.existsById(10L)).thenReturn(false);
 
-        when(teamService.findByName("foo")).thenThrow(new EntityNotFoundException("Team"));
-
-        assertTrue(validator.isValid(foundTeam.getName(), context));
-    }
-
-    @Test
-    public void should_Validate_New_Team_False() {
-        RequestContext.setRequestContext("id", "2");
-        validator.setNew(true);
-
-        when(teamService.findByName("foo")).thenReturn(foundTeam);
-
-        assertFalse(validator.isValid(foundTeam.getName(), context));
-    }
-
-    @Test
-    public void should_Validate_Update_Team_True() {
-        RequestContext.setRequestContext("id", "1");
-        validator.setNew(false);
-
-        when(teamService.findByName("foo")).thenReturn(foundTeam);
-
-        assertTrue(validator.isValid(foundTeam.getName(), context));
-    }
-
-    @Test
-    public void should_Validate_Update_Team_False() {
-        RequestContext.setRequestContext("id", "2");
-        validator.setNew(false);
-
-        when(teamService.findByName("foo")).thenReturn(foundTeam);
-
-        assertFalse(validator.isValid(foundTeam.getName(), context));
-    }
-
-    private void clearRequestContext() {
-        RequestContextHolder.resetRequestAttributes();
+        assertFalse(validator.isValid(1L, context));
     }
 }

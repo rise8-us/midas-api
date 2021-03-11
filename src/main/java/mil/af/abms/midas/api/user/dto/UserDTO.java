@@ -1,6 +1,7 @@
 package mil.af.abms.midas.api.user.dto;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,4 +22,6 @@ public class UserDTO implements AbstractDTO {
     private Long dodId;
     private Boolean isDisabled;
     private Long roles;
+    private LocalDateTime lastLogin;
+    private Set<Long> teamIds;
 }

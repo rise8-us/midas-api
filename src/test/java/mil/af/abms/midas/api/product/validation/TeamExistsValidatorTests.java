@@ -13,18 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.web.context.request.RequestContextHolder;
 
-import org.junit.jupiter.api.AfterEach;
+import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.team.TeamEntity;
+import mil.af.abms.midas.api.team.TeamRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-
-import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.team.TeamEntity;
-import mil.af.abms.midas.api.team.TeamService;
-import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @ExtendWith(SpringExtension.class)
 @Import({TeamExistsValidator.class})
@@ -40,7 +36,7 @@ public class TeamExistsValidatorTests {
     @Autowired
     TeamExistsValidator validator;
     @MockBean
-    private TeamService teamService;
+    private TeamRepository teamRepository;
     @Mock
     private ConstraintValidatorContext context;
     @Mock
@@ -51,26 +47,17 @@ public class TeamExistsValidatorTests {
         when(context.buildConstraintViolationWithTemplate(anyString())).thenReturn(builder);
     }
 
-    @AfterEach
-    public void tearDown() {
-        clearRequestContext();
-    }
-
     @Test
     public void should_Validate_Team_Exists_False() {
-        when(teamService.findById(3L)).thenThrow(new EntityNotFoundException("Team"));
+        when(teamRepository.existsById(3L)).thenReturn(false);
 
         assertFalse(validator.isValid(3L, context));
     }
 
     @Test
     public void should_Validate_Team_Exists_True() {
-        when(teamService.findById(1L)).thenReturn(foundTeam);
+        when(teamRepository.existsById(1L)).thenReturn(true);
 
         assertTrue(validator.isValid(1L, context));
-    }
-
-    private void clearRequestContext() {
-        RequestContextHolder.resetRequestAttributes();
     }
 }

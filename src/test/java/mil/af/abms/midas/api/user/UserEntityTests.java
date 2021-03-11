@@ -4,7 +4,12 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.springframework.util.ReflectionUtils;
 
 import org.junit.jupiter.api.Test;
 
@@ -28,6 +33,14 @@ public class UserEntityTests {
             .with(u -> u.setIsDisabled(false)).get();
 
     private final UserDTO userDTO = expectedUser.toDto();
+
+    @Test
+    public void should_have_all_UserDTO_fields() {
+        List<Field> fields = new LinkedList<>();
+        ReflectionUtils.doWithFields(UserEntity.class, fields::add);
+
+        assertThat(fields.size()).isEqualTo(UserDTO.class.getDeclaredFields().length);
+    }
 
     @Test
     public void should_Set_And_Get_Properties() {
