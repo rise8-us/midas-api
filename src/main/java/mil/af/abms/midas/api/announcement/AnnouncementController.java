@@ -21,8 +21,6 @@ public class AnnouncementController extends AbstractCRUDController<
         Announcement, AnnouncementDTO, AnnouncementService> {
 
     @Autowired
-    private AnnouncementService service;
-
     public AnnouncementController(AnnouncementService service) { super(service); }
 
     @PostMapping

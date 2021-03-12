@@ -1,5 +1,7 @@
 package mil.af.abms.midas.api.user;
 
+import javax.transaction.Transactional;
+
 import java.util.Map;
 import java.util.Optional;
 
@@ -26,6 +28,7 @@ public class UserService extends AbstractCRUDService<User, UserDTO, UserReposito
         super(repository, User.class, UserDTO.class);
     }
 
+    @Transactional
     public User create(PlatformOneAuthenticationToken token) {
         Boolean isAdmin = token.getGroups().stream().anyMatch(g -> g.contains("midas-IL2-admin"));  //add group name in application.yml
         Long rolesAsLong = Roles.setRoles(0L, Map.of(Roles.ADMIN, isAdmin));
@@ -38,6 +41,7 @@ public class UserService extends AbstractCRUDService<User, UserDTO, UserReposito
         return repository.save(user);
     }
 
+    @Transactional
     public User updateById(Long id, UpdateUserDTO updateUserDTO) {
         User user = getObject(id);
         user.setUsername(updateUserDTO.getUsername());
@@ -47,6 +51,7 @@ public class UserService extends AbstractCRUDService<User, UserDTO, UserReposito
         return repository.save(user);
     }
 
+    @Transactional
     public User updateRolesById(Long id, UpdateUserRolesDTO updateUserRolesDTO) {
         User user = getObject(id);
         user.setRoles(updateUserRolesDTO.getRoles());
@@ -54,6 +59,7 @@ public class UserService extends AbstractCRUDService<User, UserDTO, UserReposito
         return repository.save(user);
     }
 
+    @Transactional
     public User updateIsDisabledById(Long id, UpdateUserDisabledDTO updateUserDisabledDTO) {
         User user = getObject(id);
 
@@ -62,16 +68,18 @@ public class UserService extends AbstractCRUDService<User, UserDTO, UserReposito
         return repository.save(user);
     }
 
+    @Transactional
     public User findByUsername(String username) {
-        User user = repository.findByUsername(username).orElseThrow(
+        return repository.findByUsername(username).orElseThrow(
                 () -> new EntityNotFoundException(User.class.getSimpleName(), "username", username));
-        return user;
     }
 
+    @Transactional
     public Optional<User> findByKeycloakUid(String keycloakUid) {
         return repository.findByKeycloakUid(keycloakUid);
     }
 
+    @Transactional
     public User getUserFromAuth(Authentication auth) {
         String keycloakUid = JsonMapper.getKeycloakUidFromAuth(auth);
 

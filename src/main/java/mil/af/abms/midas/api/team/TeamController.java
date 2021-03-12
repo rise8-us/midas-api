@@ -20,7 +20,6 @@ import mil.af.abms.midas.api.team.dto.UpdateTeamDTO;
 public class TeamController extends AbstractCRUDController<Team, TeamDTO, TeamService> {
 
     @Autowired
-    private TeamService service;
     public TeamController(TeamService service) {
         super(service);
     }

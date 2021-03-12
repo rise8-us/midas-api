@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import mil.af.abms.midas.config.Startup;
 
 @SpringBootTest
-class mixerApiTests {
+class MidasApiTests {
 
     @MockBean
     Startup startup;

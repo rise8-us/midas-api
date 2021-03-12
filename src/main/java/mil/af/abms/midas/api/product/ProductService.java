@@ -1,5 +1,7 @@
 package mil.af.abms.midas.api.product;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         this.teamService = teamService;
     }
 
+    @Transactional
     public Product create(CreateProductDTO createProductDTO) {
         Product newProduct = Builder.build(Product.class)
                 .with(p -> p.setName(createProductDTO.getName()))
@@ -33,11 +36,13 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         return repository.save(newProduct);
     }
 
+    @Transactional
     public Product findByName(String name) {
         return repository.findByName(name).orElseThrow(
                 () -> new EntityNotFoundException(Product.class.getSimpleName(), "name", name));
     }
 
+    @Transactional
     public Product updateById(Long id, UpdateProductDTO updateProductDTO) {
         Product foundProduct = getObject(id);
         foundProduct.setName(updateProductDTO.getName());
@@ -48,6 +53,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         return repository.save(foundProduct);
     }
 
+    @Transactional
     public Product updateProductTeamByTeamId(Long id, UpdateProductTeamDTO updateProductTeamDTO) {
         Product foundProduct = getObject(id);
         Team team = teamService.getObject(updateProductTeamDTO.getTeamId());

@@ -34,6 +34,7 @@ public class AnnouncementService extends AbstractCRUDService<Announcement, Annou
         return repository.save(announcement);
     }
 
+    @Transactional
     public Announcement update(UpdateAnnouncementDTO dto, Long id) {
         Announcement announcement = findById(id);
         announcement.setMessage(dto.getMessage());
@@ -41,6 +42,7 @@ public class AnnouncementService extends AbstractCRUDService<Announcement, Annou
         return repository.save(announcement);
     }
 
+    @Transactional
     public List<Announcement> getUnseenAnnouncements(User user) {
         LocalDateTime announcementsNewThan = getAnnouncementsNoOlderThanMaxDays(user.getLastLogin(), 30L);
         user.setLastLogin(LocalDateTime.now());
@@ -48,6 +50,7 @@ public class AnnouncementService extends AbstractCRUDService<Announcement, Annou
         return repository.findAnnouncementsNewerThan(announcementsNewThan);
     }
 
+    @Transactional
     private LocalDateTime getAnnouncementsNoOlderThanMaxDays(LocalDateTime date, Long maxDaysPast) {
         LocalDateTime now = LocalDateTime.now();
         return date != null && date.isAfter(now.minusDays(maxDaysPast)) ? date : now.minusDays(maxDaysPast);

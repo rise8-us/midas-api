@@ -23,7 +23,6 @@ public abstract class AbstractCRUDService<E extends AbstractEntity<D>, D extends
 
     protected final Class<D> dtoClass;
 
-
     @Autowired
     public AbstractCRUDService(R repository, Class<E> entityClass, Class<D> dtoClass) {
         this.repository = repository;

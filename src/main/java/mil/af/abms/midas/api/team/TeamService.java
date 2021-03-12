@@ -1,5 +1,7 @@
 package mil.af.abms.midas.api.team;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,7 @@ public class TeamService extends AbstractCRUDService<Team, TeamDTO, TeamReposito
         super(repository, Team.class, TeamDTO.class);
     }
 
+    @Transactional
     public Team create(CreateTeamDTO createTeamDTO) {
         Team newTeam = Builder.build(Team.class)
                 .with(t -> t.setName(createTeamDTO.getName()))
@@ -27,11 +30,13 @@ public class TeamService extends AbstractCRUDService<Team, TeamDTO, TeamReposito
         return repository.save(newTeam);
     }
 
+    @Transactional
     public Team findByName(String name) {
         return repository.findByName(name).orElseThrow(
                 () -> new EntityNotFoundException(Team.class.getSimpleName(), "name", name));
     }
 
+    @Transactional
     public Team updateById(Long id, UpdateTeamDTO updateTeamDTO) {
         Team foundTeam = getObject(id);
         foundTeam.setName(updateTeamDTO.getName());

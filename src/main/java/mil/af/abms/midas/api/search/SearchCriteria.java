@@ -25,7 +25,7 @@ public class SearchCriteria {
         this.value = value;
     }
 
-    private SearchOperation searchOperationHandler(SearchOperation op, Boolean startsWithAsterisk, Boolean endsWithAsterisk) {
+    private SearchOperation searchOperationHandler(SearchOperation op, boolean startsWithAsterisk, boolean endsWithAsterisk) {
         if (op == SearchOperation.EQUALS && startsWithAsterisk && endsWithAsterisk) {
             op = SearchOperation.CONTAINS;
         } else if (op == SearchOperation.EQUALS && startsWithAsterisk) {

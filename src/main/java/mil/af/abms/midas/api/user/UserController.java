@@ -22,7 +22,7 @@ import mil.af.abms.midas.config.auth.IsAdmin;
 @RequestMapping("/api/users")
 public class UserController extends AbstractCRUDController<User, UserDTO, UserService> {
 
-    @Autowired private UserService service;
+    @Autowired
     public UserController(UserService service) {
         super(service);
     }
