@@ -17,12 +17,14 @@ public class CustomProperty {
     private final String mattermostToken;
     private final String mattermostUrl;
     private final String environment;
+    private final String jwtAdminGroup;
 
     public CustomProperty(
             @DefaultValue("0.0.0") String version,
             @DefaultValue("UNCLASS") String classification,
             @DefaultValue("IL2") String caveat,
             @DefaultValue("other") String environment,
+            @DefaultValue("midas-IL2-admin") String jwtAdminGroup,
             String mattermostToken,
             String mattermostUrl
     ) {
@@ -32,6 +34,7 @@ public class CustomProperty {
         this.mattermostToken = mattermostToken;
         this.mattermostUrl = mattermostUrl;
         this.environment = environment;
+        this.jwtAdminGroup = jwtAdminGroup;
     }
 
 }

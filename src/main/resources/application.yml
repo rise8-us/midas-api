@@ -5,7 +5,8 @@ custom:
   caveat: ${CAVEAT:IL2}
   mattermosttoken: testToken
   mattermosturl: http://mattermost.foo
-  localKeycloakUid: "keycloak-sub-123"
+  localKeycloakUid: keycloak-sub-123
+  jwtAdminGroup: ${ADMIN_GROUP:midas-IL2-admin}
 
 server:
   port: 8000

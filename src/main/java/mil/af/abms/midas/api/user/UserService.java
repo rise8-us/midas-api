@@ -16,6 +16,7 @@ import mil.af.abms.midas.api.user.dto.UpdateUserDTO;
 import mil.af.abms.midas.api.user.dto.UpdateUserDisabledDTO;
 import mil.af.abms.midas.api.user.dto.UpdateUserRolesDTO;
 import mil.af.abms.midas.api.user.dto.UserDTO;
+import mil.af.abms.midas.config.CustomProperty;
 import mil.af.abms.midas.config.auth.platform1.PlatformOneAuthenticationToken;
 import mil.af.abms.midas.enums.Roles;
 import mil.af.abms.midas.exception.EntityNotFoundException;
@@ -23,14 +24,17 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 @Service
 public class UserService extends AbstractCRUDService<User, UserDTO, UserRepository> {
 
+    private final CustomProperty property;
+
     @Autowired
-    public UserService(UserRepository repository) {
+    public UserService(UserRepository repository, CustomProperty property) {
         super(repository, User.class, UserDTO.class);
+        this.property = property;
     }
 
     @Transactional
     public User create(PlatformOneAuthenticationToken token) {
-        Boolean isAdmin = token.getGroups().stream().anyMatch(g -> g.contains("midas-IL2-admin"));  //add group name in application.yml
+        Boolean isAdmin = token.getGroups().stream().anyMatch(g -> g.contains(property.getJwtAdminGroup()));
         Long rolesAsLong = Roles.setRoles(0L, Map.of(Roles.ADMIN, isAdmin));
         User user = Builder.build(User.class)
                 .with(u -> u.setKeycloakUid(token.getKeycloakUid()))
