@@ -37,12 +37,23 @@ import mil.af.abms.midas.api.user.dto.UpdateUserDTO;
 import mil.af.abms.midas.api.user.dto.UpdateUserDisabledDTO;
 import mil.af.abms.midas.api.user.dto.UpdateUserRolesDTO;
 import mil.af.abms.midas.api.user.dto.UserDTO;
+import mil.af.abms.midas.config.CustomProperty;
 import mil.af.abms.midas.config.auth.platform1.PlatformOneAuthenticationToken;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @ExtendWith(SpringExtension.class)
 @Import(UserService.class)
 public class UserServiceTests {
+
+    @Autowired
+    UserService userService;
+    @MockBean
+    UserRepository userRepository;
+    @MockBean
+    CustomProperty property;
+
+    @Captor
+    ArgumentCaptor<User> userCaptor;
 
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
     private final User expectedUser = Builder.build(User.class)
@@ -68,16 +79,9 @@ public class UserServiceTests {
     private final List<User> users = List.of(expectedUser, expectedUser2);
     private final Page<User> page = new PageImpl<User>(users);
 
-    @Autowired
-    UserService userService;
-    @MockBean
-    UserRepository userRepository;
-
-    @Captor
-    ArgumentCaptor<User> userCaptor;
-
     @Test
     public void should_Create_User() {
+        when(property.getJwtAdminGroup()).thenReturn("midas-IL2-admin");
         when(userRepository.save(any())).thenReturn(new User());
 
         userService.create(token);
