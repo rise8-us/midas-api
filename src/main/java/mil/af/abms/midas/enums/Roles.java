@@ -23,16 +23,12 @@ public enum Roles {
 
     public static Map<Roles, Boolean> getRoles(long rolesLong) {
         Map<Roles, Boolean> rolesMap = new EnumMap<>(Roles.class);
-
-        Roles.stream().forEach(p -> {
-            rolesMap.put(p, (rolesLong & p.getBitValue()) > 0);
-        });
+        Roles.stream().forEach(p -> rolesMap.put(p, (rolesLong & p.getBitValue()) > 0));
         return rolesMap;
     }
 
     public static Long setRoles(Long currentLong, Map<Roles, Boolean> updatedRolesMap) {
         Map<Roles, Boolean> currentRolesMap = getRoles(currentLong);
-
         updatedRolesMap.forEach(currentRolesMap::replace);
         return Roles.stream().filter(currentRolesMap::get).mapToLong(Roles::getBitValue).sum();
     }

@@ -20,7 +20,7 @@ import mil.af.abms.midas.api.product.dto.UpdateProductTeamDTO;
 @RequestMapping("/api/products")
 public class ProductController extends AbstractCRUDController<Product, ProductDTO, ProductService> {
 
-    @Autowired private ProductService service;
+    @Autowired
     public ProductController(ProductService service) { super(service); }
 
     @PostMapping

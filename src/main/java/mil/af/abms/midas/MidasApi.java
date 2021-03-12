@@ -8,10 +8,10 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 @SpringBootApplication
 @ConfigurationPropertiesScan
-public class mixerApi {
+public class MidasApi {
 
     public static void main(String[] args) {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-        SpringApplication.run(mixerApi.class, args);
+        SpringApplication.run(MidasApi.class, args);
     }
 }
