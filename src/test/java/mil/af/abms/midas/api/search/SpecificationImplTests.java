@@ -45,7 +45,7 @@ public class SpecificationImplTests {
     }
 
     @Test
-    public void shouldUseNullParseStrategy() {
+    public void should_use_null_parse_strategy() {
         SearchCriteria criteria = new SearchCriteria("creationDate", ":", null, LocalDateTime.now().toString(), null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);

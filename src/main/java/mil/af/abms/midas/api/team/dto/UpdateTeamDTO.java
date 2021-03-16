@@ -12,7 +12,6 @@ public class UpdateTeamDTO {
     @ApiModelProperty(notes = "name must be unique")
     @UniqueName(isNew = false)
     private String name;
-    private Boolean isArchived;
     private Long gitlabGroupId;
     private String description;
 }

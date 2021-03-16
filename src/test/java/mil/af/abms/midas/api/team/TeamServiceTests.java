@@ -2,6 +2,7 @@ package mil.af.abms.midas.api.team;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,6 +22,7 @@ import org.mockito.Captor;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.team.dto.CreateTeamDTO;
 import mil.af.abms.midas.api.team.dto.UpdateTeamDTO;
+import mil.af.abms.midas.api.team.dto.UpdateTeamIsArchivedDTO;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @ExtendWith(SpringExtension.class)
@@ -40,7 +42,7 @@ public class TeamServiceTests {
             .with(t -> t.setId(1L)).get();
 
     @Test
-    public void should_Create_Team() {
+    public void should_create_team() {
         CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 2L, "dev team");
 
         when(teamRepository.save(team)).thenReturn(new Team());
@@ -56,21 +58,21 @@ public class TeamServiceTests {
     }
 
     @Test
-    public void should_Find_By_Name() throws EntityNotFoundException {
+    public void should_find_by_name() throws EntityNotFoundException {
         when(teamRepository.findByName("MIDAS")).thenReturn(Optional.of(team));
 
         assertThat(teamService.findByName("MIDAS")).isEqualTo(team);
     }
 
     @Test
-    public void should_Throw_Error_Find_By_Name() throws EntityNotFoundException {
+    public void should_throw_error_find_by_name() throws EntityNotFoundException {
         assertThrows(EntityNotFoundException.class, () ->
                 teamService.findByName("MIDAS"));
     }
 
     @Test
-    public void should_Update_Team_By_Id() {
-        UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("Home One", true, 22L, "dev team");
+    public void should_update_team_by_id() {
+        UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("Home One", 22L, "dev team");
 
         when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
         when(teamRepository.save(team)).thenReturn(team);
@@ -82,7 +84,22 @@ public class TeamServiceTests {
 
         assertThat(teamSaved.getName()).isEqualTo(updateTeamDTO.getName());
         assertThat(teamSaved.getGitlabGroupId()).isEqualTo(updateTeamDTO.getGitlabGroupId());
-        assertThat(teamSaved.getIsArchived()).isEqualTo(updateTeamDTO.getIsArchived());
         assertThat(teamSaved.getDescription()).isEqualTo(updateTeamDTO.getDescription());
+    }
+
+    @Test
+    public void should_update_is_archived_by_id() {
+        UpdateTeamIsArchivedDTO updateDTO = Builder.build(UpdateTeamIsArchivedDTO.class)
+                .with(d -> d.setIsArchived(true)).get();
+
+        when(teamRepository.findById(any())).thenReturn(Optional.of(team));
+        when(teamRepository.save(any())).thenReturn(team);
+
+        teamService.updateIsArchivedById(1L, updateDTO);
+
+        verify(teamRepository, times(1)).save(teamCaptor.capture());
+        Team teamSaved = teamCaptor.getValue();
+
+        assertThat(teamSaved.getIsArchived()).isEqualTo(updateDTO.getIsArchived());
     }
 }

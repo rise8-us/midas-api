@@ -61,7 +61,7 @@ public class UniqueNameValidatorTests {
     }
 
     @Test
-    public void should_Validate_New_Product_True() {
+    public void should_validate_new_product_true() {
         RequestContext.setRequestContext("id", "1");
         validator.setNew(true);
 
@@ -71,7 +71,7 @@ public class UniqueNameValidatorTests {
     }
 
     @Test
-    public void should_Validate_New_Product_False() {
+    public void should_validate_new_product_false() {
         RequestContext.setRequestContext("id", "2");
         validator.setNew(true);
 
@@ -81,7 +81,7 @@ public class UniqueNameValidatorTests {
     }
 
     @Test
-    public void should_Validate_Update_Product_True() {
+    public void should_validate_update_product_true() {
         RequestContext.setRequestContext("id", "1");
         validator.setNew(false);
 
@@ -91,7 +91,7 @@ public class UniqueNameValidatorTests {
     }
 
     @Test
-    public void should_Validate_Update_Product_False() {
+    public void should_validate_update_product_false() {
         RequestContext.setRequestContext("id", "2");
         validator.setNew(false);
 

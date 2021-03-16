@@ -16,7 +16,7 @@ public class RolesTest {
     }
 
     @Test
-    public void canGetPermissionByLong() {
+    public void can_get_permission_by_long() {
         Map<Roles, Boolean> rolesMap = new HashMap<Roles, Boolean>();
         rolesMap.put(Roles.ADMIN, true);
         rolesMap.put(Roles.PLACEHOLDER, false);
@@ -25,7 +25,7 @@ public class RolesTest {
     }
 
     @Test
-    public void canUpdatePermissionMap() {
+    public void can_update_permission_map() {
         Map<Roles, Boolean> rolesMap = new HashMap<Roles, Boolean>();
         rolesMap.put(Roles.ADMIN, true);
 
@@ -33,7 +33,7 @@ public class RolesTest {
     }
 
     @Test
-    public void shouldReturnExpectedEnumAdmin() {
+    public void should_return_expected_enum_admin() {
         assertThat(Roles.ADMIN.getOffset()).isEqualTo(0);
         assertThat(Roles.ADMIN.getName()).isEqualTo("ADMIN");
         assertThat(Roles.ADMIN.getDescription()).isEqualTo("Can update or add anything");
@@ -41,7 +41,7 @@ public class RolesTest {
     }
 
     @Test
-    public void shouldReturnExpectedEnumAdd() {
+    public void should_return_expected_enum_add() {
         assertThat(Roles.PLACEHOLDER.getOffset()).isEqualTo(1);
         assertThat(Roles.PLACEHOLDER.getName()).isEqualTo("PLACEHOLDER");
         assertThat(Roles.PLACEHOLDER.getDescription()).isEqualTo("Placeholder role");

@@ -44,7 +44,7 @@ public class StringParsingStrategyTests {
     }
 
     @Test
-    public void shouldSearchBySpecAndParsingStratStringEqualTo() {
+    public void should_search_by_spec_and_parsing_strat_string_equalTo() {
         SearchCriteria criteria = new SearchCriteria("username", ":", null, "foo", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -53,7 +53,7 @@ public class StringParsingStrategyTests {
     }
 
     @Test
-    public void shouldSearchBySpecAndParsingStratStringNotEqualTo() {
+    public void should_search_by_spec_and_parsing_strat_string_not_equalTo() {
         SearchCriteria criteria = new SearchCriteria("username", "!", null, "foobar", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -62,7 +62,7 @@ public class StringParsingStrategyTests {
     }
 
     @Test
-    public void shouldSearchBySpecAndParsingStratStringGreaterThan() {
+    public void should_search_by_spec_and_parsing_strat_string_greater_than() {
         SearchCriteria criteria = new SearchCriteria("username", ">", null, "fooba", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -72,7 +72,7 @@ public class StringParsingStrategyTests {
     }
 
     @Test
-    public void shouldSearchBySpecAndParsingStratStringLessThan() {
+    public void should_search_by_spec_and_parsing_strat_string_less_than() {
         SearchCriteria criteria = new SearchCriteria("username", "<", null, "foobar", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -82,7 +82,7 @@ public class StringParsingStrategyTests {
     }
 
     @Test
-    public void shouldSearchBySpecAndParsingStratStringStartsWith() {
+    public void should_search_by_spec_and_parsing_strat_string_starts_with() {
         SearchCriteria criteria = new SearchCriteria("username", ":", null, "foo", "*");
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -91,7 +91,7 @@ public class StringParsingStrategyTests {
     }
 
     @Test
-    public void shouldSearchBySpecAndParsingStratStringEndsWith() {
+    public void should_search_by_spec_and_parsing_strat_string_ends_with() {
         SearchCriteria criteria = new SearchCriteria("username", ":", "*", "bar", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -101,7 +101,7 @@ public class StringParsingStrategyTests {
     }
 
     @Test
-    public void shouldSearchBySpecAndParsingStratStringContains() {
+    public void should_search_by_spec_and_parsing_strat_string_contains() {
         SearchCriteria criteria = new SearchCriteria("username", ":", "*", "oo", "*");
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -110,7 +110,7 @@ public class StringParsingStrategyTests {
     }
 
     @Test
-    public void shouldSearchBySpecAndParsingStratStringDoesNotStartsWith() {
+    public void should_search_by_spec_and_parsing_strat_string_does_not_starts_with() {
         SearchCriteria criteria = new SearchCriteria("username", "!", null, "foo", "*");
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -119,7 +119,7 @@ public class StringParsingStrategyTests {
     }
 
     @Test
-    public void shouldSearchBySpecAndParsingStratStringDoesNotEndsWith() {
+    public void should_search_by_spec_and_parsing_strat_string_does_not_ends_with() {
         SearchCriteria criteria = new SearchCriteria("username", "!", "*", "bar", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -129,7 +129,7 @@ public class StringParsingStrategyTests {
     }
 
     @Test
-    public void shouldSearchBySpecAndParsingStratStringDoesNotContain() {
+    public void should_search_by_spec_and_parsing_strat_string_does_not_contain() {
         SearchCriteria criteria = new SearchCriteria("username", "!", "*", "oo", "*");
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);

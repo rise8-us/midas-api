@@ -38,7 +38,7 @@ public class TeamTests {
             .with(t -> t.setCreationDate(TEST_TIME)).get();
 
     @Test
-    public void should_Be_Equal() {
+    public void should_be_equal() {
         Team team2 = new Team();
         BeanUtils.copyProperties(team, team2);
 
@@ -50,7 +50,7 @@ public class TeamTests {
     }
 
     @Test
-    public void should_Get_Properties() {
+    public void should_get_properties() {
         assertThat(team.getId()).isEqualTo(1L);
         assertThat(team.getName()).isEqualTo("MIDAS");
         assertFalse(team.getIsArchived());
@@ -61,7 +61,7 @@ public class TeamTests {
     }
 
     @Test
-    public void can_Return_DTO() {
+    public void can_return_dto() {
         assertThat(team.toDto()).isEqualTo(teamDTOExpected);
     }
 }

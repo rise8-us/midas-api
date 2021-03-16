@@ -25,7 +25,7 @@ public class TeamRepositoryTests {
     TeamRepository teamRepository;
 
     @Test
-    public void should_Find_By_Name() {
+    public void should_find_by_name() {
 
         Team testTeam = Builder.build(Team.class)
                 .with(t -> t.setGitlabGroupId(1L))

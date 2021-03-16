@@ -14,6 +14,8 @@ import mil.af.abms.midas.api.AbstractCRUDController;
 import mil.af.abms.midas.api.team.dto.CreateTeamDTO;
 import mil.af.abms.midas.api.team.dto.TeamDTO;
 import mil.af.abms.midas.api.team.dto.UpdateTeamDTO;
+import mil.af.abms.midas.api.team.dto.UpdateTeamIsArchivedDTO;
+import mil.af.abms.midas.config.auth.IsAdmin;
 
 @RestController
 @RequestMapping("/api/teams")
@@ -32,5 +34,12 @@ public class TeamController extends AbstractCRUDController<Team, TeamDTO, TeamSe
     @PutMapping("/{id}")
     public TeamDTO updateById(@Valid @RequestBody UpdateTeamDTO updateTeamDTO, @PathVariable Long id) {
         return service.updateById(id, updateTeamDTO).toDto();
+    }
+
+    @IsAdmin
+    @PutMapping("/{id}/admin/archive")
+    public TeamDTO updateIsArchivedById(@RequestBody UpdateTeamIsArchivedDTO updateTeamIsArchivedDTO,
+        @PathVariable Long id) {
+        return service.updateIsArchivedById(id, updateTeamIsArchivedDTO).toDto();
     }
 }

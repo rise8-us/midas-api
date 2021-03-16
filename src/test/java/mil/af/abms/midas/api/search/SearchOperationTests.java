@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 public class SearchOperationTests {
 
     @Test
-    public void shouldConvertOperationToEnum() {
+    public void should_convert_operation_to_enum() {
 
         assertThat(SearchOperation.getSimpleOperation(":")).isEqualTo(SearchOperation.EQUALS);
         assertThat(SearchOperation.getSimpleOperation("!")).isEqualTo(SearchOperation.NOT_EQUALS);
@@ -19,7 +19,7 @@ public class SearchOperationTests {
     }
 
     @Test
-    public void shouldGetSimpleOperators() {
+    public void should_get_simple_operators() {
         assertThat(SearchOperation.getSIMPLE_OPERATION_SET().length).isEqualTo(7);
     }
 }

@@ -35,7 +35,7 @@ public class UserTests {
     private final UserDTO userDTO = expectedUser.toDto();
 
     @Test
-    public void should_have_all_UserDTO_fields() {
+    public void should_have_all_userDTO_fields() {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(User.class, fields::add);
 
@@ -43,7 +43,7 @@ public class UserTests {
     }
 
     @Test
-    public void should_Set_And_Get_Properties() {
+    public void should_set_and_get_properties() {
 
         assertThat(expectedUser.getId()).isEqualTo(1L);
         assertThat(expectedUser.getKeycloakUid()).isEqualTo("abc-123");
@@ -57,12 +57,12 @@ public class UserTests {
     }
 
     @Test
-    public void canReturnDTO() {
+    public void can_return_dto() {
         assertThat(expectedUser.toDto()).isEqualTo(userDTO);
     }
 
     @Test
-    public void should_Be_Equal() {
+    public void should_be_equal() {
         User user2 = Builder.build(User.class)
                 .with(u -> u.setKeycloakUid("abc-123")).get();
 

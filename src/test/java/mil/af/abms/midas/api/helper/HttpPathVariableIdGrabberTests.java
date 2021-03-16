@@ -17,7 +17,7 @@ import mil.af.abms.midas.helpers.RequestContext;
 public class HttpPathVariableIdGrabberTests {
 
     @Test
-    public void shouldThrowErrorIfPrivateConstructorIsCalled() throws Exception {
+    public void should_throw_error_if_private_constructor_is_called() throws Exception {
         Class<?> clazz = HttpPathVariableIdGrabber.class;
         Constructor<?> constructor = clazz.getDeclaredConstructors()[0];
         constructor.setAccessible(true);
@@ -26,7 +26,7 @@ public class HttpPathVariableIdGrabberTests {
     }
 
     @Test
-    public void shouldReturnPathId() {
+    public void should_return_path_id() {
         RequestContext.setRequestContext("id", "1");
         assertThat(HttpPathVariableIdGrabber.getPathId()).isEqualTo(1L);
 

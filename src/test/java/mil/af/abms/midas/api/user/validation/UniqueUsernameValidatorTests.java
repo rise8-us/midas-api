@@ -61,7 +61,7 @@ public class UniqueUsernameValidatorTests {
     }
 
     @Test
-    public void shouldValidateNewUserTrue() {
+    public void should_validate_new_user_true() {
         RequestContext.setRequestContext("id", "1");
         validator.setNew(true);
 
@@ -71,7 +71,7 @@ public class UniqueUsernameValidatorTests {
     }
 
     @Test
-    public void shouldValidateNewUserFalse() {
+    public void should_validate_new_user_false() {
         RequestContext.setRequestContext("id", "2");
         validator.setNew(true);
 
@@ -81,7 +81,7 @@ public class UniqueUsernameValidatorTests {
     }
 
     @Test
-    public void shouldValidateUpdateUserTrue() {
+    public void should_validate_update_user_true() {
         RequestContext.setRequestContext("id", "1");
         validator.setNew(false);
 
@@ -91,7 +91,7 @@ public class UniqueUsernameValidatorTests {
     }
 
     @Test
-    public void shouldValidateUpdateUserFalse() {
+    public void should_validate_update_user_false() {
         RequestContext.setRequestContext("id", "2");
         validator.setNew(false);
 

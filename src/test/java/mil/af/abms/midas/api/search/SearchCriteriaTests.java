@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 public class SearchCriteriaTests {
 
     @Test
-    public void shouldGetFields() {
+    public void should_get_fields() {
         SearchCriteria criteria = new SearchCriteria("user.username", ":", null, "yoda", null);
 
         assertThat(criteria.getKey()).isEqualTo("user.username");
@@ -16,7 +16,7 @@ public class SearchCriteriaTests {
     }
 
     @Test
-    public void shouldOperationToEnum() {
+    public void should_operation_to_enum() {
         for (String op : SearchOperation.getSIMPLE_OPERATION_SET()) {
             SearchCriteria criteria = new SearchCriteria("user", op, null, "yoda", null);
 
@@ -25,7 +25,7 @@ public class SearchCriteriaTests {
     }
 
     @Test
-    public void shouldHandleOperationEqualsPrefixSuffix() {
+    public void should_handle_operation_equals_prefix_suffix() {
         SearchCriteria criteriaStartWith = new SearchCriteria("user", ":", "*", "yoda", null);
         SearchCriteria criteriaContains = new SearchCriteria("user", ":", "*", "yoda", "*");
         SearchCriteria criteriaEndsWith = new SearchCriteria("user", ":", null, "yoda", "*");
@@ -36,7 +36,7 @@ public class SearchCriteriaTests {
     }
 
     @Test
-    public void shouldHandleOperationNotEqualsPrefixSuffix() {
+    public void should_handle_operation_not_equals_prefix_suffix() {
         SearchCriteria criteriaStartWith = new SearchCriteria("user", "!", "*", "yoda", null);
         SearchCriteria criteriaContains = new SearchCriteria("user", "!", "*", "yoda", "*");
         SearchCriteria criteriaEndsWith = new SearchCriteria("user", "!", null, "yoda", "*");
