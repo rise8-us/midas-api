@@ -17,9 +17,9 @@ import springfox.documentation.spring.web.plugins.Docket;
 @Import(BeanValidatorPluginsConfiguration.class)
 public class SwaggerConfig {
     @Bean
-    public Docket userApi() {
+    public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .groupName("user")
+                .groupName("APIs")
                 .select()
                 .apis(RequestHandlerSelectors.any())
                 .paths(PathSelectors.ant("/api/**"))
@@ -51,9 +51,9 @@ public class SwaggerConfig {
 
     private ApiInfo getApiInfo() {
         return new ApiInfoBuilder()
-                .title("Template for building a Spring Rest Api")
+                .title("MIDAS")
                 .version("1.0.0")
-                .description("Configured for PlatformOne with some bells and whistles")
+                .description("Swagger ui for running in dev")
                 .contact(new Contact("Jeffrey Wills", "https://rise8.us", "jwills@rise8.us"))
                 .build();
     }
