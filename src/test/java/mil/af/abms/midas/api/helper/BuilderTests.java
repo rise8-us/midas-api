@@ -9,7 +9,7 @@ import mil.af.abms.midas.api.user.User;
 public class BuilderTests {
 
     @Test
-    public void shouldBuildClassObject() {
+    public void should_build_class_object() {
 
         User user = Builder.build(User.class)
                 .with(u -> u.setUsername("Foo")).get();

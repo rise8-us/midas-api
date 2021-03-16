@@ -44,7 +44,7 @@ public class LongParsingStrategyTests {
     }
 
     @Test
-    public void shouldSearchBySpecAndParsingStratLongGreaterThanEqualTo() {
+    public void should_search_by_spec_and_parsing_strat_long_greater_than_equalTo() {
         SearchCriteria criteria = new SearchCriteria("id", ">=", null, "1", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -53,7 +53,7 @@ public class LongParsingStrategyTests {
     }
 
     @Test
-    public void shouldSearchBySpecAndParsingStratLongGreaterThan() {
+    public void should_search_by_spec_and_parsing_strat_long_greater_than() {
         SearchCriteria criteria = new SearchCriteria("id", ">", null, "1", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -62,7 +62,7 @@ public class LongParsingStrategyTests {
     }
 
     @Test
-    public void shouldSearchBySpecAndParsingStratLongLessThan() {
+    public void should_search_by_spec_and_parsing_strat_long_less_than() {
         SearchCriteria criteria = new SearchCriteria("id", "<", null, "2", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -71,7 +71,7 @@ public class LongParsingStrategyTests {
     }
 
     @Test
-    public void shouldSearchBySpecAndParsingStratLongLessThanEqualTo() {
+    public void should_search_by_spec_and_parsing_strat_long_less_than_equalTo() {
         SearchCriteria criteria = new SearchCriteria("id", "<=", null, "2", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -80,7 +80,7 @@ public class LongParsingStrategyTests {
     }
 
     @Test
-    public void shouldSearchBySpecAndParsingStratLongEqualTo() {
+    public void should_search_by_spec_and_parsing_strat_long_equalTo() {
         SearchCriteria criteria = new SearchCriteria("id", ":", null, "2", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -89,7 +89,7 @@ public class LongParsingStrategyTests {
     }
 
     @Test
-    public void shouldSearchBySpecAndParsingStratLongNotEqualTo() {
+    public void should_search_by_spec_and_parsing_strat_long_not_equalTo() {
         SearchCriteria criteria = new SearchCriteria("id", "!", null, "2", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);

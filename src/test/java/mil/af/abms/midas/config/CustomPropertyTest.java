@@ -21,7 +21,7 @@ public class CustomPropertyTest {
     CustomProperty property;
 
     @Test
-    public void shouldReturnApplicationYmlValue() {
+    public void should_return_application_yml_value() {
         assertThat(property.getVersion()).isEqualTo("0.0.1");
         assertThat(property.getClassification()).isEqualTo("UNCLASS");
         assertThat(property.getCaveat()).isEqualTo("IL2");

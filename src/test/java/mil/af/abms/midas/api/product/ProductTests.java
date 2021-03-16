@@ -45,7 +45,7 @@ public class ProductTests {
             .with(p -> p.setCreationDate(CREATION_DATE)).get();
 
     @Test
-    public void should_Set_And_Get_Properties() {
+    public void should_set_and_get_properties() {
         assertThat(expectedProduct.getId()).isEqualTo(1L);
         assertThat(expectedProduct.getName()).isEqualTo("MIDAS");
         assertThat(expectedProduct.getTeam()).isEqualTo(team);
@@ -56,12 +56,12 @@ public class ProductTests {
     }
 
     @Test
-    public void can_Return_DTO() {
+    public void can_return_dto() {
         assertThat(expectedProduct.toDto()).isEqualTo(expectedProductDTO);
     }
 
     @Test
-    public void should_Be_Equal() {
+    public void should_be_equal() {
         Product product2 = Builder.build(Product.class)
                 .with(p -> p.setName("MIDAS")).get();
 

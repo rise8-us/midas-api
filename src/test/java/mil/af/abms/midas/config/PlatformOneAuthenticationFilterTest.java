@@ -21,7 +21,7 @@ public class PlatformOneAuthenticationFilterTest {
     PlatformOneAuthenticationFilter filter = new PlatformOneAuthenticationFilter();
 
     @Test
-    public void shouldGetBearerFromRequestAndNotThrow() throws Exception {
+    public void should_get_bearer_from_request_and_not_throw() throws Exception {
         var request = new MockHttpServletRequest();
         var response = new MockHttpServletResponse();
         var filterChain = new MockFilterChain();
@@ -33,7 +33,7 @@ public class PlatformOneAuthenticationFilterTest {
     }
 
     @Test
-    public void shouldThrowWhenNoKeycloakSub() throws Exception {
+    public void should_throw_when_no_keycloak_sub() throws Exception {
         var request = new MockHttpServletRequest();
         var response = new MockHttpServletResponse();
         var filterChain = new MockFilterChain();
@@ -43,7 +43,7 @@ public class PlatformOneAuthenticationFilterTest {
     }
 
     @Test
-    public void shouldThrowWhenBearerEmpty() throws Exception {
+    public void should_throw_when_bearer_empty() throws Exception {
         var request = new MockHttpServletRequest();
         var response = new MockHttpServletResponse();
         var filterChain = new MockFilterChain();
@@ -55,7 +55,7 @@ public class PlatformOneAuthenticationFilterTest {
     }
 
     @Test
-    public void shouldThrowWhenBearerJWTInvalid() throws Exception {
+    public void should_throw_when_bearer_jwt_invalid() throws Exception {
         var request = new MockHttpServletRequest();
         var response = new MockHttpServletResponse();
         var filterChain = new MockFilterChain();

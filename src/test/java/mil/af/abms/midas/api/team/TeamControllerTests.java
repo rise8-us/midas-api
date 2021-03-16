@@ -24,6 +24,7 @@ import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.team.dto.CreateTeamDTO;
 import mil.af.abms.midas.api.team.dto.UpdateTeamDTO;
+import mil.af.abms.midas.api.team.dto.UpdateTeamIsArchivedDTO;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @WebMvcTest({TeamController.class})
@@ -34,7 +35,7 @@ public class TeamControllerTests extends ControllerTestHarness {
 
     private final static LocalDateTime CREATION_DATE = LocalDateTime.now();
 
-    private UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("MIDAS", false, 5L, "dev team");
+    private UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("MIDAS",5L, "dev team");
     private CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 1L, "dev team");
     private Team team = Builder.build(Team.class)
             .with(t -> t.setId(2L))
@@ -49,7 +50,7 @@ public class TeamControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_Create_Team() throws Exception {
+    public void should_create_team() throws Exception {
         when(teamService.findByName("MIDAS")).thenThrow(EntityNotFoundException.class);
         when(teamService.create(any(CreateTeamDTO.class))).thenReturn(team);
 
@@ -63,7 +64,7 @@ public class TeamControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_Update_Team_By_Id() throws Exception {
+    public void should_update_team_by_id() throws Exception {
         when(teamService.findByName(updateTeamDTO.getName())).thenReturn(team);
         when(teamService.updateById(anyLong(), any(UpdateTeamDTO.class))).thenReturn(team);
 
@@ -77,7 +78,7 @@ public class TeamControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_Throw_Unique_Name_Validation_Error_Update_Team_By_Id() throws Exception {
+    public void should_throw_unique_name_validation_error_update_team_by_id() throws Exception {
         String expectedMessage = "team name already exists";
         Team existingTeam = new Team();
         BeanUtils.copyProperties(team, existingTeam);
@@ -95,7 +96,7 @@ public class TeamControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_Throw_Unique_Name_Validation_On_Create() throws Exception {
+    public void should_throw_unique_name_validation_on_create() throws Exception {
         String expectedMessage = "team name already exists";
 
         when(teamService.findByName(updateTeamDTO.getName())).thenReturn(team);
@@ -107,5 +108,22 @@ public class TeamControllerTests extends ControllerTestHarness {
                 .andExpect(status().is4xxClientError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.errors[0]").value(expectedMessage));
+    }
+
+    @Test
+    public void should_toggle_team_is_archived() throws Exception {
+        UpdateTeamIsArchivedDTO updateTeamIsArchivedDTO = Builder.build(UpdateTeamIsArchivedDTO.class)
+                .with(d -> d.setIsArchived(true)).get();
+        team.setIsArchived(true);
+
+        when(teamService.updateIsArchivedById(1L, updateTeamIsArchivedDTO)).thenReturn(team);
+
+        mockMvc.perform(put("/api/teams/1/admin/archive")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsString(updateTeamIsArchivedDTO))
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.isArchived").value(team.getIsArchived()));
     }
 }

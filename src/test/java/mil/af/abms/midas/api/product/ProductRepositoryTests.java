@@ -24,7 +24,7 @@ public class ProductRepositoryTests {
     ProductRepository productRepository;
 
     @Test
-    public void should_Find_By_Name() {
+    public void should_find_by_name() {
 
         Product testProduct = Builder.build(Product.class)
                 .with(u -> u.setGitlabProjectId(1L))

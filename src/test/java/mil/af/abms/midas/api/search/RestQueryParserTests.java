@@ -19,7 +19,7 @@ public class RestQueryParserTests {
     TestEntityManager entityManager;
 
     @Test
-    public void shouldReturnTokens() {
+    public void should_return_tokens() {
         String expectedStringTree =
                 "(input " +
                         "(query " +
@@ -38,7 +38,7 @@ public class RestQueryParserTests {
     }
 
     @Test
-    public void shouldReturnSpecs() {
+    public void should_return_specs() {
         String urlPath = "id:1 AND username:foo";
         CriteriaParser<User> parser = new CriteriaParser<>();
         Specification<User> expectedSpecs = new NullSpecification<User>();

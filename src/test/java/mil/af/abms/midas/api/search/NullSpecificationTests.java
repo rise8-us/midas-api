@@ -44,7 +44,7 @@ public class NullSpecificationTests {
     }
 
     @Test
-    public void shouldUseNullParseStrategy() {
+    public void should_use_null_parse_strategy() {
         Specification<User> specs = new NullSpecification<>();
         List<User> users = userRepository.findAll(specs);
 

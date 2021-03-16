@@ -10,6 +10,7 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.team.dto.CreateTeamDTO;
 import mil.af.abms.midas.api.team.dto.TeamDTO;
 import mil.af.abms.midas.api.team.dto.UpdateTeamDTO;
+import mil.af.abms.midas.api.team.dto.UpdateTeamIsArchivedDTO;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @Service
@@ -41,9 +42,17 @@ public class TeamService extends AbstractCRUDService<Team, TeamDTO, TeamReposito
         Team foundTeam = getObject(id);
         foundTeam.setName(updateTeamDTO.getName());
         foundTeam.setGitlabGroupId(updateTeamDTO.getGitlabGroupId());
-        foundTeam.setIsArchived(updateTeamDTO.getIsArchived());
         foundTeam.setDescription(updateTeamDTO.getDescription());
 
         return repository.save(foundTeam);
+    }
+
+    @Transactional
+    public Team updateIsArchivedById(Long id, UpdateTeamIsArchivedDTO updateTeamIsArchivedDTO) {
+        Team team = getObject(id);
+
+        team.setIsArchived(updateTeamIsArchivedDTO.getIsArchived());
+
+        return repository.save(team);
     }
 }

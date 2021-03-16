@@ -14,13 +14,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.team.Team;
-import mil.af.abms.midas.api.team.TeamRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+
+import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.team.Team;
+import mil.af.abms.midas.api.team.TeamRepository;
 
 @ExtendWith(SpringExtension.class)
 @Import({TeamExistsValidator.class})
@@ -48,14 +49,14 @@ public class TeamExistsValidatorTests {
     }
 
     @Test
-    public void should_Validate_Team_Exists_False() {
+    public void should_validate_team_exists_false() {
         when(teamRepository.existsById(3L)).thenReturn(false);
 
         assertFalse(validator.isValid(3L, context));
     }
 
     @Test
-    public void should_Validate_Team_Exists_True() {
+    public void should_validate_team_exists_true() {
         when(teamRepository.existsById(1L)).thenReturn(true);
 
         assertTrue(validator.isValid(1L, context));

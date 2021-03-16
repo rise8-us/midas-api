@@ -49,7 +49,7 @@ public class ProductServiceTests {
             .with(t -> t.setName("Team")).get();
 
     @Test
-    public void should_Create_Product() {
+    public void should_create_product() {
         CreateProductDTO createProductDTO = new CreateProductDTO("MIDAS", "Product Description", 2L);
 
         when(productRepository.save(product)).thenReturn(new Product());
@@ -65,20 +65,20 @@ public class ProductServiceTests {
     }
 
     @Test
-    public void should_Find_By_Name() throws EntityNotFoundException {
+    public void should_find_by_name() throws EntityNotFoundException {
         when(productRepository.findByName("MIDAS")).thenReturn(Optional.of(product));
 
         assertThat(productService.findByName("MIDAS")).isEqualTo(product);
     }
 
     @Test
-    public void should_Throw_Error_Find_By_Name() throws EntityNotFoundException {
+    public void should_throw_error_find_by_name() throws EntityNotFoundException {
         assertThrows(EntityNotFoundException.class, () ->
                 productService.findByName("MIDAS"));
     }
 
     @Test
-    public void should_Update_Product_By_Id() {
+    public void should_update_product_by_id() {
         UpdateProductDTO updateProductDTO = new UpdateProductDTO(
                 "MIDAS_TWO", "New Description", true, 22L);
 
@@ -97,7 +97,7 @@ public class ProductServiceTests {
     }
 
     @Test
-    public void should_Update_Product_Team_By_Team_Id() {
+    public void should_update_product_team_by_team_id() {
         UpdateProductTeamDTO updateProductTeamDTO = new UpdateProductTeamDTO(2L);
 
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));

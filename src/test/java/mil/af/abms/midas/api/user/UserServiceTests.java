@@ -80,7 +80,7 @@ public class UserServiceTests {
     private final Page<User> page = new PageImpl<User>(users);
 
     @Test
-    public void should_Create_User() {
+    public void should_create_user() {
         when(property.getJwtAdminGroup()).thenReturn("midas-IL2-admin");
         when(userRepository.save(any())).thenReturn(new User());
 
@@ -97,49 +97,49 @@ public class UserServiceTests {
     }
 
     @Test
-    public void should_Get_User_By_Id() throws EntityNotFoundException {
+    public void should_get_user_by_id() throws EntityNotFoundException {
         when(userRepository.findById(any())).thenReturn(Optional.of(expectedUser));
 
         assertThat(userService.getObject(1L)).isEqualTo(expectedUser);
     }
 
     @Test
-    public void should_Get_User_By_Username() throws EntityNotFoundException {
+    public void should_get_user_by_username() throws EntityNotFoundException {
         when(userRepository.findByUsername(any())).thenReturn(Optional.of(expectedUser));
 
         assertThat(userService.findByUsername("foo")).isEqualTo(expectedUser);
     }
 
     @Test
-    public void should_Throw_Exception_Not_Found_User_By_Username() throws EntityNotFoundException {
+    public void should_throw_exception_not_found_user_by_username() throws EntityNotFoundException {
         EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () ->
                 userService.findByUsername("foobar"));
         assertThat(e).hasMessage("Failed to find User by username: foobar");
     }
 
     @Test
-    public void should_Throw_Error_When_Id_Null() throws EntityNotFoundException {
+    public void should_throw_error_when_id_null() throws EntityNotFoundException {
         EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () ->
                 userService.getObject(null));
         assertThat(e).hasMessage("Failed to find User");
     }
 
     @Test
-    public void should_Return_True_When_Exists() {
+    public void should_return_true_when_exists() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(users.get(0)));
 
         assertTrue(userService.existsById(1L));
     }
 
     @Test
-    public void should_Return_False_When_Exists() {
+    public void should_return_false_when_exists() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertFalse(userService.existsById(1L));
     }
 
     @Test
-    public void should_Throw_Error_When_Id_Not_Found() throws EntityNotFoundException {
+    public void should_throw_error_when_id_not_found() throws EntityNotFoundException {
         when(userRepository.findById(any())).thenReturn(java.util.Optional.empty());
 
         EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> userService.getObject(1L));
@@ -147,7 +147,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void should_Get_User_And_Return_User() throws EntityNotFoundException {
+    public void should_get_user_and_return_user() throws EntityNotFoundException {
         when(userRepository.findById(any())).thenReturn(java.util.Optional.of(new User()));
 
         userService.findById(1L);
@@ -156,7 +156,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void should_Update_User() {
+    public void should_update_user() {
         UpdateUserDTO updateDTO = Builder.build(UpdateUserDTO.class)
                 .with(u -> u.setUsername("foobar"))
                 .with(u -> u.setEmail("foo.bar@rise8.us"))
@@ -176,7 +176,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void should_Update_User_Roles_By_Id() {
+    public void should_update_user_roles_by_id() {
         UpdateUserRolesDTO updateDTO = Builder.build(UpdateUserRolesDTO.class)
                 .with(p -> p.setRoles(0L)).get();
 
@@ -192,7 +192,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void should_Update_Is_Disabled_By_Id() {
+    public void should_update_is_disabled_by_id() {
         UpdateUserDisabledDTO updateDTO = Builder.build(UpdateUserDisabledDTO.class)
                 .with(p -> p.setDisabled(true)).get();
 
@@ -208,14 +208,14 @@ public class UserServiceTests {
     }
 
     @Test
-    public void should_Prepare_Paged_Response() {
+    public void should_prepare_paged_response() {
         List<UserDTO> results = userService.preparePageResponse(page, new MockHttpServletResponse());
 
         assertThat(results).isEqualTo(users.stream().map(User::toDto).collect(Collectors.toList()));
     }
 
     @Test
-    public void should_Retrieve_All_Users() {
+    public void should_retrieve_all_users() {
         SpecificationsBuilder<User> builder = new SpecificationsBuilder<>();
         Specification<User> specs = builder.withSearch("id:1").build();
 
@@ -226,7 +226,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void should_Delete_By_Id() {
+    public void should_delete_by_id() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(expectedUser));
 
         userService.deleteById(1L);
@@ -235,14 +235,14 @@ public class UserServiceTests {
     }
 
     @Test
-    public void should_Delete_All() {
+    public void should_delete_all() {
         userService.deleteAll();
 
         verify(userRepository, times(1)).deleteAll();
     }
 
     @Test
-    void should_Get_User_By_Keycloak_Uid() {
+    void should_get_user_by_keycloak_uid() {
         when(userRepository.findByKeycloakUid(any())).thenReturn(Optional.of(expectedUser));
 
         assertThat(userService.findByKeycloakUid("abc-123")).isEqualTo(Optional.of(expectedUser));
