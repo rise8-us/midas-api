@@ -24,7 +24,6 @@ import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
-import mil.af.abms.midas.api.product.dto.UpdateProductTeamDTO;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.team.TeamRepository;
 import mil.af.abms.midas.exception.EntityNotFoundException;
@@ -45,8 +44,6 @@ public class ProductControllerTests extends ControllerTestHarness {
     private final static Long TEAM_ID = 3L;
     private final static Long GITLAB_PROJECT_ID = 2L;
     private final static Long GITLAB_GROUP_ID = 3L;
-
-    private final UpdateProductTeamDTO updateProductTeamDTO = new UpdateProductTeamDTO(2L);
 
     private final Team team = Builder.build(Team.class)
             .with(t -> t.setId(TEAM_ID))
@@ -85,8 +82,9 @@ public class ProductControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_update_product() throws Exception {
-        UpdateProductDTO updateProductDTO = new UpdateProductDTO(NAME, "", false, 0L);
+        UpdateProductDTO updateProductDTO = new UpdateProductDTO(NAME, 5L, "", false, 0L);
 
+        when(teamRepository.existsById(any())).thenReturn(true);
         when(productService.findByName(NAME)).thenReturn(product);
         when(productService.updateById(anyLong(), any(UpdateProductDTO.class))).thenReturn(product);
 
@@ -99,51 +97,40 @@ public class ProductControllerTests extends ControllerTestHarness {
                 .andExpect(jsonPath("$.name").value(product.getName()));
     }
 
-    @Test
-    public void should_update_product_team_by_team_id() throws Exception {
-        Team newTeam = new Team();
-        BeanUtils.copyProperties(team, newTeam);
-
-        Product updatedProduct = new Product();
-        BeanUtils.copyProperties(product, updatedProduct);
-
-        newTeam.setId(4L);
-        updatedProduct.setTeam(newTeam);
-
-        when(teamRepository.existsById(any())).thenReturn(true);
-        when(productService.findByName(NAME)).thenReturn(product);
-        when(productService.updateProductTeamByTeamId(anyLong(), any(UpdateProductTeamDTO.class))).thenReturn(updatedProduct);
-
-
-        mockMvc.perform(put("/api/products/1/team")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(mapper.writeValueAsString(updateProductTeamDTO))
-        )
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.teamId").value(updatedProduct.getTeam().getId()));
-    }
-
-    @Test
-    public void should_throw_null_error_on_update_product_team_by_team_id() throws Exception {
-        mockMvc.perform(put("/api/products/1/team")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(mapper.writeValueAsString(new UpdateProductTeamDTO()))
-        )
-                .andExpect(status().is4xxClientError())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.message").value("Validation failed. 2 error(s)"));
-    }
 
     @Test
     public void should_throw_team_exists_exception_on_update_product_team() throws Exception {
+        UpdateProductDTO updateProductDTO = new UpdateProductDTO(NAME, 5L, "", false, 0L);
+
         String expectedMessage = "team does not exists";
 
-        when(teamRepository.existsById(anyLong())).thenReturn(false);
+        when(productService.findByName(NAME)).thenReturn(product);
+        when(teamRepository.existsById(any())).thenReturn(false);
 
-        mockMvc.perform(put("/api/products/1/team")
+        mockMvc.perform(put("/api/products/1")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(mapper.writeValueAsString(updateProductTeamDTO))
+                .content(mapper.writeValueAsString(updateProductDTO))
+        )
+                .andExpect(status().is4xxClientError())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.errors[0]").value(expectedMessage));
+    }
+
+    @Test
+    public void should_throw_unique_name_exception_on_product() throws Exception {
+        UpdateProductDTO updateProductDTO = new UpdateProductDTO(NAME, 5L, "", false, 0L);
+        Product diffProductSameName = new Product();
+        BeanUtils.copyProperties(product, diffProductSameName);
+        diffProductSameName.setId(42L);
+
+        String expectedMessage = "product name already exists";
+
+        when(productService.findByName(NAME)).thenReturn(diffProductSameName);
+        when(teamRepository.existsById(any())).thenReturn(true);
+
+        mockMvc.perform(put("/api/products/1")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsString(updateProductDTO))
         )
                 .andExpect(status().is4xxClientError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))

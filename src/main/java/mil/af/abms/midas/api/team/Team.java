@@ -11,6 +11,7 @@ import javax.persistence.Table;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -49,8 +50,10 @@ public class Team extends AbstractEntity<TeamDTO> {
     private Set<User> users = new HashSet<>();
 
     public TeamDTO toDto() {
-        return new TeamDTO(id, name, isArchived, creationDate, gitlabGroupId, description);
+        return new TeamDTO(id, name, isArchived, creationDate, gitlabGroupId, description, getProductIds());
     }
+
+    private Set<Long> getProductIds() { return products.stream().map(Product::getId).collect(Collectors.toSet()); }
 
     @Override
     public int hashCode() {

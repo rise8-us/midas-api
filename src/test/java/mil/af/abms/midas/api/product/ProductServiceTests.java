@@ -2,13 +2,13 @@ package mil.af.abms.midas.api.product;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -22,7 +22,6 @@ import org.mockito.Captor;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
-import mil.af.abms.midas.api.product.dto.UpdateProductTeamDTO;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
@@ -41,12 +40,13 @@ public class ProductServiceTests {
     @Captor
     ArgumentCaptor<Product> productCaptor;
 
-    Product product = Builder.build(Product.class)
-            .with(p -> p.setName("MIDAS"))
-            .with(p -> p.setId(1L)).get();
     Team team = Builder.build(Team.class)
             .with(t -> t.setId(2L))
             .with(t -> t.setName("Team")).get();
+    Product product = Builder.build(Product.class)
+            .with(p -> p.setName("MIDAS"))
+            .with(p -> p.setTeam(team))
+            .with(p -> p.setId(1L)).get();
 
     @Test
     public void should_create_product() {
@@ -80,10 +80,14 @@ public class ProductServiceTests {
     @Test
     public void should_update_product_by_id() {
         UpdateProductDTO updateProductDTO = new UpdateProductDTO(
-                "MIDAS_TWO", "New Description", true, 22L);
+                "MIDAS_TWO", 5L, "New Description", true, 22L);
+        Team newTeam = new Team();
+        BeanUtils.copyProperties(team, newTeam);
+        newTeam.setId(5L);
 
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         when(productRepository.save(product)).thenReturn(product);
+        when(teamService.getObject(updateProductDTO.getTeamId())).thenReturn(newTeam);
 
         productService.updateById(1L, updateProductDTO);
 
@@ -94,21 +98,7 @@ public class ProductServiceTests {
         assertThat(productSaved.getDescription()).isEqualTo(updateProductDTO.getDescription());
         assertThat(productSaved.getIsArchived()).isEqualTo(updateProductDTO.getIsArchived());
         assertThat(productSaved.getGitlabProjectId()).isEqualTo(updateProductDTO.getGitlabProjectId());
-    }
+        assertThat(productSaved.getTeam().getId()).isEqualTo(updateProductDTO.getTeamId());
 
-    @Test
-    public void should_update_product_team_by_team_id() {
-        UpdateProductTeamDTO updateProductTeamDTO = new UpdateProductTeamDTO(2L);
-
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-        when(teamService.getObject(any())).thenReturn(team);
-        when(productRepository.save(product)).thenReturn(product);
-
-        productService.updateProductTeamByTeamId(1L, updateProductTeamDTO);
-
-        verify(productRepository, times(1)).save(productCaptor.capture());
-        Product productSaved = productCaptor.getValue();
-
-        assertThat(productSaved.getTeam().getId()).isEqualTo(updateProductTeamDTO.getTeamId());
     }
 }

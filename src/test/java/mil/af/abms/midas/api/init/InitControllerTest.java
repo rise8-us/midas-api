@@ -57,9 +57,9 @@ public class InitControllerTest extends ControllerTestHarness {
                 .andExpect(jsonPath("$.roles[*].name").isNotEmpty())
                 .andExpect(jsonPath("$.roles[*].offset").isNotEmpty())
                 .andExpect(jsonPath("$.roles[*].description").isNotEmpty())
-                .andExpect(jsonPath("$.userDTO").isNotEmpty())
-                .andExpect(jsonPath("$.userDTO.keycloakUid").value("abc-123"))
-                .andExpect(jsonPath("$.announcementDTOs[0].message").value("HELLO"))
-                .andExpect(jsonPath("$.announcementDTOs").isArray());
+                .andExpect(jsonPath("$.userLoggedIn").isNotEmpty())
+                .andExpect(jsonPath("$.userLoggedIn.keycloakUid").value("abc-123"))
+                .andExpect(jsonPath("$.unseenAnnouncements").isArray())
+                .andExpect(jsonPath("$.unseenAnnouncements[0].message").value("HELLO"));
     }
 }
