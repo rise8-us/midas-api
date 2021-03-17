@@ -14,6 +14,11 @@ public class TeamExistsValidator implements ConstraintValidator<TeamExists, Long
 
     @Override
     public boolean isValid(Long id, ConstraintValidatorContext constraintContext) {
+
+        if (id == null) {
+            return true;
+        }
+
         return teamRepository.existsById(id);
     }
 }

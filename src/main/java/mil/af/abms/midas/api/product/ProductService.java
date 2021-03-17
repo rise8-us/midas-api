@@ -10,7 +10,6 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
-import mil.af.abms.midas.api.product.dto.UpdateProductTeamDTO;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
@@ -45,6 +44,14 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
     @Transactional
     public Product updateById(Long id, UpdateProductDTO updateProductDTO) {
         Product foundProduct = getObject(id);
+
+        if (updateProductDTO.getTeamId() != null) {
+            Team team = teamService.getObject(updateProductDTO.getTeamId());
+            foundProduct.setTeam(team);
+        } else {
+            foundProduct.setTeam(null);
+        }
+
         foundProduct.setName(updateProductDTO.getName());
         foundProduct.setDescription(updateProductDTO.getDescription());
         foundProduct.setGitlabProjectId(updateProductDTO.getGitlabProjectId());
@@ -53,12 +60,4 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         return repository.save(foundProduct);
     }
 
-    @Transactional
-    public Product updateProductTeamByTeamId(Long id, UpdateProductTeamDTO updateProductTeamDTO) {
-        Product foundProduct = getObject(id);
-        Team team = teamService.getObject(updateProductTeamDTO.getTeamId());
-        foundProduct.setTeam(team);
-
-        return repository.save(foundProduct);
-    }
 }

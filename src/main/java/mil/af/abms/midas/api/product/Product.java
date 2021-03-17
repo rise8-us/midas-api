@@ -1,5 +1,6 @@
 package mil.af.abms.midas.api.product;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -29,7 +30,7 @@ public class Product extends AbstractEntity<ProductDTO> {
     @Column(nullable = false, columnDefinition = "BIT(1) DEFAULT 0")
     private Boolean isArchived = false;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "team_id")
     private Team team;
 
@@ -37,7 +38,13 @@ public class Product extends AbstractEntity<ProductDTO> {
     private Long gitlabProjectId;
 
     public ProductDTO toDto() {
-        return new ProductDTO(id, name, description, isArchived, creationDate, gitlabProjectId, team.getId());
+        Long teamId = null;
+
+        if (team != null) {
+            teamId = team.getId();
+        }
+
+        return new ProductDTO(id, name, description, isArchived, creationDate, gitlabProjectId, teamId);
     }
 
     @Override
