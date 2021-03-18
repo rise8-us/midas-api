@@ -27,7 +27,7 @@ import mil.af.abms.midas.api.user.User;
 public class Team extends AbstractEntity<TeamDTO> {
 
     @NaturalId(mutable = true)
-    @Column(unique = true)
+    @Column(unique = true, nullable = false, columnDefinition = "VARCHAR(70)")
     private String name;
 
     @Column(columnDefinition = "BIT(1) DEFAULT 0", nullable = false)
