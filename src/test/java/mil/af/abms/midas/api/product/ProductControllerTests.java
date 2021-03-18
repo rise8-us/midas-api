@@ -66,7 +66,7 @@ public class ProductControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_create_product() throws Exception {
-        CreateProductDTO createProductDTO = new CreateProductDTO(NAME, DESCRIPTION, GITLAB_PROJECT_ID);
+        CreateProductDTO createProductDTO = new CreateProductDTO(NAME, GITLAB_PROJECT_ID, DESCRIPTION);
 
         when(productService.findByName(NAME)).thenThrow(EntityNotFoundException.class);
         when(productService.create(any(CreateProductDTO.class))).thenReturn(product);
@@ -82,7 +82,7 @@ public class ProductControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_update_product() throws Exception {
-        UpdateProductDTO updateProductDTO = new UpdateProductDTO(NAME, 5L, "", false, 0L);
+        UpdateProductDTO updateProductDTO = new UpdateProductDTO(NAME, 5L, 0L, "", false);
 
         when(teamRepository.existsById(any())).thenReturn(true);
         when(productService.findByName(NAME)).thenReturn(product);
@@ -100,7 +100,7 @@ public class ProductControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_throw_team_exists_exception_on_update_product_team() throws Exception {
-        UpdateProductDTO updateProductDTO = new UpdateProductDTO(NAME, 5L, "", false, 0L);
+        UpdateProductDTO updateProductDTO = new UpdateProductDTO(NAME, 5L, 1L, "", false);
 
         String expectedMessage = "team does not exists";
 
@@ -118,7 +118,7 @@ public class ProductControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_throw_unique_name_exception_on_product() throws Exception {
-        UpdateProductDTO updateProductDTO = new UpdateProductDTO(NAME, 5L, "", false, 0L);
+        UpdateProductDTO updateProductDTO = new UpdateProductDTO(NAME, 5L, 0L, "false", false);
         Product diffProductSameName = new Product();
         BeanUtils.copyProperties(product, diffProductSameName);
         diffProductSameName.setId(42L);

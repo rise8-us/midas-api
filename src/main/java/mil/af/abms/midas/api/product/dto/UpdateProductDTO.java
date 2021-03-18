@@ -13,10 +13,10 @@ import mil.af.abms.midas.api.product.validation.UniqueName;
 @AllArgsConstructor
 public class UpdateProductDTO {
 
-    @NotBlank
+    @NotBlank(message = "Product name must not be blank")
     @UniqueName(isNew = false)
     private final String name;
-    @NotNull
+    @NotNull(message = "Gitlab project ID must not be Null")
     private final Long gitlabProjectId;
     @TeamExists
     private final Long teamId;
