@@ -50,7 +50,7 @@ public class ProductServiceTests {
 
     @Test
     public void should_create_product() {
-        CreateProductDTO createProductDTO = new CreateProductDTO("MIDAS", "Product Description", 2L);
+        CreateProductDTO createProductDTO = new CreateProductDTO("MIDAS", 2L, "Product Description");
 
         when(productRepository.save(product)).thenReturn(new Product());
 
@@ -80,10 +80,10 @@ public class ProductServiceTests {
     @Test
     public void should_update_product_by_id() {
         UpdateProductDTO updateProductDTO = new UpdateProductDTO(
-                "MIDAS_TWO", 5L, "New Description", true, 22L);
+                "MIDAS_TWO", 5L, 22L, "New Description", true);
         Team newTeam = new Team();
         BeanUtils.copyProperties(team, newTeam);
-        newTeam.setId(5L);
+        newTeam.setId(22L);
 
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         when(productRepository.save(product)).thenReturn(product);
