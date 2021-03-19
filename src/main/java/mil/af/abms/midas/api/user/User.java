@@ -66,12 +66,14 @@ public class User extends AbstractEntity<UserDTO> {
     private Set<Team> teams = new HashSet<>();
 
     public UserDTO toDto() {
-        return new UserDTO(id, keycloakUid, username, email, displayName,
-                creationDate, dodId, isDisabled, roles, lastLogin, getTeamIds());
-    }
+        Set<Long> teamIds = null;
 
-    private Set<Long> getTeamIds() {
-        return teams.stream().map(Team::getId).collect(Collectors.toSet());
+        if (teams.size() > 0) {
+            teamIds = teams.stream().map(Team::getId).collect(Collectors.toSet());
+        }
+
+        return new UserDTO(id, keycloakUid, username, email, displayName,
+            creationDate, dodId, isDisabled, roles, lastLogin, teamIds);
     }
 
     @Override

@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.announcement.dto.AnnouncementDTO;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.team.Team;
 
 
 public class AnnouncementTests {
@@ -49,6 +50,7 @@ public class AnnouncementTests {
 
         assertTrue(announcement.equals(announcement));
         assertFalse(announcement.equals(null));
+        assertFalse(announcement.equals(new Team()));
         assertFalse(announcement.equals(new Announcement()));
         assertTrue(announcement.equals(announcement2));
     }

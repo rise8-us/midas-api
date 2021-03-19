@@ -1,6 +1,6 @@
 package mil.af.abms.midas.api.user;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -12,11 +12,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.endpoint.SecurityContext;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
@@ -24,6 +27,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
@@ -33,6 +37,8 @@ import org.mockito.Captor;
 
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.search.SpecificationsBuilder;
+import mil.af.abms.midas.api.team.Team;
+import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.api.user.dto.UpdateUserDTO;
 import mil.af.abms.midas.api.user.dto.UpdateUserDisabledDTO;
 import mil.af.abms.midas.api.user.dto.UpdateUserRolesDTO;
@@ -51,11 +57,19 @@ public class UserServiceTests {
     UserRepository userRepository;
     @MockBean
     CustomProperty property;
+    @MockBean
+    TeamService teamService;
+    @MockBean
+    SecurityContext securityContext;
 
     @Captor
     ArgumentCaptor<User> userCaptor;
 
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
+    private final Team team = Builder.build(Team.class)
+            .with(t -> t.setId(1L))
+            .with(t -> t.setName("home one"))
+            .with(t -> t.setGitlabGroupId(42L)).get();
     private final User expectedUser = Builder.build(User.class)
             .with(u -> u.setId(1L))
             .with(u -> u.setKeycloakUid("abc-123"))
@@ -76,6 +90,7 @@ public class UserServiceTests {
     private final List<String> groups = List.of("midas-IL2-admin");
     private final PlatformOneAuthenticationToken token = new PlatformOneAuthenticationToken(
             "abc-123", 1L, "grogu", "a.b@c", groups);
+    private final Authentication auth = new PlatformOneAuthenticationToken(expectedUser, null, new ArrayList<>());
     private final List<User> users = List.of(expectedUser, expectedUser2);
     private final Page<User> page = new PageImpl<User>(users);
 
@@ -160,9 +175,11 @@ public class UserServiceTests {
         UpdateUserDTO updateDTO = Builder.build(UpdateUserDTO.class)
                 .with(u -> u.setUsername("foobar"))
                 .with(u -> u.setEmail("foo.bar@rise8.us"))
+                .with(u -> u.setTeamIds(Set.of(1L)))
                 .with(u -> u.setDisplayName("YoDiddy")).get();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(expectedUser));
+        when(teamService.getObject(1L)).thenReturn(team);
         when(userRepository.save(any(User.class))).thenReturn(new User());
 
         userService.updateById(1L, updateDTO);
@@ -173,6 +190,24 @@ public class UserServiceTests {
         assertThat(userSaved.getDisplayName()).isEqualTo(updateDTO.getDisplayName());
         assertThat(userSaved.getUsername()).isEqualTo(updateDTO.getUsername());
         assertThat(userSaved.getEmail()).isEqualTo(updateDTO.getEmail());
+        assertThat(userSaved.getTeams()).isEqualTo(Set.of(team));
+
+    }
+
+    @Test
+    public void should_set_team_to_null() {
+        UpdateUserDTO updateDTO = Builder.build(UpdateUserDTO.class)
+                .with(u -> u.setTeamIds(Set.of())).get();
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(expectedUser));
+        when(teamService.getObject(1L)).thenReturn(team);
+
+        userService.updateById(1L, updateDTO);
+
+        verify(userRepository, times(1)).save(userCaptor.capture());
+        User userSaved = userCaptor.getValue();
+
+        assertThat(userSaved.getTeams()).isEqualTo(null);
     }
 
     @Test
@@ -246,5 +281,21 @@ public class UserServiceTests {
         when(userRepository.findByKeycloakUid(any())).thenReturn(Optional.of(expectedUser));
 
         assertThat(userService.findByKeycloakUid("abc-123")).isEqualTo(Optional.of(expectedUser));
+    }
+
+    @Test
+    void should_get_user_from_auth() {
+        when(userRepository.findByKeycloakUid(expectedUser.getKeycloakUid())).thenReturn(Optional.of(expectedUser));
+
+        User user = userService.getUserFromAuth(auth);
+
+        assertThat(user.getKeycloakUid()).isEqualTo(expectedUser.getKeycloakUid());
+    }
+
+    @Test
+    void should_throw_exception_on_get_user_from_auth() throws EntityNotFoundException {
+        when(userRepository.findByKeycloakUid(expectedUser.getKeycloakUid())).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> userService.getUserFromAuth(auth));
     }
 }

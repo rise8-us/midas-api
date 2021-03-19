@@ -110,10 +110,13 @@ public class AnnouncementServiceTests {
                 .getDeclaredMethod("getAnnouncementsNoOlderThanMaxDays", clazz
         );
         getAnnouncement.setAccessible(true);
-        LocalDateTime lastLogin = (LocalDateTime) getAnnouncement.invoke(announcementService, NOW.minusDays(5L), 25L);
+        LocalDateTime lastLoginMoreRecentThanMaxDays = (LocalDateTime) getAnnouncement.invoke(announcementService, NOW.minusDays(5L), 25L);
         LocalDateTime lastLoginNull = (LocalDateTime) getAnnouncement.invoke(announcementService, null, 25L);
+        LocalDateTime lastLoginOlderThanMaxDays = (LocalDateTime) getAnnouncement.invoke(announcementService, NOW.minusDays(31L), 25L);
 
-        assertThat(lastLogin).isEqualToIgnoringSeconds(NOW.minusDays(5L));
+        assertThat(lastLoginMoreRecentThanMaxDays).isEqualToIgnoringSeconds(NOW.minusDays(5L));
         assertThat(lastLoginNull).isEqualToIgnoringSeconds(NOW.minusDays(25L));
+        assertThat(lastLoginOlderThanMaxDays).isEqualToIgnoringSeconds(NOW.minusDays(25L));
+
     }
 }

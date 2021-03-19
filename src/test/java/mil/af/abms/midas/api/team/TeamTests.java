@@ -4,10 +4,14 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.ReflectionUtils;
 
 import org.junit.jupiter.api.Test;
 
@@ -36,18 +40,17 @@ public class TeamTests {
             .with(t -> t.setIsArchived(false))
             .with(t -> t.setDescription("dev team"))
             .with(t -> t.setCreationDate(TEST_TIME))
-//            .with(t -> t.setUserIds(Set.of(3L)))
+            .with(t -> t.setUserIds(Set.of(3L)))
             .with(t -> t.setProductIds(Set.of(3L))).get();
 
 
-    //Need to add user IDs to TeamDTO
-//    @Test
-//    public void should_have_all_teamDTO_fields() {
-//        List<Field> fields = new LinkedList<>();
-//        ReflectionUtils.doWithFields(Team.class, fields::add);
-//
-//        assertThat(fields.size()).isEqualTo(TeamDTO.class.getDeclaredFields().length);
-//    }
+    @Test
+    public void should_have_all_teamDTO_fields() {
+        List<Field> fields = new LinkedList<>();
+        ReflectionUtils.doWithFields(Team.class, fields::add);
+
+        assertThat(fields.size()).isEqualTo(TeamDTO.class.getDeclaredFields().length);
+    }
 
     @Test
     public void should_be_equal() {

@@ -5,22 +5,26 @@ import javax.validation.constraints.NotNull;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import mil.af.abms.midas.api.product.validation.TeamExists;
 import mil.af.abms.midas.api.product.validation.UniqueName;
 
-@Getter
+@Getter @Setter
+@NoArgsConstructor
 @AllArgsConstructor
 public class UpdateProductDTO {
 
     @NotBlank(message = "Product name must not be blank")
     @UniqueName(isNew = false)
-    private final String name;
+
+    private String name;
     @NotNull(message = "Gitlab project ID must not be Null")
-    private final Long gitlabProjectId;
+    private Long gitlabProjectId;
     @TeamExists
-    private final Long teamId;
-    private final String description;
-    private final Boolean isArchived;
+    private Long teamId;
+    private String description;
+    private Boolean isArchived;
 
 }

@@ -21,5 +21,6 @@ public class TeamDTO implements AbstractDTO {
     private Long gitlabGroupId;
     private String description;
     private Set<Long> productIds;
+    private Set<Long> userIds;
 
 }

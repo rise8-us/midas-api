@@ -14,9 +14,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
@@ -27,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.helper.JsonMapper;
+import mil.af.abms.midas.api.team.TeamRepository;
 import mil.af.abms.midas.api.user.dto.UpdateUserDTO;
 import mil.af.abms.midas.api.user.dto.UpdateUserDisabledDTO;
 import mil.af.abms.midas.api.user.dto.UpdateUserRolesDTO;
@@ -35,6 +38,9 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @WebMvcTest({UserController.class})
 public class UserControllerTests extends ControllerTestHarness {
+
+    @MockBean
+    TeamRepository teamRepository;
 
     private final static String USERNAME = "grogu";
     private final static String UID = "abc-123";
@@ -62,9 +68,10 @@ public class UserControllerTests extends ControllerTestHarness {
             .with(u -> u.setRoles(0L)).get();
     private final UserDTO userDTO = user.toDto();
     private final UpdateUserDTO updateUserDTO = Builder.build(UpdateUserDTO.class)
-            .with(u -> u.setUsername(USERNAME))
-            .with(u -> u.setEmail("a.b@c"))
-            .with(u -> u.setDisplayName("YoDiddy")).get();
+            .with(d -> d.setUsername(USERNAME))
+            .with(d -> d.setEmail("a.b@c"))
+            .with(d -> d.setTeamIds(Set.of(1L)))
+            .with(d -> d.setDisplayName("YoDiddy")).get();
     private final List<User> users = List.of(user, user2);
 
     @BeforeEach
@@ -87,6 +94,7 @@ public class UserControllerTests extends ControllerTestHarness {
        user.setDisplayName("YoDiddy");
 
         when(userService.findByUsername(any())).thenReturn(user);
+        when(teamRepository.existsById(1L)).thenReturn(true);
         when(userService.updateById(1L, updateUserDTO)).thenReturn(user);
 
         mockMvc.perform(put("/api/users/1")
@@ -103,6 +111,7 @@ public class UserControllerTests extends ControllerTestHarness {
         String expectedMessage = "username already in use";
 
         when(userService.findByUsername(any())).thenReturn(user);
+        when(teamRepository.existsById(1L)).thenReturn(true);
 
         mockMvc.perform(put("/api/users/2")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)

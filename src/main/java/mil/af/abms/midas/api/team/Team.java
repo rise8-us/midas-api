@@ -50,10 +50,12 @@ public class Team extends AbstractEntity<TeamDTO> {
     private Set<User> users = new HashSet<>();
 
     public TeamDTO toDto() {
-        return new TeamDTO(id, name, isArchived, creationDate, gitlabGroupId, description, getProductIds());
+        return new TeamDTO(id, name, isArchived, creationDate, gitlabGroupId, description, getProductIds(), getUserIds());
     }
 
     private Set<Long> getProductIds() { return products.stream().map(Product::getId).collect(Collectors.toSet()); }
+
+    private Set<Long> getUserIds() { return users.stream().map(User::getId).collect(Collectors.toSet()); }
 
     @Override
     public int hashCode() {

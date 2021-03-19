@@ -8,7 +8,9 @@ import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.util.ReflectionUtils;
 
 import org.junit.jupiter.api.Test;
@@ -21,6 +23,10 @@ public class UserTests {
 
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
 
+    private final Team team = Builder.build(Team.class)
+            .with(t -> t.setId(1L))
+            .with(t -> t.setName("midas")).get();
+
     private final User expectedUser = Builder.build(User.class)
             .with(u -> u.setId(1L))
             .with(u -> u.setKeycloakUid("abc-123"))
@@ -29,10 +35,21 @@ public class UserTests {
             .with(u -> u.setDisplayName("baby yoda"))
             .with(u -> u.setCreationDate(CREATION_DATE))
             .with(u -> u.setDodId(1L))
+            .with(u -> u.setTeams(Set.of(team)))
             .with(u -> u.setRoles(0L))
             .with(u -> u.setIsDisabled(false)).get();
 
-    private final UserDTO userDTO = expectedUser.toDto();
+    private final UserDTO userDTO = Builder.build(UserDTO.class)
+            .with(d -> d.setId(1L))
+            .with(d -> d.setKeycloakUid("abc-123"))
+            .with(d -> d.setUsername("grogu"))
+            .with(d -> d.setEmail("a.b@c"))
+            .with(d -> d.setDisplayName("baby yoda"))
+            .with(d -> d.setCreationDate(CREATION_DATE))
+            .with(d -> d.setDodId(1L))
+            .with(d -> d.setTeamIds(Set.of(1L)))
+            .with(d -> d.setRoles(0L))
+            .with(d -> d.setIsDisabled(false)).get();
 
     @Test
     public void should_have_all_userDTO_fields() {
@@ -57,18 +74,19 @@ public class UserTests {
     }
 
     @Test
-    public void can_return_dto() {
+    public void should_return_dto() {
         assertThat(expectedUser.toDto()).isEqualTo(userDTO);
     }
 
     @Test
     public void should_be_equal() {
-        User user2 = Builder.build(User.class)
-                .with(u -> u.setKeycloakUid("abc-123")).get();
+        User user2 = new User();
+        BeanUtils.copyProperties(expectedUser, user2);
 
         assertTrue(expectedUser.equals(expectedUser));
         assertFalse(expectedUser.equals(null));
         assertFalse(expectedUser.equals(new Team()));
         assertTrue(expectedUser.equals(user2));
+        assertFalse(expectedUser.equals(new User()));
     }
 }
