@@ -18,7 +18,6 @@ public class UpdateProductDTO {
 
     @NotBlank(message = "Product name must not be blank")
     @UniqueName(isNew = false)
-
     private String name;
     @NotNull(message = "Gitlab project ID must not be Null")
     private Long gitlabProjectId;
