@@ -25,6 +25,6 @@ public class TeamsExistValidator implements ConstraintValidator<TeamsExist, Set<
                 ).addConstraintViolation()
         ).collect(Collectors.toSet());
 
-        return nonExistentIds.size() == 0;
+        return nonExistentIds.isEmpty();
     }
 }
