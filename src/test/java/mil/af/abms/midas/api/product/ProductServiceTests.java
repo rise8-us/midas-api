@@ -99,6 +99,21 @@ public class ProductServiceTests {
         assertThat(productSaved.getIsArchived()).isEqualTo(updateProductDTO.getIsArchived());
         assertThat(productSaved.getGitlabProjectId()).isEqualTo(updateProductDTO.getGitlabProjectId());
         assertThat(productSaved.getTeam().getId()).isEqualTo(updateProductDTO.getTeamId());
+    }
 
+    @Test
+    public void should_set_team_to_null() {
+        UpdateProductDTO updateDTO = Builder.build(UpdateProductDTO.class)
+                .with(d -> d.setName("products"))
+                .with(d -> d.setGitlabProjectId(1L)).get();
+
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+
+        productService.updateById(1L, updateDTO);
+
+        verify(productRepository, times(1)).save(productCaptor.capture());
+        Product productSaved = productCaptor.getValue();
+
+        assertThat(productSaved.getTeam()).isEqualTo(null);
     }
 }
