@@ -55,7 +55,7 @@ public class UserService extends AbstractCRUDService<User, UserDTO, UserReposito
     public User updateById(Long id, UpdateUserDTO updateUserDTO) {
         User user = getObject(id);
 
-        if (updateUserDTO.getTeamIds().size() > 0) {
+        if (!updateUserDTO.getTeamIds().isEmpty()) {
             Set<Team> teams = updateUserDTO.getTeamIds().stream().map(teamService::getObject).collect(Collectors.toSet());
             user.setTeams(teams);
         } else {
