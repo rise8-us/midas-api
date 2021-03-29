@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.product.validation;
+package mil.af.abms.midas.api.user.validation;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import javax.validation.ConstraintValidatorContext;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -24,11 +25,11 @@ import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.team.TeamRepository;
 
 @ExtendWith(SpringExtension.class)
-@Import({TeamExistsValidator.class})
+@Import({TeamsExistValidator.class})
 public class TeamExistsValidatorTests {
 
     @Autowired
-    TeamExistsValidator validator;
+    TeamsExistValidator validator;
     @MockBean
     private TeamRepository teamRepository;
     @Mock
@@ -52,20 +53,14 @@ public class TeamExistsValidatorTests {
     public void should_validate_team_exists_false() {
         when(teamRepository.existsById(3L)).thenReturn(false);
 
-        assertFalse(validator.isValid(3L, context));
+        assertFalse(validator.isValid(Set.of(3L), context));
     }
 
     @Test
     public void should_validate_team_exists_true() {
         when(teamRepository.existsById(1L)).thenReturn(true);
 
-        assertTrue(validator.isValid(1L, context));
+        assertTrue(validator.isValid(Set.of(1L), context));
     }
 
-    @Test
-    public void should_validate_team_exists_true_when_null() {
-        when(teamRepository.existsById(null)).thenReturn(true);
-
-        assertTrue(validator.isValid(null, context));
-    }
 }

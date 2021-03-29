@@ -23,6 +23,7 @@ public final class HttpPathVariableIdGrabber {
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(
                 RequestContextHolder.getRequestAttributes())
         ).getRequest();
+        @SuppressWarnings("unchecked")
         Map<String, String> variables = (Map<String, String>) request.getAttribute(
                 HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE
         );
