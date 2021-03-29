@@ -3,11 +3,14 @@ package mil.af.abms.midas.api.product.dto;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+import java.util.Set;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import mil.af.abms.midas.api.product.validation.TagExists;
 import mil.af.abms.midas.api.product.validation.TeamExists;
 import mil.af.abms.midas.api.product.validation.UniqueName;
 
@@ -23,6 +26,8 @@ public class UpdateProductDTO {
     private Long gitlabProjectId;
     @TeamExists
     private Long teamId;
+    @TagExists
+    private Set<Long> tagIds;
     private String description;
     private Boolean isArchived;
 

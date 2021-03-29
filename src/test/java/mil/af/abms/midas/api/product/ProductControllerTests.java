@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -24,6 +25,8 @@ import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
+import mil.af.abms.midas.api.tag.Tag;
+import mil.af.abms.midas.api.tag.TagRepository;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.team.TeamRepository;
 import mil.af.abms.midas.exception.EntityNotFoundException;
@@ -35,6 +38,8 @@ public class ProductControllerTests extends ControllerTestHarness {
     private ProductService productService;
     @MockBean
     private TeamRepository teamRepository;
+    @MockBean
+    private TagRepository tagRepository;
 
     private final static Long ID = 1L;
     private final static String NAME = "MIDAS";
@@ -58,6 +63,10 @@ public class ProductControllerTests extends ControllerTestHarness {
             .with(p -> p.setDescription(DESCRIPTION))
             .with(p -> p.setCreationDate(CREATION_DATE))
             .with(p -> p.setIsArchived(IS_ARCHIVED)).get();
+    private final Tag tag = Builder.build(Tag.class)
+            .with(t -> t.setId(3L))
+            .with(t -> t.setLabel("Tag"))
+            .with(t -> t.setProducts(Set.of(product))).get();
 
     @BeforeEach
     public void init() throws Exception {
@@ -82,9 +91,10 @@ public class ProductControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_update_product() throws Exception {
-        UpdateProductDTO updateProductDTO = new UpdateProductDTO(NAME, 5L, 0L, "", false);
+        UpdateProductDTO updateProductDTO = new UpdateProductDTO(NAME, 5L, 0L, Set.of(tag.getId()), "", false);
 
         when(teamRepository.existsById(any())).thenReturn(true);
+        when(tagRepository.existsById(any())).thenReturn(true);
         when(productService.findByName(NAME)).thenReturn(product);
         when(productService.updateById(anyLong(), any(UpdateProductDTO.class))).thenReturn(product);
 
@@ -95,16 +105,15 @@ public class ProductControllerTests extends ControllerTestHarness {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.name").value(product.getName()));
-    }
 
+    }
 
     @Test
     public void should_throw_team_exists_exception_on_update_product_team() throws Exception {
-        UpdateProductDTO updateProductDTO = new UpdateProductDTO(NAME, 5L, 1L, "", false);
-
-        String expectedMessage = "team does not exists";
+        UpdateProductDTO updateProductDTO = new UpdateProductDTO(NAME, 5L, 1L, Set.of(tag.getId()), "", false);
 
         when(productService.findByName(NAME)).thenReturn(product);
+        when(tagRepository.existsById(any())).thenReturn(true);
         when(teamRepository.existsById(any())).thenReturn(false);
 
         mockMvc.perform(put("/api/products/1")
@@ -113,19 +122,18 @@ public class ProductControllerTests extends ControllerTestHarness {
         )
                 .andExpect(status().is4xxClientError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.errors[0]").value(expectedMessage));
+                .andExpect(jsonPath("$.errors[0]").value("team does not exists"));
     }
 
     @Test
     public void should_throw_unique_name_exception_on_product() throws Exception {
-        UpdateProductDTO updateProductDTO = new UpdateProductDTO(NAME, 5L, 0L, "false", false);
+        UpdateProductDTO updateProductDTO = new UpdateProductDTO(NAME, 5L, 0L, Set.of(tag.getId()), "false", false);
         Product diffProductSameName = new Product();
         BeanUtils.copyProperties(product, diffProductSameName);
         diffProductSameName.setId(42L);
 
-        String expectedMessage = "product name already exists";
-
         when(productService.findByName(NAME)).thenReturn(diffProductSameName);
+        when(tagRepository.existsById(any())).thenReturn(true);
         when(teamRepository.existsById(any())).thenReturn(true);
 
         mockMvc.perform(put("/api/products/1")
@@ -134,6 +142,6 @@ public class ProductControllerTests extends ControllerTestHarness {
         )
                 .andExpect(status().is4xxClientError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.errors[0]").value(expectedMessage));
+                .andExpect(jsonPath("$.errors[0]").value("product name already exists"));
     }
 }

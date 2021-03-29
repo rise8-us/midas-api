@@ -5,6 +5,7 @@ import javax.validation.constraints.NotNull;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
 import mil.af.abms.midas.api.product.validation.UniqueName;
 
 @AllArgsConstructor

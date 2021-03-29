@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 
 import javax.validation.ConstraintValidatorContext;
 
-import java.time.LocalDateTime;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -20,28 +20,27 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.team.Team;
-import mil.af.abms.midas.api.team.TeamRepository;
+import mil.af.abms.midas.api.tag.Tag;
+import mil.af.abms.midas.api.tag.TagRepository;
 
 @ExtendWith(SpringExtension.class)
-@Import({TeamExistsValidator.class})
-public class TeamExistsValidatorTests {
+@Import({TagExistsValidator.class})
+public class TagExistsValidatorTests {
 
     @Autowired
-    TeamExistsValidator validator;
+    TagExistsValidator validator;
     @MockBean
-    private TeamRepository teamRepository;
+    private TagRepository tagRepository;
     @Mock
     private ConstraintValidatorContext context;
     @Mock
     private ConstraintValidatorContext.ConstraintViolationBuilder builder;
 
-    private final LocalDateTime CREATION_DATE = LocalDateTime.now();
-    private final Team foundTeam = Builder.build(Team.class)
+    private final Tag tag = Builder.build(Tag.class)
             .with(t -> t.setId(1L))
-            .with(t -> t.setName("MIDAS"))
-            .with(t -> t.setCreationDate(CREATION_DATE))
-            .with(t -> t.setIsArchived(false)).get();
+            .with(t -> t.setLabel("tag test"))
+            .with(t -> t.setDescription("New Tag"))
+            .with(t -> t.setColor("#9699696")).get();
 
     @BeforeEach
     public void init() {
@@ -49,23 +48,17 @@ public class TeamExistsValidatorTests {
     }
 
     @Test
-    public void should_validate_team_exists_false() {
-        when(teamRepository.existsById(3L)).thenReturn(false);
+    public void should_validate_tag_exists_false() {
+        when(tagRepository.existsById(3L)).thenReturn(false);
 
-        assertFalse(validator.isValid(3L, context));
+        assertFalse(validator.isValid(Set.of(3L), context));
     }
 
     @Test
-    public void should_validate_team_exists_true() {
-        when(teamRepository.existsById(1L)).thenReturn(true);
+    public void should_validate_tag_exists_true() {
+        when(tagRepository.existsById(1L)).thenReturn(true);
 
-        assertTrue(validator.isValid(1L, context));
+        assertTrue(validator.isValid(Set.of(1L), context));
     }
 
-    @Test
-    public void should_validate_team_exists_true_when_null() {
-        when(teamRepository.existsById(null)).thenReturn(true);
-
-        assertTrue(validator.isValid(null, context));
-    }
 }

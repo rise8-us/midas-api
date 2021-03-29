@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
+import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.api.user.User;
@@ -28,8 +30,10 @@ public class ProductTests {
 
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
 
+    private Set<Tag> tags = Set.of(Builder.build(Tag.class).with(u -> u.setId(2L)).get());
     Team team = Builder.build(Team.class)
             .with(t -> t.setId(3L)).get();
+
 
     Product expectedProduct = Builder.build(Product.class)
             .with(p -> p.setId(1L))
@@ -38,6 +42,7 @@ public class ProductTests {
             .with(p -> p.setTeam(team))
             .with(p -> p.setIsArchived(true))
             .with(p -> p.setGitlabProjectId(2L))
+            .with(p -> p.setTags(tags))
             .with(p -> p.setCreationDate(CREATION_DATE)).get();
 
     ProductDTO expectedProductDTO = Builder.build(ProductDTO.class)
@@ -47,6 +52,7 @@ public class ProductTests {
             .with(p -> p.setIsArchived(true))
             .with(p -> p.setTeamId(3L))
             .with(p -> p.setGitlabProjectId(2L))
+            .with(p -> p.setTagIds(Set.of(2L)))
             .with(p -> p.setCreationDate(CREATION_DATE)).get();
 
     @Test

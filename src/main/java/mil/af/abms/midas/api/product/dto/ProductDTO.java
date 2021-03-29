@@ -1,6 +1,7 @@
 package mil.af.abms.midas.api.product.dto;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,6 +20,7 @@ public class ProductDTO implements AbstractDTO {
     private Boolean isArchived;
     private LocalDateTime creationDate;
     private Long gitlabProjectId;
+    private Set<Long> tagIds;
     private Long teamId;
 
 }
