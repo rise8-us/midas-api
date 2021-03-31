@@ -27,9 +27,12 @@ public final class HttpPathVariableIdGrabber {
         Map<String, String> variables = (Map<String, String>) request.getAttribute(
                 HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE
         );
-        if (variables.get(varName) == null) {
-            return null;
+        try {
+            variables.get(varName);
+        } catch (NullPointerException e) {
+          return null;
         }
+
         return Long.valueOf(variables.get(varName));
     }
 

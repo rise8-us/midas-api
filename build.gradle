@@ -51,6 +51,7 @@ dependencies {
     implementation 'io.springfox:springfox-boot-starter:3.0.0'
     implementation 'org.flywaydb:flyway-core'
     implementation 'com.auth0:java-jwt:3.12.1'
+    implementation 'org.gitlab4j:gitlab4j-api:4.15.7'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'mysql:mysql-connector-java'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
@@ -60,6 +61,7 @@ dependencies {
     testImplementation 'com.h2database:h2:1.4.199'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+
 }
 
 generateGrammarSource {
@@ -94,7 +96,9 @@ jacocoTestReport {
                     "mil/af/abms/midas/api/search/RestQueryLexer**",        //Generate by ANTLR
                     "mil/af/abms/midas/config/Startup**",
                     "mil/af/abms/midas/config/AppConfig**",
-                    "**/dto/**DTO**"
+                    "**/dto/**DTO**",
+                    "mil/af/abms/midas/clients/GitLab4JClient**",
+                    "mil/af/abms/midas/exception**"
             ])
         }))
     }

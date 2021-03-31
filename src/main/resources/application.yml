@@ -7,14 +7,11 @@ custom:
   mattermosturl: http://mattermost.foo
   localKeycloakUid: keycloak-sub-123
   jwtAdminGroup: ${ADMIN_GROUP:midas-IL2-admin}
+  gitLabUrl: ${GITLAB_API_URL}
+  gitLabAccessToken: ${GITLAB_ACCESS_TOKEN}
 
 server:
   port: 8000
-
-keycloak:
-  client: ${KEYCLOAK_CLIENT_ID:#{null}}
-  jwk: ${KEYCLOAK_JWK:#{null}}
-  issuer: http://localhost:8080/auth/realms/local
 
 logging:
   level:
