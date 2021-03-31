@@ -38,7 +38,7 @@ spring:
     password: ${MYSQL_DB_ADMIN_PASSWORD}
 
   flyway:
-    failed-last-migration: false
+    failed-last-migration: true
   servlet:
     multipart:
       enabled: true
