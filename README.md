@@ -25,6 +25,7 @@ Platform 1 CtF criteria
 - keycloak identity integration
 - secure configuration for web security
 - custom method security for securing endpoints
+- Gitlab4j 
 
 ## Awaiting integration
 
@@ -99,6 +100,12 @@ ANTLR will build our Specifications which will be consumed by the JpaRepository 
 with JpaSpecificationExecutor<Entity Type>. The executor will build the specification into a query
 when passed to methods such as `repository.findall(specifications)`
 
+# [Gitlab4J](https://github.com/gitlab4j/gitlab4j-api)
+
+GitLab4J™ API (gitlab4j-api) provides a full featured and easy to consume Java library for working with GitLab 
+repositories via the GitLab REST API. Additionally, full support for working with GitLab webhooks and system hooks 
+is also provided.
+
 # Reference Documentation
 
 For further reference, please consider the following sections:
@@ -114,6 +121,7 @@ For further reference, please consider the following sections:
 - [Flyway Migration](https://docs.spring.io/spring-boot/docs/2.4.1/reference/htmlsingle/#howto-execute-flyway-database-migrations-on-startup)
 - [WebSocket](https://docs.spring.io/spring-boot/docs/2.4.1/reference/htmlsingle/#boot-features-websockets)
 - [Spring Boot Actuator](https://docs.spring.io/spring-boot/docs/2.4.1/reference/htmlsingle/#production-ready)
+- [Gitlab4J](https://github.com/gitlab4j/gitlab4j-api)
 
 ### Guides
 

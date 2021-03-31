@@ -9,8 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Getter @Setter
 public class PlatformOneAuthenticationToken extends AbstractAuthenticationToken {
 
     private Long dodId;
@@ -24,14 +23,14 @@ public class PlatformOneAuthenticationToken extends AbstractAuthenticationToken 
     public PlatformOneAuthenticationToken(
             String keycloakUid,
             Long dodId,
-            String username,
+            String displayName,
             String email,
             List<String> groups) {
 
         super(null);
         this.keycloakUid = keycloakUid;
         this.dodId = dodId;
-        this.displayName = username;
+        this.displayName = displayName;
         this.email = email;
         this.groups = groups;
     }

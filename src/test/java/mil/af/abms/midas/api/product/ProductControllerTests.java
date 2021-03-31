@@ -29,6 +29,7 @@ import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.tag.TagRepository;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.team.TeamRepository;
+import mil.af.abms.midas.clients.GitLab4JClient;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @WebMvcTest({ProductController.class})
@@ -40,6 +41,8 @@ public class ProductControllerTests extends ControllerTestHarness {
     private TeamRepository teamRepository;
     @MockBean
     private TagRepository tagRepository;
+    @MockBean
+    private GitLab4JClient gitLab4JClient;
 
     private final static Long ID = 1L;
     private final static String NAME = "MIDAS";
@@ -79,6 +82,7 @@ public class ProductControllerTests extends ControllerTestHarness {
 
         when(productService.findByName(NAME)).thenThrow(EntityNotFoundException.class);
         when(productService.create(any(CreateProductDTO.class))).thenReturn(product);
+        when(gitLab4JClient.projectExistsById(GITLAB_PROJECT_ID)).thenReturn(true);
 
         mockMvc.perform(post("/api/products")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -97,6 +101,7 @@ public class ProductControllerTests extends ControllerTestHarness {
         when(tagRepository.existsById(any())).thenReturn(true);
         when(productService.findByName(NAME)).thenReturn(product);
         when(productService.updateById(anyLong(), any(UpdateProductDTO.class))).thenReturn(product);
+        when(gitLab4JClient.projectExistsById(5L)).thenReturn(true);
 
         mockMvc.perform(put("/api/products/1")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -115,6 +120,7 @@ public class ProductControllerTests extends ControllerTestHarness {
         when(productService.findByName(NAME)).thenReturn(product);
         when(tagRepository.existsById(any())).thenReturn(true);
         when(teamRepository.existsById(any())).thenReturn(false);
+        when(gitLab4JClient.projectExistsById(any())).thenReturn(true);
 
         mockMvc.perform(put("/api/products/1")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -135,6 +141,7 @@ public class ProductControllerTests extends ControllerTestHarness {
         when(productService.findByName(NAME)).thenReturn(diffProductSameName);
         when(tagRepository.existsById(any())).thenReturn(true);
         when(teamRepository.existsById(any())).thenReturn(true);
+        when(gitLab4JClient.projectExistsById(any())).thenReturn(true);
 
         mockMvc.perform(put("/api/products/1")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
