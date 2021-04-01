@@ -14,6 +14,7 @@ import mil.af.abms.midas.api.AbstractCRUDController;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
+import mil.af.abms.midas.api.product.dto.UpdateProductJourneyMapDTO;
 
 @RestController
 @RequestMapping("/api/products")
@@ -29,7 +30,11 @@ public class ProductController extends AbstractCRUDController<Product, ProductDT
 
     @PutMapping("/{id}")
     public ProductDTO updateById(@Valid @RequestBody UpdateProductDTO updateProductDTO, @PathVariable Long id) {
-
         return service.updateById(id, updateProductDTO).toDto();
+    }
+
+    @PutMapping("/{id}/journeymap")
+    public ProductDTO updateProductJourneyMapById(@RequestBody UpdateProductJourneyMapDTO updateProductJourneyMapDTO, @PathVariable Long id) {
+        return service.updateJourneyMapById(id, updateProductJourneyMapDTO).toDto();
     }
 }

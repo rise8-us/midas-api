@@ -43,6 +43,7 @@ public class ProductTests {
             .with(p -> p.setIsArchived(true))
             .with(p -> p.setGitlabProjectId(2L))
             .with(p -> p.setTags(tags))
+            .with(p -> p.setProductJourneyMap(0L))
             .with(p -> p.setCreationDate(CREATION_DATE)).get();
 
     ProductDTO expectedProductDTO = Builder.build(ProductDTO.class)
@@ -52,6 +53,7 @@ public class ProductTests {
             .with(p -> p.setIsArchived(true))
             .with(p -> p.setTeamId(3L))
             .with(p -> p.setGitlabProjectId(2L))
+            .with(p -> p.setProductJourneyMap(0L))
             .with(p -> p.setTagIds(Set.of(2L)))
             .with(p -> p.setCreationDate(CREATION_DATE)).get();
 
@@ -69,6 +71,7 @@ public class ProductTests {
         assertThat(expectedProduct.getName()).isEqualTo("MIDAS");
         assertThat(expectedProduct.getTeam()).isEqualTo(team);
         assertThat(expectedProduct.getDescription()).isEqualTo("testDescription");
+        assertThat(expectedProduct.getProductJourneyMap()).isEqualTo(0L);
         assertTrue(expectedProduct.getIsArchived());
         assertThat(expectedProduct.getGitlabProjectId()).isEqualTo(2L);
         assertThat(expectedProduct.getCreationDate()).isEqualTo(CREATION_DATE);

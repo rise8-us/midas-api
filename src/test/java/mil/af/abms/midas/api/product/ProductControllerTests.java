@@ -24,7 +24,9 @@ import org.junit.jupiter.api.Test;
 import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
+import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
+import mil.af.abms.midas.api.product.dto.UpdateProductJourneyMapDTO;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.tag.TagRepository;
 import mil.af.abms.midas.api.team.Team;
@@ -65,6 +67,7 @@ public class ProductControllerTests extends ControllerTestHarness {
             .with(p -> p.setTeam(team))
             .with(p -> p.setDescription(DESCRIPTION))
             .with(p -> p.setCreationDate(CREATION_DATE))
+            .with(p -> p.setProductJourneyMap(0L))
             .with(p -> p.setIsArchived(IS_ARCHIVED)).get();
     private final Tag tag = Builder.build(Tag.class)
             .with(t -> t.setId(3L))
@@ -150,5 +153,23 @@ public class ProductControllerTests extends ControllerTestHarness {
                 .andExpect(status().is4xxClientError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.errors[0]").value("product name already exists"));
+    }
+
+    @Test
+    public void should_update_product_journey_map() throws Exception {
+        UpdateProductJourneyMapDTO updateJourneyMapDTO = Builder.build(UpdateProductJourneyMapDTO.class)
+                .with(p -> p.setProductJourneyMap(1L)).get();
+        ProductDTO updateProductDTO = product.toDto();
+        updateProductDTO.setProductJourneyMap(0L);
+
+        when(productService.updateJourneyMapById(1L, updateJourneyMapDTO)).thenReturn(product);
+
+        mockMvc.perform(put("/api/products/1/journeymap")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsString(updateJourneyMapDTO))
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.productJourneyMap").value(updateProductDTO.getProductJourneyMap()));
     }
 }
