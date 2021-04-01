@@ -22,7 +22,9 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class PlatformOneAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String AUTHORIZATION = "Authorization";
@@ -57,11 +59,11 @@ public class PlatformOneAuthenticationFilter extends OncePerRequestFilter {
                 DecodedJWT decodedJWT = JWT.decode(token);
                 Map<String, Claim> claims = decodedJWT.getClaims();
 
-                keycloakUid = claims.get("sub").asString();
-                cert = claims.get("usercertificate").asString();
-                displayName = claims.get("name").asString();
-                email = claims.get("email").asString();
-                List<String> allGroups = claims.get("group-simple").asList(String.class);
+                keycloakUid = getClaimsKeyAsString(claims, "sub");
+                cert = getClaimsKeyAsString(claims, "usercertificate");
+                displayName = getClaimsKeyAsString(claims, "name");
+                email = getClaimsKeyAsString(claims,"email");
+                List<String> allGroups = getClaimsKeyAsList(claims,"group-simple");
                 groups = allGroups.stream().filter(g -> g.matches("^mixer.*")).collect(Collectors.toList());
 
                 String[] certSplit = cert.split("\\.");
@@ -86,4 +88,24 @@ public class PlatformOneAuthenticationFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
+
+    private String getClaimsKeyAsString(Map<String, Claim> claims, String key) {
+        try {
+            return claims.get(key).asString();
+        } catch (NullPointerException e) {
+            log.error(e.getMessage());
+            return "";
+        }
+    }
+
+    private List<String> getClaimsKeyAsList(Map<String, Claim> claims, String key) {
+        try {
+            return claims.get(key).asList(String.class);
+        } catch (NullPointerException e) {
+            log.error(e.getMessage());
+            return new ArrayList<>();
+        }
+    }
 }
+
+
