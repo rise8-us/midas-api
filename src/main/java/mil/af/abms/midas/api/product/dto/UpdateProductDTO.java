@@ -10,7 +10,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import mil.af.abms.midas.api.product.validation.GitProjectExists;
 import mil.af.abms.midas.api.product.validation.TagExists;
 import mil.af.abms.midas.api.product.validation.TeamExists;
 import mil.af.abms.midas.api.product.validation.UniqueName;
@@ -23,7 +22,6 @@ public class UpdateProductDTO {
     @NotBlank(message = "Product name must not be blank")
     @UniqueName(isNew = false)
     private String name;
-    @GitProjectExists
     @NotNull(message = "Gitlab project ID must not be Null")
     private Long gitlabProjectId;
     @TeamExists

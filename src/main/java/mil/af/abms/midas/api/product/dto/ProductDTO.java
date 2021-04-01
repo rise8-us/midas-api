@@ -22,5 +22,5 @@ public class ProductDTO implements AbstractDTO {
     private Long gitlabProjectId;
     private Set<Long> tagIds;
     private Long teamId;
-
+    private Long productJourneyMap;
 }

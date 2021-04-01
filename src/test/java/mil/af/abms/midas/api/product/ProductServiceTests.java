@@ -23,6 +23,7 @@ import org.mockito.Captor;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
+import mil.af.abms.midas.api.product.dto.UpdateProductJourneyMapDTO;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.team.Team;
@@ -169,6 +170,22 @@ public class ProductServiceTests {
        verify(productRepository, times(1)).save(productCaptor.capture());
        Product productSaved = productCaptor.getValue();
         assertThat(productSaved.getTags()).isEqualTo(tagsToKeep);
+    }
+
+    @Test
+    public void should_update_product_journey_map_by_id() {
+        UpdateProductJourneyMapDTO updateJourneyMapDTO = Builder.build(UpdateProductJourneyMapDTO.class)
+                .with(p -> p.setProductJourneyMap(0L)).get();
+
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(productRepository.save(product)).thenReturn(product);
+
+        productService.updateJourneyMapById(1L, updateJourneyMapDTO);
+
+        verify(productRepository, times(1)).save(productCaptor.capture());
+        Product productSaved = productCaptor.getValue();
+
+        assertThat(productSaved.getProductJourneyMap()).isEqualTo(updateJourneyMapDTO.getProductJourneyMap());
     }
 
 }

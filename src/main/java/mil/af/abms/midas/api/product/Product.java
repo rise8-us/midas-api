@@ -33,8 +33,11 @@ public class Product extends AbstractEntity<ProductDTO> {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(nullable = false, columnDefinition = "BIT(1) DEFAULT 0")
+    @Column(columnDefinition = "BIT(1) DEFAULT 0", nullable = false)
     private Boolean isArchived = false;
+
+    @Column(columnDefinition = "BIGINT DEFAULT 0", nullable = false)
+    private Long productJourneyMap = 0L;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "team_id")
@@ -58,7 +61,7 @@ public class Product extends AbstractEntity<ProductDTO> {
             teamId = team.getId();
         }
 
-        return new ProductDTO(id, name, description, isArchived, creationDate, gitlabProjectId, getTagIds(), teamId);
+        return new ProductDTO(id, name, description, isArchived, creationDate, gitlabProjectId, getTagIds(), teamId, productJourneyMap);
     }
 
     private Set<Long> getTagIds() { return tags.stream().map(Tag::getId).collect(Collectors.toSet()); }

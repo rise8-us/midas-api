@@ -62,8 +62,8 @@ public class PlatformOneAuthenticationFilter extends OncePerRequestFilter {
                 keycloakUid = getClaimsKeyAsString(claims, "sub");
                 cert = getClaimsKeyAsString(claims, "usercertificate");
                 displayName = getClaimsKeyAsString(claims, "name");
-                email = getClaimsKeyAsString(claims,"email");
-                List<String> allGroups = getClaimsKeyAsList(claims,"group-simple");
+                email = getClaimsKeyAsString(claims, "email");
+                List<String> allGroups = getClaimsKeyAsList(claims, "group-simple");
                 groups = allGroups.stream().filter(g -> g.matches("^mixer.*")).collect(Collectors.toList());
 
                 String[] certSplit = cert.split("\\.");

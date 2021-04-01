@@ -13,6 +13,7 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
+import mil.af.abms.midas.api.product.dto.UpdateProductJourneyMapDTO;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.team.Team;
@@ -83,6 +84,14 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         Set<Tag> tagsToKeep = product.getTags().stream().filter(t -> !t.getId().equals(tagId)).collect(Collectors.toSet());
         product.setTags(tagsToKeep);
         repository.save(product);
+    }
+
+    @Transactional
+    public Product updateJourneyMapById(Long id, UpdateProductJourneyMapDTO updateProductJourneyMapDTO) {
+        Product foundProduct = getObject(id);
+        foundProduct.setProductJourneyMap(updateProductJourneyMapDTO.getProductJourneyMap());
+
+        return repository.save(foundProduct);
     }
 
 }
