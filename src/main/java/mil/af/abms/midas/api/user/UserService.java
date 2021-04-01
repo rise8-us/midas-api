@@ -46,6 +46,7 @@ public class UserService extends AbstractCRUDService<User, UserDTO, UserReposito
                 .with(u -> u.setKeycloakUid(token.getKeycloakUid()))
                 .with(u -> u.setDodId(token.getDodId()))
                 .with(u -> u.setDisplayName(token.getDisplayName()))
+                .with(u -> u.setUsername(token.getDisplayName()))
                 .with(u -> u.setRoles(rolesAsLong))
                 .with(u -> u.setEmail(token.getEmail())).get();
         return repository.save(user);
