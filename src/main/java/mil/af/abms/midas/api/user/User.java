@@ -31,6 +31,7 @@ import mil.af.abms.midas.api.user.dto.UserDTO;
 public class User extends AbstractEntity<UserDTO> {
 
     @NaturalId(mutable = false)
+    @Column(unique = true)
     private String keycloakUid;
 
     @Column(columnDefinition = "VARCHAR(100)", nullable = false)
