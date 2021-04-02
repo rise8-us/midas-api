@@ -3,7 +3,6 @@ package mil.af.abms.midas.config.auth.platform1;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -33,8 +32,7 @@ public class PlatformOneAuthenticationProvider implements AuthenticationProvider
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
         PlatformOneAuthenticationToken token = (PlatformOneAuthenticationToken) authentication;
-        Optional<User> optionalUser = userService.findByKeycloakUid(token.getKeycloakUid());
-        User user = optionalUser.orElseGet(() -> userService.create(token));
+        User user = userService.findByKeycloakUid(token.getKeycloakUid()).orElseGet(() -> userService.create(token));
 
         List<GrantedAuthority> authorityList = new ArrayList<>(getRoles(user));
         authorityList.add(new SimpleGrantedAuthority("IS_AUTHENTICATED"));

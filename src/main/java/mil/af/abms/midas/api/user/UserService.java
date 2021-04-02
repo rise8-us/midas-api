@@ -29,7 +29,7 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 public class UserService extends AbstractCRUDService<User, UserDTO, UserRepository> {
 
     private final CustomProperty property;
-    private TeamService teamService;
+    private final TeamService teamService;
 
     @Autowired
     public UserService(UserRepository repository, CustomProperty property, TeamService teamService) {
