@@ -12,14 +12,15 @@ public class RolesTest {
 
     @Test
     public void canStreamEnum() {
-        assertThat(Roles.stream().collect(Collectors.toList()).size()).isEqualTo(2);
+        assertThat(Roles.stream().collect(Collectors.toList()).size()).isEqualTo(3);
     }
 
     @Test
     public void can_get_permission_by_long() {
         Map<Roles, Boolean> rolesMap = new HashMap<Roles, Boolean>();
         rolesMap.put(Roles.ADMIN, true);
-        rolesMap.put(Roles.PLACEHOLDER, false);
+        rolesMap.put(Roles.PORTFOLIO_LEAD, false);
+        rolesMap.put(Roles.PRODUCT_MANAGER, false);
 
         assertThat(Roles.getRoles(1L)).isEqualTo(rolesMap);
     }
@@ -42,9 +43,9 @@ public class RolesTest {
 
     @Test
     public void should_return_expected_enum_add() {
-        assertThat(Roles.PLACEHOLDER.getOffset()).isEqualTo(1);
-        assertThat(Roles.PLACEHOLDER.getName()).isEqualTo("PLACEHOLDER");
-        assertThat(Roles.PLACEHOLDER.getDescription()).isEqualTo("Placeholder role");
-        assertThat(Roles.PLACEHOLDER.getBitValue()).isEqualTo(2);
+        assertThat(Roles.PORTFOLIO_LEAD.getOffset()).isEqualTo(1);
+        assertThat(Roles.PORTFOLIO_LEAD.getName()).isEqualTo("PORTFOLIO_LEAD");
+        assertThat(Roles.PORTFOLIO_LEAD.getDescription()).isEqualTo("Manages portfolio");
+        assertThat(Roles.PORTFOLIO_LEAD.getBitValue()).isEqualTo(2);
     }
 }

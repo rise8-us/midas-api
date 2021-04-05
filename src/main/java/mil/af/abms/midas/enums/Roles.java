@@ -11,7 +11,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum Roles {
     ADMIN(0, "ADMIN", "Can update or add anything"),
-    PLACEHOLDER(1, "PLACEHOLDER", "Placeholder role");
+    PORTFOLIO_LEAD(1, "PORTFOLIO_LEAD", "Manages portfolio"),
+    PRODUCT_MANAGER(2, "PRODUCT_MANAGER", "Manages products");
 
     private final Integer offset;
     private final String name;
