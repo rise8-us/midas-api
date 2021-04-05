@@ -42,11 +42,12 @@ public class Team extends AbstractEntity<TeamDTO> {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(
             name = "user_team",
             joinColumns = @JoinColumn(name = "team_id", referencedColumnName = "id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false))
+            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    )
     private Set<User> users = new HashSet<>();
 
     public TeamDTO toDto() {

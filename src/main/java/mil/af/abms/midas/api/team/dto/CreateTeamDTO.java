@@ -2,6 +2,8 @@ package mil.af.abms.midas.api.team.dto;
 
 import javax.validation.constraints.NotBlank;
 
+import java.util.Set;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,4 +19,5 @@ public class CreateTeamDTO {
     String name;
     Long gitlabGroupId;
     String description;
+    Set<Long> userIds;
 }

@@ -29,14 +29,15 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 public class UserService extends AbstractCRUDService<User, UserDTO, UserRepository> {
 
     private final CustomProperty property;
-    private final TeamService teamService;
+    private TeamService teamService;
 
-    @Autowired
-    public UserService(UserRepository repository, CustomProperty property, TeamService teamService) {
+    public UserService(UserRepository repository, CustomProperty property) {
         super(repository, User.class, UserDTO.class);
         this.property = property;
-        this.teamService = teamService;
     }
+
+    @Autowired
+    public void setTeamService(TeamService teamService) { this.teamService = teamService; }
 
     @Transactional
     public User create(PlatformOneAuthenticationToken token) {
@@ -56,12 +57,8 @@ public class UserService extends AbstractCRUDService<User, UserDTO, UserReposito
     public User updateById(Long id, UpdateUserDTO updateUserDTO) {
         User user = getObject(id);
 
-        if (!updateUserDTO.getTeamIds().isEmpty()) {
-            Set<Team> teams = updateUserDTO.getTeamIds().stream().map(teamService::getObject).collect(Collectors.toSet());
-            user.setTeams(teams);
-        } else {
-            user.setTeams(null);
-        }
+        Set<Team> teams = updateUserDTO.getTeamIds().stream().map(teamService::getObject).collect(Collectors.toSet());
+        user.setTeams(teams);
 
         user.setUsername(updateUserDTO.getUsername());
         user.setEmail(updateUserDTO.getEmail());
