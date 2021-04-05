@@ -26,7 +26,7 @@ public class TeamService extends AbstractCRUDService<Team, TeamDTO, TeamReposito
     }
 
     @Autowired
-    public void setUserService(UserService userService) {this.userService = userService;}
+    public void setUserService(UserService userService) { this.userService = userService; }
 
     @Transactional
     public Team create(CreateTeamDTO createTeamDTO) {
