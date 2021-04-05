@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -23,6 +24,8 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.team.dto.CreateTeamDTO;
 import mil.af.abms.midas.api.team.dto.UpdateTeamDTO;
 import mil.af.abms.midas.api.team.dto.UpdateTeamIsArchivedDTO;
+import mil.af.abms.midas.api.user.User;
+import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @ExtendWith(SpringExtension.class)
@@ -31,20 +34,29 @@ public class TeamServiceTests {
 
     @Autowired
     TeamService teamService;
+
+    @MockBean
+    UserService userService;
     @MockBean
     TeamRepository teamRepository;
     @Captor
     ArgumentCaptor<Team> teamCaptor;
 
+    User user = Builder.build(User.class)
+            .with(u -> u.setUsername("foo"))
+            .with(u -> u.setKeycloakUid("abc-123"))
+            .with(u -> u.setId(3L)).get();
     Team team = Builder.build(Team.class)
             .with(t -> t.setName("MIDAS"))
             .with(t -> t.setDescription("dev team"))
             .with(t -> t.setId(1L)).get();
+    Set<User> users = Set.of(user);
 
     @Test
     public void should_create_team() {
-        CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 2L, "dev team");
+        CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 2L, "dev team", Set.of(3L));
 
+        when(userService.getObject(3L)).thenReturn(user);
         when(teamRepository.save(team)).thenReturn(new Team());
 
         teamService.create(createTeamDTO);
@@ -55,6 +67,7 @@ public class TeamServiceTests {
         assertThat(teamSaved.getName()).isEqualTo(createTeamDTO.getName());
         assertThat(teamSaved.getGitlabGroupId()).isEqualTo(createTeamDTO.getGitlabGroupId());
         assertThat(teamSaved.getDescription()).isEqualTo(createTeamDTO.getDescription());
+        assertThat(teamSaved.getUsers()).isEqualTo(users);
     }
 
     @Test
@@ -72,8 +85,9 @@ public class TeamServiceTests {
 
     @Test
     public void should_update_team_by_id() {
-        UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("Home One", 22L, "dev team");
+        UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("Home One", 22L, "dev team", Set.of(3L));
 
+        when(userService.getObject(3L)).thenReturn(user);
         when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
         when(teamRepository.save(team)).thenReturn(team);
 

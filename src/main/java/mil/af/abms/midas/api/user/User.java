@@ -1,6 +1,5 @@
 package mil.af.abms.midas.api.user;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -58,7 +57,7 @@ public class User extends AbstractEntity<UserDTO> {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     protected LocalDateTime lastLogin;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(
             name = "user_team",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false),

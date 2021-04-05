@@ -195,19 +195,18 @@ public class UserServiceTests {
     }
 
     @Test
-    public void should_set_team_to_null() {
+    public void should_set_team_to_empty_set() {
         UpdateUserDTO updateDTO = Builder.build(UpdateUserDTO.class)
                 .with(u -> u.setTeamIds(Set.of())).get();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(expectedUser));
-        when(teamService.getObject(1L)).thenReturn(team);
 
         userService.updateById(1L, updateDTO);
 
         verify(userRepository, times(1)).save(userCaptor.capture());
         User userSaved = userCaptor.getValue();
 
-        assertThat(userSaved.getTeams()).isEqualTo(null);
+        assertThat(userSaved.getTeams()).isEqualTo(Set.of());
     }
 
     @Test
