@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
+import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.team.Team;
@@ -39,9 +40,16 @@ public class Product extends AbstractEntity<ProductDTO> {
     @Column(columnDefinition = "BIGINT DEFAULT 0", nullable = false)
     private Long productJourneyMap = 0L;
 
+    @Column(columnDefinition = "BIGINT", nullable = false)
+    private Long gitlabProjectId;
+
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "team_id")
     private Team team;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "portfolio_id")
+    private Portfolio portfolio;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
@@ -51,17 +59,20 @@ public class Product extends AbstractEntity<ProductDTO> {
     )
     private Set<Tag> tags = new HashSet<>();
 
-    @Column(columnDefinition = "BIGINT", nullable = false)
-    private Long gitlabProjectId;
-
     public ProductDTO toDto() {
         Long teamId = null;
+        Long portfolioId = null;
 
         if (team != null) {
             teamId = team.getId();
         }
 
-        return new ProductDTO(id, name, description, isArchived, creationDate, gitlabProjectId, getTagIds(), teamId, productJourneyMap);
+        if (portfolio != null) {
+            portfolioId = portfolio.getId();
+        }
+
+        return new ProductDTO(id, name, description, isArchived, creationDate, gitlabProjectId, getTagIds(), teamId,
+                productJourneyMap, portfolioId);
     }
 
     private Set<Long> getTagIds() { return tags.stream().map(Tag::getId).collect(Collectors.toSet()); }

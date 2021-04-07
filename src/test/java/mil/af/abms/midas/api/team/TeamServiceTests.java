@@ -34,7 +34,6 @@ public class TeamServiceTests {
 
     @Autowired
     TeamService teamService;
-
     @MockBean
     UserService userService;
     @MockBean

@@ -17,6 +17,7 @@ import org.springframework.util.ReflectionUtils;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.team.Team;
@@ -30,10 +31,11 @@ public class ProductTests {
 
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
 
-    private Set<Tag> tags = Set.of(Builder.build(Tag.class).with(u -> u.setId(2L)).get());
-    Team team = Builder.build(Team.class)
+    private final Set<Tag> tags = Set.of(Builder.build(Tag.class).with(u -> u.setId(2L)).get());
+    private final Team team = Builder.build(Team.class)
             .with(t -> t.setId(3L)).get();
-
+    private final Portfolio portfolio = Builder.build(Portfolio.class)
+            .with(p -> p.setId(3L)).get();
 
     Product expectedProduct = Builder.build(Product.class)
             .with(p -> p.setId(1L))
@@ -44,6 +46,7 @@ public class ProductTests {
             .with(p -> p.setGitlabProjectId(2L))
             .with(p -> p.setTags(tags))
             .with(p -> p.setProductJourneyMap(0L))
+            .with(p -> p.setPortfolio(portfolio))
             .with(p -> p.setCreationDate(CREATION_DATE)).get();
 
     ProductDTO expectedProductDTO = Builder.build(ProductDTO.class)
@@ -55,6 +58,7 @@ public class ProductTests {
             .with(p -> p.setGitlabProjectId(2L))
             .with(p -> p.setProductJourneyMap(0L))
             .with(p -> p.setTagIds(Set.of(2L)))
+            .with(p -> p.setPortfolioId(portfolio.getId()))
             .with(p -> p.setCreationDate(CREATION_DATE)).get();
 
     @Test
@@ -89,6 +93,15 @@ public class ProductTests {
         productNullTeam.setTeam(null);
 
         assertThat(productNullTeam.toDto().getTeamId()).isEqualTo(null);
+    }
+
+    @Test
+    public void should_return_dto_null_portfolio() {
+        Product productNullPortfolio = new Product();
+        BeanUtils.copyProperties(expectedProduct, productNullPortfolio);
+        productNullPortfolio.setPortfolio(null);
+
+        assertThat(productNullPortfolio.toDto().getPortfolioId()).isEqualTo(null);
     }
 
     @Test
