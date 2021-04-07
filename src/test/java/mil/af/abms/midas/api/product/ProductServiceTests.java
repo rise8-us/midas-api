@@ -1,7 +1,9 @@
 package mil.af.abms.midas.api.product;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,6 +23,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.product.dto.ArchiveProductDTO;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductJourneyMapDTO;
@@ -188,4 +191,33 @@ public class ProductServiceTests {
         assertThat(productSaved.getProductJourneyMap()).isEqualTo(updateJourneyMapDTO.getProductJourneyMap());
     }
 
+    @Test
+    public void should_archive_product() {
+        ArchiveProductDTO archiveProductDTO = Builder.build(ArchiveProductDTO.class)
+                .with(d -> d.setIsArchived(true)).get();
+
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+
+        Product product = productService.archive(1L, archiveProductDTO);
+
+        verify(productRepository).save(productCaptor.capture());
+        Product productCaptured = productCaptor.getValue();
+        assertTrue(productCaptured.getIsArchived());
+        assertThat(productCaptured.getTeam()).isEqualTo(null);
+    }
+
+    @Test
+    public void should_un_archive_product() {
+        ArchiveProductDTO archiveProductDTO = Builder.build(ArchiveProductDTO.class)
+                .with(d -> d.setIsArchived(false)).get();
+
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+
+        Product product = productService.archive(1L, archiveProductDTO);
+
+        verify(productRepository).save(productCaptor.capture());
+        Product productCaptured = productCaptor.getValue();
+        assertFalse(productCaptured.getIsArchived());
+        assertThat(productCaptured.getTeam()).isEqualTo(null);
+    }
 }
