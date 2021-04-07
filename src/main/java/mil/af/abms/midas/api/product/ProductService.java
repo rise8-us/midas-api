@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.product.dto.ArchiveProductDTO;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
@@ -75,10 +76,6 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         return repository.save(foundProduct);
     }
 
-    public void removeTagFromProducts(Long tagId, Set<Product> products) {
-        products.forEach(p -> removeTagFromProduct(tagId, p));
-    }
-
     @Transactional
     public void removeTagFromProduct(Long tagId, Product product) {
         Set<Tag> tagsToKeep = product.getTags().stream().filter(t -> !t.getId().equals(tagId)).collect(Collectors.toSet());
@@ -94,4 +91,15 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         return repository.save(foundProduct);
     }
 
+    @Transactional
+    public Product archive(Long id, ArchiveProductDTO archiveProductDTO) {
+        Product productToArchive = getObject(id);
+        productToArchive.setTeam(null);
+        productToArchive.setIsArchived(archiveProductDTO.getIsArchived());
+        return repository.save(productToArchive);
+    }
+
+    public void removeTagFromProducts(Long tagId, Set<Product> products) {
+        products.forEach(p -> removeTagFromProduct(tagId, p));
+    }
 }

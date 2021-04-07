@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.product.dto.ArchiveProductDTO;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
@@ -171,5 +172,45 @@ public class ProductControllerTests extends ControllerTestHarness {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.productJourneyMap").value(updateProductDTO.getProductJourneyMap()));
+    }
+
+    @Test
+    public void should_update_product_is_archived_true() throws Exception {
+        Product productArchived = new Product();
+        BeanUtils.copyProperties(product, productArchived);
+        productArchived.setIsArchived(true);
+        productArchived.setTeam(null);
+        ArchiveProductDTO archiveProductDTO = Builder.build(ArchiveProductDTO.class)
+                .with(d -> d.setIsArchived(true)).get();
+
+        when(productService.archive(any(), any())).thenReturn(productArchived);
+
+        mockMvc.perform(put("/api/products/1/archive")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsString(archiveProductDTO))
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.isArchived").value(true))
+                .andExpect(jsonPath("$.teamId").doesNotExist());
+    }
+
+    @Test
+    public void should_update_product_is_archived_false() throws Exception {
+        Product productArchived = new Product();
+        BeanUtils.copyProperties(product, productArchived);
+        productArchived.setIsArchived(false);
+        ArchiveProductDTO archiveProductDTO = Builder.build(ArchiveProductDTO.class)
+                .with(d -> d.setIsArchived(false)).get();
+
+        when(productService.archive(any(), any())).thenReturn(productArchived);
+
+        mockMvc.perform(put("/api/products/1/archive")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsString(archiveProductDTO))
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.isArchived").value(false));
     }
 }
