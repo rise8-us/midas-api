@@ -16,6 +16,7 @@ import org.springframework.util.ReflectionUtils;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.user.dto.UserDTO;
 
@@ -26,6 +27,8 @@ public class UserTests {
     private final Team team = Builder.build(Team.class)
             .with(t -> t.setId(1L))
             .with(t -> t.setName("midas")).get();
+    private final Portfolio portfolio = Builder.build(Portfolio.class)
+            .with(p -> p.setId(3L)).get();
 
     private final User expectedUser = Builder.build(User.class)
             .with(u -> u.setId(1L))
@@ -38,7 +41,6 @@ public class UserTests {
             .with(u -> u.setTeams(Set.of(team)))
             .with(u -> u.setRoles(0L))
             .with(u -> u.setIsDisabled(false)).get();
-
     private final UserDTO userDTO = Builder.build(UserDTO.class)
             .with(d -> d.setId(1L))
             .with(d -> d.setKeycloakUid("abc-123"))
@@ -89,4 +91,5 @@ public class UserTests {
         assertTrue(expectedUser.equals(user2));
         assertFalse(expectedUser.equals(new User()));
     }
+
 }

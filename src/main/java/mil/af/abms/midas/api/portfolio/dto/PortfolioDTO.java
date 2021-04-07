@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.product.dto;
+package mil.af.abms.midas.api.portfolio.dto;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -12,17 +12,14 @@ import mil.af.abms.midas.api.AbstractDTO;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductDTO implements AbstractDTO {
+public class PortfolioDTO implements AbstractDTO {
 
     private Long id;
     private String name;
+    private Long leadId;
     private String description;
+    private Set<Long> productsIds;
     private Boolean isArchived;
     private LocalDateTime creationDate;
-    private Long gitlabProjectId;
-    private Set<Long> tagIds;
-    private Long teamId;
-    private Long productJourneyMap;
-    private Long portfolioId;
 
 }

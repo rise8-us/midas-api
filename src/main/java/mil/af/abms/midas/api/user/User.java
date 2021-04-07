@@ -67,6 +67,7 @@ public class User extends AbstractEntity<UserDTO> {
 
     public UserDTO toDto() {
         Set<Long> teamIds = null;
+        Long portfolioId = null;
 
         if (!teams.isEmpty()) {
             teamIds = teams.stream().map(Team::getId).collect(Collectors.toSet());
