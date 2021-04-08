@@ -185,7 +185,7 @@ public class ProductControllerTests extends ControllerTestHarness {
 
         when(productService.archive(any(), any())).thenReturn(productArchived);
 
-        mockMvc.perform(put("/api/products/1/archive")
+        mockMvc.perform(put("/api/products/1/admin/archive")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(mapper.writeValueAsString(archiveProductDTO))
         )
@@ -205,7 +205,7 @@ public class ProductControllerTests extends ControllerTestHarness {
 
         when(productService.archive(any(), any())).thenReturn(productArchived);
 
-        mockMvc.perform(put("/api/products/1/archive")
+        mockMvc.perform(put("/api/products/1/admin/archive")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(mapper.writeValueAsString(archiveProductDTO))
         )
