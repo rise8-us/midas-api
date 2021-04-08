@@ -16,6 +16,7 @@ import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductJourneyMapDTO;
+import mil.af.abms.midas.config.auth.IsAdmin;
 
 @RestController
 @RequestMapping("/api/products")
@@ -38,7 +39,9 @@ public class ProductController extends AbstractCRUDController<Product, ProductDT
     public ProductDTO updateProductJourneyMapById(@RequestBody UpdateProductJourneyMapDTO updateProductJourneyMapDTO, @PathVariable Long id) {
         return service.updateJourneyMapById(id, updateProductJourneyMapDTO).toDto();
     }
-    @PutMapping("/{id}/archive")
+
+    @IsAdmin
+    @PutMapping("/{id}/admin/archive")
     public ProductDTO archiveById(@RequestBody ArchiveProductDTO archiveProductDTO, @PathVariable Long id) {
         return service.archive(id, archiveProductDTO).toDto();
     }
