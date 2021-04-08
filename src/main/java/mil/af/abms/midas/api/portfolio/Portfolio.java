@@ -15,7 +15,7 @@ import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
 import mil.af.abms.midas.api.portfolio.dto.PortfolioDTO;
-import mil.af.abms.midas.api.product.Product;
+import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.user.User;
 
 @Entity @Getter @Setter
@@ -35,7 +35,7 @@ public class Portfolio extends AbstractEntity<PortfolioDTO> {
     private User lead;
 
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL)
-    private Set<Product> products = new HashSet<>();
+    private Set<Project> projects = new HashSet<>();
 
     public PortfolioDTO toDto() {
         Long leadId = null;
@@ -44,10 +44,10 @@ public class Portfolio extends AbstractEntity<PortfolioDTO> {
             leadId = lead.getId();
         }
 
-        return new PortfolioDTO(id, name, leadId, description, getProductIds(), isArchived, creationDate);
+        return new PortfolioDTO(id, name, leadId, description, getProjectIds(), isArchived, creationDate);
     }
 
-    private Set<Long> getProductIds() { return products.stream().map(Product::getId).collect(Collectors.toSet()); }
+    private Set<Long> getProjectIds() { return projects.stream().map(Project::getId).collect(Collectors.toSet()); }
 
     @Override
     public int hashCode() {

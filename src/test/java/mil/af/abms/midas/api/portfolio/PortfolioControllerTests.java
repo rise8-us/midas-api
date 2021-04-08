@@ -26,7 +26,7 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.portfolio.dto.CreatePortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioIsArchivedDTO;
-import mil.af.abms.midas.api.product.Product;
+import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserRepository;
 import mil.af.abms.midas.exception.EntityNotFoundException;
@@ -52,7 +52,7 @@ public class PortfolioControllerTests extends ControllerTestHarness {
             .with(p -> p.setDescription("stack full"))
             .with(p -> p.setCreationDate(CREATION_DATE))
             .with(p -> p.setIsArchived(false))
-            .with(p -> p.setProducts(Set.of(new Product()))).get();
+            .with(p -> p.setProjects(Set.of(new Project()))).get();
 
     @BeforeEach
     public void init() throws Exception {

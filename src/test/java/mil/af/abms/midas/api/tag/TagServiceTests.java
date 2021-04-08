@@ -21,7 +21,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.product.Product;
+import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.tag.dto.CreateTagDTO;
 import mil.af.abms.midas.api.tag.dto.UpdateTagDTO;
 import mil.af.abms.midas.exception.EntityNotFoundException;
@@ -38,16 +38,16 @@ public class TagServiceTests {
     @Captor
     ArgumentCaptor<Tag> tagCaptor;
 
-    private final Product product = Builder.build(Product.class)
+    private final Project project = Builder.build(Project.class)
             .with(p -> p.setId(3L))
-            .with(p -> p.setName("Product"))
+            .with(p -> p.setName("Project"))
             .with(p -> p.setGitlabProjectId(2L)).get();
     private final Tag tag = Builder.build(Tag.class)
             .with(t -> t.setId(1L))
             .with(t -> t.setLabel("tag test"))
             .with(t -> t.setDescription("New Tag"))
             .with(t -> t.setColor("#9699696"))
-            .with(t -> t.setProducts(Set.of(product))).get();
+            .with(t -> t.setProjects(Set.of(project))).get();
 
     @Test
     public void should_create_tag() {
@@ -79,11 +79,11 @@ public class TagServiceTests {
     }
 
     @Test
-    public void should_update_product_by_id() {
+    public void should_update_project_by_id() {
         UpdateTagDTO updateTagDTO = new UpdateTagDTO("new tag", "tag test", "#969696");
-        Product newProduct = new Product();
-        BeanUtils.copyProperties(product, newProduct);
-        newProduct.setId(3L);
+        Project newProject = new Project();
+        BeanUtils.copyProperties(project, newProject);
+        newProject.setId(3L);
 
         when(tagRepository.findById(1L)).thenReturn(Optional.of(tag));
         when(tagRepository.save(tag)).thenReturn(tag);

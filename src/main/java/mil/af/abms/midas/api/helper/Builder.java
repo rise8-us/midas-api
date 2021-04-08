@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
  * Utility which allows for constructing instances
  * of a class via its setters. Example:
  * <pre>
- * Builder.build(Product.class)
+ * Builder.build(Project.class)
  *     .with(p -> p.setId(123))
  *     .with(p -> p.setName('MyName')).get();
  * </pre>

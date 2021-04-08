@@ -16,7 +16,7 @@ import org.springframework.util.ReflectionUtils;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.product.Product;
+import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.team.dto.TeamDTO;
 import mil.af.abms.midas.api.user.User;
 
@@ -25,13 +25,13 @@ public class TeamTests {
     private static final LocalDateTime TEST_TIME = LocalDateTime.now();
 
     private Set<User> users = Set.of(Builder.build(User.class).with(u -> u.setId(3L)).get());
-    private Set<Product> products = Set.of(Builder.build(Product.class).with(u -> u.setId(3L)).get());
+    private Set<Project> projects = Set.of(Builder.build(Project.class).with(u -> u.setId(3L)).get());
     private final Team team = Builder.build(Team.class)
             .with(t -> t.setId(1L))
             .with(t -> t.setName("MIDAS"))
             .with(t -> t.setIsArchived(false))
             .with(t -> t.setCreationDate(TEST_TIME))
-            .with(t -> t.setProducts(products))
+            .with(t -> t.setProjects(projects))
             .with(t -> t.setDescription("dev team"))
             .with(t -> t.setUsers(users)).get();
     private final TeamDTO teamDTOExpected = Builder.build(TeamDTO.class)
@@ -41,7 +41,7 @@ public class TeamTests {
             .with(t -> t.setDescription("dev team"))
             .with(t -> t.setCreationDate(TEST_TIME))
             .with(t -> t.setUserIds(Set.of(3L)))
-            .with(t -> t.setProductIds(Set.of(3L))).get();
+            .with(t -> t.setProjectIds(Set.of(3L))).get();
 
 
     @Test
@@ -71,7 +71,7 @@ public class TeamTests {
         assertFalse(team.getIsArchived());
         assertThat(team.getCreationDate()).isEqualTo(TEST_TIME);
         assertThat(team.getDescription()).isEqualTo("dev team");
-        assertTrue(team.getProducts().equals(products));
+        assertTrue(team.getProjects().equals(projects));
         assertTrue(team.getUsers().equals(users));
     }
 

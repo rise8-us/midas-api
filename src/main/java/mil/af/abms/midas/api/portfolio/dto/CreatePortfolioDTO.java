@@ -22,7 +22,7 @@ public class CreatePortfolioDTO {
     @UserExists
     private Long leadId;
     private String description;
-    private Set<Long> productsIds;
+    private Set<Long> projectsIds;
     private Boolean isArchived;
 
 }

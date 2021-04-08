@@ -22,6 +22,6 @@ public class UpdatePortfolioDTO {
     @UserExists
     private Long leadId;
     private String description;
-    private Set<Long> productIds;
+    private Set<Long> projectIds;
 
 }

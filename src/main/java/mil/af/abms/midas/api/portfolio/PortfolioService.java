@@ -13,7 +13,7 @@ import mil.af.abms.midas.api.portfolio.dto.CreatePortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.PortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioIsArchivedDTO;
-import mil.af.abms.midas.api.product.ProductService;
+import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
@@ -22,7 +22,7 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDTO, PortfolioRepository> {
 
     UserService userService;
-    ProductService productService;
+    ProjectService projectService;
 
     public PortfolioService(PortfolioRepository repository) {
         super(repository, Portfolio.class, PortfolioDTO.class);
@@ -32,7 +32,7 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
     public void setUserService(UserService userService) { this.userService = userService; }
 
     @Autowired
-    public void setProductService(ProductService productService) { this.productService = productService; }
+    public void setProjectService(ProjectService projectService) { this.projectService = projectService; }
 
     @Transactional
     public Portfolio create(CreatePortfolioDTO createPortfolioDTO) {
@@ -42,7 +42,7 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
                 .with(p -> p.setName(createPortfolioDTO.getName()))
                 .with(p -> p.setLead(user))
                 .with(p -> p.setDescription(createPortfolioDTO.getDescription()))
-                .with(p -> p.setProducts(createPortfolioDTO.getProductsIds().stream().map(productService::getObject)
+                .with(p -> p.setProjects(createPortfolioDTO.getProjectsIds().stream().map(projectService::getObject)
                         .collect(Collectors.toSet()))).get();
 
         return repository.save(newPortfolio);
@@ -62,8 +62,8 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
         portfolio.setName(updatePortfolioDTO.getName());
         portfolio.setLead(user);
         portfolio.setDescription(updatePortfolioDTO.getDescription());
-        portfolio.setProducts(updatePortfolioDTO.getProductIds().stream()
-                .map(productService::getObject).collect(Collectors.toSet()));
+        portfolio.setProjects(updatePortfolioDTO.getProjectIds().stream()
+                .map(projectService::getObject).collect(Collectors.toSet()));
 
         return repository.save(portfolio);
     }

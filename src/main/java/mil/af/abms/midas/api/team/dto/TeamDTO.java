@@ -20,7 +20,7 @@ public class TeamDTO implements AbstractDTO {
     private LocalDateTime creationDate;
     private Long gitlabGroupId;
     private String description;
-    private Set<Long> productIds;
+    private Set<Long> projectIds;
     private Set<Long> userIds;
 
 }

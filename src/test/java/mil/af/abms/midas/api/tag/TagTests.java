@@ -13,7 +13,7 @@ import org.springframework.util.ReflectionUtils;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.product.Product;
+import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.tag.dto.TagDTO;
 import mil.af.abms.midas.api.user.User;
 
@@ -21,7 +21,7 @@ public class TagTests {
 
     private static final int ENTITY_DTO_FIELD_OFFSET = 2;
 
-    private final Product product = Builder.build(Product.class)
+    private final Project project = Builder.build(Project.class)
                         .with(p -> p.setId(3L)).get();
     private final Tag tag = Builder.build(Tag.class)
             .with(t -> t.setId(1L))

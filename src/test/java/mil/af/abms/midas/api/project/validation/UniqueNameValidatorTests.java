@@ -1,13 +1,14 @@
-package mil.af.abms.midas.api.portfolio.validation;
+package mil.af.abms.midas.api.project.validation;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import javax.validation.ConstraintValidatorContext;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -22,10 +23,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.portfolio.Portfolio;
-import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.project.Project;
-import mil.af.abms.midas.api.user.User;
+import mil.af.abms.midas.api.project.ProjectService;
+import mil.af.abms.midas.exception.EntityNotFoundException;
 import mil.af.abms.midas.helpers.RequestContext;
 
 @ExtendWith(SpringExtension.class)
@@ -33,21 +33,18 @@ import mil.af.abms.midas.helpers.RequestContext;
 public class UniqueNameValidatorTests {
 
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
-    private final User user = Builder.build(User.class)
-            .with(u -> u.setId(1L)).get();
-    private final Portfolio foundPortfolio = Builder.build(Portfolio.class)
+    private final Project foundProject = Builder.build(Project.class)
             .with(p -> p.setId(1L))
-            .with(p -> p.setName("Midas"))
-            .with(p -> p.setDescription("full stack"))
+            .with(p -> p.setName("MIDAS"))
+            .with(p -> p.setDescription("MIDAS Project"))
+            .with(p -> p.setGitlabProjectId(2L))
             .with(p -> p.setCreationDate(CREATION_DATE))
-            .with(p -> p.setIsArchived(false))
-            .with(p -> p.setLead(user))
-            .with(p -> p.setProjects(Set.of(new Project()))).get();
-    
+            .with(p -> p.setIsArchived(false)).get();
+
     @Autowired
     UniqueNameValidator validator;
     @MockBean
-    private PortfolioService portfolioService;
+    private ProjectService projectService;
     @Mock
     private ConstraintValidatorContext context;
     @Mock
@@ -64,13 +61,43 @@ public class UniqueNameValidatorTests {
     }
 
     @Test
-    public void should_validate_new_portfolio_false() {
+    public void should_validate_new_project_true() {
         RequestContext.setRequestContext("id", "1");
         validator.setNew(true);
 
-        when(portfolioService.findByName("Midas")).thenReturn(foundPortfolio);
+        when(projectService.findByName("MIDAS")).thenThrow(new EntityNotFoundException("Project"));
 
-        assertFalse(validator.isValid(foundPortfolio.getName(), context));
+        assertTrue(validator.isValid(foundProject.getName(), context));
+    }
+
+    @Test
+    public void should_validate_new_project_false() {
+        RequestContext.setRequestContext("id", "2");
+        validator.setNew(true);
+
+        when(projectService.findByName("MIDAS")).thenReturn(foundProject);
+
+        assertFalse(validator.isValid(foundProject.getName(), context));
+    }
+
+    @Test
+    public void should_validate_update_project_true() {
+        RequestContext.setRequestContext("id", "1");
+        validator.setNew(false);
+
+        when(projectService.findByName(any())).thenReturn(foundProject);
+
+        assertTrue(validator.isValid(foundProject.getName(), context));
+    }
+
+    @Test
+    public void should_validate_update_project_false() {
+        RequestContext.setRequestContext("id", "2");
+        validator.setNew(false);
+
+        when(projectService.findByName(any())).thenReturn(foundProject);
+
+        assertFalse(validator.isValid(foundProject.getName(), context));
     }
 
     private void clearRequestContext() {

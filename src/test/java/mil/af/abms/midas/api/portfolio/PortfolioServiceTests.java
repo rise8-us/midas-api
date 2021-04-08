@@ -27,8 +27,8 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.portfolio.dto.CreatePortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioIsArchivedDTO;
-import mil.af.abms.midas.api.product.Product;
-import mil.af.abms.midas.api.product.ProductService;
+import mil.af.abms.midas.api.project.Project;
+import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
@@ -42,7 +42,7 @@ public class PortfolioServiceTests {
     @MockBean
     UserService userService;
     @MockBean
-    ProductService productService;
+    ProjectService projectService;
     @MockBean
     PortfolioRepository portfolioRepository;
     @Captor
@@ -52,7 +52,7 @@ public class PortfolioServiceTests {
             .with(u -> u.setId(3L))
             .with(u -> u.setKeycloakUid("abc-123"))
             .with(u -> u.setUsername("Lambo")).get();
-    Product product = Builder.build(Product.class)
+    Project project = Builder.build(Project.class)
             .with(p -> p.setId(4L))
             .with(p -> p.setName("backend")).get();
     Portfolio portfolio = Builder.build(Portfolio.class)
@@ -65,7 +65,7 @@ public class PortfolioServiceTests {
                 Set.of(4L), false);
 
         when(userService.getObject(3L)).thenReturn(user);
-        when(productService.getObject(anyLong())).thenReturn(product);
+        when(projectService.getObject(anyLong())).thenReturn(project);
         when(portfolioRepository.save(portfolio)).thenReturn(new Portfolio());
 
         portfolioService.create(createPortfolioDTO);
@@ -76,7 +76,7 @@ public class PortfolioServiceTests {
         assertThat(portfolioSaved.getName()).isEqualTo(createPortfolioDTO.getName());
         assertThat(portfolioSaved.getLead().getId()).isEqualTo(createPortfolioDTO.getLeadId());
         assertThat(portfolioSaved.getDescription()).isEqualTo(createPortfolioDTO.getDescription());
-        assertThat(portfolioSaved.getProducts()).isEqualTo(Set.of(product));
+        assertThat(portfolioSaved.getProjects()).isEqualTo(Set.of(project));
         assertFalse(portfolioSaved.getIsArchived());
     }
 
@@ -96,10 +96,10 @@ public class PortfolioServiceTests {
     @Test
     public void should_update_portfolio_by_id() {
         UpdatePortfolioDTO updatePortfolioDTO = new UpdatePortfolioDTO("oneHome", user.getId(), "taxable",
-                Set.of(product.getId()));
+                Set.of(project.getId()));
 
         when(userService.getObject(user.getId())).thenReturn(user);
-        when(productService.getObject(anyLong())).thenReturn(product);
+        when(projectService.getObject(anyLong())).thenReturn(project);
         when(portfolioRepository.findById(anyLong())).thenReturn(Optional.of(portfolio));
         when(portfolioRepository.save(portfolio)).thenReturn(portfolio);
 
@@ -111,7 +111,7 @@ public class PortfolioServiceTests {
         assertThat(portfolioSaved.getName()).isEqualTo(updatePortfolioDTO.getName());
         assertThat(portfolioSaved.getLead().getId()).isEqualTo(updatePortfolioDTO.getLeadId());
         assertThat(portfolioSaved.getDescription()).isEqualTo(updatePortfolioDTO.getDescription());
-        assertThat(portfolioSaved.getProducts()).isEqualTo(Set.of(product));
+        assertThat(portfolioSaved.getProjects()).isEqualTo(Set.of(project));
 
     }
 
