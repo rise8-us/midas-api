@@ -16,7 +16,7 @@ import lombok.Setter;
 import org.hibernate.annotations.NaturalId;
 
 import mil.af.abms.midas.api.AbstractEntity;
-import mil.af.abms.midas.api.product.Product;
+import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.tag.dto.TagDTO;
 
 @Entity @Getter @Setter
@@ -35,11 +35,11 @@ public class Tag extends AbstractEntity<TagDTO> {
 
     @ManyToMany()
     @JoinTable(
-        name = "product_tags",
+        name = "project_tags",
         joinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id", nullable = true),
-        inverseJoinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = true)
+        inverseJoinColumns = @JoinColumn(name = "project_id", referencedColumnName = "id", nullable = true)
     )
-    private Set<Product> products = new HashSet<>();
+    private Set<Project> projects = new HashSet<>();
 
     public TagDTO toDto() {
         return new TagDTO(id, label, description, color);

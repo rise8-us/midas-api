@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.portfolio.dto.PortfolioDTO;
-import mil.af.abms.midas.api.product.Product;
+import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.user.User;
 
 public class PortfolioTests {
@@ -25,7 +25,7 @@ public class PortfolioTests {
     private static final LocalDateTime TEST_TIME = LocalDateTime.now();
 
     private User lead = Builder.build(User.class).with(u -> u.setId(3L)).get();
-    private Set<Product> products = Set.of(Builder.build(Product.class).with(u -> u.setId(3L)).get());
+    private Set<Project> projects = Set.of(Builder.build(Project.class).with(u -> u.setId(3L)).get());
     private final Portfolio portfolio = Builder.build(Portfolio.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setName("Midas"))
@@ -33,7 +33,7 @@ public class PortfolioTests {
             .with(p -> p.setCreationDate(TEST_TIME))
             .with(p -> p.setIsArchived(false))
             .with(p -> p.setLead(lead))
-            .with(p -> p.setProducts(products)).get();
+            .with(p -> p.setProjects(projects)).get();
     private final PortfolioDTO portfolioDTO = Builder.build(PortfolioDTO.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setName("Midas"))
@@ -41,7 +41,7 @@ public class PortfolioTests {
             .with(p -> p.setCreationDate(TEST_TIME))
             .with(p -> p.setIsArchived(false))
             .with(p -> p.setLeadId(lead.getId()))
-            .with(p -> p.setProductsIds(Set.of(3L))).get();
+            .with(p -> p.setProjectsIds(Set.of(3L))).get();
 
     @Test
     public void should_have_all_dto_fields() {
@@ -71,7 +71,7 @@ public class PortfolioTests {
         assertThat(portfolio.getCreationDate()).isEqualTo(TEST_TIME);
         assertFalse(portfolio.getIsArchived());
         assertThat(portfolio.getLead()).isEqualTo(lead);
-        assertThat(portfolio.getProducts()).isEqualTo(products);
+        assertThat(portfolio.getProjects()).isEqualTo(projects);
     }
 
     @Test
