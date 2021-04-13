@@ -66,13 +66,7 @@ public class User extends AbstractEntity<UserDTO> {
     private Set<Team> teams = new HashSet<>();
 
     public UserDTO toDto() {
-        Set<Long> teamIds = null;
-        Long portfolioId = null;
-
-        if (!teams.isEmpty()) {
-            teamIds = teams.stream().map(Team::getId).collect(Collectors.toSet());
-        }
-
+        Set<Long> teamIds = teams.stream().map(Team::getId).collect(Collectors.toSet());
         return new UserDTO(id, keycloakUid, username, email, displayName,
             creationDate, dodId, isDisabled, roles, lastLogin, teamIds);
     }

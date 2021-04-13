@@ -20,8 +20,8 @@ public class UpdatePortfolioDTO {
     @UniqueName(isNew = false)
     private String name;
     @UserExists
-    private Long leadId;
+    private Long portfolioManagerId;
     private String description;
-    private Set<Long> projectIds;
+    private Set<Long> applicationIds;
 
 }

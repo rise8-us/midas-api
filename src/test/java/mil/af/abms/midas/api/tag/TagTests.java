@@ -19,7 +19,7 @@ import mil.af.abms.midas.api.user.User;
 
 public class TagTests {
 
-    private static final int ENTITY_DTO_FIELD_OFFSET = 2;
+    private static final int ENTITY_DTO_FIELD_OFFSET = 3;
 
     private final Project project = Builder.build(Project.class)
                         .with(p -> p.setId(3L)).get();

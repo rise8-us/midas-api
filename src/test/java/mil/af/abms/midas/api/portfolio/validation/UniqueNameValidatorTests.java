@@ -21,10 +21,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 
+import mil.af.abms.midas.api.application.Application;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.portfolio.PortfolioService;
-import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.helpers.RequestContext;
 
@@ -41,8 +41,8 @@ public class UniqueNameValidatorTests {
             .with(p -> p.setDescription("full stack"))
             .with(p -> p.setCreationDate(CREATION_DATE))
             .with(p -> p.setIsArchived(false))
-            .with(p -> p.setLead(user))
-            .with(p -> p.setProjects(Set.of(new Project()))).get();
+            .with(p -> p.setPortfolioManager(user))
+            .with(p -> p.setApplications(Set.of(new Application()))).get();
     
     @Autowired
     UniqueNameValidator validator;

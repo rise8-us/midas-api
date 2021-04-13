@@ -1,7 +1,8 @@
 package mil.af.abms.midas.api.project;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Field;
@@ -16,8 +17,8 @@ import org.springframework.util.ReflectionUtils;
 
 import org.junit.jupiter.api.Test;
 
+import mil.af.abms.midas.api.application.Application;
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.project.dto.ProjectDTO;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.team.Team;
@@ -34,7 +35,7 @@ public class ProjectTests {
     private final Set<Tag> tags = Set.of(Builder.build(Tag.class).with(u -> u.setId(2L)).get());
     private final Team team = Builder.build(Team.class)
             .with(t -> t.setId(3L)).get();
-    private final Portfolio portfolio = Builder.build(Portfolio.class)
+    private final Application application = Builder.build(Application.class)
             .with(p -> p.setId(3L)).get();
 
     Project expectedProject = Builder.build(Project.class)
@@ -46,7 +47,7 @@ public class ProjectTests {
             .with(p -> p.setGitlabProjectId(2L))
             .with(p -> p.setTags(tags))
             .with(p -> p.setProjectJourneyMap(0L))
-            .with(p -> p.setPortfolio(portfolio))
+            .with(p -> p.setApplication(application))
             .with(p -> p.setCreationDate(CREATION_DATE)).get();
 
     ProjectDTO expectedProjectDTO = Builder.build(ProjectDTO.class)
@@ -58,7 +59,7 @@ public class ProjectTests {
             .with(p -> p.setGitlabProjectId(2L))
             .with(p -> p.setProjectJourneyMap(0L))
             .with(p -> p.setTagIds(Set.of(2L)))
-            .with(p -> p.setPortfolioId(portfolio.getId()))
+            .with(p -> p.setApplicationId(application.getId()))
             .with(p -> p.setCreationDate(CREATION_DATE)).get();
 
     @Test
@@ -96,12 +97,12 @@ public class ProjectTests {
     }
 
     @Test
-    public void should_return_dto_null_portfolio() {
-        Project projectNullPortfolio = new Project();
-        BeanUtils.copyProperties(expectedProject, projectNullPortfolio);
-        projectNullPortfolio.setPortfolio(null);
+    public void should_return_dto_null_application() {
+        Project projectNullApplication = new Project();
+        BeanUtils.copyProperties(expectedProject, projectNullApplication);
+        projectNullApplication.setApplication(null);
 
-        assertThat(projectNullPortfolio.toDto().getPortfolioId()).isEqualTo(null);
+        assertThat(projectNullApplication.toDto().getApplicationId()).isEqualTo(null);
     }
 
     @Test
@@ -109,10 +110,10 @@ public class ProjectTests {
         Project project2 = Builder.build(Project.class)
                 .with(p -> p.setName("MIDAS")).get();
 
-        assertTrue(expectedProject.equals(expectedProject));
-        assertFalse(expectedProject.equals(null));
-        assertFalse(expectedProject.equals(new User()));
-        assertFalse(expectedProject.equals(new Project()));
-        assertTrue(expectedProject.equals(project2));
+        assertEquals(expectedProject, expectedProject);
+        assertNotEquals(null, expectedProject);
+        assertNotEquals(expectedProject, new User());
+        assertNotEquals(expectedProject, new Project());
+        assertEquals(expectedProject, project2);
     }
 }

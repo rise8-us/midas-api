@@ -23,12 +23,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
+import mil.af.abms.midas.api.application.Application;
+import mil.af.abms.midas.api.application.ApplicationService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.portfolio.dto.CreatePortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioIsArchivedDTO;
-import mil.af.abms.midas.api.project.Project;
-import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
@@ -42,7 +42,7 @@ public class PortfolioServiceTests {
     @MockBean
     UserService userService;
     @MockBean
-    ProjectService projectService;
+    ApplicationService applicationService;
     @MockBean
     PortfolioRepository portfolioRepository;
     @Captor
@@ -52,7 +52,7 @@ public class PortfolioServiceTests {
             .with(u -> u.setId(3L))
             .with(u -> u.setKeycloakUid("abc-123"))
             .with(u -> u.setUsername("Lambo")).get();
-    Project project = Builder.build(Project.class)
+    Application application = Builder.build(Application.class)
             .with(p -> p.setId(4L))
             .with(p -> p.setName("backend")).get();
     Portfolio portfolio = Builder.build(Portfolio.class)
@@ -65,7 +65,7 @@ public class PortfolioServiceTests {
                 Set.of(4L), false);
 
         when(userService.getObject(3L)).thenReturn(user);
-        when(projectService.getObject(anyLong())).thenReturn(project);
+        when(applicationService.getObject(anyLong())).thenReturn(application);
         when(portfolioRepository.save(portfolio)).thenReturn(new Portfolio());
 
         portfolioService.create(createPortfolioDTO);
@@ -74,9 +74,9 @@ public class PortfolioServiceTests {
         Portfolio portfolioSaved = portfolioCaptor.getValue();
 
         assertThat(portfolioSaved.getName()).isEqualTo(createPortfolioDTO.getName());
-        assertThat(portfolioSaved.getLead().getId()).isEqualTo(createPortfolioDTO.getLeadId());
+        assertThat(portfolioSaved.getPortfolioManager().getId()).isEqualTo(createPortfolioDTO.getPortfolioManagerId());
         assertThat(portfolioSaved.getDescription()).isEqualTo(createPortfolioDTO.getDescription());
-        assertThat(portfolioSaved.getProjects()).isEqualTo(Set.of(project));
+        assertThat(portfolioSaved.getApplications()).isEqualTo(Set.of(application));
         assertFalse(portfolioSaved.getIsArchived());
     }
 
@@ -96,10 +96,10 @@ public class PortfolioServiceTests {
     @Test
     public void should_update_portfolio_by_id() {
         UpdatePortfolioDTO updatePortfolioDTO = new UpdatePortfolioDTO("oneHome", user.getId(), "taxable",
-                Set.of(project.getId()));
+                Set.of(application.getId()));
 
         when(userService.getObject(user.getId())).thenReturn(user);
-        when(projectService.getObject(anyLong())).thenReturn(project);
+        when(applicationService.getObject(anyLong())).thenReturn(application);
         when(portfolioRepository.findById(anyLong())).thenReturn(Optional.of(portfolio));
         when(portfolioRepository.save(portfolio)).thenReturn(portfolio);
 
@@ -109,9 +109,9 @@ public class PortfolioServiceTests {
         Portfolio portfolioSaved = portfolioCaptor.getValue();
 
         assertThat(portfolioSaved.getName()).isEqualTo(updatePortfolioDTO.getName());
-        assertThat(portfolioSaved.getLead().getId()).isEqualTo(updatePortfolioDTO.getLeadId());
+        assertThat(portfolioSaved.getPortfolioManager().getId()).isEqualTo(updatePortfolioDTO.getPortfolioManagerId());
         assertThat(portfolioSaved.getDescription()).isEqualTo(updatePortfolioDTO.getDescription());
-        assertThat(portfolioSaved.getProjects()).isEqualTo(Set.of(project));
+        assertThat(portfolioSaved.getApplications()).isEqualTo(Set.of(application));
 
     }
 
