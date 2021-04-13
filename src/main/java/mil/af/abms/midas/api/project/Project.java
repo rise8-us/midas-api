@@ -19,7 +19,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
-import mil.af.abms.midas.api.portfolio.Portfolio;
+import mil.af.abms.midas.api.application.Application;
 import mil.af.abms.midas.api.project.dto.ProjectDTO;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.team.Team;
@@ -48,8 +48,8 @@ public class Project extends AbstractEntity<ProjectDTO> {
     private Team team;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "portfolio_id")
-    private Portfolio portfolio;
+    @JoinColumn(name = "application_id")
+    private Application application;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
@@ -60,16 +60,8 @@ public class Project extends AbstractEntity<ProjectDTO> {
     private Set<Tag> tags = new HashSet<>();
 
     public ProjectDTO toDto() {
-        Long teamId = null;
-        Long portfolioId = null;
-
-        if (team != null) {
-            teamId = team.getId();
-        }
-
-        if (portfolio != null) {
-            portfolioId = portfolio.getId();
-        }
+        Long teamId = team != null ? team.getId() : null;
+        Long portfolioId = application != null ? application.getId() : null;
 
         return new ProjectDTO(id, name, description, isArchived, creationDate, gitlabProjectId, getTagIds(), teamId,
                 projectJourneyMap, portfolioId);

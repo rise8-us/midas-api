@@ -1,8 +1,9 @@
 package mil.af.abms.midas.api.portfolio;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
@@ -15,33 +16,33 @@ import org.springframework.util.ReflectionUtils;
 
 import org.junit.jupiter.api.Test;
 
+import mil.af.abms.midas.api.application.Application;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.portfolio.dto.PortfolioDTO;
-import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.user.User;
 
 public class PortfolioTests {
 
     private static final LocalDateTime TEST_TIME = LocalDateTime.now();
 
-    private User lead = Builder.build(User.class).with(u -> u.setId(3L)).get();
-    private Set<Project> projects = Set.of(Builder.build(Project.class).with(u -> u.setId(3L)).get());
+    private User portfolioManager = Builder.build(User.class).with(u -> u.setId(3L)).get();
+    private Set<Application> applications = Set.of(Builder.build(Application.class).with(u -> u.setId(3L)).get());
     private final Portfolio portfolio = Builder.build(Portfolio.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setName("Midas"))
             .with(p -> p.setDescription("test portfolio"))
             .with(p -> p.setCreationDate(TEST_TIME))
             .with(p -> p.setIsArchived(false))
-            .with(p -> p.setLead(lead))
-            .with(p -> p.setProjects(projects)).get();
+            .with(p -> p.setPortfolioManager(portfolioManager))
+            .with(p -> p.setApplications(applications)).get();
     private final PortfolioDTO portfolioDTO = Builder.build(PortfolioDTO.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setName("Midas"))
             .with(p -> p.setDescription("test portfolio"))
             .with(p -> p.setCreationDate(TEST_TIME))
             .with(p -> p.setIsArchived(false))
-            .with(p -> p.setLeadId(lead.getId()))
-            .with(p -> p.setProjectsIds(Set.of(3L))).get();
+            .with(p -> p.setPortfolioManagerId(portfolioManager.getId()))
+            .with(p -> p.setApplicationIds(Set.of(3L))).get();
 
     @Test
     public void should_have_all_dto_fields() {
@@ -56,11 +57,11 @@ public class PortfolioTests {
         Portfolio portfolio2 = new Portfolio();
         BeanUtils.copyProperties(portfolio, portfolio2);
 
-        assertTrue(portfolio.equals(portfolio));
-        assertFalse(portfolio.equals(null));
-        assertFalse(portfolio.equals(new User()));
-        assertFalse(portfolio.equals(new Portfolio()));
-        assertTrue(portfolio.equals(portfolio2));
+        assertEquals(portfolio, portfolio);
+        assertNotEquals(null, portfolio);
+        assertNotEquals(portfolio, new User());
+        assertNotEquals(portfolio, new Portfolio());
+        assertEquals(portfolio, portfolio2);
     }
 
     @Test
@@ -70,8 +71,8 @@ public class PortfolioTests {
         assertThat(portfolio.getDescription()).isEqualTo("test portfolio");
         assertThat(portfolio.getCreationDate()).isEqualTo(TEST_TIME);
         assertFalse(portfolio.getIsArchived());
-        assertThat(portfolio.getLead()).isEqualTo(lead);
-        assertThat(portfolio.getProjects()).isEqualTo(projects);
+        assertThat(portfolio.getPortfolioManager()).isEqualTo(portfolioManager);
+        assertThat(portfolio.getApplications()).isEqualTo(applications);
     }
 
     @Test
@@ -83,8 +84,8 @@ public class PortfolioTests {
     public void should_return_null_lead() {
         Portfolio nullLead = new Portfolio();
         BeanUtils.copyProperties(portfolio, nullLead);
-        nullLead.setLead(null);
+        nullLead.setPortfolioManager(null);
 
-        assertThat(nullLead.toDto().getLeadId()).isEqualTo(null);
+        assertThat(nullLead.toDto().getPortfolioManagerId()).isEqualTo(null);
     }
 }

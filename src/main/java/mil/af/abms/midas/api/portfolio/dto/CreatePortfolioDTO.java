@@ -20,9 +20,9 @@ public class CreatePortfolioDTO {
     @UniqueName(isNew = true)
     private String name;
     @UserExists
-    private Long leadId;
+    private Long portfolioManagerId;
     private String description;
-    private Set<Long> projectsIds;
+    private Set<Long> applicationIds;
     private Boolean isArchived;
 
 }

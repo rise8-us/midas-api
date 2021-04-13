@@ -41,6 +41,14 @@ public class Tag extends AbstractEntity<TagDTO> {
     )
     private Set<Project> projects = new HashSet<>();
 
+    @ManyToMany()
+    @JoinTable(
+            name = "applications_tags",
+            joinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id", nullable = true),
+            inverseJoinColumns = @JoinColumn(name = "application_id", referencedColumnName = "id", nullable = true)
+    )
+    private Set<Project> applications = new HashSet<>();
+
     public TagDTO toDto() {
         return new TagDTO(id, label, description, color);
     }
