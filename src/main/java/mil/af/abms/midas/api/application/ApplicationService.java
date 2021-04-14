@@ -49,7 +49,7 @@ public class ApplicationService extends AbstractCRUDService<Application, Applica
                 .with(a -> a.setDescription(createApplicationDTO.getDescription()))
                 .with(a -> a.setTags(createApplicationDTO.getTagIds().stream().map(tagService::getObject)
                         .collect(Collectors.toSet())))
-                .with(a -> a.setProjects(createApplicationDTO.getProjectsIds().stream().map(projectService::getObject)
+                .with(a -> a.setProjects(createApplicationDTO.getProjectIds().stream().map(projectService::getObject)
                         .collect(Collectors.toSet()))).get();
 
         return repository.save(newApplication);

@@ -44,7 +44,7 @@ public class ApplicationTests {
             .with(p -> p.setIsArchived(false))
             .with(p -> p.setProductManagerId(lead.getId()))
             .with(p -> p.setTagIds(new HashSet<>()))
-            .with(p -> p.setProjectsIds(Set.of(3L))).get();
+            .with(p -> p.setProjectIds(Set.of(3L))).get();
 
     @Test
     public void should_have_all_dto_fields() {

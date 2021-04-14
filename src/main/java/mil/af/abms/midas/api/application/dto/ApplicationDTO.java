@@ -18,7 +18,7 @@ public class ApplicationDTO implements AbstractDTO {
     private String name;
     private Long productManagerId;
     private String description;
-    private Set<Long> projectsIds;
+    private Set<Long> projectIds;
     private Boolean isArchived;
     private LocalDateTime creationDate;
     private Long portfolioId;
