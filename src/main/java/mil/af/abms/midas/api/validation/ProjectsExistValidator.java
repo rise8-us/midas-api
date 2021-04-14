@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.user.validation;
+package mil.af.abms.midas.api.validation;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -8,23 +8,26 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import mil.af.abms.midas.api.team.TeamRepository;
+import mil.af.abms.midas.api.project.ProjectService;
 
-public class TeamsExistValidator implements ConstraintValidator<TeamsExist, Set<Long>> {
+public class ProjectsExistValidator implements ConstraintValidator<ProjectsExist, Set<Long>> {
 
     @Autowired
-    private TeamRepository teamRepository;
+    private ProjectService projectService;
 
     @Override
     public boolean isValid(Set<Long> ids, ConstraintValidatorContext constraintContext) {
         constraintContext.disableDefaultConstraintViolation();
 
-        Set<Long> nonExistentIds = ids.stream().filter(i -> !teamRepository.existsById(i)).peek(i ->
+        System.out.println("$$$$$" + ids + "$$$$$");
+
+        Set<Long> nonExistentIds = ids.stream().filter(i -> !projectService.existsById(i)).peek(i ->
                 constraintContext.buildConstraintViolationWithTemplate(
-                        String.format("Team with id: %s does not exists", i)
+                        String.format("Project with id: %s does not exists", i)
                 ).addConstraintViolation()
         ).collect(Collectors.toSet());
 
         return nonExistentIds.isEmpty();
     }
+
 }

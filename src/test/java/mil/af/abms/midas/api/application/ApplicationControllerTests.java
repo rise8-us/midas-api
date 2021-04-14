@@ -27,24 +27,30 @@ import mil.af.abms.midas.api.application.dto.UpdateApplicationDTO;
 import mil.af.abms.midas.api.application.dto.UpdateApplicationIsArchivedDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.project.Project;
+import mil.af.abms.midas.api.project.ProjectService;
+import mil.af.abms.midas.api.tag.TagService;
+import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.api.user.User;
-import mil.af.abms.midas.api.user.UserRepository;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @WebMvcTest({ApplicationController.class})
 public class ApplicationControllerTests extends ControllerTestHarness {
-
+    
     @MockBean
     ApplicationService applicationService;
     @MockBean
-    UserRepository userRepository;
+    TagService tagService;
+    @MockBean
+    ProjectService projectService;
+    @MockBean
+    TeamService teamService;
 
     private final static LocalDateTime CREATION_DATE = LocalDateTime.now();
 
     private final UpdateApplicationDTO updateApplicationDTO = new UpdateApplicationDTO("Midas", 3L, "Full Stack",
             Set.of(3L), Set.of(3L));
     private final CreateApplicationDTO createApplicationDTO = new CreateApplicationDTO("Midas", 1L, "backend",
-            Set.of(1L), false, Set.of(3L));
+            Set.of(3L), Set.of(3L));
     private final Application application = Builder.build(Application.class)
             .with(p -> p.setId(5L))
             .with(p -> p.setName("Midas"))
@@ -63,7 +69,9 @@ public class ApplicationControllerTests extends ControllerTestHarness {
     public void should_create_application() throws Exception {
         when(applicationService.findByName(createApplicationDTO.getName())).thenThrow(EntityNotFoundException.class);
         when(applicationService.create(any(CreateApplicationDTO.class))).thenReturn(application);
-        when(userRepository.existsById(anyLong())).thenReturn(true);
+        when(userService.existsById(anyLong())).thenReturn(true);
+        when(projectService.existsById(anyLong())).thenReturn(true);
+        when(tagService.existsById(any())).thenReturn(true);
 
         mockMvc.perform(post("/api/applications")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -78,7 +86,9 @@ public class ApplicationControllerTests extends ControllerTestHarness {
     public void should_update_application_by_id() throws Exception {
         when(applicationService.findByName(updateApplicationDTO.getName())).thenReturn(application);
         when(applicationService.updateById(anyLong(), any(UpdateApplicationDTO.class))).thenReturn(application);
-        when(userRepository.existsById(anyLong())).thenReturn(true);
+        when(userService.existsById(anyLong())).thenReturn(true);
+        when(projectService.existsById(anyLong())).thenReturn(true);
+        when(tagService.existsById(any())).thenReturn(true);
 
         mockMvc.perform(put("/api/applications/5")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -93,12 +103,14 @@ public class ApplicationControllerTests extends ControllerTestHarness {
     public void should_throw_unique_name_validation_on_create() throws Exception {
         String errorMessage = "application name already exists";
 
-        when(applicationService.findByName(updateApplicationDTO.getName())).thenReturn(application);
-        when(userRepository.existsById(anyLong())).thenReturn(true);
+        when(applicationService.findByName(createApplicationDTO.getName())).thenReturn(application);
+        when(userService.existsById(anyLong())).thenReturn(true);
+        when(tagService.existsById(any())).thenReturn(true);
+        when(projectService.existsById(any())).thenReturn(true);
 
         mockMvc.perform(post("/api/applications")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(mapper.writeValueAsString(updateApplicationDTO))
+                .content(mapper.writeValueAsString(createApplicationDTO))
         )
                 .andExpect(status().is4xxClientError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -113,7 +125,9 @@ public class ApplicationControllerTests extends ControllerTestHarness {
         existingApplication.setId(10L);
 
         when(applicationService.findByName(updateApplicationDTO.getName())).thenReturn(existingApplication);
-        when(userRepository.existsById(anyLong())).thenReturn(true);
+        when(userService.existsById(anyLong())).thenReturn(true);
+        when(tagService.existsById(any())).thenReturn(true);
+        when(projectService.existsById(anyLong())).thenReturn(true);
 
         mockMvc.perform(put("/api/applications/5")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)

@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.user.validation;
+package mil.af.abms.midas.api.validation;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;

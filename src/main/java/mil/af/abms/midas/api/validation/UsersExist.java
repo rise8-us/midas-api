@@ -12,16 +12,14 @@ import java.lang.annotation.Target;
 
 @Target({ FIELD })
 @Retention(RUNTIME)
-@Constraint(validatedBy = UserExistsValidator.class)
+@Constraint(validatedBy = UsersExistValidator.class)
 @Documented
-public @interface UserExists {
+public @interface UsersExist {
 
-    String message() default "user does not exists";
+    String message() default "user does not exist";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
-
-    boolean allowNull() default false;
 
 }

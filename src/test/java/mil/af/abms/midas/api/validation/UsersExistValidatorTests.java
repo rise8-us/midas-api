@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.project.validation;
+package mil.af.abms.midas.api.validation;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -20,27 +20,24 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.tag.Tag;
-import mil.af.abms.midas.api.tag.TagRepository;
+import mil.af.abms.midas.api.user.User;
+import mil.af.abms.midas.api.user.UserService;
 
 @ExtendWith(SpringExtension.class)
-@Import({TagExistsValidator.class})
-public class TagExistsValidatorTests {
+@Import({UsersExistValidator.class})
+public class UsersExistValidatorTests {
 
     @Autowired
-    TagExistsValidator validator;
+    UsersExistValidator validator;
     @MockBean
-    private TagRepository tagRepository;
+    private UserService userService;
     @Mock
     private ConstraintValidatorContext context;
     @Mock
     private ConstraintValidatorContext.ConstraintViolationBuilder builder;
 
-    private final Tag tag = Builder.build(Tag.class)
-            .with(t -> t.setId(1L))
-            .with(t -> t.setLabel("tag test"))
-            .with(t -> t.setDescription("New Tag"))
-            .with(t -> t.setColor("#9699696")).get();
+    private final User user = Builder.build(User.class)
+            .with(t -> t.setId(1L)).get();
 
     @BeforeEach
     public void init() {
@@ -48,17 +45,17 @@ public class TagExistsValidatorTests {
     }
 
     @Test
-    public void should_validate_tag_exists_false() {
-        when(tagRepository.existsById(3L)).thenReturn(false);
+    public void should_validate_user_exists_false() {
+        when(userService.existsById(3L)).thenReturn(false);
 
         assertFalse(validator.isValid(Set.of(3L), context));
     }
 
     @Test
-    public void should_validate_tag_exists_true() {
-        when(tagRepository.existsById(1L)).thenReturn(true);
+    public void should_validate_user_exists_true() {
+        when(userService.existsById(1L)).thenReturn(true);
 
         assertTrue(validator.isValid(Set.of(1L), context));
     }
-
+    
 }

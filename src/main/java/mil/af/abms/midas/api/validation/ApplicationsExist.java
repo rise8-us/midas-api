@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.project.validation;
+package mil.af.abms.midas.api.validation;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -12,12 +12,14 @@ import java.lang.annotation.Target;
 
 @Target({ FIELD })
 @Retention(RUNTIME)
-@Constraint(validatedBy = GitProjectExistsValidator.class)
+@Constraint(validatedBy = ApplicationsExistValidator.class)
 @Documented
-public @interface GitProjectExists {
-    String message() default "Project does not exists";
+public @interface ApplicationsExist {
+
+    String message() default "application does not exists";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
+
 }

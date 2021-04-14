@@ -22,13 +22,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
+import mil.af.abms.midas.api.application.Application;
+import mil.af.abms.midas.api.application.ApplicationService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.portfolio.dto.CreatePortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioIsArchivedDTO;
-import mil.af.abms.midas.api.application.Application;
 import mil.af.abms.midas.api.user.User;
-import mil.af.abms.midas.api.user.UserRepository;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @WebMvcTest({PortfolioController.class})
@@ -37,14 +37,14 @@ public class PortfolioControllerTests extends ControllerTestHarness {
     @MockBean
     PortfolioService portfolioService;
     @MockBean
-    UserRepository userRepository;
+    ApplicationService applicationService;
 
     private final static LocalDateTime CREATION_DATE = LocalDateTime.now();
 
     private final UpdatePortfolioDTO updatePortfolioDTO = new UpdatePortfolioDTO("Midas", 3L, "Full Stack",
             Set.of(3L));
     private final CreatePortfolioDTO createPortfolioDTO = new CreatePortfolioDTO("Midas", 1L, "backend",
-            Set.of(1L), false);
+            Set.of(1L));
     private final Portfolio portfolio = Builder.build(Portfolio.class)
             .with(p -> p.setId(5L))
             .with(p -> p.setName("Midas"))
@@ -63,7 +63,8 @@ public class PortfolioControllerTests extends ControllerTestHarness {
     public void should_create_portfolio() throws Exception {
         when(portfolioService.findByName(createPortfolioDTO.getName())).thenThrow(EntityNotFoundException.class);
         when(portfolioService.create(any(CreatePortfolioDTO.class))).thenReturn(portfolio);
-        when(userRepository.existsById(anyLong())).thenReturn(true);
+        when(userService.existsById(anyLong())).thenReturn(true);
+        when(applicationService.existsById(1L)).thenReturn(true);
 
         mockMvc.perform(post("/api/portfolios")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -78,7 +79,8 @@ public class PortfolioControllerTests extends ControllerTestHarness {
     public void should_update_portfolio_by_id() throws Exception {
         when(portfolioService.findByName(updatePortfolioDTO.getName())).thenReturn(portfolio);
         when(portfolioService.updateById(anyLong(), any(UpdatePortfolioDTO.class))).thenReturn(portfolio);
-        when(userRepository.existsById(anyLong())).thenReturn(true);
+        when(userService.existsById(anyLong())).thenReturn(true);
+        when(applicationService.existsById(3L)).thenReturn(true);
 
         mockMvc.perform(put("/api/portfolios/5")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -94,7 +96,8 @@ public class PortfolioControllerTests extends ControllerTestHarness {
         String errorMessage = "Portfolio name already exists";
 
         when(portfolioService.findByName(updatePortfolioDTO.getName())).thenReturn(portfolio);
-        when(userRepository.existsById(anyLong())).thenReturn(true);
+        when(userService.existsById(anyLong())).thenReturn(true);
+        when(applicationService.existsById(3L)).thenReturn(true);
 
         mockMvc.perform(post("/api/portfolios")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -113,7 +116,8 @@ public class PortfolioControllerTests extends ControllerTestHarness {
         existingPortfolio.setId(10L);
 
         when(portfolioService.findByName(updatePortfolioDTO.getName())).thenReturn(existingPortfolio);
-        when(userRepository.existsById(anyLong())).thenReturn(true);
+        when(userService.existsById(anyLong())).thenReturn(true);
+        when(applicationService.existsById(3L)).thenReturn(true);
 
         mockMvc.perform(put("/api/portfolios/5")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)

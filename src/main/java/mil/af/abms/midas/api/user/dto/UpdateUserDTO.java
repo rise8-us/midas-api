@@ -7,8 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import mil.af.abms.midas.api.user.validation.TeamsExist;
 import mil.af.abms.midas.api.user.validation.UniqueUsername;
+import mil.af.abms.midas.api.validation.TeamsExist;
 
 @Data
 @AllArgsConstructor
@@ -18,8 +18,10 @@ public class UpdateUserDTO {
     @ApiModelProperty(notes = "username must be unique")
     @UniqueUsername(isNew = false)
     private String username;
+
     @TeamsExist
     private Set<Long> teamIds;
+
     private String email;
     private String displayName;
 

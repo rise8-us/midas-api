@@ -54,6 +54,7 @@ public class TeamControllerTests extends ControllerTestHarness {
     public void should_create_team() throws Exception {
         when(teamService.findByName("MIDAS")).thenThrow(EntityNotFoundException.class);
         when(teamService.create(any(CreateTeamDTO.class))).thenReturn(team);
+        when(userService.existsById(anyLong())).thenReturn(true);
 
         mockMvc.perform(post("/api/teams")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -68,6 +69,7 @@ public class TeamControllerTests extends ControllerTestHarness {
     public void should_update_team_by_id() throws Exception {
         when(teamService.findByName(updateTeamDTO.getName())).thenReturn(team);
         when(teamService.updateById(anyLong(), any(UpdateTeamDTO.class))).thenReturn(team);
+        when(userService.existsById(anyLong())).thenReturn(true);
 
         mockMvc.perform(put("/api/teams/2")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)

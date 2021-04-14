@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.tag.validation.UniqueLabel;
-import mil.af.abms.midas.api.tag.validation.ValidHex;
+import mil.af.abms.midas.api.validation.ValidHex;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,7 +17,9 @@ public class UpdateTagDTO {
     @NotBlank(message = "label must not be blank")
     @UniqueLabel(isNew = false)
     private String label;
+
     private String description;
+
     @NotBlank(message = "color must not be blank")
     @ValidHex
     private String color;

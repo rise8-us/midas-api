@@ -70,7 +70,7 @@ public class ProjectServiceTests {
 
     @Test
     public void should_create_project() {
-        CreateProjectDTO createProjectDTO = new CreateProjectDTO("MIDAS", 2L, "Project Description");
+        CreateProjectDTO createProjectDTO = new CreateProjectDTO("MIDAS", 2L, 33L, Set.of(3L), "Project Description");
 
         when(projectRepository.save(project)).thenReturn(new Project());
 
