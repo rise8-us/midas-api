@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.project.validation;
+package mil.af.abms.midas.api.validation;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -12,12 +12,16 @@ import java.lang.annotation.Target;
 
 @Target({ FIELD })
 @Retention(RUNTIME)
-@Constraint(validatedBy = TagExistsValidator.class)
+@Constraint(validatedBy = TeamExistsValidator.class)
 @Documented
-public @interface TagExists {
-    String message() default "tag does not exists";
+public @interface TeamExists {
+
+    String message() default "team does not exists";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
+
+    boolean allowNull() default false;
+
 }

@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.helper.JsonMapper;
-import mil.af.abms.midas.api.team.TeamRepository;
+import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.api.user.dto.UpdateUserDTO;
 import mil.af.abms.midas.api.user.dto.UpdateUserDisabledDTO;
 import mil.af.abms.midas.api.user.dto.UpdateUserRolesDTO;
@@ -40,7 +40,7 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 public class UserControllerTests extends ControllerTestHarness {
 
     @MockBean
-    TeamRepository teamRepository;
+    TeamService teamService;
 
     private final static String USERNAME = "grogu";
     private final static String UID = "abc-123";
@@ -94,7 +94,7 @@ public class UserControllerTests extends ControllerTestHarness {
        user.setDisplayName("YoDiddy");
 
         when(userService.findByUsername(any())).thenReturn(user);
-        when(teamRepository.existsById(1L)).thenReturn(true);
+        when(teamService.existsById(1L)).thenReturn(true);
         when(userService.updateById(1L, updateUserDTO)).thenReturn(user);
 
         mockMvc.perform(put("/api/users/1")
@@ -111,7 +111,7 @@ public class UserControllerTests extends ControllerTestHarness {
         String expectedMessage = "username already in use";
 
         when(userService.findByUsername(any())).thenReturn(user);
-        when(teamRepository.existsById(1L)).thenReturn(true);
+        when(teamService.existsById(1L)).thenReturn(true);
 
         mockMvc.perform(put("/api/users/2")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)

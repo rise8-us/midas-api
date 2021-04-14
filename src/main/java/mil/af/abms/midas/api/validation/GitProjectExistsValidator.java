@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.project.validation;
+package mil.af.abms.midas.api.validation;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

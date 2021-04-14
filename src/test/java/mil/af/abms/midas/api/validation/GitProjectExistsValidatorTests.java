@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.portfolio.validation;
+package mil.af.abms.midas.api.validation;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -17,16 +17,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 
-import mil.af.abms.midas.api.user.UserRepository;
+import mil.af.abms.midas.clients.GitLab4JClient;
 
 @ExtendWith(SpringExtension.class)
-@Import({UserExistsValidator.class})
-public class UserExistsValidatorTests {
+@Import({GitProjectExistsValidator.class})
+public class GitProjectExistsValidatorTests {
 
     @Autowired
-    UserExistsValidator validator;
+    GitProjectExistsValidator validator;
     @MockBean
-    private UserRepository userRepository;
+    private GitLab4JClient gitLab4JClient;
     @Mock
     private ConstraintValidatorContext context;
     @Mock
@@ -38,24 +38,17 @@ public class UserExistsValidatorTests {
     }
 
     @Test
-    public void should_validate_user_exists_false() {
-        when(userRepository.existsById(55L)).thenReturn(false);
+    public void should_validate_project_exists_false() {
+        when(gitLab4JClient.projectExistsById(3L)).thenReturn(false);
 
         assertFalse(validator.isValid(3L, context));
     }
 
     @Test
-    public void should_validate_user_exists_true() {
-        when(userRepository.existsById(1L)).thenReturn(true);
+    public void should_validate_project_exists_true() {
+        when(gitLab4JClient.projectExistsById(1L)).thenReturn(true);
 
         assertTrue(validator.isValid(1L, context));
-    }
-
-    @Test
-    public void should_validate_user_exists_true_when_null() {
-        when(userRepository.existsById(null)).thenReturn(true);
-
-        assertTrue(validator.isValid(null, context));
     }
 
 }

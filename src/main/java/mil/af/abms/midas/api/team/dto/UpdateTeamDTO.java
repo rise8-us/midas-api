@@ -10,16 +10,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.team.validation.UniqueName;
+import mil.af.abms.midas.api.validation.UsersExist;
 
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateTeamDTO {
+
     @ApiModelProperty(notes = "name must be unique")
     @NotBlank(message = "Team name must not be blank")
     @UniqueName(isNew = false)
     private String name;
+
     private Long gitlabGroupId;
     private String description;
+
+    @UsersExist
     Set<Long> userIds;
 }

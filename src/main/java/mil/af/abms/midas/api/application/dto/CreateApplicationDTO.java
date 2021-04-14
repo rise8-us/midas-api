@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.application.validation.UniqueName;
+import mil.af.abms.midas.api.validation.ProjectsExist;
+import mil.af.abms.midas.api.validation.TagsExist;
 import mil.af.abms.midas.api.validation.UserExists;
 
 @Getter
@@ -19,11 +21,16 @@ public class CreateApplicationDTO {
     @NotBlank(message = "application name must not be blank")
     @UniqueName(isNew = true)
     private String name;
-    @UserExists
+
+    @UserExists(allowNull = true)
     private Long productManagerId;
+
     private String description;
+
+    @ProjectsExist
     private Set<Long> projectsIds;
-    private Boolean isArchived;
+
+    @TagsExist
     private Set<Long> tagIds;
 
 }

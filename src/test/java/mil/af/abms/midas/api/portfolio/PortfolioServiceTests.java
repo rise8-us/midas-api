@@ -62,7 +62,7 @@ public class PortfolioServiceTests {
     @Test
     public void should_create_portfolio() {
         CreatePortfolioDTO createPortfolioDTO = new CreatePortfolioDTO("homeOne", 3L, "new name",
-                Set.of(4L), false);
+                Set.of(4L));
 
         when(userService.getObject(3L)).thenReturn(user);
         when(applicationService.getObject(anyLong())).thenReturn(application);

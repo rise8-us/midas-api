@@ -29,9 +29,9 @@ import mil.af.abms.midas.api.project.dto.ProjectDTO;
 import mil.af.abms.midas.api.project.dto.UpdateProjectDTO;
 import mil.af.abms.midas.api.project.dto.UpdateProjectJourneyMapDTO;
 import mil.af.abms.midas.api.tag.Tag;
-import mil.af.abms.midas.api.tag.TagRepository;
+import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.team.Team;
-import mil.af.abms.midas.api.team.TeamRepository;
+import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.clients.GitLab4JClient;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
@@ -41,9 +41,9 @@ public class ProjectControllerTests extends ControllerTestHarness {
     @MockBean
     private ProjectService projectService;
     @MockBean
-    private TeamRepository teamRepository;
+    private TeamService teamService;
     @MockBean
-    private TagRepository tagRepository;
+    private TagService tagService;
     @MockBean
     private GitLab4JClient gitLab4JClient;
 
@@ -82,10 +82,12 @@ public class ProjectControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_create_project() throws Exception {
-        CreateProjectDTO createProjectDTO = new CreateProjectDTO(NAME, GITLAB_PROJECT_ID, DESCRIPTION);
+        CreateProjectDTO createProjectDTO = new CreateProjectDTO(NAME, GITLAB_PROJECT_ID, 33L, Set.of(3L), DESCRIPTION);
 
         when(projectService.findByName(NAME)).thenThrow(EntityNotFoundException.class);
         when(projectService.create(any(CreateProjectDTO.class))).thenReturn(project);
+        when(teamService.existsById(33L)).thenReturn(true);
+        when(tagService.existsById(3L)).thenReturn(true);
         when(gitLab4JClient.projectExistsById(GITLAB_PROJECT_ID)).thenReturn(true);
 
         mockMvc.perform(post("/api/projects")
@@ -101,8 +103,8 @@ public class ProjectControllerTests extends ControllerTestHarness {
     public void should_update_project() throws Exception {
         UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5L, 0L, Set.of(tag.getId()), "", false);
 
-        when(teamRepository.existsById(any())).thenReturn(true);
-        when(tagRepository.existsById(any())).thenReturn(true);
+        when(teamService.existsById(any())).thenReturn(true);
+        when(tagService.existsById(any())).thenReturn(true);
         when(projectService.findByName(NAME)).thenReturn(project);
         when(projectService.updateById(anyLong(), any(UpdateProjectDTO.class))).thenReturn(project);
         when(gitLab4JClient.projectExistsById(5L)).thenReturn(true);
@@ -122,8 +124,8 @@ public class ProjectControllerTests extends ControllerTestHarness {
         UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5L, 1L, Set.of(tag.getId()), "", false);
 
         when(projectService.findByName(NAME)).thenReturn(project);
-        when(tagRepository.existsById(any())).thenReturn(true);
-        when(teamRepository.existsById(any())).thenReturn(false);
+        when(tagService.existsById(any())).thenReturn(true);
+        when(teamService.existsById(any())).thenReturn(false);
         when(gitLab4JClient.projectExistsById(any())).thenReturn(true);
 
         mockMvc.perform(put("/api/projects/1")
@@ -143,8 +145,8 @@ public class ProjectControllerTests extends ControllerTestHarness {
         diffProjectSameName.setId(42L);
 
         when(projectService.findByName(NAME)).thenReturn(diffProjectSameName);
-        when(tagRepository.existsById(any())).thenReturn(true);
-        when(teamRepository.existsById(any())).thenReturn(true);
+        when(tagService.existsById(any())).thenReturn(true);
+        when(teamService.existsById(any())).thenReturn(true);
         when(gitLab4JClient.projectExistsById(any())).thenReturn(true);
 
         mockMvc.perform(put("/api/projects/1")

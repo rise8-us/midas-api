@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.AbstractDTO;
-import mil.af.abms.midas.api.user.validation.TeamsExist;
 
 @Data
 @AllArgsConstructor
@@ -24,6 +23,5 @@ public class UserDTO implements AbstractDTO {
     private Boolean isDisabled;
     private Long roles;
     private LocalDateTime lastLogin;
-    @TeamsExist
     private Set<Long> teamIds;
 }

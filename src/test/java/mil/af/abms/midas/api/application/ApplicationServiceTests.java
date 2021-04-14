@@ -65,7 +65,7 @@ public class ApplicationServiceTests {
     @Test
     public void should_create_application() {
         CreateApplicationDTO createApplicationDTO = new CreateApplicationDTO("homeOne", 3L, "new name",
-                Set.of(4L), false, Set.of(3L));
+                Set.of(4L), Set.of(3L));
 
         when(userService.getObject(3L)).thenReturn(user);
         when(projectService.getObject(anyLong())).thenReturn(project);

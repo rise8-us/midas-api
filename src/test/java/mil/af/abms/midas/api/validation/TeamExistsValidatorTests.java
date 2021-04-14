@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.project.validation;
+package mil.af.abms.midas.api.validation;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -6,6 +6,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import javax.validation.ConstraintValidatorContext;
+
+import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -17,16 +19,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 
-import mil.af.abms.midas.clients.GitLab4JClient;
+import mil.af.abms.midas.api.team.TeamService;
 
 @ExtendWith(SpringExtension.class)
-@Import({GitProjectExistsValidator.class})
-public class GitProjectExistsValidatorTests {
+@Import({TeamExistsValidator.class})
+public class TeamExistsValidatorTests {
+
+    private final LocalDateTime CREATION_DATE = LocalDateTime.now();
 
     @Autowired
-    GitProjectExistsValidator validator;
+    TeamExistsValidator validator;
     @MockBean
-    private GitLab4JClient gitLab4JClient;
+    private TeamService teamService;
     @Mock
     private ConstraintValidatorContext context;
     @Mock
@@ -38,17 +42,16 @@ public class GitProjectExistsValidatorTests {
     }
 
     @Test
-    public void should_validate_project_exists_false() {
-        when(gitLab4JClient.projectExistsById(3L)).thenReturn(false);
-
-        assertFalse(validator.isValid(3L, context));
-    }
-
-    @Test
-    public void should_validate_project_exists_true() {
-        when(gitLab4JClient.projectExistsById(1L)).thenReturn(true);
+    public void should_validate_team_exists_true() {
+        when(teamService.existsById(1L)).thenReturn(true);
 
         assertTrue(validator.isValid(1L, context));
     }
 
+    @Test
+    public void should_validate_team_exists_false() {
+        when(teamService.existsById(10L)).thenReturn(false);
+
+        assertFalse(validator.isValid(1L, context));
+    }
 }

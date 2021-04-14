@@ -10,8 +10,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import mil.af.abms.midas.api.project.validation.TagExists;
-import mil.af.abms.midas.api.project.validation.TeamExists;
+import mil.af.abms.midas.api.validation.TagsExist;
+import mil.af.abms.midas.api.validation.TeamExists;
 import mil.af.abms.midas.api.project.validation.UniqueName;
 
 @Getter @Setter
@@ -22,12 +22,16 @@ public class UpdateProjectDTO {
     @NotBlank(message = "Project name must not be blank")
     @UniqueName(isNew = false)
     private String name;
+
     @NotNull(message = "Gitlab project ID must not be Null")
     private Long gitlabProjectId;
-    @TeamExists
+
+    @TeamExists(allowNull = true)
     private Long teamId;
-    @TagExists
+
+    @TagsExist
     private Set<Long> tagIds;
+
     private String description;
     private Boolean isArchived;
 

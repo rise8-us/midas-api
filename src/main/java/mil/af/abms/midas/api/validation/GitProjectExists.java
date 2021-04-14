@@ -12,16 +12,12 @@ import java.lang.annotation.Target;
 
 @Target({ FIELD })
 @Retention(RUNTIME)
-@Constraint(validatedBy = UserExistsValidator.class)
+@Constraint(validatedBy = GitProjectExistsValidator.class)
 @Documented
-public @interface UserExists {
-
-    String message() default "user does not exists";
+public @interface GitProjectExists {
+    String message() default "Project does not exists";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
-
-    boolean allowNull() default false;
-
 }

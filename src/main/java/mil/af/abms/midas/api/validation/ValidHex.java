@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.tag.validation;
+package mil.af.abms.midas.api.validation;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.FIELD;
