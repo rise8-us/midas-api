@@ -28,7 +28,7 @@ public class CreateApplicationDTO {
     private String description;
 
     @ProjectsExist
-    private Set<Long> projectsIds;
+    private Set<Long> projectIds;
 
     @TagsExist
     private Set<Long> tagIds;

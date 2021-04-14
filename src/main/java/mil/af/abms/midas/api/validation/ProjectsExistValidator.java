@@ -19,8 +19,6 @@ public class ProjectsExistValidator implements ConstraintValidator<ProjectsExist
     public boolean isValid(Set<Long> ids, ConstraintValidatorContext constraintContext) {
         constraintContext.disableDefaultConstraintViolation();
 
-        System.out.println("$$$$$" + ids + "$$$$$");
-
         Set<Long> nonExistentIds = ids.stream().filter(i -> !projectService.existsById(i)).peek(i ->
                 constraintContext.buildConstraintViolationWithTemplate(
                         String.format("Project with id: %s does not exists", i)
