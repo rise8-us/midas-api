@@ -27,6 +27,7 @@ import mil.af.abms.midas.api.application.dto.CreateApplicationDTO;
 import mil.af.abms.midas.api.application.dto.UpdateApplicationDTO;
 import mil.af.abms.midas.api.application.dto.UpdateApplicationIsArchivedDTO;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.tag.TagService;
@@ -48,6 +49,8 @@ public class ApplicationServiceTests {
     TagService tagService;
     @MockBean
     ApplicationRepository applicationRepository;
+    @MockBean
+    PortfolioService portfolioService;
     @Captor
     ArgumentCaptor<Application> applicationCaptor;
 
@@ -65,9 +68,9 @@ public class ApplicationServiceTests {
     @Test
     public void should_create_application() {
         CreateApplicationDTO createApplicationDTO = new CreateApplicationDTO("homeOne", 3L, "new name",
-                Set.of(4L), Set.of(3L));
+                Set.of(4L), Set.of(3L), 1L);
 
-        when(userService.getObject(3L)).thenReturn(user);
+        when(userService.findByIdOrNull(3L)).thenReturn(user);
         when(projectService.getObject(anyLong())).thenReturn(project);
         when(applicationRepository.save(application)).thenReturn(new Application());
 
@@ -98,9 +101,9 @@ public class ApplicationServiceTests {
     @Test
     public void should_update_application_by_id() {
         UpdateApplicationDTO updateApplicationDTO = new UpdateApplicationDTO("oneHome", user.getId(), "taxable",
-                Set.of(project.getId()), Set.of(3L));
+                Set.of(project.getId()), Set.of(3L), 1L);
 
-        when(userService.getObject(user.getId())).thenReturn(user);
+        when(userService.findByIdOrNull(user.getId())).thenReturn(user);
         when(projectService.getObject(anyLong())).thenReturn(project);
         when(applicationRepository.findById(anyLong())).thenReturn(Optional.of(application));
         when(applicationRepository.save(application)).thenReturn(application);
@@ -131,6 +134,46 @@ public class ApplicationServiceTests {
         Application applicationSaved = applicationCaptor.getValue();
 
         assertTrue(applicationSaved.getIsArchived());
+    }
+
+    @Test
+    public void should_create_application_with_null_product_manager_and_null_portfolio_id() {
+        CreateApplicationDTO createDTO = new CreateApplicationDTO("name", null, "description",
+                Set.of(1L), Set.of(1L), null);
+
+        when(userService.findByIdOrNull(anyLong())).thenReturn(null);
+        when(portfolioService.findByIdOrNull(anyLong())).thenReturn(null);
+        when(projectService.getObject(anyLong())).thenReturn(project);
+        when(applicationRepository.save(application)).thenReturn(new Application());
+
+        applicationService.create(createDTO);
+
+        verify(applicationRepository, times(1)).save(applicationCaptor.capture());
+        Application applicationSaved = applicationCaptor.getValue();
+
+        assertThat(applicationSaved.getProductManager()).isEqualTo(null);
+        assertThat(applicationSaved.getPortfolio()).isEqualTo(null);
+    }
+
+    @Test
+    public void should_update_application_with_null_product_manager_and_null_portfolio_id() {
+        UpdateApplicationDTO updateDTO = new UpdateApplicationDTO("name", null, "description",
+                Set.of(1L), Set.of(1L), null);
+
+        when(userService.getObject(anyLong())).thenReturn(null);
+        when(portfolioService.findByIdOrNull(anyLong())).thenReturn(null);
+        when(projectService.getObject(anyLong())).thenReturn(project);
+        when(applicationRepository.findById(anyLong())).thenReturn(Optional.of(application));
+        when(applicationRepository.save(application)).thenReturn(application);
+
+        applicationService.updateById(5L, updateDTO);
+
+        verify(applicationRepository, times(1)).save(applicationCaptor.capture());
+        Application applicationSaved = applicationCaptor.getValue();
+
+        assertThat(applicationSaved.getProductManager()).isEqualTo(null);
+        assertThat(applicationSaved.getPortfolio()).isEqualTo(null);
+
     }
 
 }

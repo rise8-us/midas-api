@@ -48,9 +48,9 @@ public class ApplicationControllerTests extends ControllerTestHarness {
     private final static LocalDateTime CREATION_DATE = LocalDateTime.now();
 
     private final UpdateApplicationDTO updateApplicationDTO = new UpdateApplicationDTO("Midas", 3L, "Full Stack",
-            Set.of(3L), Set.of(3L));
+            Set.of(3L), Set.of(3L), 1L);
     private final CreateApplicationDTO createApplicationDTO = new CreateApplicationDTO("Midas", 1L, "backend",
-            Set.of(3L), Set.of(3L));
+            Set.of(3L), Set.of(3L), 1L);
     private final Application application = Builder.build(Application.class)
             .with(p -> p.setId(5L))
             .with(p -> p.setName("Midas"))

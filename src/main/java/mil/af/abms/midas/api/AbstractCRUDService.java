@@ -58,6 +58,10 @@ public abstract class AbstractCRUDService<E extends AbstractEntity<D>, D extends
 
     @Override
     @Transactional
+    public E findByIdOrNull(Long id) { return id != null ? getObject(id) : null; }
+
+    @Override
+    @Transactional
     public Page<E> search(Specification<E> specs, Integer page, Integer size, String sortBy, String orderBy) {
         if (page == null || size == null) {
             page = 0;

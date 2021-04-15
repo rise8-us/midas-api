@@ -15,6 +15,8 @@ public interface CRUDService<E extends AbstractEntity<D>, D extends AbstractDTO>
 
     E findById(Long id);
 
+    E findByIdOrNull(Long id);
+
     Page<E> search(Specification<E> specs, Integer page, Integer size, String sortBy, String orderBy);
 
     List<D> preparePageResponse(Page<E> page, HttpServletResponse response);

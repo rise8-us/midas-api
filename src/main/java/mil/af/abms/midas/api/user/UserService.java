@@ -105,7 +105,7 @@ public class UserService extends AbstractCRUDService<User, UserDTO, UserReposito
     @Transactional
     public User getByKeycloakUid(String keycloakUid) {
         return repository.findByKeycloakUid(keycloakUid).orElseThrow(
-                () -> new EntityNotFoundException(User.class.getSimpleName(), "keycloakUid",String.valueOf(keycloakUid))
+                () -> new EntityNotFoundException(User.class.getSimpleName(), "keycloakUid", String.valueOf(keycloakUid))
         );
     }
 
