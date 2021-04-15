@@ -2,17 +2,19 @@ package mil.af.abms.midas.api.application;
 
 import javax.transaction.Transactional;
 
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
-import mil.af.abms.midas.api.application.dto.CreateApplicationDTO;
 import mil.af.abms.midas.api.application.dto.ApplicationDTO;
+import mil.af.abms.midas.api.application.dto.CreateApplicationDTO;
 import mil.af.abms.midas.api.application.dto.UpdateApplicationDTO;
 import mil.af.abms.midas.api.application.dto.UpdateApplicationIsArchivedDTO;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.user.User;
@@ -32,27 +34,30 @@ public class ApplicationService extends AbstractCRUDService<Application, Applica
 
     @Autowired
     public void setUserService(UserService userService) { this.userService = userService; }
-
     @Autowired
     public void setProjectService(ProjectService projectService) { this.projectService = projectService; }
-
     @Autowired
     public void setTagService(TagService tagService) { this.tagService = tagService; }
     
     @Transactional
     public Application create(CreateApplicationDTO createApplicationDTO) {
-        User user = userService.getObject(createApplicationDTO.getProductManagerId());
-
         Application newApplication = Builder.build(Application.class)
                 .with(a -> a.setName(createApplicationDTO.getName()))
-                .with(a -> a.setProductManager(user))
                 .with(a -> a.setDescription(createApplicationDTO.getDescription()))
+                .with(a -> a.setProductManager(getUser(createApplicationDTO.getProductManagerId())))
                 .with(a -> a.setTags(createApplicationDTO.getTagIds().stream().map(tagService::getObject)
                         .collect(Collectors.toSet())))
-                .with(a -> a.setProjects(createApplicationDTO.getProjectIds().stream().map(projectService::getObject)
-                        .collect(Collectors.toSet()))).get();
+                .get();
 
-        return repository.save(newApplication);
+        Set<Project> projects = createApplicationDTO.getProjectIds().stream().map(projectService::getObject).collect(Collectors.toSet());
+        newApplication.setProjects(projects);
+        newApplication = repository.save(newApplication);
+
+        for (Project project : projects) {
+           projectService.addApplicationToProject(newApplication, project);
+        }
+
+        return newApplication;
     }
 
     @Transactional
@@ -84,4 +89,9 @@ public class ApplicationService extends AbstractCRUDService<Application, Applica
         
         return repository.save(application);
     }
+
+    private User getUser(Long userId) {
+        return userId != null ? userService.getObject(userId) : null;
+    }
+
 }

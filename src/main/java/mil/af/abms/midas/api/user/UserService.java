@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
@@ -54,6 +54,12 @@ public class UserService extends AbstractCRUDService<User, UserDTO, UserReposito
     }
 
     @Transactional
+    public User getUserBySecContext() {
+        String keycloakUid = JsonMapper.getKeycloakUidFromAuth(SecurityContextHolder.getContext().getAuthentication());
+        return getByKeycloakUid(keycloakUid);
+    }
+
+    @Transactional
     public User updateById(Long id, UpdateUserDTO updateUserDTO) {
         User user = getObject(id);
 
@@ -87,7 +93,8 @@ public class UserService extends AbstractCRUDService<User, UserDTO, UserReposito
     @Transactional
     public User findByUsername(String username) {
         return repository.findByUsername(username).orElseThrow(
-                () -> new EntityNotFoundException(User.class.getSimpleName(), "username", username));
+                () -> new EntityNotFoundException(User.class.getSimpleName(), "username", username)
+        );
     }
 
     @Transactional
@@ -96,15 +103,10 @@ public class UserService extends AbstractCRUDService<User, UserDTO, UserReposito
     }
 
     @Transactional
-    public User getUserFromAuth(Authentication auth) {
-        String keycloakUid = JsonMapper.getKeycloakUidFromAuth(auth);
-
-        return findByKeycloakUid(keycloakUid).orElseThrow(() ->
-                new EntityNotFoundException(
-                        User.class.getSimpleName(),
-                        "keycloakUid",
-                        String.valueOf(keycloakUid)
-                ));
+    public User getByKeycloakUid(String keycloakUid) {
+        return repository.findByKeycloakUid(keycloakUid).orElseThrow(
+                () -> new EntityNotFoundException(User.class.getSimpleName(), "keycloakUid",String.valueOf(keycloakUid))
+        );
     }
 
 }

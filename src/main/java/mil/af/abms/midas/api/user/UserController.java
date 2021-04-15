@@ -15,7 +15,7 @@ import mil.af.abms.midas.api.user.dto.UpdateUserDTO;
 import mil.af.abms.midas.api.user.dto.UpdateUserDisabledDTO;
 import mil.af.abms.midas.api.user.dto.UpdateUserRolesDTO;
 import mil.af.abms.midas.api.user.dto.UserDTO;
-import mil.af.abms.midas.config.auth.IsAdmin;
+import mil.af.abms.midas.config.security.annotations.IsAdmin;
 
 @CrossOrigin
 @RestController
@@ -44,4 +44,5 @@ public class UserController extends AbstractCRUDController<User, UserDTO, UserSe
                                         @PathVariable Long id) {
         return service.updateIsDisabledById(id, updateUserDisabledDTO).toDto();
     }
+
 }

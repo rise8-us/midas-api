@@ -282,19 +282,4 @@ public class UserServiceTests {
         assertThat(userService.findByKeycloakUid("abc-123")).isEqualTo(Optional.of(expectedUser));
     }
 
-    @Test
-    void should_get_user_from_auth() {
-        when(userRepository.findByKeycloakUid(expectedUser.getKeycloakUid())).thenReturn(Optional.of(expectedUser));
-
-        User user = userService.getUserFromAuth(auth);
-
-        assertThat(user.getKeycloakUid()).isEqualTo(expectedUser.getKeycloakUid());
-    }
-
-    @Test
-    void should_throw_exception_on_get_user_from_auth() throws EntityNotFoundException {
-        when(userRepository.findByKeycloakUid(expectedUser.getKeycloakUid())).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class, () -> userService.getUserFromAuth(auth));
-    }
 }

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import mil.af.abms.midas.api.search.annotation.SearchSpec;
-import mil.af.abms.midas.config.auth.IsAdmin;
+import mil.af.abms.midas.config.security.annotations.IsAdmin;
 
 @CrossOrigin
 public abstract class AbstractCRUDController<

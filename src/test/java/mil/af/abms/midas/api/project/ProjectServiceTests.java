@@ -22,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
+import mil.af.abms.midas.api.application.ApplicationService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.project.dto.ArchiveProjectDTO;
 import mil.af.abms.midas.api.project.dto.CreateProjectDTO;
@@ -39,6 +40,8 @@ public class ProjectServiceTests {
 
     @Autowired
     ProjectService projectService;
+    @MockBean
+    ApplicationService applicationService;
     @MockBean
     TeamService teamService;
     @MockBean
@@ -68,9 +71,9 @@ public class ProjectServiceTests {
             .with(t -> t.setLabel("Tag"))
             .with(t -> t.setProjects(Set.of(project))).get();
 
-    @Test
+    @Test  //TODO: fix
     public void should_create_project() {
-        CreateProjectDTO createProjectDTO = new CreateProjectDTO("MIDAS", 2L, 33L, Set.of(3L), "Project Description");
+        CreateProjectDTO createProjectDTO = new CreateProjectDTO("MIDAS", 2L, 33L, Set.of(3L), "Project Description",null);
 
         when(projectRepository.save(project)).thenReturn(new Project());
 

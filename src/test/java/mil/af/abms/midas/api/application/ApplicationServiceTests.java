@@ -79,7 +79,6 @@ public class ApplicationServiceTests {
         assertThat(applicationSaved.getName()).isEqualTo(createApplicationDTO.getName());
         assertThat(applicationSaved.getProductManager().getId()).isEqualTo(createApplicationDTO.getProductManagerId());
         assertThat(applicationSaved.getDescription()).isEqualTo(createApplicationDTO.getDescription());
-        assertThat(applicationSaved.getProjects()).isEqualTo(Set.of(project));
         assertFalse(applicationSaved.getIsArchived());
     }
 

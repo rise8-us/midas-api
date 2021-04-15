@@ -16,7 +16,8 @@ import mil.af.abms.midas.api.project.dto.CreateProjectDTO;
 import mil.af.abms.midas.api.project.dto.ProjectDTO;
 import mil.af.abms.midas.api.project.dto.UpdateProjectDTO;
 import mil.af.abms.midas.api.project.dto.UpdateProjectJourneyMapDTO;
-import mil.af.abms.midas.config.auth.IsAdmin;
+import mil.af.abms.midas.config.security.annotations.HasProjectAccess;
+import mil.af.abms.midas.config.security.annotations.IsAdmin;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -25,16 +26,19 @@ public class ProjectController extends AbstractCRUDController<Project, ProjectDT
     @Autowired
     public ProjectController(ProjectService service) { super(service); }
 
+    //TODO: Security Annotation for this allow PM, PorfolioMngr or Admin maybe team?
     @PostMapping
     public ProjectDTO create(@Valid @RequestBody CreateProjectDTO createProjectDTO) {
         return service.create(createProjectDTO).toDto();
     }
 
+    @HasProjectAccess
     @PutMapping("/{id}")
     public ProjectDTO updateById(@Valid @RequestBody UpdateProjectDTO updateProjectDTO, @PathVariable Long id) {
         return service.updateById(id, updateProjectDTO).toDto();
     }
 
+    @HasProjectAccess
     @PutMapping("/{id}/journeymap")
     public ProjectDTO updateProjectJourneyMapById(@RequestBody UpdateProjectJourneyMapDTO updateProjectJourneyMapDTO, @PathVariable Long id) {
         return service.updateJourneyMapById(id, updateProjectJourneyMapDTO).toDto();
