@@ -2,7 +2,6 @@ package mil.af.abms.midas.api.application;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -41,7 +40,7 @@ public class Application extends AbstractEntity<ApplicationDTO> {
     @JoinColumn(name = "product_manager_id")
     private User productManager;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "portfolio_id")
     private Portfolio portfolio;
 

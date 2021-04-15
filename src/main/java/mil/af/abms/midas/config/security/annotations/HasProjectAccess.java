@@ -1,4 +1,4 @@
-package mil.af.abms.midas.config.auth;
+package mil.af.abms.midas.config.security.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,8 +7,10 @@ import java.lang.annotation.Target;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import mil.af.abms.midas.config.security.AuthExpression;
+
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-@PreAuthorize("hasAuthority('ADMIN')")
-public @interface IsAdmin {
+@PreAuthorize(AuthExpression.HAS_PROJECT_ACCESS)
+public @interface HasProjectAccess {
 }

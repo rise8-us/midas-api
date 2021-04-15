@@ -88,7 +88,7 @@ public class TeamControllerTests extends ControllerTestHarness {
         existingTeam.setId(3L);
 
         when(teamService.findByName(updateTeamDTO.getName())).thenReturn(existingTeam);
-        when(userService.existsById(3L)).thenReturn(true);
+        when(userService.existsById(anyLong())).thenReturn(true);
 
         mockMvc.perform(put("/api/teams/2")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -104,7 +104,7 @@ public class TeamControllerTests extends ControllerTestHarness {
         String expectedMessage = "team name already exists";
 
         when(teamService.findByName(updateTeamDTO.getName())).thenReturn(team);
-        when(userService.existsById(3L)).thenReturn(true);
+        when(userService.existsById(anyLong())).thenReturn(true);
 
         mockMvc.perform(post("/api/teams")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)

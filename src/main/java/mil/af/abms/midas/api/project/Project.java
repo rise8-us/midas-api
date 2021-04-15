@@ -3,7 +3,6 @@ package mil.af.abms.midas.api.project;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -43,11 +42,11 @@ public class Project extends AbstractEntity<ProjectDTO> {
     @Column(columnDefinition = "BIGINT", nullable = false)
     private Long gitlabProjectId;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "team_id")
     private Team team;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "application_id")
     private Application application;
 

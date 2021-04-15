@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
+import mil.af.abms.midas.api.application.Application;
+import mil.af.abms.midas.api.application.ApplicationService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.project.dto.ArchiveProjectDTO;
 import mil.af.abms.midas.api.project.dto.CreateProjectDTO;
@@ -24,12 +26,14 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 @Service
 public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, ProjectRepository> {
 
-    private TeamService teamService;
-    private TagService tagService;
+    private final ApplicationService applicationService;
+    private final TeamService teamService;
+    private final TagService tagService;
 
     @Autowired
-    public ProjectService(ProjectRepository repository, TeamService teamService, TagService tagService) {
+    public ProjectService(ProjectRepository repository, ApplicationService applicationService, TeamService teamService, TagService tagService) {
         super(repository, Project.class, ProjectDTO.class);
+        this.applicationService = applicationService;
         this.teamService = teamService;
         this.tagService = tagService;
     }
@@ -40,6 +44,9 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
                 .with(p -> p.setName(createProjectDTO.getName()))
                 .with(p -> p.setDescription(createProjectDTO.getDescription()))
                 .with(p -> p.setGitlabProjectId(createProjectDTO.getGitlabProjectId())).get();
+        Long appId = createProjectDTO.getApplicationId();
+        Application app = appId != null ? applicationService.getObject(appId) : null;
+        newProject.setApplication(app);
 
         return repository.save(newProject);
     }
@@ -102,4 +109,10 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
     public void removeTagFromProjects(Long tagId, Set<Project> projects) {
         projects.forEach(p -> removeTagFromProject(tagId, p));
     }
+
+    public void addApplicationToProject(Application application, Project project) {
+        project.setApplication(application);
+        repository.save(project);
+    }
+
 }

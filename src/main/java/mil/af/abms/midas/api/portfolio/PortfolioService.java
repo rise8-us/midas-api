@@ -36,14 +36,17 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
 
     @Transactional
     public Portfolio create(CreatePortfolioDTO createPortfolioDTO) {
-        User user = userService.getObject(createPortfolioDTO.getPortfolioManagerId());
 
         Portfolio newPortfolio = Builder.build(Portfolio.class)
                 .with(p -> p.setName(createPortfolioDTO.getName()))
-                .with(p -> p.setPortfolioManager(user))
                 .with(p -> p.setDescription(createPortfolioDTO.getDescription()))
                 .with(p -> p.setApplications(createPortfolioDTO.getApplicationIds().stream().map(applicationService::getObject)
                         .collect(Collectors.toSet()))).get();
+
+
+        User user = createPortfolioDTO.getPortfolioManagerId() != null ?
+                userService.getObject(createPortfolioDTO.getPortfolioManagerId()) : null;
+        newPortfolio.setPortfolioManager(user);
 
         return repository.save(newPortfolio);
     }

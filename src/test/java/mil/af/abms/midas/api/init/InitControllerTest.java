@@ -32,7 +32,7 @@ public class InitControllerTest extends ControllerTestHarness {
     @BeforeEach
     public void init() {
         when(userService.findByKeycloakUid(any())).thenReturn(Optional.of(authUser));
-        when(userService.getUserFromAuth(any())).thenReturn(authUser);
+        when(userService.getUserBySecContext()).thenReturn(authUser);
     }
 
     @Test
@@ -42,7 +42,7 @@ public class InitControllerTest extends ControllerTestHarness {
                 .with(a -> a.setCreationDate(LocalDateTime.now()))
                 .with(a -> a.setMessage("HELLO")).get();
 
-        when(userService.getUserFromAuth(any())).thenReturn(authUser);
+        when(userService.getUserBySecContext()).thenReturn(authUser);
         when(announcementService.getUnseenAnnouncements(any())).thenReturn(List.of(announcementEntity));
         when(property.getClassification()).thenReturn("UNCLASS");
         when(property.getCaveat()).thenReturn("IL2");

@@ -15,7 +15,7 @@ import mil.af.abms.midas.api.team.dto.CreateTeamDTO;
 import mil.af.abms.midas.api.team.dto.TeamDTO;
 import mil.af.abms.midas.api.team.dto.UpdateTeamDTO;
 import mil.af.abms.midas.api.team.dto.UpdateTeamIsArchivedDTO;
-import mil.af.abms.midas.config.auth.IsAdmin;
+import mil.af.abms.midas.config.security.annotations.IsAdmin;
 
 @RestController
 @RequestMapping("/api/teams")

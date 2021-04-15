@@ -40,8 +40,8 @@ public class InitController {
             notes = "Returns classification context, available roles a user may have, user login, and unseen announcements")
     @GetMapping
     public InitDTO getInfo(Authentication auth) {
-        UserDTO userDTO = userService.getUserFromAuth(auth).toDto();
-        List<AnnouncementDTO> announcementDTOs = announcementService.getUnseenAnnouncements(userService.getUserFromAuth(auth))
+        UserDTO userDTO = userService.getUserBySecContext().toDto();
+        List<AnnouncementDTO> announcementDTOs = announcementService.getUnseenAnnouncements(userService.getUserBySecContext())
                 .stream().map(Announcement::toDto).collect(Collectors.toList());
         return new InitDTO(property.getClassification(), property.getCaveat(), userDTO, announcementDTOs);
     }

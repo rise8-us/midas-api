@@ -80,9 +80,9 @@ public class ProjectControllerTests extends ControllerTestHarness {
         when(userService.findByKeycloakUid(any())).thenReturn(Optional.of(authUser));
     }
 
-    @Test
+    @Test //TODO: fix
     public void should_create_project() throws Exception {
-        CreateProjectDTO createProjectDTO = new CreateProjectDTO(NAME, GITLAB_PROJECT_ID, 33L, Set.of(3L), DESCRIPTION);
+        CreateProjectDTO createProjectDTO = new CreateProjectDTO(NAME, GITLAB_PROJECT_ID, 33L, Set.of(3L), DESCRIPTION, null);
 
         when(projectService.findByName(NAME)).thenThrow(EntityNotFoundException.class);
         when(projectService.create(any(CreateProjectDTO.class))).thenReturn(project);
