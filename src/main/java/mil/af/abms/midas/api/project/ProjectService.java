@@ -26,7 +26,7 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 @Service
 public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, ProjectRepository> {
 
-    private final ApplicationService applicationService;
+    private ApplicationService applicationService;
     private final TeamService teamService;
     private final TagService tagService;
 
@@ -36,6 +36,11 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
         this.applicationService = applicationService;
         this.teamService = teamService;
         this.tagService = tagService;
+    }
+
+    @Autowired
+    public void setApplicationService(ApplicationService applicationService) {
+        this.applicationService = applicationService;
     }
 
     @Transactional
