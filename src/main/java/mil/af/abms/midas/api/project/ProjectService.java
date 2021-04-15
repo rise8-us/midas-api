@@ -31,9 +31,8 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
     private final TagService tagService;
 
     @Autowired
-    public ProjectService(ProjectRepository repository, ApplicationService applicationService, TeamService teamService, TagService tagService) {
+    public ProjectService(ProjectRepository repository, TeamService teamService, TagService tagService) {
         super(repository, Project.class, ProjectDTO.class);
-        this.applicationService = applicationService;
         this.teamService = teamService;
         this.tagService = tagService;
     }

@@ -6,6 +6,7 @@ import org.springframework.security.core.Authentication;
 
 import mil.af.abms.midas.api.application.Application;
 import mil.af.abms.midas.api.application.ApplicationService;
+import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
@@ -50,13 +51,16 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
 
     public boolean hasApplicationAccess(Long applicationId) {
         if (applicationId == null) { return false; }
+        Application applicationBeingAccessed = applicationService().getObject(applicationId);
+        Portfolio portfolio = applicationBeingAccessed.getPortfolio() != null ?
+                applicationBeingAccessed.getPortfolio() : new Portfolio();
         User userMakingRequest = userService().getUserBySecContext();
         User productManager = applicationService().getObject(applicationId).getProductManager();
-        return userMakingRequest.equals(productManager);
+        return userMakingRequest.equals(productManager) || hasPortfolioAccess(portfolio.getId());
     }
 
     public boolean hasPortfolioAccess(Long portfolioId) {
-        if (portfolioId == null ) { return false; }
+        if (portfolioId == null) { return false; }
         User userMakingRequest = userService().getUserBySecContext();
         User portfolioManager =  portfolioService().getObject(portfolioId).getPortfolioManager();
         return userMakingRequest.equals(portfolioManager);

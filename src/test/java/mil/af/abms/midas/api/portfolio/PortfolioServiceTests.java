@@ -64,7 +64,7 @@ public class PortfolioServiceTests {
         CreatePortfolioDTO createPortfolioDTO = new CreatePortfolioDTO("homeOne", 3L, "new name",
                 Set.of(4L));
 
-        when(userService.getObject(3L)).thenReturn(user);
+        when(userService.findByIdOrNull(3L)).thenReturn(user);
         when(applicationService.getObject(anyLong())).thenReturn(application);
         when(portfolioRepository.save(portfolio)).thenReturn(new Portfolio());
 
@@ -98,7 +98,7 @@ public class PortfolioServiceTests {
         UpdatePortfolioDTO updatePortfolioDTO = new UpdatePortfolioDTO("oneHome", user.getId(), "taxable",
                 Set.of(application.getId()));
 
-        when(userService.getObject(user.getId())).thenReturn(user);
+        when(userService.findByIdOrNull(user.getId())).thenReturn(user);
         when(applicationService.getObject(anyLong())).thenReturn(application);
         when(portfolioRepository.findById(anyLong())).thenReturn(Optional.of(portfolio));
         when(portfolioRepository.save(portfolio)).thenReturn(portfolio);
@@ -129,6 +129,43 @@ public class PortfolioServiceTests {
         Portfolio portfolioSaved = portfolioCaptor.getValue();
 
         assertTrue(portfolioSaved.getIsArchived());
+    }
+
+    @Test
+    public void should_create_portfolio_with_null_portfolio_manager() {
+        CreatePortfolioDTO createPortfolioDTO = new CreatePortfolioDTO("homeOne", null, "new name",
+                Set.of(4L));
+
+        when(userService.findByIdOrNull(anyLong())).thenReturn(null);
+        when(applicationService.getObject(anyLong())).thenReturn(application);
+        when(portfolioRepository.save(portfolio)).thenReturn(new Portfolio());
+
+        portfolioService.create(createPortfolioDTO);
+
+        verify(portfolioRepository, times(1)).save(portfolioCaptor.capture());
+        Portfolio portfolioSaved = portfolioCaptor.getValue();
+
+        assertThat(portfolioSaved.getPortfolioManager()).isEqualTo(null);
+
+    }
+
+    @Test
+    public void should_update_portfolio_with_null_portfolio_manager() {
+        UpdatePortfolioDTO updatePortfolioDTO = new UpdatePortfolioDTO("oneHome", null, "taxable",
+                Set.of(application.getId()));
+
+        when(userService.findByIdOrNull(anyLong())).thenReturn(null);
+        when(applicationService.getObject(anyLong())).thenReturn(application);
+        when(portfolioRepository.findById(anyLong())).thenReturn(Optional.of(portfolio));
+        when(portfolioRepository.save(portfolio)).thenReturn(portfolio);
+
+        portfolioService.updateById(5L, updatePortfolioDTO);
+
+        verify(portfolioRepository, times(1)).save(portfolioCaptor.capture());
+        Portfolio portfolioSaved = portfolioCaptor.getValue();
+
+        assertThat(portfolioSaved.getPortfolioManager()).isEqualTo(null);
+
     }
 
 }

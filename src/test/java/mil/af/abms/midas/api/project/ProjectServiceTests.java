@@ -73,7 +73,8 @@ public class ProjectServiceTests {
 
     @Test  //TODO: fix
     public void should_create_project() {
-        CreateProjectDTO createProjectDTO = new CreateProjectDTO("MIDAS", 2L, 33L, Set.of(3L), "Project Description",null);
+        CreateProjectDTO createProjectDTO = new CreateProjectDTO("MIDAS", 2L, 33L, Set.of(3L),
+                "Project Description", null);
 
         when(projectRepository.save(project)).thenReturn(new Project());
 

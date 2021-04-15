@@ -14,7 +14,6 @@ import mil.af.abms.midas.api.portfolio.dto.CreatePortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.PortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioIsArchivedDTO;
-import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
@@ -36,17 +35,12 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
 
     @Transactional
     public Portfolio create(CreatePortfolioDTO createPortfolioDTO) {
-
         Portfolio newPortfolio = Builder.build(Portfolio.class)
                 .with(p -> p.setName(createPortfolioDTO.getName()))
                 .with(p -> p.setDescription(createPortfolioDTO.getDescription()))
+                .with(p -> p.setPortfolioManager(userService.findByIdOrNull(createPortfolioDTO.getPortfolioManagerId())))
                 .with(p -> p.setApplications(createPortfolioDTO.getApplicationIds().stream().map(applicationService::getObject)
                         .collect(Collectors.toSet()))).get();
-
-
-        User user = createPortfolioDTO.getPortfolioManagerId() != null ?
-                userService.getObject(createPortfolioDTO.getPortfolioManagerId()) : null;
-        newPortfolio.setPortfolioManager(user);
 
         return repository.save(newPortfolio);
     }
@@ -59,11 +53,9 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
 
     @Transactional
     public Portfolio updateById(Long id, UpdatePortfolioDTO updatePortfolioDTO) {
-        User user = userService.getObject(updatePortfolioDTO.getPortfolioManagerId());
-
         Portfolio portfolio = getObject(id);
         portfolio.setName(updatePortfolioDTO.getName());
-        portfolio.setPortfolioManager(user);
+        portfolio.setPortfolioManager(userService.findByIdOrNull(updatePortfolioDTO.getPortfolioManagerId()));
         portfolio.setDescription(updatePortfolioDTO.getDescription());
         portfolio.setApplications(updatePortfolioDTO.getApplicationIds().stream()
                 .map(applicationService::getObject).collect(Collectors.toSet()));

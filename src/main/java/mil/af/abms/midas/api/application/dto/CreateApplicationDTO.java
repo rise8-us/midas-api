@@ -33,4 +33,6 @@ public class CreateApplicationDTO {
     @TagsExist
     private Set<Long> tagIds;
 
+    private Long portfolioId;
+
 }

@@ -14,10 +14,10 @@ import mil.af.abms.midas.api.application.dto.CreateApplicationDTO;
 import mil.af.abms.midas.api.application.dto.UpdateApplicationDTO;
 import mil.af.abms.midas.api.application.dto.UpdateApplicationIsArchivedDTO;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.tag.TagService;
-import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
@@ -27,6 +27,7 @@ public class ApplicationService extends AbstractCRUDService<Application, Applica
     private UserService userService;
     private ProjectService projectService;
     private TagService tagService;
+    private PortfolioService portfolioService;
 
     public ApplicationService(ApplicationRepository repository) {
         super(repository, Application.class, ApplicationDTO.class);
@@ -38,15 +39,18 @@ public class ApplicationService extends AbstractCRUDService<Application, Applica
     public void setProjectService(ProjectService projectService) { this.projectService = projectService; }
     @Autowired
     public void setTagService(TagService tagService) { this.tagService = tagService; }
+    @Autowired
+    public void setPortfolioService(PortfolioService portfolioService) { this.portfolioService = portfolioService; }
     
     @Transactional
     public Application create(CreateApplicationDTO createApplicationDTO) {
         Application newApplication = Builder.build(Application.class)
                 .with(a -> a.setName(createApplicationDTO.getName()))
                 .with(a -> a.setDescription(createApplicationDTO.getDescription()))
-                .with(a -> a.setProductManager(getUser(createApplicationDTO.getProductManagerId())))
+                .with(a -> a.setProductManager(userService.findByIdOrNull(createApplicationDTO.getProductManagerId())))
                 .with(a -> a.setTags(createApplicationDTO.getTagIds().stream().map(tagService::getObject)
                         .collect(Collectors.toSet())))
+                .with(a -> a.setPortfolio(portfolioService.findByIdOrNull(createApplicationDTO.getPortfolioId())))
                 .get();
 
         Set<Project> projects = createApplicationDTO.getProjectIds().stream().map(projectService::getObject).collect(Collectors.toSet());
@@ -68,12 +72,12 @@ public class ApplicationService extends AbstractCRUDService<Application, Applica
 
     @Transactional
     public Application updateById(Long id, UpdateApplicationDTO updateApplicationDTO) {
-        User user = userService.getObject(updateApplicationDTO.getProductManagerId());
 
         Application application = getObject(id);
         application.setName(updateApplicationDTO.getName());
-        application.setProductManager(user);
+        application.setProductManager(userService.findByIdOrNull(updateApplicationDTO.getProductManagerId()));
         application.setDescription(updateApplicationDTO.getDescription());
+        application.setPortfolio(portfolioService.findByIdOrNull(updateApplicationDTO.getPortfolioId()));
         application.setTags(updateApplicationDTO.getTagIds().stream()
                 .map(tagService::getObject).collect(Collectors.toSet()));
         application.setProjects(updateApplicationDTO.getProjectIds().stream()
@@ -88,10 +92,6 @@ public class ApplicationService extends AbstractCRUDService<Application, Applica
         application.setIsArchived(updateApplicationIsArchivedDTO.getIsArchived());
         
         return repository.save(application);
-    }
-
-    private User getUser(Long userId) {
-        return userId != null ? userService.getObject(userId) : null;
     }
 
 }

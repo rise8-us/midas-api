@@ -33,4 +33,6 @@ public class UpdateApplicationDTO {
     @TagsExist
     private Set<Long> tagIds;
 
+    private Long portfolioId;
+
 }

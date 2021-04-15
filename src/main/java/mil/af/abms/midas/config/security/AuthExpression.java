@@ -3,7 +3,6 @@ package mil.af.abms.midas.config.security;
 public final class AuthExpression {
 
     private static final String HAS_AUTHORITY = "hasAuthority('";
-    private static final String TEAM_IDS = ").getTeamIds()";
     public static final String ADMIN = "ADMIN";
     public static final String PORTFOLIO_LEAD = "PORTFOLIO_LEAD";
     public static final String PRODUCT_MANAGER = "PRODUCT_MANAGER";
