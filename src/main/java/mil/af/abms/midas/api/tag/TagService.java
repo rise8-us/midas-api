@@ -10,21 +10,28 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.tag.dto.CreateTagDTO;
 import mil.af.abms.midas.api.tag.dto.TagDTO;
 import mil.af.abms.midas.api.tag.dto.UpdateTagDTO;
+import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @Service
 public class TagService extends AbstractCRUDService<Tag, TagDTO, TagRepository> {
+
+    UserService userService;
 
     @Autowired
     public TagService(TagRepository repository) {
         super(repository, Tag.class, TagDTO.class);
     }
 
+    @Autowired
+    public void setUserService(UserService userService) { this.userService = userService; }
+
     @Transactional
     public Tag create(CreateTagDTO createTagDTO) {
         Tag newTag = Builder.build(Tag.class)
                 .with(t -> t.setLabel(createTagDTO.getLabel()))
                 .with(t -> t.setDescription(createTagDTO.getDescription()))
+                .with(t -> t.setCreatedBy(userService.getUserBySecContext()))
                 .with(t -> t.setColor(createTagDTO.getColor())).get();
 
         return repository.save(newTag);

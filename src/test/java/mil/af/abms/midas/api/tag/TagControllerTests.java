@@ -23,6 +23,7 @@ import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.tag.dto.CreateTagDTO;
 import mil.af.abms.midas.api.tag.dto.UpdateTagDTO;
+import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @WebMvcTest({TagController.class})
@@ -33,10 +34,13 @@ public class TagControllerTests extends ControllerTestHarness {
     @MockBean
     private TagRepository tagRepository;
 
+    private final User user = Builder.build(User.class)
+            .with(u -> u.setId(1L)).get();
     private final Tag tag = Builder.build(Tag.class)
             .with(t -> t.setId(1L))
             .with(t -> t.setLabel("tag test"))
             .with(t -> t.setDescription("New Tag"))
+            .with(t -> t.setCreatedBy(user))
             .with(t -> t.setColor("#969696")).get();
 
     @BeforeEach
@@ -49,6 +53,7 @@ public class TagControllerTests extends ControllerTestHarness {
         CreateTagDTO createTagDTO = new CreateTagDTO("tag test", "New Tag", "#969969");
 
         when(tagService.findByLabel("tag test")).thenThrow(EntityNotFoundException.class);
+        when(userService.existsById(anyLong())).thenReturn(true);
         when(tagService.create(any(CreateTagDTO.class))).thenReturn(tag);
 
         mockMvc.perform(post("/api/tags")

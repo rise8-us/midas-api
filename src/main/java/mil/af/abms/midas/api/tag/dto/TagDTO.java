@@ -15,5 +15,6 @@ public class TagDTO implements AbstractDTO {
     private String label;
     private String description;
     private String color;
+    private Long createdById;
 
 }

@@ -24,6 +24,7 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.tag.dto.CreateTagDTO;
 import mil.af.abms.midas.api.tag.dto.UpdateTagDTO;
+import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @ExtendWith(SpringExtension.class)
@@ -34,6 +35,8 @@ public class TagServiceTests {
     TagService tagService;
     @MockBean
     TagRepository tagRepository;
+    @MockBean
+    UserService userService;
 
     @Captor
     ArgumentCaptor<Tag> tagCaptor;
