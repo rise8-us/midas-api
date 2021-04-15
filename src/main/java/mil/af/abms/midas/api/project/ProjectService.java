@@ -19,7 +19,6 @@ import mil.af.abms.midas.api.project.dto.UpdateProjectDTO;
 import mil.af.abms.midas.api.project.dto.UpdateProjectJourneyMapDTO;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.tag.TagService;
-import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
@@ -47,10 +46,8 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
         Project newProject = Builder.build(Project.class)
                 .with(p -> p.setName(createProjectDTO.getName()))
                 .with(p -> p.setDescription(createProjectDTO.getDescription()))
+                .with(p -> p.setApplication(applicationService.findByIdOrNull(createProjectDTO.getApplicationId())))
                 .with(p -> p.setGitlabProjectId(createProjectDTO.getGitlabProjectId())).get();
-        Long appId = createProjectDTO.getApplicationId();
-        Application app = appId != null ? applicationService.getObject(appId) : null;
-        newProject.setApplication(app);
 
         return repository.save(newProject);
     }
@@ -64,25 +61,15 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
     @Transactional
     public Project updateById(Long id, UpdateProjectDTO updateProjectDTO) {
         Project foundProject = getObject(id);
+        Set<Tag> tags = updateProjectDTO.getTagIds().stream().map(tagService::getObject).collect(Collectors.toSet());
 
-        if (updateProjectDTO.getTeamId() != null) {
-            Team team = teamService.getObject(updateProjectDTO.getTeamId());
-            foundProject.setTeam(team);
-        } else {
-            foundProject.setTeam(null);
-        }
-
-        if (!updateProjectDTO.getTagIds().isEmpty()) {
-            Set<Tag> tags = updateProjectDTO.getTagIds().stream().map(tagService::getObject).collect(Collectors.toSet());
-            foundProject.setTags(tags);
-        } else {
-            foundProject.setTags(null);
-        }
-
+        foundProject.setTags(tags);
+        foundProject.setTeam(teamService.findByIdOrNull(updateProjectDTO.getTeamId()));
         foundProject.setName(updateProjectDTO.getName());
         foundProject.setDescription(updateProjectDTO.getDescription());
         foundProject.setGitlabProjectId(updateProjectDTO.getGitlabProjectId());
         foundProject.setIsArchived(updateProjectDTO.getIsArchived());
+        foundProject.setApplication(applicationService.findByIdOrNull(updateProjectDTO.getApplicationId()));
 
         return repository.save(foundProject);
     }

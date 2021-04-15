@@ -2,9 +2,11 @@ package mil.af.abms.midas.api.tag;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import java.util.HashSet;
@@ -18,6 +20,7 @@ import org.hibernate.annotations.NaturalId;
 import mil.af.abms.midas.api.AbstractEntity;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.tag.dto.TagDTO;
+import mil.af.abms.midas.api.user.User;
 
 @Entity @Getter @Setter
 @Table(name = "tags")
@@ -49,8 +52,12 @@ public class Tag extends AbstractEntity<TagDTO> {
     )
     private Set<Project> applications = new HashSet<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by_id")
+    private User createdBy;
+
     public TagDTO toDto() {
-        return new TagDTO(id, label, description, color);
+        return new TagDTO(id, label, description, color, createdBy.getId());
     }
 
     @Override

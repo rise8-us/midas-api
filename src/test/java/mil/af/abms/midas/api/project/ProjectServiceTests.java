@@ -104,14 +104,15 @@ public class ProjectServiceTests {
     @Test
     public void should_update_project_by_id() {
         UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(
-                "MIDAS_TWO", 5L, 22L, Set.of(tag.getId()), "New Description", true);
+                "MIDAS_TWO", 5L, 22L, Set.of(tag.getId()), "New Description", true,
+                1L);
         Team newTeam = new Team();
         BeanUtils.copyProperties(team, newTeam);
         newTeam.setId(22L);
 
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
         when(projectRepository.save(project)).thenReturn(project);
-        when(teamService.getObject(updateProjectDTO.getTeamId())).thenReturn(newTeam);
+        when(teamService.findByIdOrNull(updateProjectDTO.getTeamId())).thenReturn(newTeam);
 
         projectService.updateById(1L, updateProjectDTO);
 
@@ -144,7 +145,7 @@ public class ProjectServiceTests {
     }
 
     @Test
-    public void should_set_tag_to_null() {
+    public void should_set_tag_to_empty_set() {
         UpdateProjectDTO updateDTO = Builder.build(UpdateProjectDTO.class)
                 .with(d -> d.setTagIds(Set.of())).get();
 
@@ -156,7 +157,7 @@ public class ProjectServiceTests {
         verify(projectRepository, times(1)).save(projectCaptor.capture());
         Project projectSaved = projectCaptor.getValue();
 
-       assertThat(projectSaved.getTags()).isEqualTo(null);
+       assertThat(projectSaved.getTags()).isEqualTo(Set.of());
     }
 
     @Test

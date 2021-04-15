@@ -22,16 +22,20 @@ public class TagTests {
     private static final int ENTITY_DTO_FIELD_OFFSET = 3;
 
     private final Project project = Builder.build(Project.class)
-                        .with(p -> p.setId(3L)).get();
+            .with(p -> p.setId(3L)).get();
+    private final User user = Builder.build(User.class)
+            .with(p -> p.setId(1L)).get();
     private final Tag tag = Builder.build(Tag.class)
             .with(t -> t.setId(1L))
             .with(t -> t.setLabel("tag test"))
             .with(t -> t.setDescription("New Tag"))
+            .with(t -> t.setCreatedBy(user))
             .with(t -> t.setColor("#969696")).get();
     private final TagDTO tagDTO = Builder.build(TagDTO.class)
             .with(t -> t.setId(1L))
             .with(t -> t.setLabel("tag test"))
             .with(t -> t.setDescription("New Tag"))
+            .with(t -> t.setCreatedById(user.getId()))
             .with(t -> t.setColor("#969696")).get();
 
     @Test
