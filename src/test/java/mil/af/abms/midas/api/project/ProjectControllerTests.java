@@ -101,7 +101,7 @@ public class ProjectControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_update_project() throws Exception {
-        UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5L, 0L, Set.of(tag.getId()), "", false, 1L);
+        UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5L, 0L, Set.of(tag.getId()), "", 1L);
 
         when(teamService.existsById(any())).thenReturn(true);
         when(tagService.existsById(any())).thenReturn(true);
@@ -121,7 +121,7 @@ public class ProjectControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_throw_team_exists_exception_on_update_project_team() throws Exception {
-        UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5L, 1L, Set.of(tag.getId()), "", false, 1L);
+        UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5L, 1L, Set.of(tag.getId()), "", 1L);
 
         when(projectService.findByName(NAME)).thenReturn(project);
         when(tagService.existsById(any())).thenReturn(true);
@@ -139,7 +139,7 @@ public class ProjectControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_throw_unique_name_exception_on_project() throws Exception {
-        UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5L, 0L, Set.of(tag.getId()), "false", false, 1L);
+        UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5L, 0L, Set.of(tag.getId()), "false", 1L);
         Project diffProjectSameName = new Project();
         BeanUtils.copyProperties(project, diffProjectSameName);
         diffProjectSameName.setId(42L);
@@ -187,7 +187,7 @@ public class ProjectControllerTests extends ControllerTestHarness {
 
         when(projectService.archive(any(), any())).thenReturn(projectArchived);
 
-        mockMvc.perform(put("/api/projects/1/admin/archive")
+        mockMvc.perform(put("/api/projects/1/archive")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(mapper.writeValueAsString(archiveProjectDTO))
         )
@@ -207,7 +207,7 @@ public class ProjectControllerTests extends ControllerTestHarness {
 
         when(projectService.archive(any(), any())).thenReturn(projectArchived);
 
-        mockMvc.perform(put("/api/projects/1/admin/archive")
+        mockMvc.perform(put("/api/projects/1/archive")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(mapper.writeValueAsString(archiveProjectDTO))
         )

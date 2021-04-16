@@ -131,7 +131,7 @@ public class UserControllerTests extends ControllerTestHarness {
 
         when(userService.updateRolesById(1L, updateUserRolesDTO)).thenReturn(user);
 
-        mockMvc.perform(put("/api/users/1/admin/roles")
+        mockMvc.perform(put("/api/users/1/roles")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(mapper.writeValueAsString(updateUserRolesDTO))
         )
@@ -148,7 +148,7 @@ public class UserControllerTests extends ControllerTestHarness {
 
         when(userService.updateIsDisabledById(1L, updateUserDisabledDTO)).thenReturn(user);
 
-        mockMvc.perform(put("/api/users/1/admin/disable")
+        mockMvc.perform(put("/api/users/1/disable")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(mapper.writeValueAsString(updateUserDisabledDTO))
         )

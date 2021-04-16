@@ -31,7 +31,6 @@ public class UpdateProjectDTO {
     private Set<Long> tagIds;
 
     private String description;
-    private Boolean isArchived;
     private Long applicationId;
 
 }

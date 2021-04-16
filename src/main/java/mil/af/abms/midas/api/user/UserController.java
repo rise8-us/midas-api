@@ -33,13 +33,13 @@ public class UserController extends AbstractCRUDController<User, UserDTO, UserSe
     }
 
     @IsAdmin
-    @PutMapping("/{id}/admin/roles")
+    @PutMapping("/{id}/roles")
     public UserDTO updateRolesById(@RequestBody UpdateUserRolesDTO updateUserRolesDTO, @PathVariable Long id) {
         return service.updateRolesById(id, updateUserRolesDTO).toDto();
     }
 
     @IsAdmin
-    @PutMapping("/{id}/admin/disable")
+    @PutMapping("/{id}/disable")
     public UserDTO updateIsDisabledById(@RequestBody UpdateUserDisabledDTO updateUserDisabledDTO,
                                         @PathVariable Long id) {
         return service.updateIsDisabledById(id, updateUserDisabledDTO).toDto();

@@ -136,7 +136,7 @@ public class PortfolioControllerTests extends ControllerTestHarness {
 
         when(portfolioService.updateIsArchivedById(5L, archivedDTO)).thenReturn(portfolio);
 
-        mockMvc.perform(put("/api/portfolios/5/admin/archive")
+        mockMvc.perform(put("/api/portfolios/5/archive")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(mapper.writeValueAsString(archivedDTO))
         )

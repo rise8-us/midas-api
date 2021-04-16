@@ -15,6 +15,7 @@ import mil.af.abms.midas.api.portfolio.dto.CreatePortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.PortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioIsArchivedDTO;
+import mil.af.abms.midas.config.security.annotations.HasPortfolioAccess;
 
 @RestController
 @RequestMapping("/api/portfolios")
@@ -30,12 +31,14 @@ public class PortfolioController extends AbstractCRUDController<Portfolio, Portf
         return service.create(portfolioDTO).toDto();
     }
 
+    @HasPortfolioAccess
     @PutMapping("/{id}")
     public PortfolioDTO updateById(@Valid @RequestBody UpdatePortfolioDTO updatePortfolioDTO, @PathVariable Long id) {
         return service.updateById(id, updatePortfolioDTO).toDto();
     }
 
-    @PutMapping("/{id}/admin/archive")
+    @HasPortfolioAccess
+    @PutMapping("/{id}/archive")
     public PortfolioDTO updateIsArchivedById(@RequestBody UpdatePortfolioIsArchivedDTO updatePortfolioIsArchivedDTO,
         @PathVariable Long id) {
         return service.updateIsArchivedById(id, updatePortfolioIsArchivedDTO).toDto();

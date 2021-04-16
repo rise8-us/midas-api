@@ -17,7 +17,6 @@ import mil.af.abms.midas.api.project.dto.ProjectDTO;
 import mil.af.abms.midas.api.project.dto.UpdateProjectDTO;
 import mil.af.abms.midas.api.project.dto.UpdateProjectJourneyMapDTO;
 import mil.af.abms.midas.config.security.annotations.HasProjectAccess;
-import mil.af.abms.midas.config.security.annotations.IsAdmin;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -44,8 +43,8 @@ public class ProjectController extends AbstractCRUDController<Project, ProjectDT
         return service.updateJourneyMapById(id, updateProjectJourneyMapDTO).toDto();
     }
 
-    @IsAdmin
-    @PutMapping("/{id}/admin/archive")
+    @HasProjectAccess
+    @PutMapping("/{id}/archive")
     public ProjectDTO archiveById(@RequestBody ArchiveProjectDTO archiveProjectDTO, @PathVariable Long id) {
         return service.archive(id, archiveProjectDTO).toDto();
     }
