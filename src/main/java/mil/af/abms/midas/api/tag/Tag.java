@@ -57,7 +57,8 @@ public class Tag extends AbstractEntity<TagDTO> {
     private User createdBy;
 
     public TagDTO toDto() {
-        return new TagDTO(id, label, description, color, createdBy.getId());
+        Long createdById = createdBy != null ? createdBy.getId() : null;
+        return new TagDTO(id, label, description, color, createdById);
     }
 
     @Override
