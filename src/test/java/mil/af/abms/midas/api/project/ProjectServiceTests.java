@@ -22,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
+import mil.af.abms.midas.api.application.Application;
 import mil.af.abms.midas.api.application.ApplicationService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.project.dto.ArchiveProjectDTO;
@@ -70,6 +71,8 @@ public class ProjectServiceTests {
             .with(t -> t.setId(3L))
             .with(t -> t.setLabel("Tag"))
             .with(t -> t.setProjects(Set.of(project))).get();
+    Application application = Builder.build(Application.class)
+            .with(a -> a.setId(3L)).get();
 
     @Test  //TODO: fix
     public void should_create_project() {
@@ -223,5 +226,17 @@ public class ProjectServiceTests {
         Project projectCaptured = projectCaptor.getValue();
         assertFalse(projectCaptured.getIsArchived());
         assertThat(projectCaptured.getTeam()).isEqualTo(null);
+    }
+
+    @Test
+    public void should_add_application_to_project() {
+        Project projectWithApp = new Project();
+        BeanUtils.copyProperties(project, projectWithApp);
+
+        projectService.addApplicationToProject(application, projectWithApp);
+
+        verify(projectRepository).save(projectCaptor.capture());
+        Project projectCaptured = projectCaptor.getValue();
+        assertThat(projectCaptured.getApplication()).isEqualTo(application);
     }
 }

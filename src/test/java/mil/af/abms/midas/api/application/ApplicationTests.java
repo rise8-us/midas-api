@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.application.dto.ApplicationDTO;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.user.User;
 
@@ -27,24 +28,27 @@ public class ApplicationTests {
     private static final LocalDateTime TEST_TIME = LocalDateTime.now();
 
     private final User lead = Builder.build(User.class).with(u -> u.setId(3L)).get();
-    private Set<Project> projects = Set.of(Builder.build(Project.class).with(u -> u.setId(3L)).get());
+    private final Set<Project> projects = Set.of(Builder.build(Project.class).with(p -> p.setId(3L)).get());
+    private final Portfolio portfolio = Builder.build(Portfolio.class).with(p -> p.setId(3L)).get();
     private final Application application = Builder.build(Application.class)
-            .with(p -> p.setId(1L))
-            .with(p -> p.setName("Midas"))
-            .with(p -> p.setDescription("test application"))
-            .with(p -> p.setCreationDate(TEST_TIME))
-            .with(p -> p.setIsArchived(false))
-            .with(p -> p.setProductManager(lead))
-            .with(p -> p.setProjects(projects)).get();
+            .with(a -> a.setId(1L))
+            .with(a -> a.setName("Midas"))
+            .with(a -> a.setDescription("test application"))
+            .with(a -> a.setCreationDate(TEST_TIME))
+            .with(a -> a.setIsArchived(false))
+            .with(a -> a.setProductManager(lead))
+            .with(a -> a.setPortfolio(portfolio))
+            .with(a -> a.setProjects(projects)).get();
     private final ApplicationDTO applicationDTO = Builder.build(ApplicationDTO.class)
-            .with(p -> p.setId(1L))
-            .with(p -> p.setName("Midas"))
-            .with(p -> p.setDescription("test application"))
-            .with(p -> p.setCreationDate(TEST_TIME))
-            .with(p -> p.setIsArchived(false))
-            .with(p -> p.setProductManagerId(lead.getId()))
-            .with(p -> p.setTagIds(new HashSet<>()))
-            .with(p -> p.setProjectIds(Set.of(3L))).get();
+            .with(d -> d.setId(1L))
+            .with(d -> d.setName("Midas"))
+            .with(d -> d.setDescription("test application"))
+            .with(d -> d.setCreationDate(TEST_TIME))
+            .with(d -> d.setIsArchived(false))
+            .with(d -> d.setProductManagerId(lead.getId()))
+            .with(d -> d.setPortfolioId(portfolio.getId()))
+            .with(d -> d.setTagIds(new HashSet<>()))
+            .with(d -> d.setProjectIds(Set.of(3L))).get();
 
     @Test
     public void should_have_all_dto_fields() {
@@ -60,7 +64,7 @@ public class ApplicationTests {
         BeanUtils.copyProperties(application, application2);
 
         assertEquals(application, application);
-        assertNotEquals(null, application);
+        assertNotEquals(application, null);
         assertNotEquals(application, new User());
         assertNotEquals(application, new Application());
         assertEquals(application, application2);
@@ -74,6 +78,7 @@ public class ApplicationTests {
         assertThat(application.getCreationDate()).isEqualTo(TEST_TIME);
         assertFalse(application.getIsArchived());
         assertThat(application.getProductManager()).isEqualTo(lead);
+        assertThat(application.getPortfolio()).isEqualTo(portfolio);
         assertThat(application.getProjects()).isEqualTo(projects);
     }
 
@@ -83,11 +88,13 @@ public class ApplicationTests {
     }
 
     @Test
-    public void should_return_null_lead() {
-        Application nullLead = new Application();
-        BeanUtils.copyProperties(application, nullLead);
-        nullLead.setProductManager(null);
+    public void should_return_dto_with_null_fields() {
+        Application nullAppAndProduct = new Application();
+        BeanUtils.copyProperties(application, nullAppAndProduct);
+        nullAppAndProduct.setProductManager(null);
+        nullAppAndProduct.setPortfolio(null);
 
-        assertThat(nullLead.toDto().getProductManagerId()).isEqualTo(null);
+        assertThat(nullAppAndProduct.toDto().getProductManagerId()).isEqualTo(null);
+        assertThat(nullAppAndProduct.toDto().getPortfolioId()).isEqualTo(null);
     }
 }

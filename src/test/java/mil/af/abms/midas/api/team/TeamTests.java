@@ -24,8 +24,8 @@ public class TeamTests {
 
     private static final LocalDateTime TEST_TIME = LocalDateTime.now();
 
-    private Set<User> users = Set.of(Builder.build(User.class).with(u -> u.setId(3L)).get());
-    private Set<Project> projects = Set.of(Builder.build(Project.class).with(u -> u.setId(3L)).get());
+    private final Set<User> users = Set.of(Builder.build(User.class).with(u -> u.setId(3L)).get());
+    private final Set<Project> projects = Set.of(Builder.build(Project.class).with(u -> u.setId(3L)).get());
     private final Team team = Builder.build(Team.class)
             .with(t -> t.setId(1L))
             .with(t -> t.setName("MIDAS"))

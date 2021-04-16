@@ -111,7 +111,7 @@ public class ProjectTests {
                 .with(p -> p.setName("MIDAS")).get();
 
         assertEquals(expectedProject, expectedProject);
-        assertNotEquals(null, expectedProject);
+        assertNotEquals(expectedProject, null);
         assertNotEquals(expectedProject, new User());
         assertNotEquals(expectedProject, new Project());
         assertEquals(expectedProject, project2);
