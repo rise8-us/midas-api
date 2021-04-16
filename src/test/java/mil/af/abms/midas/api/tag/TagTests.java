@@ -1,12 +1,14 @@
 package mil.af.abms.midas.api.tag;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.util.ReflectionUtils;
 
@@ -64,11 +66,22 @@ public class TagTests {
         Tag tag2 = Builder.build(Tag.class)
                 .with(p -> p.setLabel("tag test")).get();
 
-        assertTrue(tag.equals(tag));
-        assertFalse(tag.equals(null));
-        assertFalse(tag.equals(new User()));
-        assertFalse(tag.equals(new Tag()));
-        assertTrue(tag.equals(tag2));
+        assertEquals(tag, tag);
+        assertNotEquals(tag, null);
+        assertNotEquals(new User(), tag);
+        assertNotEquals(new Tag(), tag);
+        assertEquals(tag2, tag);
     }
 
+    @Test
+    public void should_return_dto_with_null_fields() {
+        Tag tagNullCreateBy = Builder.build(Tag.class)
+                .with(t -> t.setId(3L))
+                .with(t -> t.setLabel("Null name"))
+                .with(t -> t.setColor("#123456")).get();
+
+        assertNull(tagNullCreateBy.getCreatedBy());
+        assertEquals(tagNullCreateBy.getApplications(), Set.of());
+        assertEquals(tagNullCreateBy.getProjects(), Set.of());
+    }
 }
