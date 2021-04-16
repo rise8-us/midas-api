@@ -58,7 +58,7 @@ public class PortfolioTests {
         BeanUtils.copyProperties(portfolio, portfolio2);
 
         assertEquals(portfolio, portfolio);
-        assertNotEquals(null, portfolio);
+        assertNotEquals(portfolio, null);
         assertNotEquals(portfolio, new User());
         assertNotEquals(portfolio, new Portfolio());
         assertEquals(portfolio, portfolio2);

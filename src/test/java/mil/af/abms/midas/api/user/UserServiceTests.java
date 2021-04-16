@@ -19,7 +19,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.endpoint.SecurityContext;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
@@ -28,6 +27,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
@@ -59,8 +59,6 @@ public class UserServiceTests {
     CustomProperty property;
     @MockBean
     TeamService teamService;
-    @MockBean
-    SecurityContext securityContext;
 
     @Captor
     ArgumentCaptor<User> userCaptor;
@@ -155,7 +153,7 @@ public class UserServiceTests {
 
     @Test
     public void should_throw_error_when_id_not_found() throws EntityNotFoundException {
-        when(userRepository.findById(any())).thenReturn(java.util.Optional.empty());
+        when(userRepository.findById(any())).thenReturn(Optional.empty());
 
         EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> userService.getObject(1L));
         assertThat(e).hasMessage("Failed to find User with id 1");
@@ -163,7 +161,7 @@ public class UserServiceTests {
 
     @Test
     public void should_get_user_and_return_user() throws EntityNotFoundException {
-        when(userRepository.findById(any())).thenReturn(java.util.Optional.of(new User()));
+        when(userRepository.findById(any())).thenReturn(Optional.of(new User()));
 
         userService.findById(1L);
 
@@ -276,10 +274,38 @@ public class UserServiceTests {
     }
 
     @Test
-    void should_get_user_by_keycloak_uid() {
+    public void should_get_user_by_keycloak_uid() {
         when(userRepository.findByKeycloakUid(any())).thenReturn(Optional.of(expectedUser));
 
+        userService.getByKeycloakUid(expectedUser.getKeycloakUid());
+
         assertThat(userService.findByKeycloakUid("abc-123")).isEqualTo(Optional.of(expectedUser));
+    }
+
+    @Test
+    public void should_throw_get_user_by_keycloak_exception() {
+        when(userRepository.findByKeycloakUid(any())).thenReturn(Optional.empty());
+
+        EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> userService.getByKeycloakUid("123-zyx"));
+        assertThat(e).hasMessage("Failed to find User by keycloakUid: 123-zyx");
+    }
+
+    @Test
+    public void should_get_user_by_security_context() {
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        when(userRepository.findByKeycloakUid("abc-123")).thenReturn(Optional.of(expectedUser));
+
+        assertThat(userService.getUserBySecContext()).isEqualTo(expectedUser);
+    }
+
+    @Test
+    public void should_return_user_by_id_or_null() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(expectedUser));
+
+        assertThat(userService.findByIdOrNull(expectedUser.getId())).isEqualTo(expectedUser);
+        assertThat(userService.findByIdOrNull(null)).isEqualTo(null);
+
     }
 
 }
