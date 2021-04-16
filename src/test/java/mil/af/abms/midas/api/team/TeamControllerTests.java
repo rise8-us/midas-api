@@ -123,7 +123,7 @@ public class TeamControllerTests extends ControllerTestHarness {
 
         when(teamService.updateIsArchivedById(1L, updateTeamIsArchivedDTO)).thenReturn(team);
 
-        mockMvc.perform(put("/api/teams/1/admin/archive")
+        mockMvc.perform(put("/api/teams/1/archive")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(mapper.writeValueAsString(updateTeamIsArchivedDTO))
         )

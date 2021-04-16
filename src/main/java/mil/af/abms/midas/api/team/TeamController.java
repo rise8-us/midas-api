@@ -37,7 +37,7 @@ public class TeamController extends AbstractCRUDController<Team, TeamDTO, TeamSe
     }
 
     @IsAdmin
-    @PutMapping("/{id}/admin/archive")
+    @PutMapping("/{id}/archive")
     public TeamDTO updateIsArchivedById(@RequestBody UpdateTeamIsArchivedDTO updateTeamIsArchivedDTO,
         @PathVariable Long id) {
         return service.updateIsArchivedById(id, updateTeamIsArchivedDTO).toDto();

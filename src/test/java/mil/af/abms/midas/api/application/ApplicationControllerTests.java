@@ -146,7 +146,7 @@ public class ApplicationControllerTests extends ControllerTestHarness {
 
         when(applicationService.updateIsArchivedById(5L, archivedDTO)).thenReturn(application);
 
-        mockMvc.perform(put("/api/applications/5/admin/archive")
+        mockMvc.perform(put("/api/applications/5/archive")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(mapper.writeValueAsString(archivedDTO))
         )

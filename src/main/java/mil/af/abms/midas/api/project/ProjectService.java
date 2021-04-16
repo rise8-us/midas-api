@@ -43,10 +43,12 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
 
     @Transactional
     public Project create(CreateProjectDTO createProjectDTO) {
+        Set<Tag> tags = createProjectDTO.getTagIds().stream().map(tagService::getObject).collect(Collectors.toSet());
         Project newProject = Builder.build(Project.class)
                 .with(p -> p.setName(createProjectDTO.getName()))
                 .with(p -> p.setDescription(createProjectDTO.getDescription()))
                 .with(p -> p.setApplication(applicationService.findByIdOrNull(createProjectDTO.getApplicationId())))
+                .with(p -> p.setTags(tags))
                 .with(p -> p.setGitlabProjectId(createProjectDTO.getGitlabProjectId())).get();
 
         return repository.save(newProject);
@@ -68,7 +70,6 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
         foundProject.setName(updateProjectDTO.getName());
         foundProject.setDescription(updateProjectDTO.getDescription());
         foundProject.setGitlabProjectId(updateProjectDTO.getGitlabProjectId());
-        foundProject.setIsArchived(updateProjectDTO.getIsArchived());
         foundProject.setApplication(applicationService.findByIdOrNull(updateProjectDTO.getApplicationId()));
 
         return repository.save(foundProject);

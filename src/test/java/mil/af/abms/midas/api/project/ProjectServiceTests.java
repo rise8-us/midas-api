@@ -104,7 +104,7 @@ public class ProjectServiceTests {
     @Test
     public void should_update_project_by_id() {
         UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(
-                "MIDAS_TWO", 5L, 22L, Set.of(tag.getId()), "New Description", true,
+                "MIDAS_TWO", 5L, 22L, Set.of(tag.getId()), "New Description",
                 1L);
         Team newTeam = new Team();
         BeanUtils.copyProperties(team, newTeam);
@@ -121,7 +121,6 @@ public class ProjectServiceTests {
 
         assertThat(projectSaved.getName()).isEqualTo(updateProjectDTO.getName());
         assertThat(projectSaved.getDescription()).isEqualTo(updateProjectDTO.getDescription());
-        assertThat(projectSaved.getIsArchived()).isEqualTo(updateProjectDTO.getIsArchived());
         assertThat(projectSaved.getGitlabProjectId()).isEqualTo(updateProjectDTO.getGitlabProjectId());
         assertThat(projectSaved.getTeam().getId()).isEqualTo(updateProjectDTO.getTeamId());
     }

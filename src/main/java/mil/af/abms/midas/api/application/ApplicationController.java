@@ -15,6 +15,7 @@ import mil.af.abms.midas.api.application.dto.CreateApplicationDTO;
 import mil.af.abms.midas.api.application.dto.ApplicationDTO;
 import mil.af.abms.midas.api.application.dto.UpdateApplicationDTO;
 import mil.af.abms.midas.api.application.dto.UpdateApplicationIsArchivedDTO;
+import mil.af.abms.midas.config.security.annotations.HasApplicationAccess;
 
 @RestController
 @RequestMapping("/api/applications")
@@ -30,12 +31,14 @@ public class ApplicationController extends AbstractCRUDController<Application, A
         return service.create(applicationDTO).toDto();
     }
 
+    @HasApplicationAccess
     @PutMapping("/{id}")
     public ApplicationDTO updateById(@Valid @RequestBody UpdateApplicationDTO updateApplicationDTO, @PathVariable Long id) {
         return service.updateById(id, updateApplicationDTO).toDto();
     }
 
-    @PutMapping("/{id}/admin/archive")
+    @HasApplicationAccess
+    @PutMapping("/{id}/archive")
     public ApplicationDTO updateIsArchivedById(@RequestBody UpdateApplicationIsArchivedDTO updateApplicationIsArchivedDTO,
                                                @PathVariable Long id) {
         return service.updateIsArchivedById(id, updateApplicationIsArchivedDTO).toDto();
