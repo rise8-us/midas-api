@@ -23,6 +23,6 @@ public class ProjectDTO implements AbstractDTO {
     private Set<Long> tagIds;
     private Long teamId;
     private Long projectJourneyMap;
-    private Long applicationId;
+    private Long productId;
 
 }

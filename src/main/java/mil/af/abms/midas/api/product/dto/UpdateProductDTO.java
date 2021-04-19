@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.application.dto;
+package mil.af.abms.midas.api.product.dto;
 
 import javax.validation.constraints.NotBlank;
 
@@ -8,18 +8,18 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import mil.af.abms.midas.api.application.validation.UniqueName;
+import mil.af.abms.midas.api.product.validation.UniqueName;
 import mil.af.abms.midas.api.validation.ProjectsExist;
 import mil.af.abms.midas.api.validation.TagsExist;
 import mil.af.abms.midas.api.validation.UserExists;
 
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
-public class CreateApplicationDTO {
+@NoArgsConstructor
+public class UpdateProductDTO {
 
-    @NotBlank(message = "application name must not be blank")
-    @UniqueName(isNew = true)
+    @NotBlank(message = "product name must not be blank")
+    @UniqueName(isNew = false)
     private String name;
 
     @UserExists(allowNull = true)

@@ -22,8 +22,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
-import mil.af.abms.midas.api.application.Application;
-import mil.af.abms.midas.api.application.ApplicationService;
+import mil.af.abms.midas.api.product.Product;
+import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.project.dto.ArchiveProjectDTO;
 import mil.af.abms.midas.api.project.dto.CreateProjectDTO;
@@ -42,7 +42,7 @@ public class ProjectServiceTests {
     @Autowired
     ProjectService projectService;
     @MockBean
-    ApplicationService applicationService;
+    ProductService productService;
     @MockBean
     TeamService teamService;
     @MockBean
@@ -71,7 +71,7 @@ public class ProjectServiceTests {
             .with(t -> t.setId(3L))
             .with(t -> t.setLabel("Tag"))
             .with(t -> t.setProjects(Set.of(project))).get();
-    Application application = Builder.build(Application.class)
+    Product product = Builder.build(Product.class)
             .with(a -> a.setId(3L)).get();
 
     @Test  //TODO: fix
@@ -229,14 +229,14 @@ public class ProjectServiceTests {
     }
 
     @Test
-    public void should_add_application_to_project() {
+    public void should_add_product_to_project() {
         Project projectWithApp = new Project();
         BeanUtils.copyProperties(project, projectWithApp);
 
-        projectService.addApplicationToProject(application, projectWithApp);
+        projectService.addProductToProject(product, projectWithApp);
 
         verify(projectRepository).save(projectCaptor.capture());
         Project projectCaptured = projectCaptor.getValue();
-        assertThat(projectCaptured.getApplication()).isEqualTo(application);
+        assertThat(projectCaptured.getProduct()).isEqualTo(product);
     }
 }

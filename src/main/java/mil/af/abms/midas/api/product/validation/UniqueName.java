@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.application.validation;
+package mil.af.abms.midas.api.product.validation;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.FIELD;
@@ -20,7 +20,7 @@ import java.lang.annotation.Target;
 @Documented
 public @interface UniqueName {
 
-    String message() default "application name already exists";
+    String message() default "product name already exists";
 
     Class<?>[] groups() default {};
 

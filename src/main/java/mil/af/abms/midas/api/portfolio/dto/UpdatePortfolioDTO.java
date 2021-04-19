@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.portfolio.validation.UniqueName;
-import mil.af.abms.midas.api.validation.ApplicationsExist;
+import mil.af.abms.midas.api.validation.ProductsExist;
 import mil.af.abms.midas.api.validation.UserExists;
 
 @Getter
@@ -26,7 +26,7 @@ public class UpdatePortfolioDTO {
 
     private String description;
 
-    @ApplicationsExist
-    private Set<Long> applicationIds;
+    @ProductsExist
+    private Set<Long> productIds;
 
 }

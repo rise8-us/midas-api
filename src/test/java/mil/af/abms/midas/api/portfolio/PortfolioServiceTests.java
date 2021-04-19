@@ -23,8 +23,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
-import mil.af.abms.midas.api.application.Application;
-import mil.af.abms.midas.api.application.ApplicationService;
+import mil.af.abms.midas.api.product.Product;
+import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.portfolio.dto.CreatePortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioDTO;
@@ -42,7 +42,7 @@ public class PortfolioServiceTests {
     @MockBean
     UserService userService;
     @MockBean
-    ApplicationService applicationService;
+    ProductService productService;
     @MockBean
     PortfolioRepository portfolioRepository;
     @Captor
@@ -52,7 +52,7 @@ public class PortfolioServiceTests {
             .with(u -> u.setId(3L))
             .with(u -> u.setKeycloakUid("abc-123"))
             .with(u -> u.setUsername("Lambo")).get();
-    Application application = Builder.build(Application.class)
+    Product product = Builder.build(Product.class)
             .with(p -> p.setId(4L))
             .with(p -> p.setName("backend")).get();
     Portfolio portfolio = Builder.build(Portfolio.class)
@@ -65,7 +65,7 @@ public class PortfolioServiceTests {
                 Set.of(4L));
 
         when(userService.findByIdOrNull(3L)).thenReturn(user);
-        when(applicationService.getObject(anyLong())).thenReturn(application);
+        when(productService.getObject(anyLong())).thenReturn(product);
         when(portfolioRepository.save(portfolio)).thenReturn(new Portfolio());
 
         portfolioService.create(createPortfolioDTO);
@@ -76,7 +76,7 @@ public class PortfolioServiceTests {
         assertThat(portfolioSaved.getName()).isEqualTo(createPortfolioDTO.getName());
         assertThat(portfolioSaved.getPortfolioManager().getId()).isEqualTo(createPortfolioDTO.getPortfolioManagerId());
         assertThat(portfolioSaved.getDescription()).isEqualTo(createPortfolioDTO.getDescription());
-        assertThat(portfolioSaved.getApplications()).isEqualTo(Set.of(application));
+        assertThat(portfolioSaved.getProducts()).isEqualTo(Set.of(product));
         assertFalse(portfolioSaved.getIsArchived());
     }
 
@@ -96,10 +96,10 @@ public class PortfolioServiceTests {
     @Test
     public void should_update_portfolio_by_id() {
         UpdatePortfolioDTO updatePortfolioDTO = new UpdatePortfolioDTO("oneHome", user.getId(), "taxable",
-                Set.of(application.getId()));
+                Set.of(product.getId()));
 
         when(userService.findByIdOrNull(user.getId())).thenReturn(user);
-        when(applicationService.getObject(anyLong())).thenReturn(application);
+        when(productService.getObject(anyLong())).thenReturn(product);
         when(portfolioRepository.findById(anyLong())).thenReturn(Optional.of(portfolio));
         when(portfolioRepository.save(portfolio)).thenReturn(portfolio);
 
@@ -111,7 +111,7 @@ public class PortfolioServiceTests {
         assertThat(portfolioSaved.getName()).isEqualTo(updatePortfolioDTO.getName());
         assertThat(portfolioSaved.getPortfolioManager().getId()).isEqualTo(updatePortfolioDTO.getPortfolioManagerId());
         assertThat(portfolioSaved.getDescription()).isEqualTo(updatePortfolioDTO.getDescription());
-        assertThat(portfolioSaved.getApplications()).isEqualTo(Set.of(application));
+        assertThat(portfolioSaved.getProducts()).isEqualTo(Set.of(product));
 
     }
 
@@ -137,7 +137,7 @@ public class PortfolioServiceTests {
                 Set.of(4L));
 
         when(userService.findByIdOrNull(anyLong())).thenReturn(null);
-        when(applicationService.getObject(anyLong())).thenReturn(application);
+        when(productService.getObject(anyLong())).thenReturn(product);
         when(portfolioRepository.save(portfolio)).thenReturn(new Portfolio());
 
         portfolioService.create(createPortfolioDTO);
@@ -152,10 +152,10 @@ public class PortfolioServiceTests {
     @Test
     public void should_update_portfolio_with_null_portfolio_manager() {
         UpdatePortfolioDTO updatePortfolioDTO = new UpdatePortfolioDTO("oneHome", null, "taxable",
-                Set.of(application.getId()));
+                Set.of(product.getId()));
 
         when(userService.findByIdOrNull(anyLong())).thenReturn(null);
-        when(applicationService.getObject(anyLong())).thenReturn(application);
+        when(productService.getObject(anyLong())).thenReturn(product);
         when(portfolioRepository.findById(anyLong())).thenReturn(Optional.of(portfolio));
         when(portfolioRepository.save(portfolio)).thenReturn(portfolio);
 

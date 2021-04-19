@@ -20,26 +20,26 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.application.Application;
-import mil.af.abms.midas.api.application.ApplicationService;
+import mil.af.abms.midas.api.product.Product;
+import mil.af.abms.midas.api.product.ProductService;
 
 @ExtendWith(SpringExtension.class)
-@Import({ApplicationsExistValidator.class})
-public class ApplicationsExistValidatorTests {
+@Import({ProductsExistValidator.class})
+public class ProductsExistValidatorTests {
 
     @Autowired
-    ApplicationsExistValidator validator;
+    ProductsExistValidator validator;
     @MockBean
-    private ApplicationService applicationService;
+    private ProductService productService;
     @Mock
     private ConstraintValidatorContext context;
     @Mock
     private ConstraintValidatorContext.ConstraintViolationBuilder builder;
 
-    private final Application application = Builder.build(Application.class)
+    private final Product product = Builder.build(Product.class)
             .with(t -> t.setId(1L))
-            .with(t -> t.setName("application test"))
-            .with(t -> t.setDescription("New Application")).get();
+            .with(t -> t.setName("product test"))
+            .with(t -> t.setDescription("New product")).get();
 
     @BeforeEach
     public void init() {
@@ -47,15 +47,15 @@ public class ApplicationsExistValidatorTests {
     }
 
     @Test
-    public void should_validate_application_exists_false() {
-        when(applicationService.existsById(3L)).thenReturn(false);
+    public void should_validate_product_exists_false() {
+        when(productService.existsById(3L)).thenReturn(false);
 
         assertFalse(validator.isValid(Set.of(3L), context));
     }
 
     @Test
-    public void should_validate_application_exists_true() {
-        when(applicationService.existsById(1L)).thenReturn(true);
+    public void should_validate_product_exists_true() {
+        when(productService.existsById(1L)).thenReturn(true);
 
         assertTrue(validator.isValid(Set.of(1L), context));
     }

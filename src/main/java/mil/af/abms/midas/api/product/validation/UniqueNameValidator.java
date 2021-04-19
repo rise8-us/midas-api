@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.application.validation;
+package mil.af.abms.midas.api.product.validation;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -7,15 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import lombok.Setter;
 
-import mil.af.abms.midas.api.application.Application;
-import mil.af.abms.midas.api.application.ApplicationService;
+import mil.af.abms.midas.api.product.Product;
+import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.helper.HttpPathVariableIdGrabber;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 public class UniqueNameValidator implements ConstraintValidator<UniqueName, String> {
 
     @Autowired
-    private ApplicationService applicationService;
+    private ProductService productService;
 
     @Setter
     private boolean isNew;
@@ -26,11 +26,11 @@ public class UniqueNameValidator implements ConstraintValidator<UniqueName, Stri
     @Override
     public boolean isValid(String name, ConstraintValidatorContext constraintContext) {
         try {
-            Application existingApplication = applicationService.findByName(name);
+            Product existingProduct = productService.findByName(name);
             if (isNew) {
                 return false;
             } else {
-                return HttpPathVariableIdGrabber.getPathId().equals(existingApplication.getId());
+                return HttpPathVariableIdGrabber.getPathId().equals(existingProduct.getId());
             }
         } catch (EntityNotFoundException e) {
             return true;

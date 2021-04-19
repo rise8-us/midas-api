@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.application.dto;
+package mil.af.abms.midas.api.product.dto;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -12,7 +12,7 @@ import mil.af.abms.midas.api.AbstractDTO;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApplicationDTO implements AbstractDTO {
+public class ProductDTO implements AbstractDTO {
 
     private Long id;
     private String name;

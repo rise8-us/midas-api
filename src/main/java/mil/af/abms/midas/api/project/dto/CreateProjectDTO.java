@@ -31,6 +31,6 @@ public class CreateProjectDTO {
 
     private String description;
 
-    private Long applicationId;
+    private Long productId;
 
 }

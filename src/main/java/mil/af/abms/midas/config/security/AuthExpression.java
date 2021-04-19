@@ -12,7 +12,7 @@ public final class AuthExpression {
     public static final String IS_PORTFOLIO_LEAD = HAS_AUTHORITY + PORTFOLIO_LEAD + END_EXP;
     public static final String IS_PRODUCT_MANAGER = HAS_AUTHORITY + PRODUCT_MANAGER + END_EXP;
     public static final String HAS_PROJECT_ACCESS = "hasProjectAccess(#id)" + OR + IS_ADMIN;
-    public static final String HAS_APPLICATION_ACCESS = "hasApplicationAccess(#id)" + OR + IS_ADMIN;
+    public static final String HAS_PRODUCT_ACCESS = "hasProductAccess(#id)" + OR + IS_ADMIN;
     public static final String HAS_PORTFOLIO_ACCESS = "hasPortfolioAccess(#id)" + OR + IS_ADMIN;
 
     private AuthExpression() {

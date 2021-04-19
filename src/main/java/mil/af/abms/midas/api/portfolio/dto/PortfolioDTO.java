@@ -18,7 +18,7 @@ public class PortfolioDTO implements AbstractDTO {
     private String name;
     private Long portfolioManagerId;
     private String description;
-    private Set<Long> applicationIds;
+    private Set<Long> productIds;
     private Boolean isArchived;
     private LocalDateTime creationDate;
 

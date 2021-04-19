@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.application;
+package mil.af.abms.midas.api.product;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,32 +17,32 @@ import org.springframework.util.ReflectionUtils;
 
 import org.junit.jupiter.api.Test;
 
-import mil.af.abms.midas.api.application.dto.ApplicationDTO;
+import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.user.User;
 
-public class ApplicationTests {
+public class ProductTests {
 
     private static final LocalDateTime TEST_TIME = LocalDateTime.now();
 
     private final User lead = Builder.build(User.class).with(u -> u.setId(3L)).get();
     private final Set<Project> projects = Set.of(Builder.build(Project.class).with(p -> p.setId(3L)).get());
     private final Portfolio portfolio = Builder.build(Portfolio.class).with(p -> p.setId(3L)).get();
-    private final Application application = Builder.build(Application.class)
+    private final Product product = Builder.build(Product.class)
             .with(a -> a.setId(1L))
             .with(a -> a.setName("Midas"))
-            .with(a -> a.setDescription("test application"))
+            .with(a -> a.setDescription("test product"))
             .with(a -> a.setCreationDate(TEST_TIME))
             .with(a -> a.setIsArchived(false))
             .with(a -> a.setProductManager(lead))
             .with(a -> a.setPortfolio(portfolio))
             .with(a -> a.setProjects(projects)).get();
-    private final ApplicationDTO applicationDTO = Builder.build(ApplicationDTO.class)
+    private final ProductDTO productDTO = Builder.build(ProductDTO.class)
             .with(d -> d.setId(1L))
             .with(d -> d.setName("Midas"))
-            .with(d -> d.setDescription("test application"))
+            .with(d -> d.setDescription("test product"))
             .with(d -> d.setCreationDate(TEST_TIME))
             .with(d -> d.setIsArchived(false))
             .with(d -> d.setProductManagerId(lead.getId()))
@@ -53,44 +53,44 @@ public class ApplicationTests {
     @Test
     public void should_have_all_dto_fields() {
         List<Field> fields = new LinkedList<>();
-        ReflectionUtils.doWithFields(Application.class, fields::add);
+        ReflectionUtils.doWithFields(Product.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(ApplicationDTO.class.getDeclaredFields().length);
+        assertThat(fields.size()).isEqualTo(ProductDTO.class.getDeclaredFields().length);
     }
 
     @Test
     public void should_be_equal() {
-        Application application2 = new Application();
-        BeanUtils.copyProperties(application, application2);
+        Product product2 = new Product();
+        BeanUtils.copyProperties(product, product2);
 
-        assertEquals(application, application);
-        assertNotEquals(application, null);
-        assertNotEquals(application, new User());
-        assertNotEquals(application, new Application());
-        assertEquals(application, application2);
+        assertEquals(product, product);
+        assertNotEquals(product, null);
+        assertNotEquals(product, new User());
+        assertNotEquals(product, new Product());
+        assertEquals(product, product2);
     }
 
     @Test
     public void should_get_properties() {
-        assertThat(application.getId()).isEqualTo(1L);
-        assertThat(application.getName()).isEqualTo("Midas");
-        assertThat(application.getDescription()).isEqualTo("test application");
-        assertThat(application.getCreationDate()).isEqualTo(TEST_TIME);
-        assertFalse(application.getIsArchived());
-        assertThat(application.getProductManager()).isEqualTo(lead);
-        assertThat(application.getPortfolio()).isEqualTo(portfolio);
-        assertThat(application.getProjects()).isEqualTo(projects);
+        assertThat(product.getId()).isEqualTo(1L);
+        assertThat(product.getName()).isEqualTo("Midas");
+        assertThat(product.getDescription()).isEqualTo("test product");
+        assertThat(product.getCreationDate()).isEqualTo(TEST_TIME);
+        assertFalse(product.getIsArchived());
+        assertThat(product.getProductManager()).isEqualTo(lead);
+        assertThat(product.getPortfolio()).isEqualTo(portfolio);
+        assertThat(product.getProjects()).isEqualTo(projects);
     }
 
     @Test
     public void can_return_dto() {
-        assertThat(application.toDto()).isEqualTo(applicationDTO);
+        assertThat(product.toDto()).isEqualTo(productDTO);
     }
 
     @Test
     public void should_return_dto_with_null_fields() {
-        Application nullAppAndProduct = new Application();
-        BeanUtils.copyProperties(application, nullAppAndProduct);
+        Product nullAppAndProduct = new Product();
+        BeanUtils.copyProperties(product, nullAppAndProduct);
         nullAppAndProduct.setProductManager(null);
         nullAppAndProduct.setPortfolio(null);
 

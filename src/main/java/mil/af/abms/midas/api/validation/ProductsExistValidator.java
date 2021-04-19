@@ -8,20 +8,20 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import mil.af.abms.midas.api.application.ApplicationService;
+import mil.af.abms.midas.api.product.ProductService;
 
-public class ApplicationsExistValidator implements ConstraintValidator<ApplicationsExist, Set<Long>> {
+public class ProductsExistValidator implements ConstraintValidator<ProductsExist, Set<Long>> {
 
     @Autowired
-    private ApplicationService applicationService;
+    private ProductService productService;
 
     @Override
     public boolean isValid(Set<Long> ids, ConstraintValidatorContext constraintContext) {
         constraintContext.disableDefaultConstraintViolation();
 
-        Set<Long> nonExistentIds = ids.stream().filter(i -> !applicationService.existsById(i)).peek(i ->
+        Set<Long> nonExistentIds = ids.stream().filter(i -> !productService.existsById(i)).peek(i ->
                 constraintContext.buildConstraintViolationWithTemplate(
-                        String.format("Application with id: %s does not exists", i)
+                        String.format("Product with id: %s does not exists", i)
                 ).addConstraintViolation()
         ).collect(Collectors.toSet());
 

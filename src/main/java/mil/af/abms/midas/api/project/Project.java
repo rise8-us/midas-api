@@ -18,7 +18,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
-import mil.af.abms.midas.api.application.Application;
+import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.project.dto.ProjectDTO;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.team.Team;
@@ -47,8 +47,8 @@ public class Project extends AbstractEntity<ProjectDTO> {
     private Team team;
 
     @ManyToOne
-    @JoinColumn(name = "application_id")
-    private Application application;
+    @JoinColumn(name = "product_id")
+    private Product product;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
@@ -60,7 +60,7 @@ public class Project extends AbstractEntity<ProjectDTO> {
 
     public ProjectDTO toDto() {
         Long teamId = team != null ? team.getId() : null;
-        Long portfolioId = application != null ? application.getId() : null;
+        Long portfolioId = product != null ? product.getId() : null;
 
         return new ProjectDTO(id, name, description, isArchived, creationDate, gitlabProjectId, getTagIds(), teamId,
                 projectJourneyMap, portfolioId);
