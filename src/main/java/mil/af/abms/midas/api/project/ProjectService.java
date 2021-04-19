@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
-import mil.af.abms.midas.api.application.Application;
-import mil.af.abms.midas.api.application.ApplicationService;
+import mil.af.abms.midas.api.product.Product;
+import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.project.dto.ArchiveProjectDTO;
 import mil.af.abms.midas.api.project.dto.CreateProjectDTO;
@@ -25,7 +25,7 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 @Service
 public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, ProjectRepository> {
 
-    private ApplicationService applicationService;
+    private ProductService productService;
     private final TeamService teamService;
     private final TagService tagService;
 
@@ -37,8 +37,8 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
     }
 
     @Autowired
-    public void setApplicationService(ApplicationService applicationService) {
-        this.applicationService = applicationService;
+    public void setProductService(ProductService productService) {
+        this.productService = productService;
     }
 
     @Transactional
@@ -47,7 +47,7 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
         Project newProject = Builder.build(Project.class)
                 .with(p -> p.setName(createProjectDTO.getName()))
                 .with(p -> p.setDescription(createProjectDTO.getDescription()))
-                .with(p -> p.setApplication(applicationService.findByIdOrNull(createProjectDTO.getApplicationId())))
+                .with(p -> p.setProduct(productService.findByIdOrNull(createProjectDTO.getProductId())))
                 .with(p -> p.setTags(tags))
                 .with(p -> p.setGitlabProjectId(createProjectDTO.getGitlabProjectId())).get();
 
@@ -70,7 +70,7 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
         foundProject.setName(updateProjectDTO.getName());
         foundProject.setDescription(updateProjectDTO.getDescription());
         foundProject.setGitlabProjectId(updateProjectDTO.getGitlabProjectId());
-        foundProject.setApplication(applicationService.findByIdOrNull(updateProjectDTO.getApplicationId()));
+        foundProject.setProduct(productService.findByIdOrNull(updateProjectDTO.getProductId()));
 
         return repository.save(foundProject);
     }
@@ -102,8 +102,8 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
         projects.forEach(p -> removeTagFromProject(tagId, p));
     }
 
-    public void addApplicationToProject(Application application, Project project) {
-        project.setApplication(application);
+    public void addProductToProject(Product product, Project project) {
+        project.setProduct(product);
         repository.save(project);
     }
 

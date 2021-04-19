@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.application;
+package mil.af.abms.midas.api.product;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,15 +17,15 @@ import lombok.Getter;
 import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
-import mil.af.abms.midas.api.application.dto.ApplicationDTO;
+import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.user.User;
 
 @Entity @Getter @Setter
-@Table(name = "applications")
-public class Application extends AbstractEntity<ApplicationDTO> {
+@Table(name = "products")
+public class Product extends AbstractEntity<ProductDTO> {
 
     @Column(columnDefinition = "VARCHAR(70)", nullable = false, unique = true)
     private String name;
@@ -44,21 +44,21 @@ public class Application extends AbstractEntity<ApplicationDTO> {
     @JoinColumn(name = "portfolio_id")
     private Portfolio portfolio;
 
-    @OneToMany(mappedBy = "application")
+    @OneToMany(mappedBy = "product")
     private Set<Project> projects = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
-            name = "applications_tags",
-            joinColumns = @JoinColumn(name = "application_id", referencedColumnName = "id", nullable = true),
+            name = "products_tags",
+            joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = true),
             inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id", nullable = true)
     )
     private Set<Tag> tags = new HashSet<>();
 
-    public ApplicationDTO toDto() {
+    public ProductDTO toDto() {
         Long productManagerId = productManager != null ? productManager.getId() : null;
         Long portfolioId = portfolio != null ? portfolio.getId() : null;
-        return new ApplicationDTO(id, name, productManagerId, description, getProjectIds(), isArchived, creationDate,
+        return new ProductDTO(id, name, productManagerId, description, getProjectIds(), isArchived, creationDate,
                 portfolioId, getTagIds());
     }
 
@@ -75,7 +75,7 @@ public class Application extends AbstractEntity<ApplicationDTO> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Application that = (Application) o;
+        Product that = (Product) o;
         return this.hashCode() == that.hashCode();
     }
 

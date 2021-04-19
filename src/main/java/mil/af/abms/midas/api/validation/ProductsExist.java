@@ -12,11 +12,11 @@ import java.lang.annotation.Target;
 
 @Target({ FIELD })
 @Retention(RUNTIME)
-@Constraint(validatedBy = ApplicationsExistValidator.class)
+@Constraint(validatedBy = ProductsExistValidator.class)
 @Documented
-public @interface ApplicationsExist {
+public @interface ProductsExist {
 
-    String message() default "application does not exists";
+    String message() default "product does not exists";
 
     Class<?>[] groups() default {};
 

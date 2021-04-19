@@ -22,8 +22,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
-import mil.af.abms.midas.api.application.Application;
-import mil.af.abms.midas.api.application.ApplicationService;
+import mil.af.abms.midas.api.product.Product;
+import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.portfolio.dto.CreatePortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioDTO;
@@ -37,7 +37,7 @@ public class PortfolioControllerTests extends ControllerTestHarness {
     @MockBean
     PortfolioService portfolioService;
     @MockBean
-    ApplicationService applicationService;
+    ProductService productService;
 
     private final static LocalDateTime CREATION_DATE = LocalDateTime.now();
 
@@ -52,7 +52,7 @@ public class PortfolioControllerTests extends ControllerTestHarness {
             .with(p -> p.setDescription("stack full"))
             .with(p -> p.setCreationDate(CREATION_DATE))
             .with(p -> p.setIsArchived(false))
-            .with(p -> p.setApplications(Set.of(new Application()))).get();
+            .with(p -> p.setProducts(Set.of(new Product()))).get();
 
     @BeforeEach
     public void init() throws Exception {
@@ -64,7 +64,7 @@ public class PortfolioControllerTests extends ControllerTestHarness {
         when(portfolioService.findByName(createPortfolioDTO.getName())).thenThrow(EntityNotFoundException.class);
         when(portfolioService.create(any(CreatePortfolioDTO.class))).thenReturn(portfolio);
         when(userService.existsById(anyLong())).thenReturn(true);
-        when(applicationService.existsById(1L)).thenReturn(true);
+        when(productService.existsById(1L)).thenReturn(true);
 
         mockMvc.perform(post("/api/portfolios")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -80,7 +80,7 @@ public class PortfolioControllerTests extends ControllerTestHarness {
         when(portfolioService.findByName(updatePortfolioDTO.getName())).thenReturn(portfolio);
         when(portfolioService.updateById(anyLong(), any(UpdatePortfolioDTO.class))).thenReturn(portfolio);
         when(userService.existsById(anyLong())).thenReturn(true);
-        when(applicationService.existsById(3L)).thenReturn(true);
+        when(productService.existsById(3L)).thenReturn(true);
 
         mockMvc.perform(put("/api/portfolios/5")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -97,7 +97,7 @@ public class PortfolioControllerTests extends ControllerTestHarness {
 
         when(portfolioService.findByName(updatePortfolioDTO.getName())).thenReturn(portfolio);
         when(userService.existsById(anyLong())).thenReturn(true);
-        when(applicationService.existsById(3L)).thenReturn(true);
+        when(productService.existsById(3L)).thenReturn(true);
 
         mockMvc.perform(post("/api/portfolios")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -117,7 +117,7 @@ public class PortfolioControllerTests extends ControllerTestHarness {
 
         when(portfolioService.findByName(updatePortfolioDTO.getName())).thenReturn(existingPortfolio);
         when(userService.existsById(anyLong())).thenReturn(true);
-        when(applicationService.existsById(3L)).thenReturn(true);
+        when(productService.existsById(3L)).thenReturn(true);
 
         mockMvc.perform(put("/api/portfolios/5")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)

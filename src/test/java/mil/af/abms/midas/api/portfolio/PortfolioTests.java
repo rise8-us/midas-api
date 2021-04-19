@@ -16,7 +16,7 @@ import org.springframework.util.ReflectionUtils;
 
 import org.junit.jupiter.api.Test;
 
-import mil.af.abms.midas.api.application.Application;
+import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.portfolio.dto.PortfolioDTO;
 import mil.af.abms.midas.api.user.User;
@@ -26,7 +26,7 @@ public class PortfolioTests {
     private static final LocalDateTime TEST_TIME = LocalDateTime.now();
 
     private User portfolioManager = Builder.build(User.class).with(u -> u.setId(3L)).get();
-    private Set<Application> applications = Set.of(Builder.build(Application.class).with(u -> u.setId(3L)).get());
+    private Set<Product> products = Set.of(Builder.build(Product.class).with(u -> u.setId(3L)).get());
     private final Portfolio portfolio = Builder.build(Portfolio.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setName("Midas"))
@@ -34,7 +34,7 @@ public class PortfolioTests {
             .with(p -> p.setCreationDate(TEST_TIME))
             .with(p -> p.setIsArchived(false))
             .with(p -> p.setPortfolioManager(portfolioManager))
-            .with(p -> p.setApplications(applications)).get();
+            .with(p -> p.setProducts(products)).get();
     private final PortfolioDTO portfolioDTO = Builder.build(PortfolioDTO.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setName("Midas"))
@@ -42,7 +42,7 @@ public class PortfolioTests {
             .with(p -> p.setCreationDate(TEST_TIME))
             .with(p -> p.setIsArchived(false))
             .with(p -> p.setPortfolioManagerId(portfolioManager.getId()))
-            .with(p -> p.setApplicationIds(Set.of(3L))).get();
+            .with(p -> p.setProductIds(Set.of(3L))).get();
 
     @Test
     public void should_have_all_dto_fields() {
@@ -72,7 +72,7 @@ public class PortfolioTests {
         assertThat(portfolio.getCreationDate()).isEqualTo(TEST_TIME);
         assertFalse(portfolio.getIsArchived());
         assertThat(portfolio.getPortfolioManager()).isEqualTo(portfolioManager);
-        assertThat(portfolio.getApplications()).isEqualTo(applications);
+        assertThat(portfolio.getProducts()).isEqualTo(products);
     }
 
     @Test

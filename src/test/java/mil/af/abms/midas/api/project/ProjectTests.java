@@ -17,7 +17,7 @@ import org.springframework.util.ReflectionUtils;
 
 import org.junit.jupiter.api.Test;
 
-import mil.af.abms.midas.api.application.Application;
+import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.project.dto.ProjectDTO;
 import mil.af.abms.midas.api.tag.Tag;
@@ -35,7 +35,7 @@ public class ProjectTests {
     private final Set<Tag> tags = Set.of(Builder.build(Tag.class).with(u -> u.setId(2L)).get());
     private final Team team = Builder.build(Team.class)
             .with(t -> t.setId(3L)).get();
-    private final Application application = Builder.build(Application.class)
+    private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(3L)).get();
 
     Project expectedProject = Builder.build(Project.class)
@@ -47,7 +47,7 @@ public class ProjectTests {
             .with(p -> p.setGitlabProjectId(2L))
             .with(p -> p.setTags(tags))
             .with(p -> p.setProjectJourneyMap(0L))
-            .with(p -> p.setApplication(application))
+            .with(p -> p.setProduct(product))
             .with(p -> p.setCreationDate(CREATION_DATE)).get();
 
     ProjectDTO expectedProjectDTO = Builder.build(ProjectDTO.class)
@@ -59,7 +59,7 @@ public class ProjectTests {
             .with(p -> p.setGitlabProjectId(2L))
             .with(p -> p.setProjectJourneyMap(0L))
             .with(p -> p.setTagIds(Set.of(2L)))
-            .with(p -> p.setApplicationId(application.getId()))
+            .with(p -> p.setProductId(product.getId()))
             .with(p -> p.setCreationDate(CREATION_DATE)).get();
 
     @Test
@@ -97,12 +97,12 @@ public class ProjectTests {
     }
 
     @Test
-    public void should_return_dto_null_application() {
-        Project projectNullApplication = new Project();
-        BeanUtils.copyProperties(expectedProject, projectNullApplication);
-        projectNullApplication.setApplication(null);
+    public void should_return_dto_null_product() {
+        Project projectNullProduct = new Project();
+        BeanUtils.copyProperties(expectedProject, projectNullProduct);
+        projectNullProduct.setProduct(null);
 
-        assertThat(projectNullApplication.toDto().getApplicationId()).isEqualTo(null);
+        assertThat(projectNullProduct.toDto().getProductId()).isEqualTo(null);
     }
 
     @Test
