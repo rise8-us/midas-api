@@ -97,7 +97,7 @@ jacocoTestReport {
                     "**/dto/**DTO**",
                     "mil/af/abms/midas/clients/GitLab4JClient**",
                     "mil/af/abms/midas/exception**",
-                    "mil/af/abms/midas/config**"
+                    "mil/af/abms/midas/config/**"
             ])
         }))
     }
