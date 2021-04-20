@@ -53,28 +53,28 @@ public class ProjectServiceTests {
     @Captor
     ArgumentCaptor<Project> projectCaptor;
 
-    Tag tagInProject = Builder.build(Tag.class)
+    private final Tag tagInProject = Builder.build(Tag.class)
             .with(t -> t.setId(22L))
             .with(t -> t.setLabel("TagInProject")).get();
-    Tag tagTwoInProject = Builder.build(Tag.class)
+    private final Tag tagTwoInProject = Builder.build(Tag.class)
             .with(t -> t.setId(21L))
             .with(t -> t.setLabel("TagTwoInProject")).get();
-    Team team = Builder.build(Team.class)
+    private final Team team = Builder.build(Team.class)
             .with(t -> t.setId(2L))
             .with(t -> t.setName("Team")).get();
-    Project project = Builder.build(Project.class)
+    private final Project project = Builder.build(Project.class)
             .with(p -> p.setName("MIDAS"))
             .with(p -> p.setTeam(team))
             .with(p -> p.setTags(Set.of(tagInProject, tagTwoInProject)))
             .with(p -> p.setId(1L)).get();
-    Tag tag = Builder.build(Tag.class)
+    private final Tag tag = Builder.build(Tag.class)
             .with(t -> t.setId(3L))
             .with(t -> t.setLabel("Tag"))
             .with(t -> t.setProjects(Set.of(project))).get();
-    Product product = Builder.build(Product.class)
+    private final Product product = Builder.build(Product.class)
             .with(a -> a.setId(3L)).get();
 
-    @Test  //TODO: fix
+    @Test
     public void should_create_project() {
         CreateProjectDTO createProjectDTO = new CreateProjectDTO("MIDAS", 2L, 33L, Set.of(3L),
                 "Project Description", null);
@@ -226,6 +226,19 @@ public class ProjectServiceTests {
         Project projectCaptured = projectCaptor.getValue();
         assertFalse(projectCaptured.getIsArchived());
         assertThat(projectCaptured.getTeam()).isEqualTo(null);
+    }
+
+    @Test
+    public void should_add_product_to_set_of_projects() {
+        Project projectInSet = new Project();
+        BeanUtils.copyProperties(project, projectInSet);
+        Set<Project> projects = Set.of(projectInSet);
+
+        projectService.addProductToProjects(product, projects);
+
+        verify(projectRepository).save(projectCaptor.capture());
+        Project projectCaptured = projectCaptor.getValue();
+        assertThat(projectCaptured.getProduct()).isEqualTo(product);
     }
 
     @Test
