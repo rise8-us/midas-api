@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,11 +24,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
+import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductIsArchivedDTO;
-import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.tag.TagService;
@@ -72,7 +73,8 @@ public class ProductServiceTests {
 
         when(userService.findByIdOrNull(3L)).thenReturn(user);
         when(projectService.getObject(anyLong())).thenReturn(project);
-        when(productRepository.save(product)).thenReturn(new Product());
+        when(productRepository.save(any())).thenReturn(product);
+        doNothing().when(projectService).addProductToProjects(any(), any());
 
         productService.create(createProductDTO);
 
@@ -144,13 +146,13 @@ public class ProductServiceTests {
         when(userService.findByIdOrNull(anyLong())).thenReturn(null);
         when(portfolioService.findByIdOrNull(anyLong())).thenReturn(null);
         when(projectService.getObject(anyLong())).thenReturn(project);
-        when(productRepository.save(product)).thenReturn(new Product());
+        when(productRepository.save(any())).thenReturn(product);
+        doNothing().when(projectService).addProductToProjects(any(), any());
 
         productService.create(createDTO);
 
         verify(productRepository, times(1)).save(productCaptor.capture());
         Product productSaved = productCaptor.getValue();
-
         assertThat(productSaved.getProductManager()).isEqualTo(null);
         assertThat(productSaved.getPortfolio()).isEqualTo(null);
     }

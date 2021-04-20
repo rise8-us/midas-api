@@ -102,6 +102,10 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
         projects.forEach(p -> removeTagFromProject(tagId, p));
     }
 
+    public void addProductToProjects(Product product, Set<Project> projects) {
+       projects.forEach(project -> addProductToProject(product, project));
+    }
+
     public void addProductToProject(Product product, Project project) {
         project.setProduct(product);
         repository.save(project);
