@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.product.validation.UniqueName;
+import mil.af.abms.midas.api.validation.ProjectsCanBeAssignedToProduct;
 import mil.af.abms.midas.api.validation.ProjectsExist;
 import mil.af.abms.midas.api.validation.TagsExist;
 import mil.af.abms.midas.api.validation.UserExists;
@@ -28,6 +29,7 @@ public class UpdateProductDTO {
     private String description;
 
     @ProjectsExist
+    @ProjectsCanBeAssignedToProduct
     private Set<Long> projectIds;
 
     @TagsExist
