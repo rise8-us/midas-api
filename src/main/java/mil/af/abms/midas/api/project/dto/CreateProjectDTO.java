@@ -30,7 +30,6 @@ public class CreateProjectDTO {
     private Set<Long> tagIds;
 
     private String description;
-
     private Long productId;
 
 }
