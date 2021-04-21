@@ -49,6 +49,7 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
                 .with(p -> p.setDescription(createProjectDTO.getDescription()))
                 .with(p -> p.setProduct(productService.findByIdOrNull(createProjectDTO.getProductId())))
                 .with(p -> p.setTags(tags))
+                .with(p -> p.setTeam(teamService.findByIdOrNull(createProjectDTO.getTeamId())))
                 .with(p -> p.setGitlabProjectId(createProjectDTO.getGitlabProjectId())).get();
 
         return repository.save(newProject);

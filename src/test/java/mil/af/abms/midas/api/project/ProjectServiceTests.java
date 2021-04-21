@@ -22,9 +22,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
+import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
-import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.project.dto.ArchiveProjectDTO;
 import mil.af.abms.midas.api.project.dto.CreateProjectDTO;
 import mil.af.abms.midas.api.project.dto.UpdateProjectDTO;
@@ -126,24 +126,6 @@ public class ProjectServiceTests {
         assertThat(projectSaved.getDescription()).isEqualTo(updateProjectDTO.getDescription());
         assertThat(projectSaved.getGitlabProjectId()).isEqualTo(updateProjectDTO.getGitlabProjectId());
         assertThat(projectSaved.getTeam().getId()).isEqualTo(updateProjectDTO.getTeamId());
-    }
-
-    @Test
-    public void should_set_team_to_null() {
-        UpdateProjectDTO updateDTO = Builder.build(UpdateProjectDTO.class)
-                .with(d -> d.setName("projects"))
-                .with(d -> d.setGitlabProjectId(1L))
-                .with(d -> d.setTagIds(Set.of())).get();
-
-        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
-        when(tagService.getObject(1L)).thenReturn(tag);
-
-        projectService.updateById(1L, updateDTO);
-
-        verify(projectRepository, times(1)).save(projectCaptor.capture());
-        Project projectSaved = projectCaptor.getValue();
-
-        assertThat(projectSaved.getTeam()).isEqualTo(null);
     }
 
     @Test
@@ -251,5 +233,41 @@ public class ProjectServiceTests {
         verify(projectRepository).save(projectCaptor.capture());
         Project projectCaptured = projectCaptor.getValue();
         assertThat(projectCaptured.getProduct()).isEqualTo(product);
+    }
+
+    @Test
+    public void should_create_project_with_null_product_id_and_null_team_id() {
+        CreateProjectDTO createDTO = new CreateProjectDTO("No Product", 20L, null, Set.of(3L),
+                "Project Description", null);
+
+        when(projectRepository.save(project)).thenReturn(new Project());
+
+        projectService.create(createDTO);
+
+        verify(projectRepository, times(1)).save(projectCaptor.capture());
+        Project projectSaved = projectCaptor.getValue();
+
+        assertThat(projectSaved.getProduct()).isEqualTo(null);
+        assertThat(projectSaved.getTeam()).isEqualTo(null);
+
+    }
+
+    @Test
+    public void should_update_project_with_null_product_id_and_null_team_id() {
+        UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(
+                "MIDAS_TWO", 5L, null, Set.of(tag.getId()), "New Description",
+                null);
+
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        when(projectRepository.save(project)).thenReturn(project);
+
+        projectService.updateById(1L, updateProjectDTO);
+
+        verify(projectRepository, times(1)).save(projectCaptor.capture());
+        Project projectSaved = projectCaptor.getValue();
+
+        assertThat(projectSaved.getProduct()).isEqualTo(null);
+        assertThat(projectSaved.getTeam()).isEqualTo(null);
+
     }
 }

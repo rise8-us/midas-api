@@ -143,9 +143,6 @@ public class ProductServiceTests {
         CreateProductDTO createDTO = new CreateProductDTO("name", null, "description",
                 Set.of(1L), Set.of(1L), null);
 
-        when(userService.findByIdOrNull(anyLong())).thenReturn(null);
-        when(portfolioService.findByIdOrNull(anyLong())).thenReturn(null);
-        when(projectService.getObject(anyLong())).thenReturn(project);
         when(productRepository.save(any())).thenReturn(product);
         doNothing().when(projectService).addProductToProjects(any(), any());
 
@@ -162,9 +159,6 @@ public class ProductServiceTests {
         UpdateProductDTO updateDTO = new UpdateProductDTO("name", null, "description",
                 Set.of(1L), Set.of(1L), null);
 
-        when(userService.getObject(anyLong())).thenReturn(null);
-        when(portfolioService.findByIdOrNull(anyLong())).thenReturn(null);
-        when(projectService.getObject(anyLong())).thenReturn(project);
         when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
         when(productRepository.save(product)).thenReturn(product);
 

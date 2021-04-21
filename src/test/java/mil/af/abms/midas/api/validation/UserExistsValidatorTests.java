@@ -52,9 +52,15 @@ public class UserExistsValidatorTests {
     }
 
     @Test
-    public void should_validate_user_exists_true_when_null() {
-        when(userService.existsById(null)).thenReturn(true);
+    public void should_validate_true_when_user_id_is_null() {
+        validator.setAllowNull(true);
 
+        assertTrue(validator.isValid(null, context));
+    }
+
+    @Test
+    public void should_validate_false_when_user_id_is_null() {
+        validator.setAllowNull(false);
         assertFalse(validator.isValid(null, context));
     }
 

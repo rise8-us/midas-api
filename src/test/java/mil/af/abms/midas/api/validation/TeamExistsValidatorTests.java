@@ -54,4 +54,16 @@ public class TeamExistsValidatorTests {
 
         assertFalse(validator.isValid(1L, context));
     }
+
+    @Test
+    public void should_validate_team_exists_true_when_null() {
+        validator.setAllowNull(true);
+        assertTrue(validator.isValid(null, context));
+    }
+
+    @Test
+    public void should_validate_team_exists_false_when_null() {
+        validator.setAllowNull(false);
+        assertFalse(validator.isValid(null, context));
+    }
 }
