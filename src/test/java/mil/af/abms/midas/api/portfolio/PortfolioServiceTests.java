@@ -136,10 +136,6 @@ public class PortfolioServiceTests {
         CreatePortfolioDTO createPortfolioDTO = new CreatePortfolioDTO("homeOne", null, "new name",
                 Set.of(4L));
 
-        when(userService.findByIdOrNull(anyLong())).thenReturn(null);
-        when(productService.getObject(anyLong())).thenReturn(product);
-        when(portfolioRepository.save(portfolio)).thenReturn(new Portfolio());
-
         portfolioService.create(createPortfolioDTO);
 
         verify(portfolioRepository, times(1)).save(portfolioCaptor.capture());
@@ -154,8 +150,6 @@ public class PortfolioServiceTests {
         UpdatePortfolioDTO updatePortfolioDTO = new UpdatePortfolioDTO("oneHome", null, "taxable",
                 Set.of(product.getId()));
 
-        when(userService.findByIdOrNull(anyLong())).thenReturn(null);
-        when(productService.getObject(anyLong())).thenReturn(product);
         when(portfolioRepository.findById(anyLong())).thenReturn(Optional.of(portfolio));
         when(portfolioRepository.save(portfolio)).thenReturn(portfolio);
 
