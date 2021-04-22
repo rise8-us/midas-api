@@ -39,6 +39,9 @@ public class Product extends AbstractEntity<ProductDTO> {
     @Column(columnDefinition = "TEXT")
     private String visionStatement;
 
+    @Column(columnDefinition = "TEXT")
+    private String problemStatement;
+
     @ManyToOne
     @JoinColumn(name = "product_manager_id")
     private User productManager;
@@ -61,8 +64,8 @@ public class Product extends AbstractEntity<ProductDTO> {
     public ProductDTO toDto() {
         Long productManagerId = productManager != null ? productManager.getId() : null;
         Long portfolioId = portfolio != null ? portfolio.getId() : null;
-        return new ProductDTO(id, productManagerId, portfolioId, name, description, visionStatement, isArchived,
-                creationDate, getProjectIds(), getTagIds());
+        return new ProductDTO(id, productManagerId, portfolioId, name, description, visionStatement, problemStatement,
+                isArchived, creationDate, getProjectIds(), getTagIds());
     }
 
     private Set<Long> getProjectIds() { return projects.stream().map(Project::getId).collect(Collectors.toSet()); }

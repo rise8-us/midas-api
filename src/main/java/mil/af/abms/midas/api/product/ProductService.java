@@ -46,6 +46,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
                 .with(p -> p.setName(createProductDTO.getName()))
                 .with(p -> p.setDescription(createProductDTO.getDescription()))
                 .with(p -> p.setVisionStatement(createProductDTO.getVisionStatement()))
+                .with(p -> p.setProblemStatement(createProductDTO.getProblemStatement()))
                 .with(p -> p.setProductManager(userService.findByIdOrNull(createProductDTO.getProductManagerId())))
                 .with(p -> p.setTags(createProductDTO.getTagIds().stream().map(tagService::getObject)
                         .collect(Collectors.toSet())))
@@ -74,6 +75,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         product.setProductManager(userService.findByIdOrNull(updateProductDTO.getProductManagerId()));
         product.setDescription(updateProductDTO.getDescription());
         product.setVisionStatement(updateProductDTO.getVisionStatement());
+        product.setProblemStatement(updateProductDTO.getProblemStatement());
         product.setPortfolio(portfolioService.findByIdOrNull(updateProductDTO.getPortfolioId()));
         product.setTags(updateProductDTO.getTagIds().stream()
                 .map(tagService::getObject).collect(Collectors.toSet()));

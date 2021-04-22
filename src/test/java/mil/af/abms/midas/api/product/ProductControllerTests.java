@@ -47,9 +47,9 @@ public class ProductControllerTests extends ControllerTestHarness {
 
     private final static LocalDateTime CREATION_DATE = LocalDateTime.now();
 
-    private final UpdateProductDTO updateProductDTO = new UpdateProductDTO("Midas", "Full Stack", "vision",
+    private final UpdateProductDTO updateProductDTO = new UpdateProductDTO("Midas", "Full Stack", "vision", "problem",
             3L, 1L, Set.of(3L), Set.of(3L));
-    private final CreateProductDTO createProductDTO = new CreateProductDTO("Midas", "backend", "vision",
+    private final CreateProductDTO createProductDTO = new CreateProductDTO("Midas", "backend", "vision", "problem",
             1L, 1L, Set.of(3L), Set.of(3L));
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(5L))

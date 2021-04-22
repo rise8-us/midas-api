@@ -20,6 +20,7 @@ public class ProductDTO implements AbstractDTO {
     private String name;
     private String description;
     private String visionStatement;
+    private String problemStatement;
     private Boolean isArchived;
     private LocalDateTime creationDate;
     private Set<Long> projectIds;
