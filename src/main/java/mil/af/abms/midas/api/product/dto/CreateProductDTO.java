@@ -25,6 +25,7 @@ public class CreateProductDTO {
 
     private String description;
     private String visionStatement;
+    private String problemStatement;
 
     @UserExists(allowNull = true)
     private Long productManagerId;
