@@ -15,13 +15,14 @@ import mil.af.abms.midas.api.AbstractDTO;
 public class ProductDTO implements AbstractDTO {
 
     private Long id;
-    private String name;
     private Long productManagerId;
+    private Long portfolioId;
+    private String name;
     private String description;
-    private Set<Long> projectIds;
+    private String visionStatement;
     private Boolean isArchived;
     private LocalDateTime creationDate;
-    private Long portfolioId;
+    private Set<Long> projectIds;
     private Set<Long> tagIds;
 
 }

@@ -23,10 +23,13 @@ public class UpdateProductDTO {
     @UniqueName(isNew = false)
     private String name;
 
+    private String description;
+    private String visionStatement;
+
     @UserExists(allowNull = true)
     private Long productManagerId;
 
-    private String description;
+    private Long portfolioId;
 
     @ProjectsExist
     @ProjectsCanBeAssignedToProduct
@@ -35,6 +38,5 @@ public class UpdateProductDTO {
     @TagsExist
     private Set<Long> tagIds;
 
-    private Long portfolioId;
 
 }

@@ -68,8 +68,8 @@ public class ProductServiceTests {
 
     @Test
     public void should_create_product() {
-        CreateProductDTO createProductDTO = new CreateProductDTO("homeOne", 3L, "new name",
-                Set.of(4L), Set.of(3L), 1L);
+        CreateProductDTO createProductDTO = new CreateProductDTO("homeOne", "new name", "vision",
+                3L, 1L, Set.of(4L), Set.of(3L));
 
         when(userService.findByIdOrNull(3L)).thenReturn(user);
         when(projectService.getObject(anyLong())).thenReturn(project);
@@ -85,6 +85,7 @@ public class ProductServiceTests {
         assertThat(productSaved.getProductManager().getId()).isEqualTo(createProductDTO.getProductManagerId());
         assertThat(productSaved.getDescription()).isEqualTo(createProductDTO.getDescription());
         assertFalse(productSaved.getIsArchived());
+        assertThat(productSaved.getVisionStatement()).isEqualTo(createProductDTO.getVisionStatement());
     }
 
     @Test
@@ -102,8 +103,8 @@ public class ProductServiceTests {
 
     @Test
     public void should_update_product_by_id() {
-        UpdateProductDTO updateProductDTO = new UpdateProductDTO("oneHome", user.getId(), "taxable",
-                Set.of(project.getId()), Set.of(3L), 1L);
+        UpdateProductDTO updateProductDTO = new UpdateProductDTO("oneHome", "taxable", "vision",
+                user.getId(), 1L, Set.of(project.getId()), Set.of(3L));
 
         when(userService.findByIdOrNull(user.getId())).thenReturn(user);
         when(projectService.getObject(anyLong())).thenReturn(project);
@@ -119,7 +120,7 @@ public class ProductServiceTests {
         assertThat(productSaved.getProductManager().getId()).isEqualTo(updateProductDTO.getProductManagerId());
         assertThat(productSaved.getDescription()).isEqualTo(updateProductDTO.getDescription());
         assertThat(productSaved.getProjects()).isEqualTo(Set.of(project));
-
+        assertThat(productSaved.getVisionStatement()).isEqualTo(updateProductDTO.getVisionStatement());
     }
 
     @Test
@@ -140,8 +141,8 @@ public class ProductServiceTests {
 
     @Test
     public void should_create_product_with_null_product_manager_and_null_portfolio_id() {
-        CreateProductDTO createDTO = new CreateProductDTO("name", null, "description",
-                Set.of(1L), Set.of(1L), null);
+        CreateProductDTO createDTO = new CreateProductDTO("name", "description", "vision",
+                null, null, Set.of(1L), Set.of(1L));
 
         when(productRepository.save(any())).thenReturn(product);
         doNothing().when(projectService).addProductToProjects(any(), any());
@@ -156,8 +157,8 @@ public class ProductServiceTests {
 
     @Test
     public void should_update_product_with_null_product_manager_and_null_portfolio_id() {
-        UpdateProductDTO updateDTO = new UpdateProductDTO("name", null, "description",
-                Set.of(1L), Set.of(1L), null);
+        UpdateProductDTO updateDTO = new UpdateProductDTO("name", "description", "vision",
+                null, null, Set.of(1L), Set.of(1L));
 
         when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
         when(productRepository.save(product)).thenReturn(product);
@@ -169,7 +170,6 @@ public class ProductServiceTests {
 
         assertThat(productSaved.getProductManager()).isEqualTo(null);
         assertThat(productSaved.getPortfolio()).isEqualTo(null);
-
     }
 
 }
