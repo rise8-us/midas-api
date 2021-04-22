@@ -45,6 +45,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         Product newProduct = Builder.build(Product.class)
                 .with(p -> p.setName(createProductDTO.getName()))
                 .with(p -> p.setDescription(createProductDTO.getDescription()))
+                .with(p -> p.setVisionStatement(createProductDTO.getVisionStatement()))
                 .with(p -> p.setProductManager(userService.findByIdOrNull(createProductDTO.getProductManagerId())))
                 .with(p -> p.setTags(createProductDTO.getTagIds().stream().map(tagService::getObject)
                         .collect(Collectors.toSet())))
@@ -52,7 +53,6 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
                 .with(p -> p.setProjects(createProductDTO.getProjectIds().stream()
                         .map(projectService::getObject).collect(Collectors.toSet())))
                 .get();
-
 
         newProduct = repository.save(newProduct);
         projectService.addProductToProjects(newProduct, newProduct.getProjects());
@@ -73,6 +73,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         product.setName(updateProductDTO.getName());
         product.setProductManager(userService.findByIdOrNull(updateProductDTO.getProductManagerId()));
         product.setDescription(updateProductDTO.getDescription());
+        product.setVisionStatement(updateProductDTO.getVisionStatement());
         product.setPortfolio(portfolioService.findByIdOrNull(updateProductDTO.getPortfolioId()));
         product.setTags(updateProductDTO.getTagIds().stream()
                 .map(tagService::getObject).collect(Collectors.toSet()));
