@@ -26,7 +26,7 @@ import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.user.dto.UserDTO;
 
 @Entity @Getter @Setter
-@Table(name = "users")
+@Table(name = "user")
 public class User extends AbstractEntity<UserDTO> {
 
     @NaturalId(mutable = false)

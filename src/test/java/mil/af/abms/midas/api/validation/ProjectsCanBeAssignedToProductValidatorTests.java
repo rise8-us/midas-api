@@ -23,6 +23,7 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
+import mil.af.abms.midas.helpers.RequestContext;
 
 @ExtendWith(SpringExtension.class)
 @Import({ProjectsCanBeAssignedToProductValidator.class})
@@ -56,16 +57,27 @@ public class ProjectsCanBeAssignedToProductValidatorTests {
     }
 
     @Test
-    public void should_validate_project_assigned_one_product() {
+    public void should_validate_project_not_assigned_to_any_product() {
+        RequestContext.setRequestContext("id", "4");
+        when(projectService.getObject(2L)).thenReturn(projectWithOutProduct);
+
+        assertTrue(validator.isValid(Set.of(2L), context));
+    }
+
+    @Test
+    public void should_validate_project_assigned_to_self() {
+        RequestContext.setRequestContext("id", "4");
+        when(projectService.getObject(1L)).thenReturn(projectWithProduct);
+
+        assertTrue(validator.isValid(Set.of(1L), context));
+    }
+
+    @Test
+    public void should_fail_update_product_when_project_assigned_different_product() {
+        RequestContext.setRequestContext("id", "5");
         when(projectService.getObject(1L)).thenReturn(projectWithProduct);
 
         assertFalse(validator.isValid(Set.of(1L), context));
     }
 
-    @Test
-    public void should_validate_project_not_assigned_product() {
-        when(projectService.getObject(2L)).thenReturn(projectWithOutProduct);
-
-        assertTrue(validator.isValid(Set.of(2L), context));
-    }
 }

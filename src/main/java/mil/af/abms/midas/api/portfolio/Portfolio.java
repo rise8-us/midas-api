@@ -20,7 +20,7 @@ import mil.af.abms.midas.api.portfolio.dto.PortfolioDTO;
 import mil.af.abms.midas.api.user.User;
 
 @Entity @Getter @Setter
-@Table(name = "portfolios")
+@Table(name = "portfolio")
 public class Portfolio extends AbstractEntity<PortfolioDTO> {
 
     @Column(columnDefinition = "VARCHAR(70)", nullable = false, unique = true)

@@ -112,4 +112,14 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
         repository.save(project);
     }
 
+    protected void removeProduct(Project project) {
+        project.setProduct(null);
+        repository.save(project);
+    }
+
+    public void updateProjectsWithProduct(Set<Project> existingProjects, Set<Project> updatedProjects, Product product) {
+        existingProjects.stream().filter(e -> !updatedProjects.contains(e)).forEach(this::removeProduct);
+        updatedProjects.forEach(u -> addProductToProject(product, u));
+    }
+
 }

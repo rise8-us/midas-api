@@ -1,6 +1,5 @@
 package mil.af.abms.midas.api.project;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -24,7 +23,7 @@ import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.team.Team;
 
 @Entity @Getter @Setter
-@Table(name = "projects")
+@Table(name = "project")
 public class Project extends AbstractEntity<ProjectDTO> {
 
     @Column(columnDefinition = "VARCHAR(70)", nullable = false, unique = true)
@@ -50,9 +49,9 @@ public class Project extends AbstractEntity<ProjectDTO> {
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(
-            name = "project_tags",
+            name = "project_tag",
             joinColumns = @JoinColumn(name = "project_id", referencedColumnName = "id", nullable = true),
             inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id", nullable = true)
     )

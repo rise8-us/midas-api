@@ -13,7 +13,7 @@ import mil.af.abms.midas.api.AbstractEntity;
 import mil.af.abms.midas.api.announcement.dto.AnnouncementDTO;
 
 @Entity @Getter @Setter
-@Table(name = "announcements")
+@Table(name = "announcement")
 public class Announcement extends AbstractEntity<AnnouncementDTO> {
 
     @Column(columnDefinition = "TEXT")

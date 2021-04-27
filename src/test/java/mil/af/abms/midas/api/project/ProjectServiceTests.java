@@ -8,6 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -72,7 +73,8 @@ public class ProjectServiceTests {
             .with(t -> t.setLabel("Tag"))
             .with(t -> t.setProjects(Set.of(project))).get();
     private final Product product = Builder.build(Product.class)
-            .with(a -> a.setId(3L)).get();
+            .with(p -> p.setId(1L))
+            .with(p -> p.setProjects(Set.of(project))).get();
 
     @Test
     public void should_create_project() {
@@ -270,4 +272,24 @@ public class ProjectServiceTests {
         assertThat(projectSaved.getTeam()).isEqualTo(null);
 
     }
+
+    @Test
+    public void should_update_product_with_projects() {
+        Project project2 = Builder.build(Project.class)
+                .with(p -> p.setName("API"))
+                .with(p -> p.setId(3L)).get();
+        Set<Project> updatedProjects = new HashSet<>();
+        updatedProjects.add(project2);
+        Product initialProduct = Builder.build(Product.class)
+                .with(p -> p.setId(2L))
+                .with(p -> p.setProjects(Set.of(project, project2))).get();
+
+        projectService.updateProjectsWithProduct(initialProduct.getProjects(), updatedProjects, initialProduct);
+
+        verify(projectRepository, times(2)).save(projectCaptor.capture());
+        Project projectSaved = projectCaptor.getValue();
+
+        assertThat(projectSaved.getId()).isEqualTo(project2.getId());
+    }
+
 }

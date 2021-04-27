@@ -17,14 +17,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
-import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.portfolio.Portfolio;
+import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.user.User;
 
 @Entity @Getter @Setter
-@Table(name = "products")
+@Table(name = "product")
 public class Product extends AbstractEntity<ProductDTO> {
 
     @Column(columnDefinition = "VARCHAR(70)", nullable = false, unique = true)
@@ -39,9 +39,6 @@ public class Product extends AbstractEntity<ProductDTO> {
     @Column(columnDefinition = "TEXT")
     private String visionStatement;
 
-    @Column(columnDefinition = "TEXT")
-    private String problemStatement;
-
     @ManyToOne
     @JoinColumn(name = "product_manager_id")
     private User productManager;
@@ -55,7 +52,7 @@ public class Product extends AbstractEntity<ProductDTO> {
 
     @ManyToMany
     @JoinTable(
-            name = "products_tags",
+            name = "product_tag",
             joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = true),
             inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id", nullable = true)
     )
@@ -64,8 +61,8 @@ public class Product extends AbstractEntity<ProductDTO> {
     public ProductDTO toDto() {
         Long productManagerId = productManager != null ? productManager.getId() : null;
         Long portfolioId = portfolio != null ? portfolio.getId() : null;
-        return new ProductDTO(id, productManagerId, portfolioId, name, description, visionStatement, problemStatement,
-                isArchived, creationDate, getProjectIds(), getTagIds());
+        return new ProductDTO(id, productManagerId, portfolioId, name, description, visionStatement, isArchived,
+                creationDate, getProjectIds(), getTagIds());
     }
 
     private Set<Long> getProjectIds() { return projects.stream().map(Project::getId).collect(Collectors.toSet()); }

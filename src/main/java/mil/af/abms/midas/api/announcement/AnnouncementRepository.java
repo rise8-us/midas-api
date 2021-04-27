@@ -11,6 +11,6 @@ import mil.af.abms.midas.api.announcement.dto.AnnouncementDTO;
 
 public interface AnnouncementRepository extends RepositoryInterface<Announcement, AnnouncementDTO> {
 
-    @Query(value = "SELECT * FROM announcements a WHERE a.creation_date > :date", nativeQuery = true)
+    @Query(value = "SELECT * FROM announcement a WHERE a.creation_date > :date", nativeQuery = true)
     List<Announcement> findAnnouncementsNewerThan(@Param("date") LocalDateTime date);
 }

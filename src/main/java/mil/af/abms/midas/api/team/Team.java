@@ -1,6 +1,5 @@
 package mil.af.abms.midas.api.team;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -23,7 +22,7 @@ import mil.af.abms.midas.api.team.dto.TeamDTO;
 import mil.af.abms.midas.api.user.User;
 
 @Entity @Getter @Setter
-@Table(name = "teams")
+@Table(name = "team")
 public class Team extends AbstractEntity<TeamDTO> {
 
     @NaturalId(mutable = true)
@@ -33,7 +32,7 @@ public class Team extends AbstractEntity<TeamDTO> {
     @Column(columnDefinition = "BIT(1) DEFAULT 0", nullable = false)
     private Boolean isArchived = false;
 
-    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "team")
     private Set<Project> projects = new HashSet<>();
 
     @Column(columnDefinition = "BIGINT")
