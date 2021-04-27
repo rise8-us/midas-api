@@ -12,7 +12,7 @@ public class RolesTest {
 
     @Test
     public void canStreamEnum() {
-        assertThat(Roles.stream().collect(Collectors.toList()).size()).isEqualTo(3);
+        assertThat(Roles.stream().collect(Collectors.toList()).size()).isEqualTo(5);
     }
 
     @Test
@@ -21,6 +21,8 @@ public class RolesTest {
         rolesMap.put(Roles.ADMIN, true);
         rolesMap.put(Roles.PORTFOLIO_LEAD, false);
         rolesMap.put(Roles.PRODUCT_MANAGER, false);
+        rolesMap.put(Roles.TECH_LEAD, false);
+        rolesMap.put(Roles.DESIGNER, false);
 
         assertThat(Roles.getRoles(1L)).isEqualTo(rolesMap);
     }

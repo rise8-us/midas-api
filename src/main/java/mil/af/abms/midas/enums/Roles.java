@@ -10,13 +10,17 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Roles {
-    ADMIN(0, "ADMIN", "Can update or add anything"),
-    PORTFOLIO_LEAD(1, "PORTFOLIO_LEAD", "Manages portfolio"),
-    PRODUCT_MANAGER(2, "PRODUCT_MANAGER", "Manages products");
+    ADMIN(0, "ADMIN", "Can update or add anything", "Admin"),
+    PORTFOLIO_LEAD(1, "PORTFOLIO_LEAD", "Manages portfolio", "Portfolio Lead"),
+    PRODUCT_MANAGER(2, "PRODUCT_MANAGER", "Manages products", "Product Manager"),
+    TECH_LEAD(3,"TECH_LEAD","Lead SWE in charge of technical functionality", "Tech Lead"),
+    DESIGNER(4, "DESIGNER", "Manages product UI/UX designs", "Designer (UI/UX)");
+
 
     private final Integer offset;
     private final String name;
     private final String description;
+    private final String title;
 
     public static Stream<Roles> stream() {
         return Stream.of(Roles.values());
