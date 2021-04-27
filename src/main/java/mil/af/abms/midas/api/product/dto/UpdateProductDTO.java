@@ -25,7 +25,6 @@ public class UpdateProductDTO {
 
     private String description;
     private String visionStatement;
-    private String problemStatement;
 
     @UserExists(allowNull = true)
     private Long productManagerId;
@@ -38,6 +37,5 @@ public class UpdateProductDTO {
 
     @TagsExist
     private Set<Long> tagIds;
-
 
 }

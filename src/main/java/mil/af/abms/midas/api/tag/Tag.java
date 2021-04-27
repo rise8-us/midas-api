@@ -24,7 +24,7 @@ import mil.af.abms.midas.api.tag.dto.TagDTO;
 import mil.af.abms.midas.api.user.User;
 
 @Entity @Getter @Setter
-@Table(name = "tags")
+@Table(name = "tag")
 public class Tag extends AbstractEntity<TagDTO> {
 
     @NaturalId(mutable = true)
@@ -39,7 +39,7 @@ public class Tag extends AbstractEntity<TagDTO> {
 
     @ManyToMany()
     @JoinTable(
-        name = "project_tags",
+        name = "project_tag",
         joinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id", nullable = true),
         inverseJoinColumns = @JoinColumn(name = "project_id", referencedColumnName = "id", nullable = true)
     )
@@ -47,7 +47,7 @@ public class Tag extends AbstractEntity<TagDTO> {
 
     @ManyToMany()
     @JoinTable(
-            name = "products_tags",
+            name = "product_tag",
             joinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id", nullable = true),
             inverseJoinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = true)
     )
