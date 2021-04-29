@@ -28,12 +28,10 @@ public final class HttpPathVariableIdGrabber {
                 HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE
         );
         try {
-            variables.get(varName);
+            return Long.valueOf(variables.get(varName));
         } catch (NullPointerException e) {
-          return null;
+            return null;
         }
-
-        return Long.valueOf(variables.get(varName));
     }
 
 }
