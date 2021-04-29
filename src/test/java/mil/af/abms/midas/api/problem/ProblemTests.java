@@ -15,7 +15,6 @@ import org.springframework.util.ReflectionUtils;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.problem.dto.ProblemDTO;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.user.User;
@@ -26,11 +25,9 @@ public class ProblemTests {
 
     private final User createdBy = Builder.build(User.class).with(u -> u.setId(3L)).get();
     private final Product product = Builder.build(Product.class).with(p -> p.setId(3L)).get();
-    private final Portfolio portfolio = Builder.build(Portfolio.class).with(p -> p.setId(3L)).get();
     private final Problem problem = Builder.build(Problem.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setProblem("Not enough time"))
-            .with(p -> p.setPortfolio(portfolio))
             .with(p -> p.setProduct(product))
             .with(p -> p.setCreatedBy(createdBy))
             .with(p -> p.setIsCurrent(true))
@@ -38,7 +35,6 @@ public class ProblemTests {
     private final ProblemDTO problemDTO = Builder.build(ProblemDTO.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setProblem("Not enough time"))
-            .with(p -> p.setPortfolioId(portfolio.getId()))
             .with(p -> p.setProductId(product.getId()))
             .with(p -> p.setCreatedById(createdBy.getId()))
             .with(p -> p.setIsCurrent(true))
@@ -70,7 +66,6 @@ public class ProblemTests {
         assertThat(problem.getProblem()).isEqualTo("Not enough time");
         assertThat(problem.getCreationDate()).isEqualTo(TEST_TIME);
         assertThat(problem.getProduct()).isEqualTo(product);
-        assertThat(problem.getPortfolio()).isEqualTo(portfolio);
         assertThat(problem.getIsCurrent()).isEqualTo(true);
         assertThat(problem.getCreatedBy()).isEqualTo(createdBy);
     }
@@ -85,11 +80,9 @@ public class ProblemTests {
         Problem nullJoinFields = new Problem();
         BeanUtils.copyProperties(product, nullJoinFields);
         nullJoinFields.setProduct(null);
-        nullJoinFields.setPortfolio(null);
         nullJoinFields.setCreatedBy(null);
 
         assertThat(nullJoinFields.toDto().getProductId()).isEqualTo(null);
-        assertThat(nullJoinFields.toDto().getPortfolioId()).isEqualTo(null);
         assertThat(nullJoinFields.toDto().getCreatedById()).isEqualTo(null);
     }
 }

@@ -1,6 +1,7 @@
-package mil.af.abms.midas.api.problem.dto;
+package mil.af.abms.midas.api.comment.dto;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,13 +12,14 @@ import mil.af.abms.midas.api.AbstractDTO;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProblemDTO implements AbstractDTO {
+public class CommentDTO implements AbstractDTO {
 
     private Long id;
     private Long createdById;
-    private Long productId;
-    private String problem;
-    private Boolean isCurrent;
+    private Long parentId;
+    private Long assertionId;
+    private String text;
+    private Set<Long> children;
     private LocalDateTime creationDate;
 
 }

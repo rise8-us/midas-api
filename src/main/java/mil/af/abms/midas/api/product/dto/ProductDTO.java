@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.AbstractDTO;
+import mil.af.abms.midas.enums.ProductType;
 
 @Data
 @AllArgsConstructor
@@ -16,7 +17,7 @@ public class ProductDTO implements AbstractDTO {
 
     private Long id;
     private Long productManagerId;
-    private Long portfolioId;
+    private Long parentId;
     private String name;
     private String description;
     private String visionStatement;
@@ -24,5 +25,8 @@ public class ProductDTO implements AbstractDTO {
     private LocalDateTime creationDate;
     private Set<Long> projectIds;
     private Set<Long> tagIds;
+    private Set<Long> children;
+    private Set<Long> ogsmIds;
+    private ProductType type;
 
 }

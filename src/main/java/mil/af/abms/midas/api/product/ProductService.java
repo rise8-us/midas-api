@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
@@ -27,7 +26,6 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
     private UserService userService;
     private ProjectService projectService;
     private TagService tagService;
-    private PortfolioService portfolioService;
 
     public ProductService(ProductRepository repository) {
         super(repository, Product.class, ProductDTO.class);
@@ -39,8 +37,6 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
     public void setProjectService(ProjectService projectService) { this.projectService = projectService; }
     @Autowired
     public void setTagService(TagService tagService) { this.tagService = tagService; }
-    @Autowired
-    public void setPortfolioService(PortfolioService portfolioService) { this.portfolioService = portfolioService; }
 
     @Transactional
     public Product create(CreateProductDTO createProductDTO) {
@@ -51,7 +47,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
                 .with(p -> p.setProductManager(userService.findByIdOrNull(createProductDTO.getProductManagerId())))
                 .with(p -> p.setTags(createProductDTO.getTagIds().stream().map(tagService::getObject)
                         .collect(Collectors.toSet())))
-                .with(p -> p.setPortfolio(portfolioService.findByIdOrNull(createProductDTO.getPortfolioId())))
+                .with(p -> p.setParent(findByIdOrNull(createProductDTO.getParentId())))
                 .with(p -> p.setProjects(createProductDTO.getProjectIds().stream()
                         .map(projectService::getObject).collect(Collectors.toSet())))
                 .get();
@@ -78,7 +74,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         product.setProductManager(userService.findByIdOrNull(updateProductDTO.getProductManagerId()));
         product.setDescription(updateProductDTO.getDescription());
         product.setVisionStatement(updateProductDTO.getVisionStatement());
-        product.setPortfolio(portfolioService.findByIdOrNull(updateProductDTO.getPortfolioId()));
+        product.setParent(findByIdOrNull(updateProductDTO.getParentId()));
         product.setTags(updateProductDTO.getTagIds().stream()
                 .map(tagService::getObject).collect(Collectors.toSet()));
         product.setProjects(updateProductDTO.getProjectIds().stream()

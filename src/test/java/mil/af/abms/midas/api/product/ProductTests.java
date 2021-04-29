@@ -11,17 +11,19 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.ReflectionUtils;
 
 import org.junit.jupiter.api.Test;
 
-import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.portfolio.Portfolio;
+import mil.af.abms.midas.api.ogsm.Ogsm;
+import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.user.User;
+import mil.af.abms.midas.enums.ProductType;
 
 public class ProductTests {
 
@@ -29,16 +31,21 @@ public class ProductTests {
 
     private final User lead = Builder.build(User.class).with(u -> u.setId(3L)).get();
     private final Set<Project> projects = Set.of(Builder.build(Project.class).with(p -> p.setId(3L)).get());
-    private final Portfolio portfolio = Builder.build(Portfolio.class).with(p -> p.setId(3L)).get();
+    private final Set<Ogsm> ogsms = Set.of(Builder.build(Ogsm.class).with(o -> o.setId(5L)).get());
+    private final Product portfolio = Builder.build(Product.class).with(p -> p.setId(3L)).get();
     private final Product product = Builder.build(Product.class)
-            .with(a -> a.setId(1L))
-            .with(a -> a.setName("Midas"))
-            .with(a -> a.setDescription("test product"))
-            .with(a -> a.setCreationDate(TEST_TIME))
-            .with(a -> a.setIsArchived(false))
-            .with(a -> a.setProductManager(lead))
-            .with(a -> a.setPortfolio(portfolio))
-            .with(a -> a.setProjects(projects)).get();
+            .with(p -> p.setId(1L))
+            .with(p -> p.setName("Midas"))
+            .with(p -> p.setDescription("test product"))
+            .with(p -> p.setCreationDate(TEST_TIME))
+            .with(p -> p.setIsArchived(false))
+            .with(p -> p.setProductManager(lead))
+            .with(p -> p.setParent(portfolio))
+            .with(p -> p.setChildren(Set.of()))
+            .with(p -> p.setProjects(projects))
+            .with(p -> p.setOgsms(ogsms))
+            .with(p -> p.setType(ProductType.APPLICATION))
+            .get();
     private final ProductDTO productDTO = Builder.build(ProductDTO.class)
             .with(d -> d.setId(1L))
             .with(d -> d.setName("Midas"))
@@ -46,9 +53,13 @@ public class ProductTests {
             .with(d -> d.setCreationDate(TEST_TIME))
             .with(d -> d.setIsArchived(false))
             .with(d -> d.setProductManagerId(lead.getId()))
-            .with(d -> d.setPortfolioId(portfolio.getId()))
+            .with(d -> d.setParentId(portfolio.getId()))
             .with(d -> d.setTagIds(new HashSet<>()))
-            .with(d -> d.setProjectIds(Set.of(3L))).get();
+            .with(d -> d.setProjectIds(Set.of(3L)))
+            .with(d -> d.setChildren(Set.of()))
+            .with(d -> d.setType(ProductType.APPLICATION))
+            .with(d -> d.setOgsmIds(ogsms.stream().map(Ogsm::getId).collect(Collectors.toSet())))
+            .get();
 
     @Test
     public void should_have_all_dto_fields() {
@@ -78,7 +89,7 @@ public class ProductTests {
         assertThat(product.getCreationDate()).isEqualTo(TEST_TIME);
         assertFalse(product.getIsArchived());
         assertThat(product.getProductManager()).isEqualTo(lead);
-        assertThat(product.getPortfolio()).isEqualTo(portfolio);
+        assertThat(product.getParent()).isEqualTo(portfolio);
         assertThat(product.getProjects()).isEqualTo(projects);
     }
 
@@ -92,9 +103,9 @@ public class ProductTests {
         Product nullAppAndProduct = new Product();
         BeanUtils.copyProperties(product, nullAppAndProduct);
         nullAppAndProduct.setProductManager(null);
-        nullAppAndProduct.setPortfolio(null);
+        nullAppAndProduct.setParent(null);
 
         assertThat(nullAppAndProduct.toDto().getProductManagerId()).isEqualTo(null);
-        assertThat(nullAppAndProduct.toDto().getPortfolioId()).isEqualTo(null);
+        assertThat(nullAppAndProduct.toDto().getParentId()).isEqualTo(null);
     }
 }

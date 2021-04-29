@@ -16,7 +16,7 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 @Service
 public class TagService extends AbstractCRUDService<Tag, TagDTO, TagRepository> {
 
-    UserService userService;
+    private UserService userService;
 
     @Autowired
     public TagService(TagRepository repository) {

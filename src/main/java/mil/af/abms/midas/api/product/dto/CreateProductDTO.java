@@ -29,7 +29,7 @@ public class CreateProductDTO {
     @UserExists(allowNull = true)
     private Long productManagerId;
 
-    private Long portfolioId;
+    private Long parentId;
 
     @ProjectsExist
     @ProjectsCanBeAssignedToProduct

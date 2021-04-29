@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.problem.dto.CreateProblemDTO;
 import mil.af.abms.midas.api.problem.dto.ProblemDTO;
 import mil.af.abms.midas.api.problem.dto.UpdateProblemDTO;
@@ -19,7 +18,6 @@ import mil.af.abms.midas.api.user.UserService;
 public class ProblemService extends AbstractCRUDService<Problem, ProblemDTO, ProblemRepository> {
     
     private ProductService productService;
-    private PortfolioService portfolioService;
     private UserService userService;
 
     public ProblemService(ProblemRepository repository) {
@@ -29,8 +27,6 @@ public class ProblemService extends AbstractCRUDService<Problem, ProblemDTO, Pro
     @Autowired
     public void setProductService(ProductService productService) { this.productService = productService; }
     @Autowired
-    public void setPortfolioService(PortfolioService portfolioService) { this.portfolioService = portfolioService; }
-    @Autowired
     public void setUserService(UserService userService) { this.userService = userService; }
 
     @Transactional
@@ -39,7 +35,7 @@ public class ProblemService extends AbstractCRUDService<Problem, ProblemDTO, Pro
                 .with(p -> p.setProblem(createProblemDTO.getProblem()))
                 .with(p -> p.setCreatedBy(userService.getUserBySecContext()))
                 .with(p -> p.setProduct(productService.findByIdOrNull(createProblemDTO.getProductId())))
-                .with(p -> p.setPortfolio(portfolioService.findByIdOrNull(createProblemDTO.getPortfolioId()))).get();
+                .get();
 
         return repository.save(newProblem);
     }
@@ -49,7 +45,6 @@ public class ProblemService extends AbstractCRUDService<Problem, ProblemDTO, Pro
         Problem problem = getObject(id);
         problem.setProblem(updateProblemDTO.getProblem());
         problem.setProduct(productService.findByIdOrNull(updateProblemDTO.getProductId()));
-        problem.setPortfolio(portfolioService.findByIdOrNull(updateProblemDTO.getPortfolioId()));
 
         return repository.save(problem);
     }

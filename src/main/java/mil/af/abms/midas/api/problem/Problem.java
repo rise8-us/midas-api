@@ -14,7 +14,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
-import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.problem.dto.ProblemDTO;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.user.User;
@@ -41,21 +40,9 @@ public class Problem extends AbstractEntity<ProblemDTO> {
     )
     private Product product;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "portfolio_problem",
-            joinColumns = @JoinColumn(name = "problem_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "portfolio_id", referencedColumnName = "id")
-    )
-    private Portfolio portfolio;
-
     public ProblemDTO toDto() {
-        return new ProblemDTO(id, getCreatedById(), getProductId(), getPortfolioId(), problem, isCurrent, creationDate);
+        return new ProblemDTO(id, getIdOrNull(createdBy), getIdOrNull(product), problem, isCurrent, creationDate);
     }
-
-    public Long getCreatedById() { return createdBy != null ? createdBy.getId() : null; }
-    public Long getProductId() { return product != null ? product.getId() : null; }
-    public Long getPortfolioId() { return  portfolio != null ? portfolio.getId() : null; }
 
     @Override
     public int hashCode() {

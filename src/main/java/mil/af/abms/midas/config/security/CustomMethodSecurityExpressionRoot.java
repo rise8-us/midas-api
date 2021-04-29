@@ -6,8 +6,6 @@ import org.springframework.security.core.Authentication;
 
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
-import mil.af.abms.midas.api.portfolio.Portfolio;
-import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.user.User;
@@ -25,9 +23,6 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
     private static ProjectService projectService() {
         return SpringContext.getBean(ProjectService.class);
     }
-    private static PortfolioService portfolioService() {
-        return SpringContext.getBean(PortfolioService.class);
-    }
 
     public CustomMethodSecurityExpressionRoot(Authentication authentication) {
         super(authentication);
@@ -39,31 +34,24 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
     }
 
     public boolean hasProjectAccess(Long projectId) {
-        Project projectBeingAccesed = projectService().getObject(projectId);
-        Product productContainingProject = projectBeingAccesed.getProduct() != null ?
-                projectBeingAccesed.getProduct() : new Product();
-        Long teamId  = projectBeingAccesed.getTeam() != null ? projectBeingAccesed.getTeam().getId() : null;
+        Project projectBeingAccessed = projectService().getObject(projectId);
+        Product productContainingProject = projectBeingAccessed.getProduct() != null ?
+                projectBeingAccessed.getProduct() : new Product();
+        Long teamId  = projectBeingAccessed.getTeam() != null ? projectBeingAccessed.getTeam().getId() : null;
         Long productId = productContainingProject.getId();
-        Long portfolioId  = productContainingProject.getPortfolio() != null ?
-                productContainingProject.getPortfolio().getId() : null;
-        return hasTeamAccess(teamId) || hasProductAccess(productId) || hasPortfolioAccess(portfolioId);
+        Long parentId  = productContainingProject.getParent() != null ?
+                productContainingProject.getParent().getId() : null;
+        return hasTeamAccess(teamId) || hasProductAccess(productId);
     }
 
     public boolean hasProductAccess(Long productId) {
         if (productId == null) { return false; }
         Product productBeingAccessed = productService().getObject(productId);
-        Portfolio portfolio = productBeingAccessed.getPortfolio() != null ?
-                productBeingAccessed.getPortfolio() : new Portfolio();
+        Product parent = productBeingAccessed.getParent() != null ?
+                productBeingAccessed.getParent() : new Product();
         User userMakingRequest = userService().getUserBySecContext();
         User productManager = productService().getObject(productId).getProductManager();
-        return userMakingRequest.equals(productManager) || hasPortfolioAccess(portfolio.getId());
-    }
-
-    public boolean hasPortfolioAccess(Long portfolioId) {
-        if (portfolioId == null) { return false; }
-        User userMakingRequest = userService().getUserBySecContext();
-        User portfolioManager =  portfolioService().getObject(portfolioId).getPortfolioManager();
-        return userMakingRequest.equals(portfolioManager);
+        return userMakingRequest.equals(productManager) || hasProductAccess(parent.getId());
     }
 
     @Override
