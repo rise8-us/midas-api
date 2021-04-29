@@ -20,8 +20,6 @@ import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.portfolio.Portfolio;
-import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.problem.dto.CreateProblemDTO;
 import mil.af.abms.midas.api.problem.dto.UpdateProblemDTO;
 import mil.af.abms.midas.api.problem.dto.UpdateProblemIsCurrentDTO;
@@ -35,21 +33,17 @@ public class ProblemControllerTests extends ControllerTestHarness {
     @MockBean
     ProblemService problemService;
     @MockBean
-    PortfolioService portfolioService;
-    @MockBean
     ProductService productService;
 
     private final static LocalDateTime TEST_TIME = LocalDateTime.now();
 
     private final User createdBy = Builder.build(User.class).with(u -> u.setId(3L)).get();
     private final Product product = Builder.build(Product.class).with(p -> p.setId(3L)).get();
-    private final Portfolio portfolio = Builder.build(Portfolio.class).with(p -> p.setId(3L)).get();
-    private final CreateProblemDTO createProblemDTO = new CreateProblemDTO("manning", product.getId(), portfolio.getId());
-    private final UpdateProblemDTO updateProblemDTO = new UpdateProblemDTO("security",  product.getId(), portfolio.getId());
+    private final CreateProblemDTO createProblemDTO = new CreateProblemDTO("manning", product.getId());
+    private final UpdateProblemDTO updateProblemDTO = new UpdateProblemDTO("security",  product.getId());
     private final Problem problem = Builder.build(Problem.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setProblem("Not enough time"))
-            .with(p -> p.setPortfolio(portfolio))
             .with(p -> p.setProduct(product))
             .with(p -> p.setCreatedBy(createdBy))
             .with(p -> p.setIsCurrent(true))

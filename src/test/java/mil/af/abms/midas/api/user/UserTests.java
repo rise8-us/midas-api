@@ -1,8 +1,8 @@
 package mil.af.abms.midas.api.user;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
@@ -16,7 +16,6 @@ import org.springframework.util.ReflectionUtils;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.user.dto.UserDTO;
 
@@ -27,8 +26,6 @@ public class UserTests {
     private final Team team = Builder.build(Team.class)
             .with(t -> t.setId(1L))
             .with(t -> t.setName("midas")).get();
-    private final Portfolio portfolio = Builder.build(Portfolio.class)
-            .with(p -> p.setId(3L)).get();
 
     private final User expectedUser = Builder.build(User.class)
             .with(u -> u.setId(1L))
@@ -85,11 +82,11 @@ public class UserTests {
         User user2 = new User();
         BeanUtils.copyProperties(expectedUser, user2);
 
-        assertTrue(expectedUser.equals(expectedUser));
-        assertFalse(expectedUser.equals(null));
-        assertFalse(expectedUser.equals(new Team()));
-        assertTrue(expectedUser.equals(user2));
-        assertFalse(expectedUser.equals(new User()));
+        assertEquals(expectedUser, expectedUser);
+        assertNotEquals(null, expectedUser);
+        assertNotEquals(expectedUser, new Team());
+        assertEquals(expectedUser, user2);
+        assertNotEquals(expectedUser, new User());
     }
 
 }

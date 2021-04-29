@@ -23,8 +23,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.portfolio.Portfolio;
-import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.problem.dto.CreateProblemDTO;
 import mil.af.abms.midas.api.problem.dto.UpdateProblemDTO;
 import mil.af.abms.midas.api.problem.dto.UpdateProblemIsCurrentDTO;
@@ -44,8 +42,6 @@ public class ProblemServiceTests {
     @MockBean
     ProductService productService;
     @MockBean
-    PortfolioService portfolioService;
-    @MockBean
     ProblemRepository problemRepository;
     @Captor
     ArgumentCaptor<Problem> problemCaptor;
@@ -53,18 +49,16 @@ public class ProblemServiceTests {
     private static final LocalDateTime TEST_TIME = LocalDateTime.now();
     private final User createdBy = Builder.build(User.class).with(u -> u.setId(1L)).get();
     private final Product product = Builder.build(Product.class).with(p -> p.setId(1L)).get();
-    private final Portfolio portfolio = Builder.build(Portfolio.class).with(p -> p.setId(1L)).get();
     private final Problem problem = Builder.build(Problem.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setProblem("no manning")).get();
 
     @Test
     public void should_create_problem() {
-        CreateProblemDTO createProblemDTO = new CreateProblemDTO("No time", product.getId(), portfolio.getId());
+        CreateProblemDTO createProblemDTO = new CreateProblemDTO("No time", product.getId());
 
         when(userService.getUserBySecContext()).thenReturn(createdBy);
         when(productService.findByIdOrNull(anyLong())).thenReturn(product);
-        when(portfolioService.findByIdOrNull(anyLong())).thenReturn(portfolio);
         when(problemRepository.save(any())).thenReturn(problem);
 
         problemService.create(createProblemDTO);
@@ -74,7 +68,6 @@ public class ProblemServiceTests {
 
         assertThat(problemSaved.getProblem()).isEqualTo(createProblemDTO.getProblem());
         assertThat(problemSaved.getProduct().getId()).isEqualTo(createProblemDTO.getProductId());
-        assertThat(problemSaved.getPortfolio().getId()).isEqualTo(createProblemDTO.getPortfolioId());
         assertThat(problemSaved.getCreatedBy()).isEqualTo(createdBy);
         assertTrue(problemSaved.getIsCurrent());
 
@@ -82,7 +75,7 @@ public class ProblemServiceTests {
 
     @Test
     public void should_update_by_id() {
-        UpdateProblemDTO updateProblemDTO = new UpdateProblemDTO("lost", product.getId(), portfolio.getId());
+        UpdateProblemDTO updateProblemDTO = new UpdateProblemDTO("lost", product.getId());
 
         when(problemRepository.findById(1L)).thenReturn(Optional.of(problem));
         when(problemRepository.save(any())).thenReturn(problem);
@@ -113,7 +106,7 @@ public class ProblemServiceTests {
 
     @Test
     public void should_create_problem_with_null_product_and_portfolio() {
-        CreateProblemDTO createDTO = new CreateProblemDTO("manning", null, null);
+        CreateProblemDTO createDTO = new CreateProblemDTO("manning", null);
 
         when(problemRepository.save(any())).thenReturn(problem);
 
@@ -122,13 +115,12 @@ public class ProblemServiceTests {
         verify(problemRepository, times(1)).save(problemCaptor.capture());
         Problem problemSaved = problemCaptor.getValue();
 
-        assertThat(problemSaved.getPortfolio()).isEqualTo(null);
         assertThat(problemSaved.getProduct()).isEqualTo(null);
     }
 
     @Test
     public void should_update_problem_with_null_product_and_portfolio() {
-        UpdateProblemDTO updateDTO = new UpdateProblemDTO("manning", null, null);
+        UpdateProblemDTO updateDTO = new UpdateProblemDTO("manning", null);
 
         when(problemRepository.findById(any())).thenReturn(Optional.of(problem));
         when(problemRepository.save(any())).thenReturn(problem);
@@ -138,7 +130,6 @@ public class ProblemServiceTests {
         verify(problemRepository, times(1)).save(problemCaptor.capture());
         Problem problemSaved = problemCaptor.getValue();
 
-        assertThat(problemSaved.getPortfolio()).isEqualTo(null);
         assertThat(problemSaved.getProduct()).isEqualTo(null);
     }
 

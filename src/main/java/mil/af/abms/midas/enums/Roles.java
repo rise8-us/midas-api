@@ -13,7 +13,7 @@ public enum Roles {
     ADMIN(0, "ADMIN", "Can update or add anything", "Admin"),
     PORTFOLIO_LEAD(1, "PORTFOLIO_LEAD", "Manages portfolio", "Portfolio Lead"),
     PRODUCT_MANAGER(2, "PRODUCT_MANAGER", "Manages products", "Product Manager"),
-    TECH_LEAD(3,"TECH_LEAD","Lead SWE in charge of technical functionality", "Tech Lead"),
+    TECH_LEAD(3, "TECH_LEAD", "Lead SWE in charge of technical functionality", "Tech Lead"),
     DESIGNER(4, "DESIGNER", "Manages product UI/UX designs", "Designer (UI/UX)");
 
 

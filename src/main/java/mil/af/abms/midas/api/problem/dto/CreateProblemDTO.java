@@ -14,6 +14,5 @@ public class CreateProblemDTO {
     @NotBlank(message = "Problem must not be blank")
     private String problem;
     private Long productId;
-    private Long portfolioId;
 
 }

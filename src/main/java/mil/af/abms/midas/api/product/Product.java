@@ -11,17 +11,17 @@ import javax.persistence.Table;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
-import mil.af.abms.midas.api.portfolio.Portfolio;
+import mil.af.abms.midas.api.ogsm.Ogsm;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.user.User;
+import mil.af.abms.midas.enums.ProductType;
 
 @Entity @Getter @Setter
 @Table(name = "product")
@@ -39,16 +39,25 @@ public class Product extends AbstractEntity<ProductDTO> {
     @Column(columnDefinition = "TEXT")
     private String visionStatement;
 
+    @Column(columnDefinition = "VARCHAR(255)", nullable = false)
+    private ProductType type;
+
     @ManyToOne
     @JoinColumn(name = "product_manager_id")
     private User productManager;
 
     @ManyToOne
-    @JoinColumn(name = "portfolio_id")
-    private Portfolio portfolio;
+    @JoinColumn(name = "parent_id", nullable = true)
+    private Product parent;
+
+    @OneToMany(mappedBy = "parent")
+    private Set<Product> children = new HashSet<>();
 
     @OneToMany(mappedBy = "product")
     private Set<Project> projects = new HashSet<>();
+
+    @OneToMany(mappedBy = "product")
+    Set<Ogsm> ogsms = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
@@ -59,15 +68,9 @@ public class Product extends AbstractEntity<ProductDTO> {
     private Set<Tag> tags = new HashSet<>();
 
     public ProductDTO toDto() {
-        Long productManagerId = productManager != null ? productManager.getId() : null;
-        Long portfolioId = portfolio != null ? portfolio.getId() : null;
-        return new ProductDTO(id, productManagerId, portfolioId, name, description, visionStatement, isArchived,
-                creationDate, getProjectIds(), getTagIds());
+        return new ProductDTO(id, getIdOrNull(productManager), getIdOrNull(parent), name, description, visionStatement, isArchived,
+                creationDate, getIds(projects), getIds(tags), getIds(children), getIds(ogsms), type);
     }
-
-    private Set<Long> getProjectIds() { return projects.stream().map(Project::getId).collect(Collectors.toSet()); }
-
-    private Set<Long> getTagIds() { return tags.stream().map(Tag::getId).collect(Collectors.toSet()); }
 
     @Override
     public int hashCode() {

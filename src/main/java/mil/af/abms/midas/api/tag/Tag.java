@@ -18,6 +18,7 @@ import lombok.Setter;
 import org.hibernate.annotations.NaturalId;
 
 import mil.af.abms.midas.api.AbstractEntity;
+import mil.af.abms.midas.api.assertion.Assertion;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.tag.dto.TagDTO;
@@ -37,7 +38,7 @@ public class Tag extends AbstractEntity<TagDTO> {
     @Column(columnDefinition = "TINYTEXT default '#969696'")
     private String color;
 
-    @ManyToMany()
+    @ManyToMany
     @JoinTable(
         name = "project_tag",
         joinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id", nullable = true),
@@ -45,13 +46,21 @@ public class Tag extends AbstractEntity<TagDTO> {
     )
     private Set<Project> projects = new HashSet<>();
 
-    @ManyToMany()
+    @ManyToMany
     @JoinTable(
             name = "product_tag",
             joinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id", nullable = true),
             inverseJoinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = true)
     )
     private Set<Product> products = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "assertion_tag",
+            joinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id", nullable = true),
+            inverseJoinColumns = @JoinColumn(name = "assertion_id", referencedColumnName = "id", nullable = true)
+    )
+    private Set<Assertion> assertions = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by_id")

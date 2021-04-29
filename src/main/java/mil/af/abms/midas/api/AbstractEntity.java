@@ -7,6 +7,8 @@ import javax.persistence.MappedSuperclass;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -33,6 +35,14 @@ public abstract class AbstractEntity<D extends AbstractDTO> implements Serializa
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     protected LocalDateTime creationDate = LocalDateTime.now();
+
+    public <E extends AbstractEntity<?>> Set<Long> getIds(Set<E> entitySet) {
+        return entitySet.stream().map(E::getId).collect(Collectors.toSet());
+    }
+
+    public <E extends AbstractEntity<?>> Long getIdOrNull(E entity) {
+        return entity != null ? entity.getId() : null;
+    }
 
     @Override
     @SneakyThrows

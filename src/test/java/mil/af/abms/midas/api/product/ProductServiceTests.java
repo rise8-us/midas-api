@@ -25,7 +25,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductIsArchivedDTO;
@@ -50,8 +49,6 @@ public class ProductServiceTests {
     TagService tagService;
     @MockBean
     ProductRepository productRepository;
-    @MockBean
-    PortfolioService portfolioService;
     @Captor
     ArgumentCaptor<Product> productCaptor;
 
@@ -65,6 +62,9 @@ public class ProductServiceTests {
     Product product = Builder.build(Product.class)
             .with(p -> p.setId(5L))
             .with(p -> p.setName("Midas")).get();
+    Product parent = Builder.build(Product.class)
+            .with(p -> p.setId(1L))
+            .with(p -> p.setName("Metrics")).get();
 
     @Test
     public void should_create_product() {
@@ -73,6 +73,7 @@ public class ProductServiceTests {
 
         when(userService.findByIdOrNull(3L)).thenReturn(user);
         when(projectService.getObject(anyLong())).thenReturn(project);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(parent));
         when(productRepository.save(any())).thenReturn(product);
         doNothing().when(projectService).addProductToProjects(any(), any());
 
@@ -152,7 +153,7 @@ public class ProductServiceTests {
         verify(productRepository, times(1)).save(productCaptor.capture());
         Product productSaved = productCaptor.getValue();
         assertThat(productSaved.getProductManager()).isEqualTo(null);
-        assertThat(productSaved.getPortfolio()).isEqualTo(null);
+        assertThat(productSaved.getParent()).isEqualTo(null);
     }
 
     @Test
@@ -169,7 +170,7 @@ public class ProductServiceTests {
         Product productSaved = productCaptor.getValue();
 
         assertThat(productSaved.getProductManager()).isEqualTo(null);
-        assertThat(productSaved.getPortfolio()).isEqualTo(null);
+        assertThat(productSaved.getParent()).isEqualTo(null);
     }
 
 }

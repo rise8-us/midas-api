@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.portfolio.dto;
+package mil.af.abms.midas.api.ogsm.dto;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -8,18 +8,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.AbstractDTO;
+import mil.af.abms.midas.api.assertion.dto.AssertionDTO;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PortfolioDTO implements AbstractDTO {
+public class OgsmDTO implements AbstractDTO {
 
     private Long id;
-    private String name;
-    private Long portfolioManagerId;
-    private String description;
-    private Set<Long> productIds;
-    private Boolean isArchived;
+    private Long createdById;
+    private Long productId;
+    private Set<AssertionDTO> assertions;
     private LocalDateTime creationDate;
-
+    private LocalDateTime completedDate;
 }
