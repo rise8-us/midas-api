@@ -11,6 +11,7 @@ import javax.persistence.Table;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +21,7 @@ import mil.af.abms.midas.api.ogsm.Ogsm;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.tag.Tag;
+import mil.af.abms.midas.api.tag.dto.TagDTO;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.enums.ProductType;
 
@@ -68,8 +70,9 @@ public class Product extends AbstractEntity<ProductDTO> {
     private Set<Tag> tags = new HashSet<>();
 
     public ProductDTO toDto() {
-        return new ProductDTO(id, getIdOrNull(productManager), getIdOrNull(parent), name, description, visionStatement, isArchived,
-                creationDate, getIds(projects), getIds(tags), getIds(children), getIds(ogsms), type);
+        Set<TagDTO> tagDTOs = tags.stream().map(Tag::toDto).collect(Collectors.toSet());
+        return new ProductDTO(id, getIdOrNull(productManager), getIdOrNull(parent), name, description, visionStatement,
+                isArchived, creationDate, getIds(projects), tagDTOs, getIds(children), getIds(ogsms), type);
     }
 
     @Override
