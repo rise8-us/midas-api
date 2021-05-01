@@ -54,7 +54,7 @@ public class ProductTests {
             .with(d -> d.setIsArchived(false))
             .with(d -> d.setProductManagerId(lead.getId()))
             .with(d -> d.setParentId(portfolio.getId()))
-            .with(d -> d.setTagIds(new HashSet<>()))
+            .with(d -> d.setTags(new HashSet<>()))
             .with(d -> d.setProjectIds(Set.of(3L)))
             .with(d -> d.setChildren(Set.of()))
             .with(d -> d.setType(ProductType.APPLICATION))
