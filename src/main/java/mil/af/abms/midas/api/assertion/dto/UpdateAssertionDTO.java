@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import mil.af.abms.midas.api.validation.AssertionExists;
 import mil.af.abms.midas.api.validation.TagsExist;
 import mil.af.abms.midas.enums.AssertionType;
 
@@ -27,5 +28,9 @@ public class UpdateAssertionDTO {
     private Set<Long> tagIds;
 
     private Set<Long> commentIds;
+
+    @AssertionExists
+    private Long parentId;
+    private Set<Long> childIds;
 
 }

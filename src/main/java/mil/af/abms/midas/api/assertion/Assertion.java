@@ -46,6 +46,13 @@ public class Assertion extends AbstractEntity<AssertionDTO> {
     @JoinColumn(name = "created_by_id")
     private User createdBy;
 
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    private Assertion parent;
+
+    @OneToMany(mappedBy = "parent")
+    private Set<Assertion> children = new HashSet<>();
+
     @OneToMany(mappedBy = "assertion")
     private Set<Comment> comments = new HashSet<>();
 
@@ -54,8 +61,8 @@ public class Assertion extends AbstractEntity<AssertionDTO> {
     private Ogsm ogsm;
 
     public AssertionDTO toDto() {
-        return new AssertionDTO(id, getIdOrNull(ogsm), getIdOrNull(createdBy), text, type, creationDate, getIds(tags),
-                getIds(comments));
+        return new AssertionDTO(id, getIdOrNull(ogsm), getIdOrNull(createdBy), getIdOrNull(parent), text, type, creationDate, getIds(tags),
+                getIds(comments), getIds(children));
     }
 
     @Override

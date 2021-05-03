@@ -43,6 +43,7 @@ public class AssertionTests {
             .with(d -> d.setCreationDate(CREATION_DATE))
             .with(d -> d.setCommentIds(Set.of(2L)))
             .with(d -> d.setTagIds(Set.of(2L)))
+            .with(d -> d.setChildIds(Set.of()))
             .with(d -> d.setCreatedById(createdBy.getId())).get();
 
     @Test

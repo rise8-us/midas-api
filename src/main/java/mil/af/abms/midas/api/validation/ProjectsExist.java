@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 @Documented
 public @interface ProjectsExist {
 
-    String message() default "project does not exists";
+    String message() default "project does not exist";
 
     Class<?>[] groups() default {};
 

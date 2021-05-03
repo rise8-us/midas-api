@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = GitProjectExistsValidator.class)
 @Documented
 public @interface GitProjectExists {
-    String message() default "Project does not exists";
+    String message() default "Project does not exist";
 
     Class<?>[] groups() default {};
 

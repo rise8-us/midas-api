@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 @Documented
 public @interface CommentExists {
 
-    String message() default "comment does not exists";
+    String message() default "comment does not exist";
 
     Class<?>[] groups() default {};
 

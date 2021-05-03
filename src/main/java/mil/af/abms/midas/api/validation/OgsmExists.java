@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 @Documented
 public @interface OgsmExists {
 
-    String message() default "ogsm does not exists";
+    String message() default "ogsm does not exist";
 
     Class<?>[] groups() default {};
 

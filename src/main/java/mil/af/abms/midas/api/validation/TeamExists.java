@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 @Documented
 public @interface TeamExists {
 
-    String message() default "team does not exists";
+    String message() default "team does not exist";
 
     Class<?>[] groups() default {};
 
