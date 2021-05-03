@@ -63,7 +63,7 @@ public class OgsmServiceTests {
             .with(o -> o.setId(4L))
             .with(o -> o.setProduct(product))
             .with(o -> o.setCreatedBy(user))
-            .with(o ->o.setAssertions(Set.of(objective)))
+            .with(o -> o.setAssertions(Set.of(objective)))
             .with(o -> o.setCreationDate(NOW))
             .with(o -> o.setCompletedDate(COMPLETE))
             .get();
@@ -80,7 +80,7 @@ public class OgsmServiceTests {
     public void should_create_objective() {
         CreateOgsmDTO createOgsmDTO = new CreateOgsmDTO(
                 1L,
-                Set.of(new CreateAssertionDTO("Make money", AssertionType.OBJECTIVE, 42L, Set.of(), Set.of(2L))));
+                Set.of(new CreateAssertionDTO("Make money", AssertionType.OBJECTIVE, 42L, Set.of())));
 
 
         when(userService.getUserBySecContext()).thenReturn(user);

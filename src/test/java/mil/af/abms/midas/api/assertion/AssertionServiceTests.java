@@ -75,7 +75,7 @@ public class AssertionServiceTests {
     @Test
     public void should_create_assertion() {
         CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", AssertionType.OBJECTIVE,  1L,
-                Set.of(2L), Set.of(2L));
+                Set.of(2L));
         Comment comment = Builder.build(Comment.class).with(c -> c.setId(25L)).get();
 
         when(assertionRepository.save(assertion)).thenReturn(new Assertion());
@@ -92,7 +92,6 @@ public class AssertionServiceTests {
         assertThat(assertionSaved.getType()).isEqualTo(createAssertionDTO.getType());
         assertThat(assertionSaved.getCreatedBy()).isEqualTo(createdBy);
         assertThat(assertionSaved.getTags()).isEqualTo(Set.of(tag));
-        assertThat(assertionSaved.getComments()).isEqualTo(Set.of(comment));
     }
 
     @Test

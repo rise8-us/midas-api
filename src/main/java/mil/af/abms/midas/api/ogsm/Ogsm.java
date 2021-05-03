@@ -52,7 +52,7 @@ public class Ogsm extends AbstractEntity<OgsmDTO> {
 
     public OgsmDTO toDto() {
         Set<AssertionDTO> assertionDTOs = assertions.stream().map(Assertion::toDto).collect(Collectors.toSet());
-        return new OgsmDTO(id, getIdOrNull(createdBy) , getIdOrNull(product), assertionDTOs, creationDate, completedDate);
+        return new OgsmDTO(id, getIdOrNull(createdBy), getIdOrNull(product), assertionDTOs, creationDate, completedDate);
     }
 
     @Override

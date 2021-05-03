@@ -27,14 +27,14 @@ public class ProblemTests {
     private final Product product = Builder.build(Product.class).with(p -> p.setId(3L)).get();
     private final Problem problem = Builder.build(Problem.class)
             .with(p -> p.setId(1L))
-            .with(p -> p.setProblem("Not enough time"))
+            .with(p -> p.setText("Not enough time"))
             .with(p -> p.setProduct(product))
             .with(p -> p.setCreatedBy(createdBy))
             .with(p -> p.setIsCurrent(true))
             .with(p -> p.setCreationDate(TEST_TIME)).get();
     private final ProblemDTO problemDTO = Builder.build(ProblemDTO.class)
             .with(p -> p.setId(1L))
-            .with(p -> p.setProblem("Not enough time"))
+            .with(p -> p.setText("Not enough time"))
             .with(p -> p.setProductId(product.getId()))
             .with(p -> p.setCreatedById(createdBy.getId()))
             .with(p -> p.setIsCurrent(true))
@@ -63,7 +63,7 @@ public class ProblemTests {
     @Test
     public void should_get_properties() {
         assertThat(problem.getId()).isEqualTo(1L);
-        assertThat(problem.getProblem()).isEqualTo("Not enough time");
+        assertThat(problem.getText()).isEqualTo("Not enough time");
         assertThat(problem.getCreationDate()).isEqualTo(TEST_TIME);
         assertThat(problem.getProduct()).isEqualTo(product);
         assertThat(problem.getIsCurrent()).isEqualTo(true);

@@ -16,7 +16,7 @@ public class ProblemDTO implements AbstractDTO {
     private Long id;
     private Long createdById;
     private Long productId;
-    private String problem;
+    private String text;
     private Boolean isCurrent;
     private LocalDateTime creationDate;
 

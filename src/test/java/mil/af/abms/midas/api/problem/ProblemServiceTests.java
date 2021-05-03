@@ -51,7 +51,7 @@ public class ProblemServiceTests {
     private final Product product = Builder.build(Product.class).with(p -> p.setId(1L)).get();
     private final Problem problem = Builder.build(Problem.class)
             .with(p -> p.setId(1L))
-            .with(p -> p.setProblem("no manning")).get();
+            .with(p -> p.setText("no manning")).get();
 
     @Test
     public void should_create_problem() {
@@ -66,7 +66,7 @@ public class ProblemServiceTests {
         verify(problemRepository, times(1)).save(problemCaptor.capture());
         Problem problemSaved = problemCaptor.getValue();
 
-        assertThat(problemSaved.getProblem()).isEqualTo(createProblemDTO.getProblem());
+        assertThat(problemSaved.getText()).isEqualTo(createProblemDTO.getText());
         assertThat(problemSaved.getProduct().getId()).isEqualTo(createProblemDTO.getProductId());
         assertThat(problemSaved.getCreatedBy()).isEqualTo(createdBy);
         assertTrue(problemSaved.getIsCurrent());
@@ -85,7 +85,7 @@ public class ProblemServiceTests {
         verify(problemRepository, times(1)).save(problemCaptor.capture());
         Problem problemSaved = problemCaptor.getValue();
 
-        assertThat(problemSaved.getProblem()).isEqualTo(updateProblemDTO.getProblem());
+        assertThat(problemSaved.getText()).isEqualTo(updateProblemDTO.getText());
     }
 
     @Test

@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.product.validation.UniqueName;
+import mil.af.abms.midas.api.validation.ProductExists;
 import mil.af.abms.midas.api.validation.ProjectsCanBeAssignedToProduct;
 import mil.af.abms.midas.api.validation.ProjectsExist;
 import mil.af.abms.midas.api.validation.TagsExist;
@@ -29,6 +30,7 @@ public class CreateProductDTO {
     @UserExists(allowNull = true)
     private Long productManagerId;
 
+    @ProductExists
     private Long parentId;
 
     @ProjectsExist

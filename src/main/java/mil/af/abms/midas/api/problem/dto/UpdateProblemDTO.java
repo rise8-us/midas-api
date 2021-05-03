@@ -6,13 +6,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import mil.af.abms.midas.api.validation.ProductExists;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateProblemDTO {
 
-    @NotBlank(message = "Problem must not be blank")
-    private String problem;
+    @NotBlank(message = "text must not be blank")
+    private String text;
+
+    @ProductExists
     private Long productId;
 
 }
