@@ -80,7 +80,7 @@ public class OgsmServiceTests {
     public void should_create_objective() {
         CreateOgsmDTO createOgsmDTO = new CreateOgsmDTO(
                 1L,
-                Set.of(new CreateAssertionDTO("Make money", AssertionType.OBJECTIVE, 42L, Set.of())));
+                Set.of(new CreateAssertionDTO("Make money", AssertionType.OBJECTIVE, 42L, Set.of(), null, Set.of())));
 
 
         when(userService.getUserBySecContext()).thenReturn(user);

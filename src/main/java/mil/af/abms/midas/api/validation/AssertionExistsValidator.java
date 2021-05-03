@@ -22,7 +22,6 @@ public class AssertionExistsValidator implements ConstraintValidator<AssertionEx
 
     @Override
     public boolean isValid(Long id, ConstraintValidatorContext constraintContext) {
-
         return id == null ? allowNull : assertionService.existsById(id);
     }
 }

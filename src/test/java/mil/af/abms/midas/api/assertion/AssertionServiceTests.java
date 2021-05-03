@@ -75,7 +75,7 @@ public class AssertionServiceTests {
     @Test
     public void should_create_assertion() {
         CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", AssertionType.OBJECTIVE,  1L,
-                Set.of(2L));
+                Set.of(2L), null, Set.of());
         Comment comment = Builder.build(Comment.class).with(c -> c.setId(25L)).get();
 
         when(assertionRepository.save(assertion)).thenReturn(new Assertion());
@@ -96,7 +96,7 @@ public class AssertionServiceTests {
 
     @Test
     public void should_update_assertion_by_id() {
-        UpdateAssertionDTO updateAssertionDTO = new UpdateAssertionDTO("updated", AssertionType.OBJECTIVE, Set.of(2L), Set.of(2L));
+        UpdateAssertionDTO updateAssertionDTO = new UpdateAssertionDTO("updated", AssertionType.OBJECTIVE, Set.of(2L), Set.of(2L), null, Set.of());
         Assertion newAssertion = new Assertion();
         BeanUtils.copyProperties(assertion, newAssertion);
         newAssertion.setType(AssertionType.MEASURE);

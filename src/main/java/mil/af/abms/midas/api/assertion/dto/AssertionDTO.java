@@ -18,10 +18,12 @@ public class AssertionDTO implements AbstractDTO {
     private Long id;
     private Long ogsmId;
     private Long createdById;
+    private Long parentId;
     private String text;
     private AssertionType type;
     private LocalDateTime creationDate;
     private Set<Long> tagIds;
     private Set<Long> commentIds;
+    private Set<Long> childIds;
 
 }

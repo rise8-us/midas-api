@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 @Documented
 public @interface ProductsExist {
 
-    String message() default "product does not exists";
+    String message() default "product does not exist";
 
     Class<?>[] groups() default {};
 

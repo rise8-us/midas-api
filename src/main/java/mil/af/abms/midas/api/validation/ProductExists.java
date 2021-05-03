@@ -16,11 +16,11 @@ import java.lang.annotation.Target;
 @Documented
 public @interface ProductExists {
 
-    String message() default "product does not exists";
+    String message() default "product does not exist";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
 
-    boolean allowNull() default false;
+    boolean allowNull() default true;
 }

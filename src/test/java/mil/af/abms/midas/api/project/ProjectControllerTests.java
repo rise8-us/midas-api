@@ -134,7 +134,7 @@ public class ProjectControllerTests extends ControllerTestHarness {
         )
                 .andExpect(status().is4xxClientError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.errors[0]").value("team does not exists"));
+                .andExpect(jsonPath("$.errors[0]").value("team does not exist"));
     }
 
     @Test

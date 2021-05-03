@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = TagsExistValidator.class)
 @Documented
 public @interface TagsExist {
-    String message() default "tag does not exists";
+    String message() default "tag does not exist";
 
     Class<?>[] groups() default {};
 

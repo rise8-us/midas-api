@@ -54,8 +54,8 @@ public class AssertionControllerTests extends ControllerTestHarness {
             .with(a -> a.setTags(Set.of(tags)))
             .with(a -> a.setComments(comments))
             .with(a -> a.setCreatedBy(createdBy)).get();
-    CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", AssertionType.OBJECTIVE,  1L, Set.of(2L));
-    UpdateAssertionDTO updateAssertionDTO = new UpdateAssertionDTO("updated", AssertionType.MEASURE, Set.of(2L), Set.of(2L));
+    CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", AssertionType.OBJECTIVE,  1L, Set.of(2L), null, Set.of());
+    UpdateAssertionDTO updateAssertionDTO = new UpdateAssertionDTO("updated", AssertionType.MEASURE, Set.of(2L),Set.of(2L), null, Set.of());
 
     @BeforeEach
     public void init() throws Exception {
@@ -93,7 +93,7 @@ public class AssertionControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_throw_type_must_not_be_null_message_on_create() throws Exception {
-        CreateAssertionDTO createDTONullType = new CreateAssertionDTO("First", null,  1L, Set.of(2L));
+        CreateAssertionDTO createDTONullType = new CreateAssertionDTO("First", null,  1L, Set.of(2L), null, Set.of());
         Assertion assertionNullType = new Assertion();
         BeanUtils.copyProperties(assertion, assertionNullType);
         assertionNullType.setType(null);
@@ -113,7 +113,7 @@ public class AssertionControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_throw_type_must_not_be_null_message_on_update() throws Exception {
-        UpdateAssertionDTO updateDTONullType = new UpdateAssertionDTO("updated", null, Set.of(2L), Set.of(2L));
+        UpdateAssertionDTO updateDTONullType = new UpdateAssertionDTO("updated", null, Set.of(2L), Set.of(2L), null, Set.of());
         Assertion assertionNullType = new Assertion();
         BeanUtils.copyProperties(assertion, assertionNullType);
         assertionNullType.setType(null);

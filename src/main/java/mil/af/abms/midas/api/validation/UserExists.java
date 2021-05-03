@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 @Documented
 public @interface UserExists {
 
-    String message() default "user does not exists";
+    String message() default "user does not exist";
 
     Class<?>[] groups() default {};
 

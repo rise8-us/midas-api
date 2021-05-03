@@ -15,11 +15,11 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = AssertionExistsValidator.class)
 @Documented
 public @interface AssertionExists {
-    String message() default "assertion does not exists";
+    String message() default "assertion does not exist";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
 
-    boolean allowNull() default false;
+    boolean allowNull() default true;
 }
