@@ -45,15 +45,12 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
     @Transactional
     public Assertion create(CreateAssertionDTO createAssertionDTO) {
         Set<Tag> tags = createAssertionDTO.getTagIds().stream().map(tagService::getObject).collect(Collectors.toSet());
-        Set<Comment> comments = createAssertionDTO.getCommentIds()
-                .stream().map(commentService::getObject).collect(Collectors.toSet());
 
         Assertion newAssertion = Builder.build(Assertion.class)
                 .with(a -> a.setOgsm(ogsmService.getObject(createAssertionDTO.getOgsmId())))
                 .with(a -> a.setText(createAssertionDTO.getText()))
                 .with(a -> a.setType(createAssertionDTO.getType()))
                 .with(a -> a.setTags(tags))
-                .with(a -> a.setComments(comments))
                 .with(a -> a.setCreatedBy(userService.getUserBySecContext())).get();
 
         return repository.save(newAssertion);

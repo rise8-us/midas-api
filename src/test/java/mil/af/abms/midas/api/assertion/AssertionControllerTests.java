@@ -1,6 +1,7 @@
 package mil.af.abms.midas.api.assertion;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -24,6 +26,7 @@ import mil.af.abms.midas.api.assertion.dto.CreateAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.UpdateAssertionDTO;
 import mil.af.abms.midas.api.comment.Comment;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.ogsm.OgsmService;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.user.User;
@@ -36,6 +39,8 @@ public class AssertionControllerTests extends ControllerTestHarness {
     private AssertionService assertionService;
     @MockBean
     private TagService tagService;
+    @MockBean
+    private OgsmService ogsmService;
     
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
     private final Tag tags = Builder.build(Tag.class).with(t -> t.setId(2L)).get();
@@ -49,7 +54,7 @@ public class AssertionControllerTests extends ControllerTestHarness {
             .with(a -> a.setTags(Set.of(tags)))
             .with(a -> a.setComments(comments))
             .with(a -> a.setCreatedBy(createdBy)).get();
-    CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", AssertionType.OBJECTIVE,  1L, Set.of(2L), Set.of(2L));
+    CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", AssertionType.OBJECTIVE,  1L, Set.of(2L));
     UpdateAssertionDTO updateAssertionDTO = new UpdateAssertionDTO("updated", AssertionType.MEASURE, Set.of(2L), Set.of(2L));
 
     @BeforeEach
@@ -60,6 +65,8 @@ public class AssertionControllerTests extends ControllerTestHarness {
     @Test
     public void should_create_assertion() throws Exception {
         when(assertionService.create(any(CreateAssertionDTO.class))).thenReturn(assertion);
+        when(ogsmService.existsById(anyLong())).thenReturn(true);
+        when(tagService.existsById(2L)).thenReturn(true);
 
         mockMvc.perform(post("/api/assertions")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -73,6 +80,7 @@ public class AssertionControllerTests extends ControllerTestHarness {
     @Test
     public void should_update_by_id() throws Exception {
         when(assertionService.updateById(any(), any(UpdateAssertionDTO.class))).thenReturn(assertion);
+        when(tagService.existsById(2L)).thenReturn(true);
 
         mockMvc.perform(put("/api/assertions/1")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -81,6 +89,45 @@ public class AssertionControllerTests extends ControllerTestHarness {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.text").value("First"));
+    }
+
+    @Test
+    public void should_throw_type_must_not_be_null_message_on_create() throws Exception {
+        CreateAssertionDTO createDTONullType = new CreateAssertionDTO("First", null,  1L, Set.of(2L));
+        Assertion assertionNullType = new Assertion();
+        BeanUtils.copyProperties(assertion, assertionNullType);
+        assertionNullType.setType(null);
+
+        when(assertionService.create(any(CreateAssertionDTO.class))).thenReturn(assertion);
+        when(ogsmService.existsById(anyLong())).thenReturn(true);
+        when(tagService.existsById(2L)).thenReturn(true);
+
+        mockMvc.perform(put("/api/assertions/1")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsString(createDTONullType))
+        )
+                .andExpect(status().is4xxClientError())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.errors[0]").value("type must not be blank"));
+    }
+
+    @Test
+    public void should_throw_type_must_not_be_null_message_on_update() throws Exception {
+        UpdateAssertionDTO updateDTONullType = new UpdateAssertionDTO("updated", null, Set.of(2L), Set.of(2L));
+        Assertion assertionNullType = new Assertion();
+        BeanUtils.copyProperties(assertion, assertionNullType);
+        assertionNullType.setType(null);
+
+        when(assertionService.updateById(any(), any(UpdateAssertionDTO.class))).thenReturn(assertion);
+        when(tagService.existsById(2L)).thenReturn(true);
+
+        mockMvc.perform(put("/api/assertions/1")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsString(updateDTONullType))
+        )
+                .andExpect(status().is4xxClientError())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.errors[0]").value("type must not be blank"));
     }
     
 }

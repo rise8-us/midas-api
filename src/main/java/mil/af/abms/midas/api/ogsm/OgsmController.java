@@ -24,5 +24,4 @@ public class OgsmController extends AbstractCRUDController<Ogsm, OgsmDTO, OgsmSe
         return service.create(createOgsmDTO).toDto();
     }
 
-
 }

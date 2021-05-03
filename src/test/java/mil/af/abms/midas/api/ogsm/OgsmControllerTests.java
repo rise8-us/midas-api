@@ -1,6 +1,7 @@
 package mil.af.abms.midas.api.ogsm;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -22,6 +23,7 @@ import mil.af.abms.midas.api.assertion.Assertion;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.ogsm.dto.CreateOgsmDTO;
 import mil.af.abms.midas.api.product.Product;
+import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.user.User;
 
 @WebMvcTest({OgsmController.class})
@@ -29,6 +31,8 @@ public class OgsmControllerTests extends ControllerTestHarness {
 
     @MockBean
     private OgsmService ogsmService;
+    @MockBean
+    private ProductService productService;
     @MockBean
     private OgsmRepository ogsmRepository;
 
@@ -58,6 +62,7 @@ public class OgsmControllerTests extends ControllerTestHarness {
         CreateOgsmDTO createOgsmDTO = new CreateOgsmDTO(1L, Set.of());
 
         when(ogsmService.create(any())).thenReturn(ogsm);
+        when(productService.existsById(anyLong())).thenReturn(true);
 
         mockMvc.perform(post("/api/ogsms")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)

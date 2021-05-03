@@ -1,6 +1,7 @@
 package mil.af.abms.midas.api.problem;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -43,7 +44,7 @@ public class ProblemControllerTests extends ControllerTestHarness {
     private final UpdateProblemDTO updateProblemDTO = new UpdateProblemDTO("security",  product.getId());
     private final Problem problem = Builder.build(Problem.class)
             .with(p -> p.setId(1L))
-            .with(p -> p.setProblem("Not enough time"))
+            .with(p -> p.setText("Not enough time"))
             .with(p -> p.setProduct(product))
             .with(p -> p.setCreatedBy(createdBy))
             .with(p -> p.setIsCurrent(true))
@@ -58,6 +59,7 @@ public class ProblemControllerTests extends ControllerTestHarness {
     @Test
     public void should_create_problem() throws Exception {
         when(problemService.create(any(CreateProblemDTO.class))).thenReturn(problem);
+        when(productService.existsById(anyLong())).thenReturn(true);
 
         mockMvc.perform(post("/api/problems")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -65,12 +67,13 @@ public class ProblemControllerTests extends ControllerTestHarness {
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.problem").value("Not enough time"));
+                .andExpect(jsonPath("$.text").value("Not enough time"));
     }
 
     @Test
     public void should_update_by_id() throws Exception {
         when(problemService.updateById(any(), any(UpdateProblemDTO.class))).thenReturn(problem);
+        when(productService.existsById(anyLong())).thenReturn(true);
 
         mockMvc.perform(put("/api/problems/1")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -78,7 +81,7 @@ public class ProblemControllerTests extends ControllerTestHarness {
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.problem").value("Not enough time"));
+                .andExpect(jsonPath("$.text").value("Not enough time"));
     }
 
     @Test

@@ -22,10 +22,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
+import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductIsArchivedDTO;
-import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.tag.TagService;
@@ -69,6 +69,7 @@ public class ProductControllerTests extends ControllerTestHarness {
     public void should_create_product() throws Exception {
         when(productService.findByName(createProductDTO.getName())).thenThrow(EntityNotFoundException.class);
         when(productService.create(any(CreateProductDTO.class))).thenReturn(product);
+        when(productService.existsById(anyLong())).thenReturn(true);
         when(userService.existsById(anyLong())).thenReturn(true);
         when(projectService.existsById(anyLong())).thenReturn(true);
         when(projectService.getObject(anyLong())).thenReturn(new Project());
@@ -108,6 +109,7 @@ public class ProductControllerTests extends ControllerTestHarness {
         when(productService.findByName(createProductDTO.getName())).thenReturn(product);
         when(userService.existsById(anyLong())).thenReturn(true);
         when(tagService.existsById(any())).thenReturn(true);
+        when(productService.existsById(any())).thenReturn(true);
         when(projectService.existsById(any())).thenReturn(true);
         when(projectService.getObject(anyLong())).thenReturn(new Project());
 

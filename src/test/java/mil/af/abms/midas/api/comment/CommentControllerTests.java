@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.assertion.Assertion;
+import mil.af.abms.midas.api.assertion.AssertionService;
 import mil.af.abms.midas.api.comment.dto.CreateCommentDTO;
 import mil.af.abms.midas.api.comment.dto.UpdateCommentDTO;
 import mil.af.abms.midas.api.helper.Builder;
@@ -29,9 +30,11 @@ public class CommentControllerTests extends ControllerTestHarness {
 
     @MockBean
     CommentService commentService;
+    @MockBean
+    AssertionService assertionService;
 
     private final User createdBy = Builder.build(User.class).with(u -> u.setId(3L)).get();
-        private final Assertion assertion = Builder.build(Assertion.class).with(a -> a.setId(1L)).get();
+    private final Assertion assertion = Builder.build(Assertion.class).with(a -> a.setId(1L)).get();
     private final Comment parentComment = Builder.build(Comment.class).with(c -> c.setId(55L)).get();
     private final CreateCommentDTO createDTO = new CreateCommentDTO(parentComment.getId(), assertion.getId(), "something new");
     private final UpdateCommentDTO updateDTO = new UpdateCommentDTO(parentComment.getId(), assertion.getId(), "something updated");
@@ -50,6 +53,8 @@ public class CommentControllerTests extends ControllerTestHarness {
     @Test
     public void should_create_comment() throws Exception {
         when(commentService.create(any(CreateCommentDTO.class))).thenReturn(comment);
+        when(assertionService.existsById(1L)).thenReturn(true);
+        when(commentService.existsById(55L)).thenReturn(true);
 
         mockMvc.perform(post("/api/comments")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -63,6 +68,8 @@ public class CommentControllerTests extends ControllerTestHarness {
     @Test
     public void should_update_comment_by_id() throws Exception {
         when(commentService.updateById(any(), any(UpdateCommentDTO.class))).thenReturn(comment);
+        when(assertionService.existsById(1L)).thenReturn(true);
+        when(commentService.existsById(55L)).thenReturn(true);
 
         mockMvc.perform(put("/api/comments/1")
                     .contentType(MediaType.APPLICATION_JSON_VALUE)

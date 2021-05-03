@@ -32,7 +32,7 @@ public class ProblemService extends AbstractCRUDService<Problem, ProblemDTO, Pro
     @Transactional
     public Problem create(CreateProblemDTO createProblemDTO) {
         Problem newProblem = Builder.build(Problem.class)
-                .with(p -> p.setProblem(createProblemDTO.getProblem()))
+                .with(p -> p.setText(createProblemDTO.getText()))
                 .with(p -> p.setCreatedBy(userService.getUserBySecContext()))
                 .with(p -> p.setProduct(productService.findByIdOrNull(createProblemDTO.getProductId())))
                 .get();
@@ -43,7 +43,7 @@ public class ProblemService extends AbstractCRUDService<Problem, ProblemDTO, Pro
     @Transactional
     public Problem updateById(Long id, UpdateProblemDTO updateProblemDTO) {
         Problem problem = getObject(id);
-        problem.setProblem(updateProblemDTO.getProblem());
+        problem.setText(updateProblemDTO.getText());
         problem.setProduct(productService.findByIdOrNull(updateProblemDTO.getProductId()));
 
         return repository.save(problem);

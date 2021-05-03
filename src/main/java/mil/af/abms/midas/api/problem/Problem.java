@@ -23,7 +23,7 @@ import mil.af.abms.midas.api.user.User;
 public class Problem extends AbstractEntity<ProblemDTO> {
 
     @Column(columnDefinition = "TEXT", nullable = false)
-    private String problem;
+    private String text;
 
     @Column(columnDefinition = "BIT(1) DEFAULT 1", nullable = false)
     private Boolean isCurrent = true;
@@ -41,12 +41,12 @@ public class Problem extends AbstractEntity<ProblemDTO> {
     private Product product;
 
     public ProblemDTO toDto() {
-        return new ProblemDTO(id, getIdOrNull(createdBy), getIdOrNull(product), problem, isCurrent, creationDate);
+        return new ProblemDTO(id, getIdOrNull(createdBy), getIdOrNull(product), text, isCurrent, creationDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(problem);
+        return Objects.hashCode(text);
     }
 
     @Override
