@@ -27,8 +27,6 @@ import mil.af.abms.midas.api.comment.Comment;
 import mil.af.abms.midas.api.comment.CommentService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.ogsm.OgsmService;
-import mil.af.abms.midas.api.tag.Tag;
-import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.enums.AssertionType;
@@ -42,8 +40,6 @@ public class AssertionServiceTests {
     @MockBean
     private UserService userService;
     @MockBean
-    private TagService tagService;
-    @MockBean
     private AssertionRepository assertionRepository;
     @MockBean
     private OgsmService ogsmService;
@@ -55,13 +51,6 @@ public class AssertionServiceTests {
 
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
     private final Set<Comment> comments = Set.of(Builder.build(Comment.class).with(c -> c.setId(2L)).get());
-    private final Tag tagInAssertion = Builder.build(Tag.class)
-            .with(t -> t.setId(22L))
-            .with(t -> t.setLabel("TagInAssertion")).get();
-    private final Tag tagTwoInAssertion = Builder.build(Tag.class)
-            .with(t -> t.setId(21L))
-            .with(t -> t.setLabel("TagTwoInAssertion")).get();
-    private final Tag tag = Builder.build(Tag.class).with(t -> t.setId(2L)).get();
     private final User createdBy = Builder.build(User.class).with(u -> u.setId(3L)).get();
     private final Assertion assertion = Builder.build(Assertion.class)
             .with(a -> a.setId(1L))
@@ -69,7 +58,6 @@ public class AssertionServiceTests {
             .with(a -> a.setType(AssertionType.OBJECTIVE))
             .with(a -> a.setCreationDate(CREATION_DATE))
             .with(a -> a.setComments(comments))
-            .with(a -> a.setTags(Set.of(tagInAssertion, tagTwoInAssertion)))
             .with(a -> a.setCreatedBy(createdBy)).get();
     
     @Test
@@ -80,7 +68,6 @@ public class AssertionServiceTests {
 
         when(assertionRepository.save(assertion)).thenReturn(new Assertion());
         when(userService.getUserBySecContext()).thenReturn(createdBy);
-        when(tagService.getObject(anyLong())).thenReturn(tag);
         when(commentService.getObject(anyLong())).thenReturn(comment);
 
         assertionService.create(createAssertionDTO);
@@ -91,7 +78,6 @@ public class AssertionServiceTests {
         assertThat(assertionSaved.getText()).isEqualTo(createAssertionDTO.getText());
         assertThat(assertionSaved.getType()).isEqualTo(createAssertionDTO.getType());
         assertThat(assertionSaved.getCreatedBy()).isEqualTo(createdBy);
-        assertThat(assertionSaved.getTags()).isEqualTo(Set.of(tag));
     }
 
     @Test
@@ -114,43 +100,4 @@ public class AssertionServiceTests {
         assertThat(assertionSaved.getType()).isEqualTo(updateAssertionDTO.getType());
     }
 
-    @Test
-    public void should_set_tag_to_empty_set() {
-        Comment comment = Builder.build(Comment.class).with(c -> c.setId(25L)).get();
-        UpdateAssertionDTO updateDTO = Builder.build(UpdateAssertionDTO.class)
-                .with(d -> d.setTagIds(Set.of()))
-                .with(d -> d.setCommentIds(Set.of(comment.getId()))).get();
-
-        when(assertionRepository.findById(1L)).thenReturn(Optional.of(assertion));
-        when(commentService.getObject(anyLong())).thenReturn(comment);
-
-        assertionService.updateById(1L, updateDTO);
-
-        verify(assertionRepository, times(1)).save(assertionCaptor.capture());
-        Assertion assertionSaved = assertionCaptor.getValue();
-
-        assertThat(assertionSaved.getTags()).isEqualTo(Set.of());
-    }
-
-    @Test
-    public void should_remove_tag_from_assertions() {
-        assertionService.removeTagFromAssertions(tagInAssertion.getId(), Set.of(assertion));
-
-        verify(assertionRepository, times(1)).save(assertionCaptor.capture());
-        Assertion assertionSaved = assertionCaptor.getValue();
-        assertThat(assertionSaved.getTags()).isEqualTo(Set.of(tagTwoInAssertion));
-    }
-
-    @Test
-    public void should_remove_tag_from_assertion() {
-        assertionService.removeTagFromAssertion(tagInAssertion.getId(), assertion);
-
-        Set<Tag> tagsToKeep = Set.of(tagTwoInAssertion);
-
-        verify(assertionRepository, times(1)).save(assertionCaptor.capture());
-        Assertion assertionSaved = assertionCaptor.getValue();
-
-        assertThat(assertionSaved.getTags()).isEqualTo(tagsToKeep);
-    }
-    
 }

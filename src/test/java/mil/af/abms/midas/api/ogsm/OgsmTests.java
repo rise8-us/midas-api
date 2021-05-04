@@ -46,7 +46,7 @@ public class OgsmTests {
             .with(d -> d.setId(4L))
             .with(d -> d.setProductId(product.getId()))
             .with(d -> d.setCreatedById(user.getId()))
-            .with(d -> d.setAssertions(Set.of(objective.toDto())))
+            .with(d -> d.setAssertionIds(Set.of(objective.getId())))
             .with(d -> d.setCreationDate(NOW))
             .with(d -> d.setCompletedDate(COMPLETE))
             .get();

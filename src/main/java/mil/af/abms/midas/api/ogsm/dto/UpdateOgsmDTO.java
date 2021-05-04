@@ -2,27 +2,21 @@ package mil.af.abms.midas.api.ogsm.dto;
 
 import javax.validation.constraints.NotEmpty;
 
-import java.util.Set;
+import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import mil.af.abms.midas.api.assertion.dto.CreateAssertionDTO;
-import mil.af.abms.midas.api.validation.ProductExists;
-
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateOgsmDTO {
-
-    @ProductExists (allowNull = true)
-    private Long productId;
+public class UpdateOgsmDTO {
 
     @NotEmpty(message = "Objective cannot be blank")
     private String text;
 
-    private Set<CreateAssertionDTO> assertionDTOs;
+    private LocalDateTime completedDate;
 
 }

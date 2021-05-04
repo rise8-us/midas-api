@@ -71,16 +71,26 @@ public class OgsmServiceTests {
             .with(d -> d.setId(4L))
             .with(d -> d.setProductId(product.getId()))
             .with(d -> d.setCreatedById(user.getId()))
-            .with(d -> d.setAssertions(Set.of(objective.toDto())))
+            .with(d -> d.setAssertionIds(Set.of(objective.getId())))
             .with(d -> d.setCreationDate(NOW))
             .with(d -> d.setCompletedDate(COMPLETE))
             .get();
 
     @Test
     public void should_create_objective() {
+        CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO(
+                "Make money",
+                AssertionType.OBJECTIVE,
+                42L,
+                Set.of(),
+                null,
+                Set.of()
+        );
         CreateOgsmDTO createOgsmDTO = new CreateOgsmDTO(
                 1L,
-                Set.of(new CreateAssertionDTO("Make money", AssertionType.OBJECTIVE, 42L, Set.of(), null, Set.of())));
+                "text",
+                Set.of(createAssertionDTO)
+        );
 
 
         when(userService.getUserBySecContext()).thenReturn(user);
@@ -94,6 +104,7 @@ public class OgsmServiceTests {
         Ogsm ogsmSaved = ogsmCaptor.getValue();
 
         assertThat(ogsmSaved.getCreatedBy()).isEqualTo(user);
+        assertThat(ogsmSaved.getText()).isEqualTo("text");
         assertThat(withObjective.getAssertions()).isEqualTo(Set.of(objective));
 
     }
