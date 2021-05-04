@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -24,7 +23,6 @@ import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
 import mil.af.abms.midas.api.assertion.Assertion;
-import mil.af.abms.midas.api.assertion.dto.AssertionDTO;
 import mil.af.abms.midas.api.ogsm.dto.OgsmDTO;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.user.User;
@@ -32,6 +30,9 @@ import mil.af.abms.midas.api.user.User;
 @Entity @Getter @Setter
 @Table(name = "ogsm")
 public class Ogsm extends AbstractEntity<OgsmDTO> {
+
+    @Column(columnDefinition = "TEXT NOT NULL")
+    private String text;
 
     @OneToMany(mappedBy = "ogsm")
     private Set<Assertion> assertions = new HashSet<>();
@@ -51,8 +52,7 @@ public class Ogsm extends AbstractEntity<OgsmDTO> {
     protected LocalDateTime completedDate;
 
     public OgsmDTO toDto() {
-        Set<AssertionDTO> assertionDTOs = assertions.stream().map(Assertion::toDto).collect(Collectors.toSet());
-        return new OgsmDTO(id, getIdOrNull(createdBy), getIdOrNull(product), assertionDTOs, creationDate, completedDate);
+        return new OgsmDTO(id, getIdOrNull(createdBy), getIdOrNull(product), text, getIds(assertions), creationDate, completedDate);
     }
 
     @Override

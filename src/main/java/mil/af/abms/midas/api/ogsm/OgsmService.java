@@ -37,7 +37,8 @@ public class OgsmService extends AbstractCRUDService<Ogsm, OgsmDTO, OgsmReposito
     @Transactional
     public Ogsm create(CreateOgsmDTO createOgsmDTO) {
         Ogsm newOgsm = Builder.build(Ogsm.class)
-                .with(t -> t.setCreatedBy(userService.getUserBySecContext()))
+                .with(o -> o.setCreatedBy(userService.getUserBySecContext()))
+                .with(o -> o.setText(createOgsmDTO.getText()))
                 .with(o -> o.setProduct(productService.getObject(createOgsmDTO.getProductId())))
                 .get();
         Ogsm savedOgsm = repository.save(newOgsm);

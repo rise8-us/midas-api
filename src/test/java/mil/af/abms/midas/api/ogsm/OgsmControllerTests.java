@@ -59,7 +59,7 @@ public class OgsmControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_create_ogsm() throws Exception {
-        CreateOgsmDTO createOgsmDTO = new CreateOgsmDTO(1L, Set.of());
+        CreateOgsmDTO createOgsmDTO = new CreateOgsmDTO(1L,"text", Set.of());
 
         when(ogsmService.create(any())).thenReturn(ogsm);
         when(productService.existsById(anyLong())).thenReturn(true);
@@ -71,7 +71,7 @@ public class OgsmControllerTests extends ControllerTestHarness {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.productId").value(2))
-                .andExpect(jsonPath("$.assertions[0].id").value(objective.getId()));;
+                .andExpect(jsonPath("$.assertionIds[0]").value(objective.getId()));;
     }
 
 }

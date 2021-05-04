@@ -20,6 +20,7 @@ import mil.af.abms.midas.api.comment.Comment;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.user.User;
+import mil.af.abms.midas.enums.AssertionStatus;
 import mil.af.abms.midas.enums.AssertionType;
 
 public class AssertionTests {
@@ -33,16 +34,15 @@ public class AssertionTests {
             .with(a -> a.setText("First"))
             .with(a -> a.setType(AssertionType.OBJECTIVE))
             .with(a -> a.setCreationDate(CREATION_DATE))
-            .with(a -> a.setTags(tags))
             .with(a -> a.setComments(comments))
             .with(a -> a.setCreatedBy(createdBy)).get();
     private final AssertionDTO assertionDTO = Builder.build(AssertionDTO.class)
             .with(d -> d.setId(1L))
             .with(d -> d.setText("First"))
             .with(d -> d.setType(AssertionType.OBJECTIVE))
+            .with(d -> d.setStatus(AssertionStatus.NOT_STARTED))
             .with(d -> d.setCreationDate(CREATION_DATE))
             .with(d -> d.setCommentIds(Set.of(2L)))
-            .with(d -> d.setTagIds(Set.of(2L)))
             .with(d -> d.setChildIds(Set.of()))
             .with(d -> d.setCreatedById(createdBy.getId())).get();
 
@@ -58,7 +58,6 @@ public class AssertionTests {
     public void should_set_and_get_properties() {
         assertThat(assertion.getId()).isEqualTo(1L);
         assertThat(assertion.getType()).isEqualTo(AssertionType.OBJECTIVE);
-        assertThat(assertion.getTags()).isEqualTo(tags);
         assertThat(assertion.getCreatedBy()).isEqualTo(createdBy);
         assertThat(assertion.getText()).isEqualTo("First");
         assertThat(assertion.getComments()).isEqualTo(comments);

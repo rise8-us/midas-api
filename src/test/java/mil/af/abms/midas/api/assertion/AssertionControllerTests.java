@@ -51,7 +51,6 @@ public class AssertionControllerTests extends ControllerTestHarness {
             .with(a -> a.setText("First"))
             .with(a -> a.setType(AssertionType.OBJECTIVE))
             .with(a -> a.setCreationDate(CREATION_DATE))
-            .with(a -> a.setTags(Set.of(tags)))
             .with(a -> a.setComments(comments))
             .with(a -> a.setCreatedBy(createdBy)).get();
     CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", AssertionType.OBJECTIVE,  1L, Set.of(2L), null, Set.of());
