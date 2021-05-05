@@ -12,11 +12,11 @@ import java.lang.annotation.Target;
 
 @Target({ FIELD })
 @Retention(RUNTIME)
-@Constraint(validatedBy = OgsmExistsValidator.class)
+@Constraint(validatedBy = ObjectiveExistsValidator.class)
 @Documented
-public @interface OgsmExists {
+public @interface ObjectiveExists {
 
-    String message() default "ogsm does not exist";
+    String message() default "objective does not exist";
 
     Class<?>[] groups() default {};
 

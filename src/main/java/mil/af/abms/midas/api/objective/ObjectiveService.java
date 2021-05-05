@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.ogsm;
+package mil.af.abms.midas.api.objective;
 
 import javax.transaction.Transactional;
 
@@ -10,21 +10,21 @@ import org.springframework.stereotype.Service;
 import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.assertion.AssertionService;
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.ogsm.dto.CreateOgsmDTO;
-import mil.af.abms.midas.api.ogsm.dto.OgsmDTO;
+import mil.af.abms.midas.api.objective.dto.CreateObjectiveDTO;
+import mil.af.abms.midas.api.objective.dto.ObjectiveDTO;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.user.UserService;
 
 @Service
-public class OgsmService extends AbstractCRUDService<Ogsm, OgsmDTO, OgsmRepository> {
+public class ObjectiveService extends AbstractCRUDService<Objective, ObjectiveDTO, ObjectiveRepository> {
 
     private UserService userService;
     private ProductService productService;
     private AssertionService assertionService;
 
     @Autowired
-    public OgsmService(OgsmRepository repository) {
-        super(repository, Ogsm.class, OgsmDTO.class);
+    public ObjectiveService(ObjectiveRepository repository) {
+        super(repository, Objective.class, ObjectiveDTO.class);
     }
 
     @Autowired
@@ -35,22 +35,22 @@ public class OgsmService extends AbstractCRUDService<Ogsm, OgsmDTO, OgsmReposito
     void setAssertionService(AssertionService assertionService) { this.assertionService = assertionService; }
 
     @Transactional
-    public Ogsm create(CreateOgsmDTO createOgsmDTO) {
-        Ogsm newOgsm = Builder.build(Ogsm.class)
+    public Objective create(CreateObjectiveDTO createObjectiveDTO) {
+        Objective newObjective = Builder.build(Objective.class)
                 .with(o -> o.setCreatedBy(userService.getUserBySecContext()))
-                .with(o -> o.setText(createOgsmDTO.getText()))
-                .with(o -> o.setProduct(productService.getObject(createOgsmDTO.getProductId())))
+                .with(o -> o.setText(createObjectiveDTO.getText()))
+                .with(o -> o.setProduct(productService.getObject(createObjectiveDTO.getProductId())))
                 .get();
-        Ogsm savedOgsm = repository.save(newOgsm);
+        Objective savedObjective = repository.save(newObjective);
 
-        savedOgsm.setAssertions(
-                createOgsmDTO.getAssertionDTOs().stream().map(a -> {
-                        a.setOgsmId(savedOgsm.getId());
+        savedObjective.setAssertions(
+                createObjectiveDTO.getAssertionDTOs().stream().map(a -> {
+                        a.setObjectiveId(savedObjective.getId());
                         return assertionService.create(a);
                 }).collect(Collectors.toSet())
         );
 
-        return savedOgsm;
+        return savedObjective;
     }
 
 

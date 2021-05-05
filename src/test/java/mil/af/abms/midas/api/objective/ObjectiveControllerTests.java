@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.ogsm;
+package mil.af.abms.midas.api.objective;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -21,20 +21,20 @@ import org.junit.jupiter.api.Test;
 import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.assertion.Assertion;
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.ogsm.dto.CreateOgsmDTO;
+import mil.af.abms.midas.api.objective.dto.CreateObjectiveDTO;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.user.User;
 
-@WebMvcTest({OgsmController.class})
-public class OgsmControllerTests extends ControllerTestHarness {
+@WebMvcTest({ObjectiveController.class})
+public class ObjectiveControllerTests extends ControllerTestHarness {
 
     @MockBean
-    private OgsmService ogsmService;
+    private ObjectiveService objectiveService;
     @MockBean
     private ProductService productService;
     @MockBean
-    private OgsmRepository ogsmRepository;
+    private ObjectiveRepository objectiveRepository;
 
     private final User user = Builder.build(User.class)
             .with(u -> u.setId(1L))
@@ -42,14 +42,14 @@ public class OgsmControllerTests extends ControllerTestHarness {
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(2L))
             .get();
-    private final Assertion objective = Builder.build(Assertion.class)
+    private final Assertion assertion = Builder.build(Assertion.class)
             .with(a -> a.setId(3L))
             .get();
-    private final Ogsm ogsm = Builder.build(Ogsm.class)
+    private final Objective objective = Builder.build(Objective.class)
             .with(t -> t.setId(4L))
             .with(o -> o.setCreatedBy(user))
             .with(o -> o.setProduct(product))
-            .with(o -> o.setAssertions(Set.of(objective)))
+            .with(o -> o.setAssertions(Set.of(assertion)))
             .get();
 
     @BeforeEach
@@ -58,20 +58,20 @@ public class OgsmControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_create_ogsm() throws Exception {
-        CreateOgsmDTO createOgsmDTO = new CreateOgsmDTO(1L,"text", Set.of());
+    public void should_create_objective() throws Exception {
+        CreateObjectiveDTO createObjectiveDTO = new CreateObjectiveDTO(1L,"text", Set.of());
 
-        when(ogsmService.create(any())).thenReturn(ogsm);
+        when(objectiveService.create(any())).thenReturn(objective);
         when(productService.existsById(anyLong())).thenReturn(true);
 
-        mockMvc.perform(post("/api/ogsms")
+        mockMvc.perform(post("/api/objectives")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(mapper.writeValueAsString(createOgsmDTO))
+                .content(mapper.writeValueAsString(createObjectiveDTO))
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.productId").value(2))
-                .andExpect(jsonPath("$.assertionIds[0]").value(objective.getId()));;
+                .andExpect(jsonPath("$.assertionIds[0]").value(assertion.getId()));;
     }
 
 }

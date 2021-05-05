@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.ogsm;
+package mil.af.abms.midas.api.objective;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,8 +23,8 @@ import mil.af.abms.midas.api.assertion.Assertion;
 import mil.af.abms.midas.api.assertion.AssertionService;
 import mil.af.abms.midas.api.assertion.dto.CreateAssertionDTO;
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.ogsm.dto.CreateOgsmDTO;
-import mil.af.abms.midas.api.ogsm.dto.OgsmDTO;
+import mil.af.abms.midas.api.objective.dto.CreateObjectiveDTO;
+import mil.af.abms.midas.api.objective.dto.ObjectiveDTO;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.user.User;
@@ -32,14 +32,14 @@ import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.enums.AssertionType;
 
 @ExtendWith(SpringExtension.class)
-@Import(OgsmService.class)
-public class OgsmServiceTests {
+@Import(ObjectiveService.class)
+public class ObjectiveServiceTests {
     
     @Autowired
-    private OgsmService ogsmService;
+    private ObjectiveService objectiveService;
 
     @MockBean
-    private OgsmRepository ogsmRepository;
+    private ObjectiveRepository objectiveRepository;
     @MockBean
     private AssertionService assertionService;
     @MockBean
@@ -48,7 +48,7 @@ public class OgsmServiceTests {
     private ProductService productService;
 
     @Captor
-    private ArgumentCaptor<Ogsm> ogsmCaptor;
+    private ArgumentCaptor<Objective> objectiveCaptor;
 
     private static final LocalDateTime NOW = LocalDateTime.now();
     private static final LocalDateTime COMPLETE = NOW.plusWeeks(1L);
@@ -57,21 +57,21 @@ public class OgsmServiceTests {
             .with(p -> p.setId(1L)).get();
     private final User user = Builder.build(User.class)
             .with(p -> p.setId(2L)).get();
-    private final Assertion objective = Builder.build(Assertion.class)
+    private final Assertion assertion = Builder.build(Assertion.class)
             .with(a -> a.setId(3L)).get();
-    private final Ogsm ogsm = Builder.build(Ogsm.class)
+    private final Objective objective = Builder.build(Objective.class)
             .with(o -> o.setId(4L))
             .with(o -> o.setProduct(product))
             .with(o -> o.setCreatedBy(user))
-            .with(o -> o.setAssertions(Set.of(objective)))
+            .with(o -> o.setAssertions(Set.of(assertion)))
             .with(o -> o.setCreationDate(NOW))
             .with(o -> o.setCompletedDate(COMPLETE))
             .get();
-    private final OgsmDTO ogsmDTO = Builder.build(OgsmDTO.class)
+    private final ObjectiveDTO objectiveDTO = Builder.build(ObjectiveDTO.class)
             .with(d -> d.setId(4L))
             .with(d -> d.setProductId(product.getId()))
             .with(d -> d.setCreatedById(user.getId()))
-            .with(d -> d.setAssertionIds(Set.of(objective.getId())))
+            .with(d -> d.setAssertionIds(Set.of(assertion.getId())))
             .with(d -> d.setCreationDate(NOW))
             .with(d -> d.setCompletedDate(COMPLETE))
             .get();
@@ -86,7 +86,7 @@ public class OgsmServiceTests {
                 null,
                 Set.of()
         );
-        CreateOgsmDTO createOgsmDTO = new CreateOgsmDTO(
+        CreateObjectiveDTO createObjectiveDTO = new CreateObjectiveDTO(
                 1L,
                 "text",
                 Set.of(createAssertionDTO)
@@ -95,17 +95,17 @@ public class OgsmServiceTests {
 
         when(userService.getUserBySecContext()).thenReturn(user);
         when(productService.getObject(1L)).thenReturn(product);
-        when(ogsmRepository.save(any())).thenReturn(ogsm);
-        when(assertionService.create(any())).thenReturn(objective);
+        when(objectiveRepository.save(any())).thenReturn(objective);
+        when(assertionService.create(any())).thenReturn(assertion);
 
-        Ogsm withObjective = ogsmService.create(createOgsmDTO);
+        Objective withObjective = objectiveService.create(createObjectiveDTO);
 
-        verify(ogsmRepository, times(1)).save(ogsmCaptor.capture());
-        Ogsm ogsmSaved = ogsmCaptor.getValue();
+        verify(objectiveRepository, times(1)).save(objectiveCaptor.capture());
+        Objective objectiveSaved = objectiveCaptor.getValue();
 
-        assertThat(ogsmSaved.getCreatedBy()).isEqualTo(user);
-        assertThat(ogsmSaved.getText()).isEqualTo("text");
-        assertThat(withObjective.getAssertions()).isEqualTo(Set.of(objective));
+        assertThat(objectiveSaved.getCreatedBy()).isEqualTo(user);
+        assertThat(objectiveSaved.getText()).isEqualTo("text");
+        assertThat(withObjective.getAssertions()).isEqualTo(Set.of(assertion));
 
     }
 

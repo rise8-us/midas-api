@@ -26,7 +26,7 @@ import mil.af.abms.midas.api.assertion.dto.CreateAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.UpdateAssertionDTO;
 import mil.af.abms.midas.api.comment.Comment;
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.ogsm.OgsmService;
+import mil.af.abms.midas.api.objective.ObjectiveService;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.user.User;
@@ -40,7 +40,7 @@ public class AssertionControllerTests extends ControllerTestHarness {
     @MockBean
     private TagService tagService;
     @MockBean
-    private OgsmService ogsmService;
+    private ObjectiveService objectiveService;
     
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
     private final Tag tags = Builder.build(Tag.class).with(t -> t.setId(2L)).get();
@@ -64,7 +64,7 @@ public class AssertionControllerTests extends ControllerTestHarness {
     @Test
     public void should_create_assertion() throws Exception {
         when(assertionService.create(any(CreateAssertionDTO.class))).thenReturn(assertion);
-        when(ogsmService.existsById(anyLong())).thenReturn(true);
+        when(objectiveService.existsById(anyLong())).thenReturn(true);
         when(tagService.existsById(2L)).thenReturn(true);
 
         mockMvc.perform(post("/api/assertions")
@@ -98,7 +98,7 @@ public class AssertionControllerTests extends ControllerTestHarness {
         assertionNullType.setType(null);
 
         when(assertionService.create(any(CreateAssertionDTO.class))).thenReturn(assertion);
-        when(ogsmService.existsById(anyLong())).thenReturn(true);
+        when(objectiveService.existsById(anyLong())).thenReturn(true);
         when(tagService.existsById(2L)).thenReturn(true);
 
         mockMvc.perform(put("/api/assertions/1")

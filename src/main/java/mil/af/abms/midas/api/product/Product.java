@@ -17,7 +17,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
-import mil.af.abms.midas.api.ogsm.Ogsm;
+import mil.af.abms.midas.api.objective.Objective;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.tag.Tag;
@@ -59,7 +59,7 @@ public class Product extends AbstractEntity<ProductDTO> {
     private Set<Project> projects = new HashSet<>();
 
     @OneToMany(mappedBy = "product")
-    Set<Ogsm> ogsms = new HashSet<>();
+    Set<Objective> objectives = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
@@ -72,7 +72,7 @@ public class Product extends AbstractEntity<ProductDTO> {
     public ProductDTO toDto() {
         Set<TagDTO> tagDTOs = tags.stream().map(Tag::toDto).collect(Collectors.toSet());
         return new ProductDTO(id, getIdOrNull(productManager), getIdOrNull(parent), name, description, visionStatement,
-                isArchived, creationDate, getIds(projects), tagDTOs, getIds(children), getIds(ogsms), type);
+                isArchived, creationDate, getIds(projects), tagDTOs, getIds(children), getIds(objectives), type);
     }
 
     @Override
