@@ -17,7 +17,7 @@ import lombok.Setter;
 import mil.af.abms.midas.api.AbstractEntity;
 import mil.af.abms.midas.api.assertion.dto.AssertionDTO;
 import mil.af.abms.midas.api.comment.Comment;
-import mil.af.abms.midas.api.ogsm.Ogsm;
+import mil.af.abms.midas.api.objective.Objective;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.enums.AssertionStatus;
 import mil.af.abms.midas.enums.AssertionType;
@@ -50,11 +50,11 @@ public class Assertion extends AbstractEntity<AssertionDTO> {
     private Set<Comment> comments = new HashSet<>();
 
     @ManyToOne
-    @JoinColumn(columnDefinition = "ogsm_id")
-    private Ogsm ogsm;
+    @JoinColumn(columnDefinition = "objective_id")
+    private Objective objective;
 
     public AssertionDTO toDto() {
-        return new AssertionDTO(id, getIdOrNull(ogsm), getIdOrNull(createdBy), getIdOrNull(parent), text, type, creationDate, status,
+        return new AssertionDTO(id, getIdOrNull(objective), getIdOrNull(createdBy), getIdOrNull(parent), text, type, creationDate, status,
                 getIds(comments), getIds(children));
     }
 

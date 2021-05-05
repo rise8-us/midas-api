@@ -7,21 +7,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import lombok.Setter;
 
-import mil.af.abms.midas.api.ogsm.OgsmService;
+import mil.af.abms.midas.api.objective.ObjectiveService;
 
-public class OgsmExistsValidator implements ConstraintValidator<OgsmExists, Long> {
+public class ObjectiveExistsValidator implements ConstraintValidator<ObjectiveExists, Long> {
 
     @Autowired
-    private OgsmService ogsmService;
+    private ObjectiveService objectiveService;
 
     @Setter
     private boolean allowNull;
 
     @Override
-    public void initialize(OgsmExists constraintAnnotation) { this.allowNull = constraintAnnotation.allowNull(); }
+    public void initialize(ObjectiveExists constraintAnnotation) { this.allowNull = constraintAnnotation.allowNull(); }
 
     @Override
     public boolean isValid(Long id, ConstraintValidatorContext constraintContext) {
-        return id == null ? allowNull : ogsmService.existsById(id);
+        return id == null ? allowNull : objectiveService.existsById(id);
     }
 }

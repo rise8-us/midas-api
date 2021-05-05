@@ -27,7 +27,7 @@ public class ProductDTO implements AbstractDTO {
     private Set<Long> projectIds;
     private Set<TagDTO> tags;
     private Set<Long> children;
-    private Set<Long> ogsmIds;
+    private Set<Long> objectiveIds;
     private ProductType type;
 
 }

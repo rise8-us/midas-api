@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.ogsm.dto;
+package mil.af.abms.midas.api.objective.dto;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -12,7 +12,7 @@ import mil.af.abms.midas.api.AbstractDTO;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OgsmDTO implements AbstractDTO {
+public class ObjectiveDTO implements AbstractDTO {
 
     private Long id;
     private Long createdById;

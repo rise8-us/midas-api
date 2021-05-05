@@ -26,7 +26,7 @@ import mil.af.abms.midas.api.assertion.dto.UpdateAssertionDTO;
 import mil.af.abms.midas.api.comment.Comment;
 import mil.af.abms.midas.api.comment.CommentService;
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.ogsm.OgsmService;
+import mil.af.abms.midas.api.objective.ObjectiveService;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.enums.AssertionType;
@@ -42,7 +42,7 @@ public class AssertionServiceTests {
     @MockBean
     private AssertionRepository assertionRepository;
     @MockBean
-    private OgsmService ogsmService;
+    private ObjectiveService objectiveService;
     @MockBean
     private CommentService commentService;
     

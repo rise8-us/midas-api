@@ -10,7 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.validation.AssertionExists;
-import mil.af.abms.midas.api.validation.OgsmExists;
+import mil.af.abms.midas.api.validation.ObjectiveExists;
 import mil.af.abms.midas.api.validation.TagsExist;
 import mil.af.abms.midas.enums.AssertionType;
 
@@ -25,8 +25,8 @@ public class CreateAssertionDTO {
     @NotNull(message = "type must not be blank")
     private AssertionType type;
 
-    @OgsmExists
-    private Long ogsmId;
+    @ObjectiveExists
+    private Long objectiveId;
 
     @TagsExist
     private Set<Long> tagIds;

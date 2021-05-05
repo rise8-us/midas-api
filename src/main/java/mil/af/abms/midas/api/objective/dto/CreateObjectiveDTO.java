@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.ogsm.dto;
+package mil.af.abms.midas.api.objective.dto;
 
 import javax.validation.constraints.NotEmpty;
 
@@ -15,7 +15,7 @@ import mil.af.abms.midas.api.validation.ProductExists;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateOgsmDTO {
+public class CreateObjectiveDTO {
 
     @ProductExists (allowNull = true)
     private Long productId;

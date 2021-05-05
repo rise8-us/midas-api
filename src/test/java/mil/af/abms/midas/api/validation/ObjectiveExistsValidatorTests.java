@@ -17,16 +17,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 
-import mil.af.abms.midas.api.ogsm.OgsmService;
+import mil.af.abms.midas.api.objective.ObjectiveService;
 
 @ExtendWith(SpringExtension.class)
-@Import({OgsmExistsValidator.class})
-public class OgsmExistsValidatorTests {
+@Import({ObjectiveExistsValidator.class})
+public class ObjectiveExistsValidatorTests {
 
     @Autowired
-    OgsmExistsValidator validator;
+    ObjectiveExistsValidator validator;
     @MockBean
-    private OgsmService ogsmService;
+    private ObjectiveService objectiveService;
     @Mock
     private ConstraintValidatorContext context;
     @Mock
@@ -38,28 +38,28 @@ public class OgsmExistsValidatorTests {
     }
 
     @Test
-    public void should_validate_ogsm_exists_false() {
-        when(ogsmService.existsById(3L)).thenReturn(false);
+    public void should_validate_objective_exists_false() {
+        when(objectiveService.existsById(3L)).thenReturn(false);
 
         assertFalse(validator.isValid(3L, context));
     }
 
     @Test
-    public void should_validate_ogsm_exists_true() {
-        when(ogsmService.existsById(1L)).thenReturn(true);
+    public void should_validate_objective_exists_true() {
+        when(objectiveService.existsById(1L)).thenReturn(true);
 
         assertTrue(validator.isValid(1L, context));
     }
 
     @Test
-    public void should_validate_true_when_ogsm_id_is_null() {
+    public void should_validate_true_when_objective_id_is_null() {
         validator.setAllowNull(true);
 
         assertTrue(validator.isValid(null, context));
     }
 
     @Test
-    public void should_validate_false_when_ogsm_id_is_null() {
+    public void should_validate_false_when_objective_id_is_null() {
         validator.setAllowNull(false);
         assertFalse(validator.isValid(null, context));
     }

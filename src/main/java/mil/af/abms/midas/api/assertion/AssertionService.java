@@ -15,7 +15,7 @@ import mil.af.abms.midas.api.assertion.dto.UpdateAssertionDTO;
 import mil.af.abms.midas.api.comment.Comment;
 import mil.af.abms.midas.api.comment.CommentService;
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.ogsm.OgsmService;
+import mil.af.abms.midas.api.objective.ObjectiveService;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.enums.AssertionStatus;
 
@@ -23,7 +23,7 @@ import mil.af.abms.midas.enums.AssertionStatus;
 public class AssertionService extends AbstractCRUDService<Assertion, AssertionDTO, AssertionRepository> {
 
     private UserService userService;
-    private OgsmService ogsmService;
+    private ObjectiveService objectiveService;
     private CommentService commentService;
 
     public AssertionService(AssertionRepository repository) {
@@ -31,7 +31,7 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
     }
 
     @Autowired
-    public void setOgsmService(OgsmService ogsmService) { this.ogsmService = ogsmService; }
+    public void setObjectiveService(ObjectiveService objectiveService) { this.objectiveService = objectiveService; }
 
     @Autowired
     public void setUserService(UserService userService) { this.userService = userService; }
@@ -43,7 +43,7 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
     public Assertion create(CreateAssertionDTO createAssertionDTO) {
 
         Assertion newAssertion = Builder.build(Assertion.class)
-                .with(a -> a.setOgsm(ogsmService.getObject(createAssertionDTO.getOgsmId())))
+                .with(a -> a.setObjective(objectiveService.getObject(createAssertionDTO.getObjectiveId())))
                 .with(a -> a.setText(createAssertionDTO.getText()))
                 .with(a -> a.setType(createAssertionDTO.getType()))
                 .with(a -> a.setStatus(AssertionStatus.NOT_STARTED))

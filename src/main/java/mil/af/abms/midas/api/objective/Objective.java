@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.ogsm;
+package mil.af.abms.midas.api.objective;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,18 +23,18 @@ import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
 import mil.af.abms.midas.api.assertion.Assertion;
-import mil.af.abms.midas.api.ogsm.dto.OgsmDTO;
+import mil.af.abms.midas.api.objective.dto.ObjectiveDTO;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.user.User;
 
 @Entity @Getter @Setter
-@Table(name = "ogsm")
-public class Ogsm extends AbstractEntity<OgsmDTO> {
+@Table(name = "objective")
+public class Objective extends AbstractEntity<ObjectiveDTO> {
 
     @Column(columnDefinition = "TEXT NOT NULL")
     private String text;
 
-    @OneToMany(mappedBy = "ogsm")
+    @OneToMany(mappedBy = "objective")
     private Set<Assertion> assertions = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -51,8 +51,8 @@ public class Ogsm extends AbstractEntity<OgsmDTO> {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     protected LocalDateTime completedDate;
 
-    public OgsmDTO toDto() {
-        return new OgsmDTO(id, getIdOrNull(createdBy), getIdOrNull(product), text, getIds(assertions), creationDate, completedDate);
+    public ObjectiveDTO toDto() {
+        return new ObjectiveDTO(id, getIdOrNull(createdBy), getIdOrNull(product), text, getIds(assertions), creationDate, completedDate);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class Ogsm extends AbstractEntity<OgsmDTO> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Ogsm that = (Ogsm) o;
+        Objective that = (Objective) o;
         return this.hashCode() == that.hashCode();
     }
 }

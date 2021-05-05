@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.ogsm.dto;
+package mil.af.abms.midas.api.objective.dto;
 
 import javax.validation.constraints.NotEmpty;
 
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateOgsmDTO {
+public class UpdateObjectiveDTO {
 
     @NotEmpty(message = "Objective cannot be blank")
     private String text;

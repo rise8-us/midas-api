@@ -17,7 +17,7 @@ import mil.af.abms.midas.enums.AssertionType;
 public class AssertionDTO implements AbstractDTO {
 
     private Long id;
-    private Long ogsmId;
+    private Long objectiveId;
     private Long createdById;
     private Long parentId;
     private String text;
