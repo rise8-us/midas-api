@@ -82,10 +82,6 @@ public class TagControllerTests extends ControllerTestHarness {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.label").value(updateTag.getLabel()));
-
-        System.out.println(tag.getLabel());
-
-
     }
 
 }

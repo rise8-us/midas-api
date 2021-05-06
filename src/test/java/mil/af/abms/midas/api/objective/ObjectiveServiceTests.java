@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import mil.af.abms.midas.api.assertion.dto.CreateAssertionDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.objective.dto.CreateObjectiveDTO;
 import mil.af.abms.midas.api.objective.dto.ObjectiveDTO;
+import mil.af.abms.midas.api.objective.dto.UpdateObjectiveDTO;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.user.User;
@@ -78,25 +80,17 @@ public class ObjectiveServiceTests {
 
     @Test
     public void should_create_objective() {
-        CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO(
-                "Make money",
-                AssertionType.OBJECTIVE,
-                42L,
-                Set.of(),
-                null,
-                Set.of()
+        CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("Make money", AssertionType.OBJECTIVE,
+                42L, Set.of(),null, Set.of(), null
         );
-        CreateObjectiveDTO createObjectiveDTO = new CreateObjectiveDTO(
-                1L,
-                "text",
+        CreateObjectiveDTO createObjectiveDTO = new CreateObjectiveDTO(1L, "text",
                 Set.of(createAssertionDTO)
         );
-
 
         when(userService.getUserBySecContext()).thenReturn(user);
         when(productService.getObject(1L)).thenReturn(product);
         when(objectiveRepository.save(any())).thenReturn(objective);
-        when(assertionService.create(any())).thenReturn(assertion);
+        when(assertionService.linkAndCreateAssertions(any())).thenReturn(Set.of(assertion));
 
         Objective withObjective = objectiveService.create(createObjectiveDTO);
 
@@ -106,7 +100,23 @@ public class ObjectiveServiceTests {
         assertThat(objectiveSaved.getCreatedBy()).isEqualTo(user);
         assertThat(objectiveSaved.getText()).isEqualTo("text");
         assertThat(withObjective.getAssertions()).isEqualTo(Set.of(assertion));
-
     }
+
+    @Test
+    public void should_update_objective_by_id() {
+        UpdateObjectiveDTO updateObjectiveDTO = new UpdateObjectiveDTO("Make money", null);
+
+        when(objectiveRepository.findById(4L)).thenReturn(Optional.of(objective));
+        when(objectiveRepository.save(any())).thenReturn(objective);
+
+        objectiveService.updateById(updateObjectiveDTO, 4L);
+
+        verify(objectiveRepository, times(1)).save(objectiveCaptor.capture());
+        Objective objectiveSaved = objectiveCaptor.getValue();
+
+        assertThat(objectiveSaved.getText()).isEqualTo(updateObjectiveDTO.getText());
+    }
+
+
 
 }

@@ -1,6 +1,7 @@
 package mil.af.abms.midas.api.assertion;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -20,6 +21,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import mil.af.abms.midas.api.assertion.dto.CreateAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.UpdateAssertionDTO;
@@ -63,7 +66,7 @@ public class AssertionServiceTests {
     @Test
     public void should_create_assertion() {
         CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", AssertionType.OBJECTIVE,  1L,
-                Set.of(2L), null, Set.of());
+                Set.of(2L), null, Set.of(), null);
         Comment comment = Builder.build(Comment.class).with(c -> c.setId(25L)).get();
 
         when(assertionRepository.save(assertion)).thenReturn(new Assertion());
@@ -99,5 +102,49 @@ public class AssertionServiceTests {
         assertThat(assertionSaved.getText()).isEqualTo(updateAssertionDTO.getText());
         assertThat(assertionSaved.getType()).isEqualTo(updateAssertionDTO.getType());
     }
+
+    @Test
+    public void should_link_assertions() {
+        CreateAssertionDTO createGoalDTO = new CreateAssertionDTO("Goal", AssertionType.GOAL,  1L,
+                Set.of(2L), null, Set.of(), null);
+        CreateAssertionDTO createStrategyDTO = new CreateAssertionDTO("Strategy", AssertionType.STRATEGY,  1L,
+                Set.of(2L), null, Set.of(), "Goal");
+        CreateAssertionDTO createMeasureDTO = new CreateAssertionDTO("Measure", AssertionType.MEASURE,  1L,
+                Set.of(2L), null, Set.of(), "Strategy");
+        Assertion goal = Builder.build(Assertion.class)
+                .with(a -> a.setId(42L))
+                .with(a -> a.setText(createGoalDTO.getText()))
+                .with(a -> a.setType(createGoalDTO.getType()))
+                .get();
+        Assertion strategy = Builder.build(Assertion.class)
+                .with(a -> a.setId(43L))
+                .with(a -> a.setText(createStrategyDTO.getText()))
+                .with(a -> a.setType(createStrategyDTO.getType()))
+                .get();
+        Assertion measure = Builder.build(Assertion.class)
+                .with(a -> a.setId(44L))
+                .with(a -> a.setText(createMeasureDTO.getText()))
+                .with(a -> a.setType(createMeasureDTO.getType()))
+                .get();
+
+        when(assertionRepository.save(any())).thenAnswer((new Answer<Assertion>() {
+            private int count = 0;
+            public Assertion answer(InvocationOnMock invocation) {
+                count++;
+                if (count == 1) {
+                    return goal;
+                } else if (count == 2) {
+                    return strategy;
+                }
+                return measure;
+            }
+        }));
+        when(assertionRepository.findById(42L)).thenReturn(Optional.of(goal));
+        when(assertionRepository.findById(43L)).thenReturn(Optional.of(strategy));
+
+        Set<Assertion> assertions = assertionService.linkAndCreateAssertions(Set.of(createGoalDTO, createStrategyDTO, createMeasureDTO));
+        assertThat(assertions.size()).isEqualTo(3);
+    }
+
 
 }

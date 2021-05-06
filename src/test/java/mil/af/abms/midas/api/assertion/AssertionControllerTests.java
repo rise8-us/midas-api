@@ -53,7 +53,7 @@ public class AssertionControllerTests extends ControllerTestHarness {
             .with(a -> a.setCreationDate(CREATION_DATE))
             .with(a -> a.setComments(comments))
             .with(a -> a.setCreatedBy(createdBy)).get();
-    CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", AssertionType.OBJECTIVE,  1L, Set.of(2L), null, Set.of());
+    CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", AssertionType.OBJECTIVE,  1L, Set.of(2L), null, Set.of(),null);
     UpdateAssertionDTO updateAssertionDTO = new UpdateAssertionDTO("updated", AssertionType.MEASURE, Set.of(2L),Set.of(2L), null, Set.of());
 
     @BeforeEach
@@ -92,7 +92,7 @@ public class AssertionControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_throw_type_must_not_be_null_message_on_create() throws Exception {
-        CreateAssertionDTO createDTONullType = new CreateAssertionDTO("First", null,  1L, Set.of(2L), null, Set.of());
+        CreateAssertionDTO createDTONullType = new CreateAssertionDTO("First", null,  1L, Set.of(2L), null, Set.of(), null);
         Assertion assertionNullType = new Assertion();
         BeanUtils.copyProperties(assertion, assertionNullType);
         assertionNullType.setType(null);
