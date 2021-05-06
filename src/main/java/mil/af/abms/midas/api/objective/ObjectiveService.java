@@ -2,8 +2,6 @@ package mil.af.abms.midas.api.objective;
 
 import javax.transaction.Transactional;
 
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +10,7 @@ import mil.af.abms.midas.api.assertion.AssertionService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.objective.dto.CreateObjectiveDTO;
 import mil.af.abms.midas.api.objective.dto.ObjectiveDTO;
+import mil.af.abms.midas.api.objective.dto.UpdateObjectiveDTO;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.user.UserService;
 
@@ -42,15 +41,19 @@ public class ObjectiveService extends AbstractCRUDService<Objective, ObjectiveDT
                 .with(o -> o.setProduct(productService.getObject(createObjectiveDTO.getProductId())))
                 .get();
         Objective savedObjective = repository.save(newObjective);
-
-        savedObjective.setAssertions(
-                createObjectiveDTO.getAssertionDTOs().stream().map(a -> {
-                        a.setObjectiveId(savedObjective.getId());
-                        return assertionService.create(a);
-                }).collect(Collectors.toSet())
-        );
+        createObjectiveDTO.getAssertionDTOs().forEach(d -> d.setObjectiveId(savedObjective.getId()));
+        savedObjective.setAssertions(assertionService.linkAndCreateAssertions(createObjectiveDTO.getAssertionDTOs()));
 
         return savedObjective;
+    }
+
+    @Transactional
+    public Objective updateById(UpdateObjectiveDTO updateObjectiveDTO, Long id) {
+        Objective objectiveToUpdate = getObject(id);
+        objectiveToUpdate.setText(updateObjectiveDTO.getText());
+        objectiveToUpdate.setCompletedDate(updateObjectiveDTO.getCompletedDate());
+
+        return repository.save(objectiveToUpdate);
     }
 
 

@@ -35,4 +35,6 @@ public class CreateAssertionDTO {
     private Long parentId;
     private Set<Long> childIds;
 
+    private String linkKey;
+
 }
