@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.validation.AssertionExists;
-import mil.af.abms.midas.api.validation.TagsExist;
 import mil.af.abms.midas.enums.AssertionType;
 
 @Data
@@ -24,7 +23,6 @@ public class UpdateAssertionDTO {
     @NotNull(message = "type must not be blank")
     private AssertionType type;
 
-    @TagsExist
     private Set<Long> tagIds;
 
     private Set<Long> commentIds;

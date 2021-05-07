@@ -53,7 +53,7 @@ public class AssertionControllerTests extends ControllerTestHarness {
             .with(a -> a.setCreationDate(CREATION_DATE))
             .with(a -> a.setComments(comments))
             .with(a -> a.setCreatedBy(createdBy)).get();
-    CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", AssertionType.OBJECTIVE,  1L, Set.of(2L), null, Set.of(),null);
+    CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", AssertionType.GOAL,  1L, null, "Goal_1");
     UpdateAssertionDTO updateAssertionDTO = new UpdateAssertionDTO("updated", AssertionType.MEASURE, Set.of(2L),Set.of(2L), null, Set.of());
 
     @BeforeEach
@@ -92,16 +92,10 @@ public class AssertionControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_throw_type_must_not_be_null_message_on_create() throws Exception {
-        CreateAssertionDTO createDTONullType = new CreateAssertionDTO("First", null,  1L, Set.of(2L), null, Set.of(), null);
-        Assertion assertionNullType = new Assertion();
-        BeanUtils.copyProperties(assertion, assertionNullType);
-        assertionNullType.setType(null);
+        CreateAssertionDTO createDTONullType = new CreateAssertionDTO("First",null,
+                1L, null, "Goal_1");
 
-        when(assertionService.create(any(CreateAssertionDTO.class))).thenReturn(assertion);
-        when(objectiveService.existsById(anyLong())).thenReturn(true);
-        when(tagService.existsById(2L)).thenReturn(true);
-
-        mockMvc.perform(put("/api/assertions/1")
+        mockMvc.perform(post("/api/assertions")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(mapper.writeValueAsString(createDTONullType))
         )
@@ -118,7 +112,6 @@ public class AssertionControllerTests extends ControllerTestHarness {
         assertionNullType.setType(null);
 
         when(assertionService.updateById(any(), any(UpdateAssertionDTO.class))).thenReturn(assertion);
-        when(tagService.existsById(2L)).thenReturn(true);
 
         mockMvc.perform(put("/api/assertions/1")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)

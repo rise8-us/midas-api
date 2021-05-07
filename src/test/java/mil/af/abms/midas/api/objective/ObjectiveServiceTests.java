@@ -80,12 +80,9 @@ public class ObjectiveServiceTests {
 
     @Test
     public void should_create_objective() {
-        CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("Make money", AssertionType.OBJECTIVE,
-                42L, Set.of(),null, Set.of(), null
-        );
-        CreateObjectiveDTO createObjectiveDTO = new CreateObjectiveDTO(1L, "text",
-                Set.of(createAssertionDTO)
-        );
+        CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("Make money", AssertionType.GOAL,
+                42L, null, "Goal_1");
+        CreateObjectiveDTO createObjectiveDTO = new CreateObjectiveDTO(1L, "text", Set.of(createAssertionDTO));
 
         when(userService.getUserBySecContext()).thenReturn(user);
         when(productService.getObject(1L)).thenReturn(product);

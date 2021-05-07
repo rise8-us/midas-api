@@ -58,15 +58,15 @@ public class AssertionServiceTests {
     private final Assertion assertion = Builder.build(Assertion.class)
             .with(a -> a.setId(1L))
             .with(a -> a.setText("First"))
-            .with(a -> a.setType(AssertionType.OBJECTIVE))
+            .with(a -> a.setType(AssertionType.GOAL))
             .with(a -> a.setCreationDate(CREATION_DATE))
             .with(a -> a.setComments(comments))
             .with(a -> a.setCreatedBy(createdBy)).get();
     
     @Test
     public void should_create_assertion() {
-        CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", AssertionType.OBJECTIVE,  1L,
-                Set.of(2L), null, Set.of(), null);
+        CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", AssertionType.GOAL,
+                1L, null, "Goal_1");
         Comment comment = Builder.build(Comment.class).with(c -> c.setId(25L)).get();
 
         when(assertionRepository.save(assertion)).thenReturn(new Assertion());
@@ -105,12 +105,12 @@ public class AssertionServiceTests {
 
     @Test
     public void should_link_assertions() {
-        CreateAssertionDTO createGoalDTO = new CreateAssertionDTO("Goal", AssertionType.GOAL,  1L,
-                Set.of(2L), null, Set.of(), null);
-        CreateAssertionDTO createStrategyDTO = new CreateAssertionDTO("Strategy", AssertionType.STRATEGY,  1L,
-                Set.of(2L), null, Set.of(), "Goal");
-        CreateAssertionDTO createMeasureDTO = new CreateAssertionDTO("Measure", AssertionType.MEASURE,  1L,
-                Set.of(2L), null, Set.of(), "Strategy");
+        CreateAssertionDTO createGoalDTO = new CreateAssertionDTO("Goal", AssertionType.GOAL,
+                1L, null, "Goal_1");
+        CreateAssertionDTO createStrategyDTO = new CreateAssertionDTO("Strategy", AssertionType.STRATEGY,
+                1L, null, "Goal_1-Strat_1");
+        CreateAssertionDTO createMeasureDTO = new CreateAssertionDTO("Measure", AssertionType.MEASURE,
+                1L, null, "Goal_1-Strat_1-Measure_1" );
         Assertion goal = Builder.build(Assertion.class)
                 .with(a -> a.setId(42L))
                 .with(a -> a.setText(createGoalDTO.getText()))
@@ -144,6 +144,13 @@ public class AssertionServiceTests {
 
         Set<Assertion> assertions = assertionService.linkAndCreateAssertions(Set.of(createGoalDTO, createStrategyDTO, createMeasureDTO));
         assertThat(assertions.size()).isEqualTo(3);
+    }
+
+    @Test
+    public void test_match(){
+        String linkKey = "Goal_1";
+        String linkKey2 = "Goal_1-Strategy-1";
+        System.out.println("######" + linkKey2.toUpperCase().contains(linkKey.toUpperCase()));
     }
 
 
