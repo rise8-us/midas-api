@@ -1,6 +1,7 @@
 package mil.af.abms.midas.api.assertion.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 import lombok.AllArgsConstructor;
@@ -17,14 +18,19 @@ import mil.af.abms.midas.enums.AssertionType;
 public class AssertionDTO implements AbstractDTO {
 
     private Long id;
-    private Long objectiveId;
+    private Long productId;
     private Long createdById;
     private Long parentId;
+
     private String text;
+
     private AssertionType type;
-    private LocalDateTime creationDate;
     private AssertionStatus status;
+
     private Set<Long> commentIds;
-    private Set<Long> childIds;
+    private List<AssertionDTO> children;
+
+    private LocalDateTime creationDate;
+    private LocalDateTime completedDate;
 
 }

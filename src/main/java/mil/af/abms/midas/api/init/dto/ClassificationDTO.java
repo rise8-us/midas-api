@@ -1,11 +1,13 @@
 package mil.af.abms.midas.api.init.dto;
 
+import java.io.Serializable;
+
 import lombok.Getter;
 
 import mil.af.abms.midas.enums.Classification;
 
 @Getter
-public class ClassificationDTO {
+public class ClassificationDTO implements Serializable {
     ClassificationDTO(String classificationString, String caveat) {
         Classification classification = Classification.valueOf(classificationString.toUpperCase());
 

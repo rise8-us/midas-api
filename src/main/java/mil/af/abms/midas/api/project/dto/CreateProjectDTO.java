@@ -2,6 +2,7 @@ package mil.af.abms.midas.api.project.dto;
 
 import javax.validation.constraints.NotBlank;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import lombok.AllArgsConstructor;
@@ -15,7 +16,7 @@ import mil.af.abms.midas.api.validation.TeamExists;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class CreateProjectDTO {
+public class CreateProjectDTO implements Serializable {
 
     @NotBlank(message = "Project name must not be blank")
     @UniqueName(isNew = true)

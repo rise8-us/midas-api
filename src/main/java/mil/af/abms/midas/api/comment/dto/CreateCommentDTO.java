@@ -2,6 +2,8 @@ package mil.af.abms.midas.api.comment.dto;
 
 import javax.validation.constraints.NotBlank;
 
+import java.io.Serializable;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +14,7 @@ import mil.af.abms.midas.api.validation.CommentExists;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateCommentDTO {
+public class CreateCommentDTO implements Serializable {
 
     @CommentExists(allowNull = true)
     private Long parentId;

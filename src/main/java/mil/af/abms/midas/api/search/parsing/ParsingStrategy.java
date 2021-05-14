@@ -15,6 +15,8 @@ public interface ParsingStrategy {
                 return new StringParsingStrategy();
             case "Long":
                 return new LongParsingStrategy();
+            case "AssertionType":
+                return new AssertionTypeParsingStrategy();
             default:
                 return new NullParsingStrategy();
         }

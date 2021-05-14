@@ -1,5 +1,6 @@
 package mil.af.abms.midas.api.user.dto;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -13,7 +14,7 @@ import mil.af.abms.midas.api.validation.TeamsExist;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateUserDTO {
+public class UpdateUserDTO implements Serializable {
 
     @ApiModelProperty(notes = "username must be unique")
     @UniqueUsername(isNew = false)

@@ -7,9 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import lombok.Setter;
 
+import mil.af.abms.midas.api.helper.HttpPathVariableIdGrabber;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
-import mil.af.abms.midas.api.helper.HttpPathVariableIdGrabber;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 public class UniqueNameValidator implements ConstraintValidator<UniqueName, String> {
