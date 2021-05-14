@@ -3,18 +3,22 @@ package mil.af.abms.midas.api.assertion.dto;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+import java.io.Serializable;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.validation.AssertionExists;
-import mil.af.abms.midas.api.validation.ObjectiveExists;
+import mil.af.abms.midas.api.validation.ProductExists;
+import mil.af.abms.midas.enums.AssertionStatus;
 import mil.af.abms.midas.enums.AssertionType;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateAssertionDTO {
+public class CreateAssertionDTO implements Serializable {
 
     @NotBlank(message = "text must not be blank")
     private String text;
@@ -22,12 +26,14 @@ public class CreateAssertionDTO {
     @NotNull(message = "type must not be blank")
     private AssertionType type;
 
-    @ObjectiveExists
-    private Long objectiveId;
+    @ProductExists(allowNull = false)
+    private Long productId;
 
-    @AssertionExists(allowNull = true)
+    @AssertionExists
     private Long parentId;
 
-    private String linkKey;
+    private AssertionStatus status;
+
+    private List<CreateAssertionDTO> children;
 
 }

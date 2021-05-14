@@ -17,7 +17,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
-import mil.af.abms.midas.api.objective.Objective;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.tag.Tag;
@@ -38,9 +37,6 @@ public class Product extends AbstractEntity<ProductDTO> {
     @Column(columnDefinition = "BIT(1) DEFAULT 0", nullable = false)
     private Boolean isArchived = false;
 
-    @Column(columnDefinition = "TEXT")
-    private String visionStatement;
-
     @Column(columnDefinition = "VARCHAR(255)", nullable = false)
     private ProductType type;
 
@@ -58,9 +54,6 @@ public class Product extends AbstractEntity<ProductDTO> {
     @OneToMany(mappedBy = "product")
     private Set<Project> projects = new HashSet<>();
 
-    @OneToMany(mappedBy = "product")
-    Set<Objective> objectives = new HashSet<>();
-
     @ManyToMany
     @JoinTable(
             name = "product_tag",
@@ -71,8 +64,8 @@ public class Product extends AbstractEntity<ProductDTO> {
 
     public ProductDTO toDto() {
         Set<TagDTO> tagDTOs = tags.stream().map(Tag::toDto).collect(Collectors.toSet());
-        return new ProductDTO(id, getIdOrNull(productManager), getIdOrNull(parent), name, description, visionStatement,
-                isArchived, creationDate, getIds(projects), tagDTOs, getIds(children), getIds(objectives), type);
+        return new ProductDTO(id, getIdOrNull(productManager), getIdOrNull(parent), name, description,
+                isArchived, creationDate, getIds(projects), tagDTOs, getIds(children), type);
     }
 
     @Override

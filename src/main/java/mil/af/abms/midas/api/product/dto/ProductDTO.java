@@ -21,13 +21,11 @@ public class ProductDTO implements AbstractDTO {
     private Long parentId;
     private String name;
     private String description;
-    private String visionStatement;
     private Boolean isArchived;
     private LocalDateTime creationDate;
     private Set<Long> projectIds;
     private Set<TagDTO> tags;
     private Set<Long> children;
-    private Set<Long> objectiveIds;
     private ProductType type;
 
 }

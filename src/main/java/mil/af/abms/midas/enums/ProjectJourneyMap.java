@@ -1,11 +1,15 @@
 package mil.af.abms.midas.enums;
 
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import mil.af.abms.midas.api.init.dto.ProjectJourneyMapDTO;
 
 @Getter
 @AllArgsConstructor
@@ -33,6 +37,10 @@ public enum ProjectJourneyMap {
         Map<ProjectJourneyMap, Boolean> currentProjectJourneyMap = getJourneyMap(currentLong);
         updatedProjectJourneyMap.forEach(currentProjectJourneyMap::replace);
         return ProjectJourneyMap.stream().filter(currentProjectJourneyMap::get).mapToLong(ProjectJourneyMap::getBitValue).sum();
+    }
+
+    public static List<ProjectJourneyMapDTO> toDTO() {
+        return stream().map(v -> new ProjectJourneyMapDTO(v.offset, v.name, v.description)).collect(Collectors.toList());
     }
 
     public Long getBitValue() {

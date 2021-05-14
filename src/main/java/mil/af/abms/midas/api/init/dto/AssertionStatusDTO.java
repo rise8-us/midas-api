@@ -7,10 +7,8 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ProjectJourneyMapDTO implements Serializable {
-
-    private final Integer offset;
+public class AssertionStatusDTO implements Serializable {
     private final String name;
-    private final String description;
-
+    private final String label;
+    private final String color;
 }

@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import mil.af.abms.midas.api.assertion.dto.AssertionDTO;
 import mil.af.abms.midas.api.comment.Comment;
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.tag.Tag;
+import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.enums.AssertionStatus;
 import mil.af.abms.midas.enums.AssertionType;
@@ -26,13 +26,15 @@ import mil.af.abms.midas.enums.AssertionType;
 public class AssertionTests {
 
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
-    private final Set<Tag> tags = Set.of(Builder.build(Tag.class).with(t -> t.setId(2L)).get());
     private final Set<Comment> comments = Set.of(Builder.build(Comment.class).with(c -> c.setId(2L)).get());
     private final User createdBy = Builder.build(User.class).with(u -> u.setId(3L)).get();
+    private final Product product = Builder.build(Product.class)
+            .with(p -> p.setId(3L)).get();
     private final Assertion assertion = Builder.build(Assertion.class)
             .with(a -> a.setId(1L))
             .with(a -> a.setText("First"))
             .with(a -> a.setType(AssertionType.OBJECTIVE))
+            .with(a -> a.setProduct(product))
             .with(a -> a.setCreationDate(CREATION_DATE))
             .with(a -> a.setComments(comments))
             .with(a -> a.setCreatedBy(createdBy)).get();
@@ -41,9 +43,10 @@ public class AssertionTests {
             .with(d -> d.setText("First"))
             .with(d -> d.setType(AssertionType.OBJECTIVE))
             .with(d -> d.setStatus(AssertionStatus.NOT_STARTED))
+            .with(d -> d.setProductId(product.getId()))
             .with(d -> d.setCreationDate(CREATION_DATE))
             .with(d -> d.setCommentIds(Set.of(2L)))
-            .with(d -> d.setChildIds(Set.of()))
+            .with(d -> d.setChildren(List.of()))
             .with(d -> d.setCreatedById(createdBy.getId())).get();
 
     @Test

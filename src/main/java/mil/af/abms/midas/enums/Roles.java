@@ -1,11 +1,15 @@
 package mil.af.abms.midas.enums;
 
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import mil.af.abms.midas.api.init.dto.RoleDTO;
 
 @Getter
 @AllArgsConstructor
@@ -36,6 +40,10 @@ public enum Roles {
         Map<Roles, Boolean> currentRolesMap = getRoles(currentLong);
         updatedRolesMap.forEach(currentRolesMap::replace);
         return Roles.stream().filter(currentRolesMap::get).mapToLong(Roles::getBitValue).sum();
+    }
+
+    public static List<RoleDTO> toDTO() {
+        return stream().map(v -> new RoleDTO(v.offset, v.name, v.description)).collect(Collectors.toList());
     }
 
     public Long getBitValue() {

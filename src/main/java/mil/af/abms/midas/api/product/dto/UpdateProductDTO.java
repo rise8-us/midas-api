@@ -2,6 +2,7 @@ package mil.af.abms.midas.api.product.dto;
 
 import javax.validation.constraints.NotBlank;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import lombok.AllArgsConstructor;
@@ -17,14 +18,13 @@ import mil.af.abms.midas.api.validation.UserExists;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateProductDTO {
+public class UpdateProductDTO implements Serializable {
 
     @NotBlank(message = "product name must not be blank")
     @UniqueName(isNew = false)
     private String name;
 
     private String description;
-    private String visionStatement;
 
     @UserExists(allowNull = true)
     private Long productManagerId;

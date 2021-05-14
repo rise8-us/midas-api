@@ -2,18 +2,21 @@ package mil.af.abms.midas.api.assertion;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -21,57 +24,53 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import mil.af.abms.midas.api.assertion.dto.CreateAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.UpdateAssertionDTO;
-import mil.af.abms.midas.api.comment.Comment;
-import mil.af.abms.midas.api.comment.CommentService;
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.objective.ObjectiveService;
+import mil.af.abms.midas.api.product.Product;
+import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
+import mil.af.abms.midas.enums.AssertionStatus;
 import mil.af.abms.midas.enums.AssertionType;
 
 @ExtendWith(SpringExtension.class)
 @Import(AssertionService.class)
 public class AssertionServiceTests {
     
-    @Autowired
+    @SpyBean
     private AssertionService assertionService;
     @MockBean
     private UserService userService;
     @MockBean
     private AssertionRepository assertionRepository;
     @MockBean
-    private ObjectiveService objectiveService;
-    @MockBean
-    private CommentService commentService;
+    private ProductService productService;
     
     @Captor
     private ArgumentCaptor<Assertion> assertionCaptor;
+    @Captor ArgumentCaptor<Long> longCaptor;
 
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
-    private final Set<Comment> comments = Set.of(Builder.build(Comment.class).with(c -> c.setId(2L)).get());
     private final User createdBy = Builder.build(User.class).with(u -> u.setId(3L)).get();
+    private final Product product = Builder.build(Product.class)
+            .with(p -> p.setId(3L)).get();
     private final Assertion assertion = Builder.build(Assertion.class)
             .with(a -> a.setId(1L))
+            .with(a -> a.setProduct(product))
             .with(a -> a.setText("First"))
             .with(a -> a.setType(AssertionType.GOAL))
             .with(a -> a.setCreationDate(CREATION_DATE))
-            .with(a -> a.setComments(comments))
             .with(a -> a.setCreatedBy(createdBy)).get();
+    private final CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", AssertionType.GOAL,
+            3L, null, null, new ArrayList<>());
     
     @Test
     public void should_create_assertion() {
-        CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", AssertionType.GOAL,
-                1L, null, "Goal_1");
-        Comment comment = Builder.build(Comment.class).with(c -> c.setId(25L)).get();
 
-        when(assertionRepository.save(assertion)).thenReturn(new Assertion());
+        when(assertionRepository.save(any())).thenReturn(assertion);
         when(userService.getUserBySecContext()).thenReturn(createdBy);
-        when(commentService.getObject(anyLong())).thenReturn(comment);
 
         assertionService.create(createAssertionDTO);
 
@@ -85,14 +84,15 @@ public class AssertionServiceTests {
 
     @Test
     public void should_update_assertion_by_id() {
-        UpdateAssertionDTO updateAssertionDTO = new UpdateAssertionDTO("updated", AssertionType.OBJECTIVE, Set.of(2L), Set.of(2L), null, Set.of());
+        UpdateAssertionDTO updateAssertionDTO = new UpdateAssertionDTO("updated", AssertionStatus.STARTED, List.of(createAssertionDTO));
         Assertion newAssertion = new Assertion();
         BeanUtils.copyProperties(assertion, newAssertion);
         newAssertion.setType(AssertionType.MEASURE);
         newAssertion.setText("additional update");
 
-        when(assertionRepository.findById(1L)).thenReturn(Optional.of(assertion));
-        when(assertionRepository.save(assertion)).thenReturn(assertion);
+        when(assertionRepository.findById(1L)).thenReturn(Optional.of(newAssertion));
+        when(assertionRepository.save(newAssertion)).thenReturn(newAssertion);
+        doReturn(newAssertion).when(assertionService).create(any());
 
         assertionService.updateById(1L, updateAssertionDTO);
 
@@ -100,58 +100,30 @@ public class AssertionServiceTests {
         Assertion assertionSaved = assertionCaptor.getValue();
 
         assertThat(assertionSaved.getText()).isEqualTo(updateAssertionDTO.getText());
-        assertThat(assertionSaved.getType()).isEqualTo(updateAssertionDTO.getType());
+        assertThat(assertionSaved.getStatus()).isEqualTo(updateAssertionDTO.getStatus());
     }
 
     @Test
-    public void should_link_assertions() {
-        CreateAssertionDTO createGoalDTO = new CreateAssertionDTO("Goal", AssertionType.GOAL,
-                1L, null, "Goal_1");
-        CreateAssertionDTO createStrategyDTO = new CreateAssertionDTO("Strategy", AssertionType.STRATEGY,
-                1L, null, "Goal_1-Strat_1");
-        CreateAssertionDTO createMeasureDTO = new CreateAssertionDTO("Measure", AssertionType.MEASURE,
-                1L, null, "Goal_1-Strat_1-Measure_1" );
-        Assertion goal = Builder.build(Assertion.class)
-                .with(a -> a.setId(42L))
-                .with(a -> a.setText(createGoalDTO.getText()))
-                .with(a -> a.setType(createGoalDTO.getType()))
-                .get();
-        Assertion strategy = Builder.build(Assertion.class)
-                .with(a -> a.setId(43L))
-                .with(a -> a.setText(createStrategyDTO.getText()))
-                .with(a -> a.setType(createStrategyDTO.getType()))
-                .get();
-        Assertion measure = Builder.build(Assertion.class)
-                .with(a -> a.setId(44L))
-                .with(a -> a.setText(createMeasureDTO.getText()))
-                .with(a -> a.setType(createMeasureDTO.getType()))
-                .get();
+    public void should_delete_tree() {
+        Assertion assertionParent = new Assertion();
+        BeanUtils.copyProperties(assertion, assertionParent);
+        Assertion assertionChild = Builder.build(Assertion.class).with(a -> a.setId(2L)).get();
+        assertionParent.setChildren(Set.of(assertionChild));
 
-        when(assertionRepository.save(any())).thenAnswer((new Answer<Assertion>() {
-            private int count = 0;
-            public Assertion answer(InvocationOnMock invocation) {
-                count++;
-                if (count == 1) {
-                    return goal;
-                } else if (count == 2) {
-                    return strategy;
-                }
-                return measure;
-            }
-        }));
-        when(assertionRepository.findById(42L)).thenReturn(Optional.of(goal));
-        when(assertionRepository.findById(43L)).thenReturn(Optional.of(strategy));
+        doReturn(assertionParent).when(assertionService).getObject(1L);
+        doReturn(assertionChild).when(assertionService).getObject(2L);
+        doNothing().when(assertionRepository).deleteById(1L);
+        doNothing().when(assertionRepository).deleteById(2L);
 
-        Set<Assertion> assertions = assertionService.linkAndCreateAssertions(Set.of(createGoalDTO, createStrategyDTO, createMeasureDTO));
-        assertThat(assertions.size()).isEqualTo(3);
+        assertionService.deleteById(1L);
+
+        verify(assertionRepository,times(2)).deleteById(longCaptor.capture());
+
+        Long childId = longCaptor.getAllValues().get(0);
+        Long parentId = longCaptor.getAllValues().get(1);
+
+        assertThat(childId).isEqualTo(2L);
+        assertThat(parentId).isEqualTo(1L);
     }
-
-    @Test
-    public void test_match(){
-        String linkKey = "Goal_1";
-        String linkKey2 = "Goal_1-Strategy-1";
-        System.out.println("######" + linkKey2.toUpperCase().contains(linkKey.toUpperCase()));
-    }
-
 
 }
