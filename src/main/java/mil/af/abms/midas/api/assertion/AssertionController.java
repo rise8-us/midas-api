@@ -14,6 +14,7 @@ import mil.af.abms.midas.api.AbstractCRUDController;
 import mil.af.abms.midas.api.assertion.dto.AssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.CreateAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.UpdateAssertionDTO;
+import mil.af.abms.midas.config.security.annotations.HasProductAccess;
 
 @RestController
 @RequestMapping("/api/assertions")
@@ -25,11 +26,13 @@ public class AssertionController extends AbstractCRUDController<Assertion, Asser
     }
 
     @PostMapping
+    @HasProductAccess
     public AssertionDTO create(@Valid @RequestBody CreateAssertionDTO createAssertionDTO) {
         return service.create(createAssertionDTO).toDto();
     }
 
     @PutMapping("/{id}")
+    @HasProductAccess
     public AssertionDTO updateById(@Valid @RequestBody UpdateAssertionDTO updateAssertionDTO, @PathVariable Long id) {
         return service.updateById(id, updateAssertionDTO).toDto();
     }
