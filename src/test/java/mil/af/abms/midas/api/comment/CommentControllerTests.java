@@ -37,7 +37,7 @@ public class CommentControllerTests extends ControllerTestHarness {
     private final Assertion assertion = Builder.build(Assertion.class).with(a -> a.setId(1L)).get();
     private final Comment parentComment = Builder.build(Comment.class).with(c -> c.setId(55L)).get();
     private final CreateCommentDTO createDTO = new CreateCommentDTO(parentComment.getId(), assertion.getId(), "something new");
-    private final UpdateCommentDTO updateDTO = new UpdateCommentDTO(parentComment.getId(), assertion.getId(), "something updated");
+    private final UpdateCommentDTO updateDTO = new UpdateCommentDTO("something updated");
     private final Comment comment = Builder.build(Comment.class)
             .with(c -> c.setId(1L))
             .with(c -> c.setText("New Idea"))

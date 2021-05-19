@@ -45,7 +45,7 @@ public class CommentTests {
             .with(c -> c.setText("New Idea"))
             .with(c -> c.setParentId(parentComment.getId()))
             .with(c -> c.setAssertionId(assertion.getId()))
-            .with(c -> c.setCreatedById(createdBy.getId()))
+            .with(c -> c.setAuthor(createdBy.toDto()))
             .with(d -> d.setCreationDate(NOW))
             .with(d -> d.setChildren(Set.of()))
             .get();

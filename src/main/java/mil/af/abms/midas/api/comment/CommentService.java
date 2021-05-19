@@ -2,6 +2,8 @@ package mil.af.abms.midas.api.comment;
 
 import javax.transaction.Transactional;
 
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,8 +44,7 @@ public class CommentService extends AbstractCRUDService<Comment, CommentDTO, Com
     public Comment updateById(Long id, UpdateCommentDTO updateCommentDTO) {
         Comment comment = getObject(id);
         comment.setText(updateCommentDTO.getText());
-        comment.setParent(findByIdOrNull(updateCommentDTO.getParentId()));
-        comment.setAssertion(assertionService.findByIdOrNull(updateCommentDTO.getAssertionId()));
+        comment.setLastEdit(LocalDateTime.now());
 
         return repository.save(comment);
     }

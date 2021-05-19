@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.AbstractDTO;
+import mil.af.abms.midas.api.user.dto.UserDTO;
 
 @Data
 @AllArgsConstructor
@@ -15,11 +16,12 @@ import mil.af.abms.midas.api.AbstractDTO;
 public class CommentDTO implements AbstractDTO {
 
     private Long id;
-    private Long createdById;
+    private UserDTO author;
     private Long parentId;
     private Long assertionId;
     private String text;
     private Set<Long> children;
     private LocalDateTime creationDate;
+    private LocalDateTime lastEdit;
 
 }

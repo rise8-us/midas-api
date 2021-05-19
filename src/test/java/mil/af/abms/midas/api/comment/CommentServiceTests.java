@@ -71,7 +71,7 @@ public class CommentServiceTests {
 
     @Test
     public void should_update_comment_by_id() {
-        UpdateCommentDTO updateDTO = new UpdateCommentDTO(parentComment.getId(), assertion.getId(), "something updated");
+        UpdateCommentDTO updateDTO = new UpdateCommentDTO("something updated");
 
         when(commentRepository.findById(anyLong())).thenReturn(Optional.of(comment));
         commentService.updateById(1L, updateDTO);
