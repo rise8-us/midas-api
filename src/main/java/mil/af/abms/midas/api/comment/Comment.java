@@ -8,10 +8,16 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -42,15 +48,22 @@ public class Comment extends AbstractEntity<CommentDTO> {
     @OneToMany(mappedBy = "parent")
     private Set<Comment> children = new HashSet<>();
 
+    @Column(columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP", nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    protected LocalDateTime lastEdit;
+
     public CommentDTO toDto() {
         return new CommentDTO(
                 id,
-                getIdOrNull(createdBy),
+                createdBy.toDto(),
                 getIdOrNull(parent),
                 getIdOrNull(assertion),
                 text,
                 getIds(children),
-                creationDate);
+                creationDate,
+                lastEdit);
     }
 
     @Override
