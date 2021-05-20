@@ -26,13 +26,13 @@ public class AssertionController extends AbstractCRUDController<Assertion, Asser
     }
 
     @PostMapping
-    @HasProductAccess
+//    @HasProductAccess
     public AssertionDTO create(@Valid @RequestBody CreateAssertionDTO createAssertionDTO) {
         return service.create(createAssertionDTO).toDto();
     }
 
     @PutMapping("/{id}")
-    @HasProductAccess
+//    @HasProductAccess
     public AssertionDTO updateById(@Valid @RequestBody UpdateAssertionDTO updateAssertionDTO, @PathVariable Long id) {
         return service.updateById(id, updateAssertionDTO).toDto();
     }
