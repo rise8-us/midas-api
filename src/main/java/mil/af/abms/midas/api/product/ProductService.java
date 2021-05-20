@@ -17,6 +17,7 @@ import mil.af.abms.midas.api.product.dto.UpdateProductIsArchivedDTO;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.tag.TagService;
+import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
@@ -40,10 +41,12 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
 
     @Transactional
     public Product create(CreateProductDTO createProductDTO) {
+        User pmCandidate =  userService.findByIdOrNull(createProductDTO.getProductManagerId());
+        User productManager = pmCandidate != null ? pmCandidate : userService.getUserBySecContext();
         Product newProduct = Builder.build(Product.class)
                 .with(p -> p.setName(createProductDTO.getName()))
                 .with(p -> p.setDescription(createProductDTO.getDescription()))
-                .with(p -> p.setProductManager(userService.findByIdOrNull(createProductDTO.getProductManagerId())))
+                .with(p -> p.setProductManager(productManager))
                 .with(p -> p.setTags(createProductDTO.getTagIds().stream().map(tagService::getObject)
                         .collect(Collectors.toSet())))
                 .with(p -> p.setParent(findByIdOrNull(createProductDTO.getParentId())))
