@@ -1,6 +1,7 @@
 package mil.af.abms.midas.api.user.dto;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -21,7 +22,7 @@ public class UpdateUserDTO implements Serializable {
     private String username;
 
     @TeamsExist
-    private Set<Long> teamIds;
+    private Set<Long> teamIds = new HashSet<>();
 
     private String email;
     private String displayName;
