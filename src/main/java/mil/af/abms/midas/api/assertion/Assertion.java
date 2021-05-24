@@ -58,7 +58,7 @@ public class Assertion extends AbstractEntity<AssertionDTO> {
     @OneToMany(mappedBy = "parent")
     private Set<Assertion> children = new HashSet<>();
 
-    @OneToMany(mappedBy = "assertion")
+    @OneToMany(mappedBy = "assertion", orphanRemoval = true)
     private Set<Comment> comments = new HashSet<>();
 
     @Column(columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP", nullable = false)

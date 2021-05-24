@@ -45,7 +45,7 @@ public class Comment extends AbstractEntity<CommentDTO> {
     @JoinColumn(name = "parent_id", nullable = true)
     private Comment parent;
 
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent", orphanRemoval = true)
     private Set<Comment> children = new HashSet<>();
 
     @Column(columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP", nullable = false)

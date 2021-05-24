@@ -48,4 +48,11 @@ public class CommentService extends AbstractCRUDService<Comment, CommentDTO, Com
 
         return repository.save(comment);
     }
-}
+
+    @Transactional
+    @Override
+    public void deleteById(Long id) {
+        getObject(id).getChildren().forEach(c -> deleteById(c.getId()));
+        repository.deleteById(id);
+    }
+ }

@@ -2,14 +2,17 @@ package mil.af.abms.midas.api.comment;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -30,7 +33,7 @@ import mil.af.abms.midas.api.user.UserService;
 @Import(CommentService.class)
 public class CommentServiceTests {
 
-    @Autowired
+    @SpyBean
     CommentService commentService;
     @MockBean
     UserService userService;
@@ -40,6 +43,8 @@ public class CommentServiceTests {
     CommentRepository commentRepository;
     @Captor
     ArgumentCaptor<Comment> commentCaptor;
+    @Captor
+    ArgumentCaptor<Long> longCaptor;
 
     private final User createdBy = Builder.build(User.class).with(u -> u.setId(3L)).get();
     private final Comment parentComment = Builder.build(Comment.class).with(c -> c.setId(55L)).get();
@@ -80,6 +85,31 @@ public class CommentServiceTests {
         Comment commentSaved = commentCaptor.getValue();
 
         assertThat(commentSaved.getText()).isEqualTo(updateDTO.getText());
+    }
+
+    @Test
+    public void should_recursively_deleteById() {
+
+        Comment parentComment = new Comment();
+        BeanUtils.copyProperties(comment, parentComment);
+        Comment childCommment =  Builder.build(Comment.class)
+                .with(c -> c.setId(5L))
+                .with(c -> c.setParent(parentComment))
+                .get();
+        parentComment.getChildren().add(childCommment);
+
+        doReturn(parentComment).when(commentService).getObject(1L);
+        doReturn(childCommment).when(commentService).getObject(5L);
+        doNothing().when(commentRepository).deleteById(1L);
+        doNothing().when(commentRepository).deleteById(5L);
+
+        commentService.deleteById(1L);
+
+        verify(commentRepository, times(2)).deleteById(longCaptor.capture());
+
+        assertThat(longCaptor.getAllValues().get(0)).isEqualTo(5L);
+        assertThat(longCaptor.getAllValues().get(1)).isEqualTo(1L);
+
     }
 
 }

@@ -12,6 +12,7 @@ import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.assertion.dto.AssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.CreateAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.UpdateAssertionDTO;
+import mil.af.abms.midas.api.comment.CommentService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.user.UserService;
@@ -22,6 +23,7 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
 
     private UserService userService;
     private ProductService productService;
+    private CommentService commentService;
 
     public AssertionService(AssertionRepository repository) {
         super(repository, Assertion.class, AssertionDTO.class);
@@ -32,6 +34,8 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
 
     @Autowired
     public void setProductService(ProductService productService) { this.productService = productService; }
+
+    @Autowired void setCommentService(CommentService commentService) { this.commentService = commentService; }
 
     @Transactional
     public Assertion create(CreateAssertionDTO dto) {
@@ -70,7 +74,9 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
     @Transactional
     @Override
     public void deleteById(Long id) {
-        getObject(id).getChildren().forEach(a -> deleteById(a.getId()));
+        Assertion assertionToDelete = getObject(id);
+        assertionToDelete.getComments().forEach(c -> commentService.deleteById(c.getId()));
+        assertionToDelete.getChildren().forEach(a -> deleteById(a.getId()));
         repository.deleteById(id);
     }
 
