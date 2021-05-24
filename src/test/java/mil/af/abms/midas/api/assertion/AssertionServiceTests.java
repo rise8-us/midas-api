@@ -27,6 +27,8 @@ import org.mockito.Captor;
 
 import mil.af.abms.midas.api.assertion.dto.CreateAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.UpdateAssertionDTO;
+import mil.af.abms.midas.api.comment.Comment;
+import mil.af.abms.midas.api.comment.CommentService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
@@ -47,6 +49,8 @@ public class AssertionServiceTests {
     private AssertionRepository assertionRepository;
     @MockBean
     private ProductService productService;
+    @MockBean
+    CommentService commentService;
     
     @Captor
     private ArgumentCaptor<Assertion> assertionCaptor;
@@ -124,6 +128,30 @@ public class AssertionServiceTests {
 
         assertThat(childId).isEqualTo(2L);
         assertThat(parentId).isEqualTo(1L);
+    }
+
+    @Test
+    public void should_recursively_deleteById() {
+        Assertion parentAssertion = new Assertion();
+        BeanUtils.copyProperties(assertion, parentAssertion);
+        Assertion childAssertion = Builder.build(Assertion.class)
+                .with(a -> a.setId(4L))
+                .with(a -> a.setParent(parentAssertion))
+                .get();
+        parentAssertion.getChildren().add(childAssertion);
+        Comment comment = Builder.build(Comment.class).with(c -> c.setId(5L)).get();
+
+        doReturn(parentAssertion).when(assertionService).getObject(1L);
+        doReturn(childAssertion).when(assertionService).getObject(4L);
+        doNothing().when(commentService).deleteById(5L);
+        doNothing().when(assertionRepository).deleteById(any());
+
+        assertionService.deleteById(assertion.getId());
+
+        verify(assertionRepository, times(2)).deleteById(longCaptor.capture());
+
+        assertThat(longCaptor.getAllValues().get(0)).isEqualTo(4L);
+        assertThat(longCaptor.getAllValues().get(1)).isEqualTo(1L);
     }
 
 }
