@@ -3,10 +3,17 @@ package mil.af.abms.midas.api.helper;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
@@ -40,6 +47,16 @@ public class JsonMapperTests {
         Authentication auth = new PlatformOneAuthenticationToken(user, null, authorityList);
 
         assertThat(JsonMapper.getKeycloakUidFromAuth(auth)).isEqualTo("Hello");
+    }
+
+    @Test public void should_build_conditions_map() throws IOException {
+        String resourceName = "src/test/resources/condition.json";
+        String conditionStr = Files.readString(Path.of(resourceName));
+        InputStream stream = new ByteArrayInputStream(conditionStr.getBytes(StandardCharsets.UTF_8));
+        Map<String, String> conditions = JsonMapper.getConditions(stream);
+
+        assertThat(conditions.entrySet().size()).isEqualTo(8);
+        assertThat(conditions.get("coverage")).isEqualTo("88.2");
     }
 
 }

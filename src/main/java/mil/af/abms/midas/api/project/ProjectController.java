@@ -48,4 +48,5 @@ public class ProjectController extends AbstractCRUDController<Project, ProjectDT
     public ProjectDTO archiveById(@RequestBody ArchiveProjectDTO archiveProjectDTO, @PathVariable Long id) {
         return service.archive(id, archiveProjectDTO).toDto();
     }
+
 }
