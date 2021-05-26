@@ -4,6 +4,8 @@ import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionOperations;
 import org.springframework.security.core.Authentication;
 
+import mil.af.abms.midas.api.assertion.Assertion;
+import mil.af.abms.midas.api.assertion.AssertionService;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.project.Project;
@@ -14,9 +16,10 @@ import mil.af.abms.midas.config.SpringContext;
 
 public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot implements MethodSecurityExpressionOperations {
 
-    private static ProductService productService() {
-        return SpringContext.getBean(ProductService.class);
+    private static AssertionService assertionService() {
+        return SpringContext.getBean(AssertionService.class);
     }
+    private static ProductService productService() { return SpringContext.getBean(ProductService.class); }
     private static UserService userService() {
         return SpringContext.getBean(UserService.class);
     }
@@ -52,6 +55,12 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
         User userMakingRequest = userService().getUserBySecContext();
         User productManager = productService().getObject(productId).getProductManager();
         return userMakingRequest.equals(productManager) || hasProductAccess(parent.getId());
+    }
+
+    public boolean hasOGSMWriteAccess(Long ogsmId) {
+        if (ogsmId == null) { return false; }
+        Assertion assertionBeingAccessed = assertionService().getObject(ogsmId);
+        return hasProductAccess(assertionBeingAccessed.getProduct().getId());
     }
 
     @Override

@@ -6,6 +6,8 @@ custom:
   mattermosttoken: testToken
   mattermosturl: http://mattermost.foo
   localKeycloakUid: "abc-123-def"
+  gitLabUrl: "http://foo"
+  gitLabAccessToken: "bar"
 
 server:
   port: 5000

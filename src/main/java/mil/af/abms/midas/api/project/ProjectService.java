@@ -20,7 +20,6 @@ import mil.af.abms.midas.api.project.dto.UpdateProjectJourneyMapDTO;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.team.TeamService;
-import mil.af.abms.midas.clients.GitLab4JClient;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @Service
@@ -29,14 +28,12 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
     private ProductService productService;
     private final TeamService teamService;
     private final TagService tagService;
-    private final GitLab4JClient gitClient;
 
     @Autowired
-    public ProjectService(ProjectRepository repository, TeamService teamService, TagService tagService, GitLab4JClient gitClient) {
+    public ProjectService(ProjectRepository repository, TeamService teamService, TagService tagService) {
         super(repository, Project.class, ProjectDTO.class);
         this.teamService = teamService;
         this.tagService = tagService;
-        this.gitClient = gitClient;
     }
 
     @Autowired
