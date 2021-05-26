@@ -17,7 +17,7 @@ import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.config.auth.platform1.PlatformOneAuthenticationProvider;
 import mil.af.abms.midas.config.auth.platform1.PlatformOneSecurityConfigurerAdapter;
 
-@TestPropertySource(properties = {"custom.environment=local", "custom.localKeycloakUid"})
+@TestPropertySource(properties = {"custom.environment=local", "custom.localKeycloakUid=abc-123-def"})
 @ExtendWith(SpringExtension.class)
 @Import({PlatformOneAuthenticationProvider.class, PlatformOneSecurityConfigurerAdapter.class})
 public abstract class ControllerTestHarness {

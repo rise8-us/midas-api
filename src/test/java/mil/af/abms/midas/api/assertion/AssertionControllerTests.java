@@ -2,7 +2,10 @@ package mil.af.abms.midas.api.assertion;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -121,6 +124,14 @@ public class AssertionControllerTests extends ControllerTestHarness {
                 .andExpect(status().is4xxClientError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.errors[0]").value("text must not be blank"));
+    }
+
+    @Test
+    public void should_delete_by_id() throws Exception {
+        mockMvc.perform(delete("/api/assertions/1"))
+                .andExpect(status().isOk());
+
+        verify(assertionService, times(1)).deleteById(1L);
     }
     
 }
