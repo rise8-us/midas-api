@@ -7,8 +7,8 @@ custom:
   mattermosturl: http://mattermost.foo
   localKeycloakUid: keycloak-sub-123
   jwtAdminGroup: ${ADMIN_GROUP:midas-IL2-admin}
-  gitLabUrl: ${GITLAB_API_URL}
-  gitLabAccessToken: ${GITLAB_ACCESS_TOKEN}
+  gitLabUrl: ${GITLAB_API_URL:NONE}
+  gitLabAccessToken: ${GITLAB_ACCESS_TOKEN:NONE}
 
 server:
   port: 8000

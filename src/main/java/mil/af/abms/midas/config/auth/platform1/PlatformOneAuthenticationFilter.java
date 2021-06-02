@@ -89,7 +89,7 @@ public class PlatformOneAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 
-    private String getClaimsKeyAsString(Map<String, Claim> claims, String key) {
+    protected String getClaimsKeyAsString(Map<String, Claim> claims, String key) {
         try {
             return claims.get(key).asString();
         } catch (NullPointerException e) {
@@ -98,7 +98,7 @@ public class PlatformOneAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
-    private List<String> getClaimsKeyAsList(Map<String, Claim> claims, String key) {
+    protected List<String> getClaimsKeyAsList(Map<String, Claim> claims, String key) {
         try {
             return claims.get(key).asList(String.class);
         } catch (NullPointerException e) {

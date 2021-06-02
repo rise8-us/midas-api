@@ -1,6 +1,7 @@
 package mil.af.abms.midas.api.project.dto;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 import lombok.AllArgsConstructor;
@@ -19,8 +20,8 @@ public class ProjectDTO implements AbstractDTO {
     private String description;
     private Boolean isArchived;
     private LocalDateTime creationDate;
-    private Long gitlabProjectId;
-    private Set<Long> tagIds;
+    private Integer gitlabProjectId;
+    private Set<Long> tagIds =  new HashSet<>();
     private Long teamId;
     private Long projectJourneyMap;
     private Long productId;

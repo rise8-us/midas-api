@@ -39,16 +39,16 @@ public class GitProjectExistsValidatorTests {
 
     @Test
     public void should_validate_project_exists_false() {
-        when(gitLab4JClient.projectExistsById(3L)).thenReturn(false);
+        when(gitLab4JClient.projectExistsById(3)).thenReturn(false);
 
-        assertFalse(validator.isValid(3L, context));
+        assertFalse(validator.isValid(3, context));
     }
 
     @Test
     public void should_validate_project_exists_true() {
-        when(gitLab4JClient.projectExistsById(1L)).thenReturn(true);
+        when(gitLab4JClient.projectExistsById(1)).thenReturn(true);
 
-        assertTrue(validator.isValid(1L, context));
+        assertTrue(validator.isValid(1, context));
     }
 
 }

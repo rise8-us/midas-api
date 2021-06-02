@@ -8,7 +8,7 @@ public class GitApiException extends AbstractRuntimeException {
         super(message, HttpStatus.NOT_FOUND);
     }
 
-    public GitApiException(String className, Long id) {
+    public GitApiException(String className, Integer id) {
         super(String.format("Failed to find %s with id %d", className, id), HttpStatus.NOT_FOUND);
     }
 

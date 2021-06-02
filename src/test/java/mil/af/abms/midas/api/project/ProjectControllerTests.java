@@ -53,7 +53,7 @@ public class ProjectControllerTests extends ControllerTestHarness {
     private final static Boolean IS_ARCHIVED = false;
     private final static LocalDateTime CREATION_DATE = LocalDateTime.now();
     private final static Long TEAM_ID = 3L;
-    private final static Long GITLAB_PROJECT_ID = 2L;
+    private final static Integer GITLAB_PROJECT_ID = 2;
     private final static Long GITLAB_GROUP_ID = 3L;
 
     private final Team team = Builder.build(Team.class)
@@ -101,13 +101,13 @@ public class ProjectControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_update_project() throws Exception {
-        UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5L, 0L, Set.of(tag.getId()), "", 1L);
+        UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5, 0L, Set.of(tag.getId()), "", 1L);
 
         when(teamService.existsById(any())).thenReturn(true);
         when(tagService.existsById(any())).thenReturn(true);
         when(projectService.findByName(NAME)).thenReturn(project);
         when(projectService.updateById(anyLong(), any(UpdateProjectDTO.class))).thenReturn(project);
-        when(gitLab4JClient.projectExistsById(5L)).thenReturn(true);
+        when(gitLab4JClient.projectExistsById(5)).thenReturn(true);
 
         mockMvc.perform(put("/api/projects/1")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -121,7 +121,7 @@ public class ProjectControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_throw_team_exists_exception_on_update_project_team() throws Exception {
-        UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5L, 1L, Set.of(tag.getId()), "", 1L);
+        UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5, 1L, Set.of(tag.getId()), "", 1L);
 
         when(projectService.findByName(NAME)).thenReturn(project);
         when(tagService.existsById(any())).thenReturn(true);
@@ -139,7 +139,7 @@ public class ProjectControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_throw_unique_name_exception_on_project() throws Exception {
-        UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5L, 0L, Set.of(tag.getId()), "false", 1L);
+        UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5, 0L, Set.of(tag.getId()), "false", 1L);
         Project diffProjectSameName = new Project();
         BeanUtils.copyProperties(project, diffProjectSameName);
         diffProjectSameName.setId(42L);

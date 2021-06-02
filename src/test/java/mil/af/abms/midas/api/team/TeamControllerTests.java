@@ -36,9 +36,9 @@ public class TeamControllerTests extends ControllerTestHarness {
 
     private final static LocalDateTime CREATION_DATE = LocalDateTime.now();
 
-    private UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("MIDAS", 5L, "dev team", Set.of(3L));
-    private CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 1L, "dev team", Set.of(3L));
-    private Team team = Builder.build(Team.class)
+    private final UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("MIDAS", 5L, "dev team", Set.of(3L));
+    private final CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 1L, "dev team", Set.of(3L));
+    private final Team team = Builder.build(Team.class)
             .with(t -> t.setId(2L))
             .with(t -> t.setName("MIDAS"))
             .with(t -> t.setIsArchived(false))

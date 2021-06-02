@@ -34,7 +34,7 @@ public class ProjectRepositoryTests {
         Team savedTeam = entityManager.persist(team);
 
         Project testProject = Builder.build(Project.class)
-                .with(p -> p.setGitlabProjectId(1L))
+                .with(p -> p.setGitlabProjectId(1))
                 .with(p -> p.setTeam(savedTeam))
                 .with(p -> p.setName("foo")).get();
                 

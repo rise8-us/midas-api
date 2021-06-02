@@ -22,7 +22,7 @@ public class CreateProjectDTO implements Serializable {
     @UniqueName(isNew = true)
     private String name;
 
-    private Long gitlabProjectId;
+    private Integer gitlabProjectId;
 
     @TeamExists(allowNull = true)
     private Long teamId;

@@ -37,7 +37,7 @@ public class UniqueNameValidatorTests {
             .with(p -> p.setId(1L))
             .with(p -> p.setName("MIDAS"))
             .with(p -> p.setDescription("MIDAS Project"))
-            .with(p -> p.setGitlabProjectId(2L))
+            .with(p -> p.setGitlabProjectId(2))
             .with(p -> p.setCreationDate(CREATION_DATE))
             .with(p -> p.setIsArchived(false)).get();
 

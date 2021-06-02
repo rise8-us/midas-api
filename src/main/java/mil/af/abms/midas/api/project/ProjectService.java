@@ -2,13 +2,16 @@ package mil.af.abms.midas.api.project;
 
 import javax.transaction.Transactional;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
+import mil.af.abms.midas.api.coverage.CoverageService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
@@ -20,14 +23,17 @@ import mil.af.abms.midas.api.project.dto.UpdateProjectJourneyMapDTO;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.team.TeamService;
+import mil.af.abms.midas.config.CustomProperty;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @Service
 public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, ProjectRepository> {
 
-    private ProductService productService;
     private final TeamService teamService;
     private final TagService tagService;
+
+    private ProductService productService;
+    private CoverageService coverageService;
 
     @Autowired
     public ProjectService(ProjectRepository repository, TeamService teamService, TagService tagService) {
@@ -37,8 +43,16 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
     }
 
     @Autowired
+    CustomProperty property;
+
+    @Autowired
     public void setProductService(ProductService productService) {
         this.productService = productService;
+    }
+
+    @Autowired
+    public void setCoverageService(CoverageService coverageService) {
+        this.coverageService = coverageService;
     }
 
     @Transactional
@@ -97,6 +111,17 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
         projectToArchive.setTeam(null);
         projectToArchive.setIsArchived(archiveProjectDTO.getIsArchived());
         return repository.save(projectToArchive);
+    }
+
+    @Scheduled(fixedRate = 3600000)
+    public void scheduledCoverageUpdates() {
+
+        if (property.getGitLabUrl().equals("NONE")) {
+            return;
+        }
+
+        List<Project> projects = repository.findAll(ProjectSpecifications.hasGitlabProjectId());
+        projects.forEach(coverageService::updateCoverageForProject);
     }
 
     public void removeTagFromProjects(Long tagId, Set<Project> projects) {

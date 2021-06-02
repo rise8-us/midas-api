@@ -7,13 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import mil.af.abms.midas.clients.GitLab4JClient;
 
-public class GitProjectExistsValidator implements ConstraintValidator<GitProjectExists, Long> {
+public class GitProjectExistsValidator implements ConstraintValidator<GitProjectExists, Integer> {
 
     @Autowired
     private GitLab4JClient gitLab4JClient;
 
     @Override
-    public boolean isValid(Long id, ConstraintValidatorContext constraintContext) {
+    public boolean isValid(Integer id, ConstraintValidatorContext constraintContext) {
 
         return gitLab4JClient.projectExistsById(id);
     }

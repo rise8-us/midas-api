@@ -2,6 +2,12 @@ package mil.af.abms.midas.api.search;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Root;
+
+import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,8 +19,11 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
+import mil.af.abms.midas.api.comment.Comment;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserRepository;
 
@@ -36,6 +45,8 @@ public class SpecificationImplTests {
     TestEntityManager entityManager;
     @Autowired
     UserRepository userRepository;
+    @Mock
+    Root<Comment> root;
 
     @BeforeEach
     public void init() {
@@ -52,4 +63,21 @@ public class SpecificationImplTests {
 
         assertThat(users.size()).isEqualTo(2);
     }
+
+    @Test
+    @SuppressWarnings(value = "unchecked")
+    public void should_return_empty_string_getClaimsKeyAsList() throws Exception {
+        CriteriaBuilder cb = entityManager.getEntityManager().getCriteriaBuilder();
+        CriteriaQuery<Product> cq = cb.createQuery(Product.class);
+        Root<Product> root = cq.from(Product.class);
+        SearchCriteria criteria = new SearchCriteria("creationDate", ":", null, LocalDateTime.now().toString(), null);
+        Class<?> clazz = SpecificationImpl.class;
+        Method method = clazz.getDeclaredMethod("getNestedRoot" , Root.class, String[].class);
+        method.setAccessible(true);
+        String[] keys = {"parent", "id"};
+        Path<Product> path = (Path<Product>) method.invoke(new SpecificationImpl<>(criteria), root, keys );
+        assertThat(path.getModel().toString()).isEqualTo("Product#parent(MANY_TO_ONE)");
+
+    }
+
 }

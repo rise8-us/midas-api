@@ -4,18 +4,21 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
@@ -23,6 +26,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
+import mil.af.abms.midas.api.coverage.Coverage;
+import mil.af.abms.midas.api.coverage.CoverageService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
@@ -34,14 +39,19 @@ import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.team.TeamService;
+import mil.af.abms.midas.config.CustomProperty;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @ExtendWith(SpringExtension.class)
 @Import(ProjectService.class)
 public class ProjectServiceTests {
 
-    @Autowired
+    @SpyBean
     ProjectService projectService;
+    @MockBean
+    CoverageService coverageService;
+    @MockBean
+    CustomProperty property;
     @MockBean
     ProductService productService;
     @MockBean
@@ -78,7 +88,7 @@ public class ProjectServiceTests {
 
     @Test
     public void should_create_project() {
-        CreateProjectDTO createProjectDTO = new CreateProjectDTO("MIDAS", 2L, 33L, Set.of(3L),
+        CreateProjectDTO createProjectDTO = new CreateProjectDTO("MIDAS", 2, 33L, Set.of(3L),
                 "Project Description", null);
 
         when(projectRepository.save(project)).thenReturn(new Project());
@@ -109,7 +119,7 @@ public class ProjectServiceTests {
     @Test
     public void should_update_project_by_id() {
         UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(
-                "MIDAS_TWO", 5L, 22L, Set.of(tag.getId()), "New Description",
+                "MIDAS_TWO", 5, 22L, Set.of(tag.getId()), "New Description",
                 1L);
         Team newTeam = new Team();
         BeanUtils.copyProperties(team, newTeam);
@@ -239,7 +249,7 @@ public class ProjectServiceTests {
 
     @Test
     public void should_create_project_with_null_product_id_and_null_team_id() {
-        CreateProjectDTO createDTO = new CreateProjectDTO("No Product", 20L, null, Set.of(3L),
+        CreateProjectDTO createDTO = new CreateProjectDTO("No Product", 20, null, Set.of(3L),
                 "Project Description", null);
 
         when(projectRepository.save(project)).thenReturn(new Project());
@@ -257,7 +267,7 @@ public class ProjectServiceTests {
     @Test
     public void should_update_project_with_null_product_id_and_null_team_id() {
         UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(
-                "MIDAS_TWO", 5L, null, Set.of(tag.getId()), "New Description",
+                "MIDAS_TWO", 5, null, Set.of(tag.getId()), "New Description",
                 null);
 
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
@@ -291,5 +301,35 @@ public class ProjectServiceTests {
 
         assertThat(projectSaved.getId()).isEqualTo(project2.getId());
     }
+
+    @Test
+    @SuppressWarnings(value = "unchecked")
+    public void should_skip_scheduled_coverage_update_projects() {
+
+        when(property.getGitLabUrl()).thenReturn("NONE");
+        projectService.scheduledCoverageUpdates();
+
+        verify(projectRepository, times(0)).findAll(any(Specification.class));
+
+    }
+
+    @Test
+    @SuppressWarnings(value = "unchecked")
+    public void should_run_scheduled_coverage_update_projects() {
+        Project p2 = new Project();
+        BeanUtils.copyProperties(project, p2);
+
+        when(property.getGitLabUrl()).thenReturn("http://foo.bar");
+        when(projectRepository.findAll(any(Specification.class))).thenReturn(List.of(project, p2));
+        when(coverageService.updateCoverageForProject(any())).thenReturn(new Coverage());
+
+        projectService.scheduledCoverageUpdates();
+
+        verify(projectRepository, times(1)).findAll(any(Specification.class));
+        verify(coverageService, times(2)).updateCoverageForProject(any());
+
+    }
+
+
 
 }

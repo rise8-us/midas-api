@@ -13,12 +13,13 @@ import lombok.Setter;
 public class PlatformOneAuthenticationToken extends AbstractAuthenticationToken {
 
     private Long dodId;
-    private Object principal;
-    private Object credentials;
     private String keycloakUid;
     private String displayName;
     private String email;
     private List<String> groups;
+
+    private Object principal;
+    private Object credentials;
 
     public PlatformOneAuthenticationToken(
             String keycloakUid,
