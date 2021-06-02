@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +50,13 @@ public class JsonMapperTests {
         assertThat(JsonMapper.getKeycloakUidFromAuth(auth)).isEqualTo("Hello");
     }
 
+    @Test
+    public void should_throw_on_get_keycloak_uid_from_auth() throws AuthenticationCredentialsNotFoundException {
+
+        assertThrows(AuthenticationCredentialsNotFoundException.class,
+                () -> JsonMapper.getKeycloakUidFromAuth(null));
+    }
+
     @Test public void should_build_conditions_map() throws IOException {
         String resourceName = "src/test/resources/condition.json";
         String conditionStr = Files.readString(Path.of(resourceName));
@@ -57,6 +65,15 @@ public class JsonMapperTests {
 
         assertThat(conditions.entrySet().size()).isEqualTo(8);
         assertThat(conditions.get("coverage")).isEqualTo("88.2");
+    }
+
+    @Test public void should_throw_on_build_conditions_map() {
+        String conditionStr = "src/test/resources/condition.json";
+        InputStream stream = new ByteArrayInputStream(conditionStr.getBytes(StandardCharsets.UTF_8));
+        Map<String, String> conditions = JsonMapper.getConditions(stream);
+
+        assertThat(conditions).isEqualTo(new HashMap<>());
+
     }
 
 }

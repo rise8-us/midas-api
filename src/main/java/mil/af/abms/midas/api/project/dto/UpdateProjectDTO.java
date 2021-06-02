@@ -23,7 +23,7 @@ public class UpdateProjectDTO implements Serializable {
     @UniqueName(isNew = false)
     private String name;
 
-    private Long gitlabProjectId;
+    private Integer gitlabProjectId;
 
     @TeamExists(allowNull = true)
     private Long teamId;

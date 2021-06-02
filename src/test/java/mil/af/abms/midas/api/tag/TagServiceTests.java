@@ -44,7 +44,7 @@ public class TagServiceTests {
     private final Project project = Builder.build(Project.class)
             .with(p -> p.setId(3L))
             .with(p -> p.setName("Project"))
-            .with(p -> p.setGitlabProjectId(2L)).get();
+            .with(p -> p.setGitlabProjectId(2)).get();
     private final Tag tag = Builder.build(Tag.class)
             .with(t -> t.setId(1L))
             .with(t -> t.setLabel("tag test"))

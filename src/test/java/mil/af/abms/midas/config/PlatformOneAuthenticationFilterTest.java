@@ -3,7 +3,11 @@ package mil.af.abms.midas.config;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -85,6 +89,40 @@ public class PlatformOneAuthenticationFilterTest {
         assertThat(token.getEmail()).isEqualTo("abc@123.4");
         assertThat(token.getGroups()).isEqualTo(List.of("hello"));
         assertThat(token.getDisplayName()).isEqualTo("jeff");
+    }
+
+    @Test
+    public void should_return_empty_string_getClaimsKeyAsString() throws Exception{
+        Class<?> clazz = PlatformOneAuthenticationFilter.class;
+        Method method = clazz.getDeclaredMethod("getClaimsKeyAsString" , Map.class, String.class);
+        method.setAccessible(true);
+
+        assertThat(method.invoke(filter, new HashMap<>(), "foo")).isEqualTo("");
+    }
+
+    @Test
+    public void should_return_empty_string_getClaimsKeyAsList() throws Exception{
+        Class<?> clazz = PlatformOneAuthenticationFilter.class;
+        Method method = clazz.getDeclaredMethod("getClaimsKeyAsList" , Map.class, String.class);
+        method.setAccessible(true);
+
+        assertThat(method.invoke(filter, new HashMap<>(), "foo")).isEqualTo(new ArrayList<>());
+    }
+
+    @Test
+    public void should_get_and_set() {
+        filter.setLocalKeycloakUid("fizzBang");
+        assertThat(filter.getLocalKeycloakUid()).isEqualTo("fizzBang");
+    }
+
+    @Test
+    public void should_set_and_get_token() {
+        PlatformOneAuthenticationToken token = new PlatformOneAuthenticationToken(null, null, null, null, null);
+        token.setCredentials("fizz");
+        token.setPrincipal("bang");
+
+        assertThat((String) token.getCredentials()).isEqualTo("fizz");
+        assertThat((String) token.getPrincipal()).isEqualTo("bang");
     }
 
 }

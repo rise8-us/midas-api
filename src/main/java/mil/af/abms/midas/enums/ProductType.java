@@ -1,7 +1,5 @@
 package mil.af.abms.midas.enums;
 
-import java.util.stream.Stream;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -15,9 +13,5 @@ public enum ProductType {
     private final String name;
     private final String label;
     private final String description;
-
-    public static Stream<AssertionStatus> stream() {
-        return Stream.of(AssertionStatus.values());
-    }
 
 }

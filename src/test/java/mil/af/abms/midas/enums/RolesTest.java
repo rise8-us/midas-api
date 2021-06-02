@@ -4,15 +4,14 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
 public class RolesTest {
 
     @Test
-    public void canStreamEnum() {
-        assertThat(Roles.stream().collect(Collectors.toList()).size()).isEqualTo(5);
+    public void can_Stream_Enum() {
+        assertThat((int) Roles.stream().count()).isEqualTo(5);
     }
 
     @Test
@@ -41,6 +40,7 @@ public class RolesTest {
         assertThat(Roles.ADMIN.getName()).isEqualTo("ADMIN");
         assertThat(Roles.ADMIN.getDescription()).isEqualTo("Can update or add anything");
         assertThat(Roles.ADMIN.getBitValue()).isEqualTo(1);
+        assertThat(Roles.ADMIN.getTitle()).isEqualTo("Admin");
     }
 
     @Test

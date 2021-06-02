@@ -6,6 +6,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import java.util.HashSet;
@@ -17,6 +18,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
+import mil.af.abms.midas.api.coverage.Coverage;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.project.dto.ProjectDTO;
 import mil.af.abms.midas.api.tag.Tag;
@@ -39,7 +41,7 @@ public class Project extends AbstractEntity<ProjectDTO> {
     private Long projectJourneyMap = 0L;
 
     @Column(columnDefinition = "BIGINT", nullable = false)
-    private Long gitlabProjectId;
+    private Integer gitlabProjectId;
 
     @ManyToOne
     @JoinColumn(name = "team_id")
@@ -58,11 +60,18 @@ public class Project extends AbstractEntity<ProjectDTO> {
     private Set<Tag> tags = new HashSet<>();
 
     public ProjectDTO toDto() {
-        Long teamId = team != null ? team.getId() : null;
-        Long portfolioId = product != null ? product.getId() : null;
-
-        return new ProjectDTO(id, name, description, isArchived, creationDate, gitlabProjectId, getTagIds(), teamId,
-                projectJourneyMap, portfolioId);
+        return new ProjectDTO(
+                id,
+                name,
+                description,
+                isArchived,
+                creationDate,
+                gitlabProjectId,
+                getTagIds(),
+                getIdOrNull(team),
+                projectJourneyMap,
+                getIdOrNull(product)
+        );
     }
 
     private Set<Long> getTagIds() { return tags.stream().map(Tag::getId).collect(Collectors.toSet()); }

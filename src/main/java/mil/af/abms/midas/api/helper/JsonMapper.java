@@ -34,7 +34,7 @@ public class JsonMapper {
         try {
             JsonNode tokenInfo = dateMapper().readTree(authentication.getName());
             return tokenInfo.get(KEYCLOAK_UID).asText();
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             throw new AuthenticationCredentialsNotFoundException("No keycloak sub: value found");
         }
     }

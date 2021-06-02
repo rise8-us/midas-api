@@ -4,7 +4,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +11,7 @@ public class ProjectJourneyMapTests {
 
     @Test
     public void canStreamEnum() {
-        assertThat(ProjectJourneyMap.stream().collect(Collectors.toList()).size()).isEqualTo(4);
+        assertThat(ProjectJourneyMap.stream().count()).isEqualTo(4);
     }
 
     @Test

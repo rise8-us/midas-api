@@ -12,23 +12,18 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.util.ReflectionUtils;
 
 import org.junit.jupiter.api.Test;
 
-import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.project.dto.ProjectDTO;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.team.Team;
-import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.api.user.User;
 
 public class ProjectTests {
-
-    @MockBean
-    TeamService teamService;
 
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
 
@@ -44,7 +39,7 @@ public class ProjectTests {
             .with(p -> p.setDescription("testDescription"))
             .with(p -> p.setTeam(team))
             .with(p -> p.setIsArchived(true))
-            .with(p -> p.setGitlabProjectId(2L))
+            .with(p -> p.setGitlabProjectId(2))
             .with(p -> p.setTags(tags))
             .with(p -> p.setProjectJourneyMap(0L))
             .with(p -> p.setProduct(product))
@@ -56,7 +51,7 @@ public class ProjectTests {
             .with(p -> p.setDescription("testDescription"))
             .with(p -> p.setIsArchived(true))
             .with(p -> p.setTeamId(3L))
-            .with(p -> p.setGitlabProjectId(2L))
+            .with(p -> p.setGitlabProjectId(2))
             .with(p -> p.setProjectJourneyMap(0L))
             .with(p -> p.setTagIds(Set.of(2L)))
             .with(p -> p.setProductId(product.getId()))
