@@ -16,9 +16,9 @@ import lombok.Setter;
 import mil.af.abms.midas.api.AbstractEntity;
 import mil.af.abms.midas.api.coverage.dto.CoverageDTO;
 import mil.af.abms.midas.api.project.Project;
-import mil.af.abms.midas.enums.SonarQubeMaintainability;
-import mil.af.abms.midas.enums.SonarQubeReliability;
-import mil.af.abms.midas.enums.SonarQubeSecurity;
+import mil.af.abms.midas.enums.SonarqubeMaintainability;
+import mil.af.abms.midas.enums.SonarqubeReliability;
+import mil.af.abms.midas.enums.SonarqubeSecurity;
 
 @Entity @Setter @Getter
 @Table(name = "coverage")
@@ -29,13 +29,13 @@ public class Coverage extends AbstractEntity<CoverageDTO> {
     private Integer jobId = -1;
 
     @Enumerated(EnumType.STRING)
-    private SonarQubeReliability reliabilityRating = SonarQubeReliability.U;
+    private SonarqubeReliability reliabilityRating = SonarqubeReliability.U;
 
     @Enumerated(EnumType.STRING)
-    private SonarQubeSecurity securityRating = SonarQubeSecurity.U;
+    private SonarqubeSecurity securityRating = SonarqubeSecurity.U;
 
     @Enumerated(EnumType.STRING)
-    private SonarQubeMaintainability maintainabilityRating = SonarQubeMaintainability.U;
+    private SonarqubeMaintainability maintainabilityRating = SonarqubeMaintainability.U;
 
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)

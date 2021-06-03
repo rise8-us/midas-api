@@ -14,9 +14,9 @@ import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.clients.GitLab4JClient;
 import mil.af.abms.midas.config.CustomProperty;
-import mil.af.abms.midas.enums.SonarQubeMaintainability;
-import mil.af.abms.midas.enums.SonarQubeReliability;
-import mil.af.abms.midas.enums.SonarQubeSecurity;
+import mil.af.abms.midas.enums.SonarqubeMaintainability;
+import mil.af.abms.midas.enums.SonarqubeReliability;
+import mil.af.abms.midas.enums.SonarqubeSecurity;
 
 @Service
 public class CoverageService extends AbstractCRUDService<Coverage, CoverageDTO, CoverageRepository> {
@@ -64,9 +64,9 @@ public class CoverageService extends AbstractCRUDService<Coverage, CoverageDTO, 
     private Coverage mapToCoverage(Map<String, String> conditions, Project project, Float currentCoverage) {
 
         Float testCoverage = Float.parseFloat(conditions.get(COVERAGE));
-        SonarQubeMaintainability maintainability = SonarQubeMaintainability.values()[Integer.parseInt(conditions.get(SQALE_RATING))];
-        SonarQubeReliability reliability = SonarQubeReliability.values()[Integer.parseInt(conditions.get(RELIABILITY_RATING))];
-        SonarQubeSecurity security = SonarQubeSecurity.values()[Integer.parseInt(conditions.get(SECURITY_RATING))];
+        SonarqubeMaintainability maintainability = SonarqubeMaintainability.values()[Integer.parseInt(conditions.get(SQALE_RATING))];
+        SonarqubeReliability reliability = SonarqubeReliability.values()[Integer.parseInt(conditions.get(RELIABILITY_RATING))];
+        SonarqubeSecurity security = SonarqubeSecurity.values()[Integer.parseInt(conditions.get(SECURITY_RATING))];
 
         return Builder.build(Coverage.class)
                 .with(c -> c.setJobId(Integer.parseInt(conditions.get(JOB_ID))))

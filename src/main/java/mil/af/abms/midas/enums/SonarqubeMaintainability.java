@@ -1,11 +1,17 @@
 package mil.af.abms.midas.enums;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import mil.af.abms.midas.api.init.dto.SonarqubeDTO;
+
 @AllArgsConstructor
 @Getter
-public enum SonarQubeMaintainability {
+public enum SonarqubeMaintainability {
 
     U("U", "No Data"),
     A("A", "A is when remediation cost is equal or less than 5%"),
@@ -16,4 +22,12 @@ public enum SonarQubeMaintainability {
 
     private final String name;
     private final String description;
+
+    public static Stream<SonarqubeMaintainability> stream() {
+        return Stream.of(SonarqubeMaintainability.values());
+    }
+
+    public static List<SonarqubeDTO> toDTO() {
+        return stream().map(s -> new SonarqubeDTO(s.name, s.description)).collect(Collectors.toList());
+    }
 }

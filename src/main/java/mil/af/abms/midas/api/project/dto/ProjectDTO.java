@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.AbstractDTO;
+import mil.af.abms.midas.api.coverage.dto.CoverageDTO;
 
 @Data
 @AllArgsConstructor
@@ -25,5 +26,6 @@ public class ProjectDTO implements AbstractDTO {
     private Long teamId;
     private Long projectJourneyMap;
     private Long productId;
+    private CoverageDTO coverage;
 
 }

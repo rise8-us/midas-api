@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import mil.af.abms.midas.api.assertion.dto.CreateAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.UpdateAssertionDTO;
@@ -60,26 +62,48 @@ public class AssertionServiceTests {
     private final User createdBy = Builder.build(User.class).with(u -> u.setId(3L)).get();
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(3L)).get();
+    private final Comment comment = Builder.build(Comment.class).with(c -> c.setId(404L)).get();
     private final Assertion assertion = Builder.build(Assertion.class)
             .with(a -> a.setId(1L))
             .with(a -> a.setProduct(product))
             .with(a -> a.setText("First"))
             .with(a -> a.setType(AssertionType.GOAL))
+            .with(a -> a.setComments(Set.of(comment)))
             .with(a -> a.setCreationDate(CREATION_DATE))
             .with(a -> a.setCreatedBy(createdBy)).get();
-    private final CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", AssertionType.GOAL,
+    private final Assertion assertionChild = Builder.build(Assertion.class)
+            .with(a -> a.setId(2L))
+            .with(a -> a.setProduct(product))
+            .with(a -> a.setText("Strat"))
+            .with(a -> a.setType(AssertionType.STRATEGY))
+            .with(a -> a.setCreationDate(CREATION_DATE))
+            .with(a -> a.setCreatedBy(createdBy)).get();
+    private final CreateAssertionDTO createAssertionDTOChild = new CreateAssertionDTO("Strat", AssertionType.STRATEGY,
             3L, null, null, new ArrayList<>());
-    
+    private final CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", AssertionType.GOAL,
+            3L, null, null, List.of(createAssertionDTOChild));
+
+
     @Test
     public void should_create_assertion() {
+        doReturn(assertion).when(assertionService).findByIdOrNull(1L);
+        when(assertionRepository.save(any())).thenAnswer((new Answer<Assertion>() {
+            private int count = 0;
+            public Assertion answer(InvocationOnMock invocation) {
+                count++;
+                if (count == 1) {
+                    return assertion;
+                }
+                    return assertionChild;
 
-        when(assertionRepository.save(any())).thenReturn(assertion);
+            }
+        }));
         when(userService.getUserBySecContext()).thenReturn(createdBy);
 
         assertionService.create(createAssertionDTO);
 
-        verify(assertionRepository, times(1)).save(assertionCaptor.capture());
-        Assertion assertionSaved = assertionCaptor.getValue();
+        verify(assertionRepository, times(2)).save(assertionCaptor.capture());
+        Assertion assertionSaved = assertionCaptor.getAllValues().get(0);
 
         assertThat(assertionSaved.getText()).isEqualTo(createAssertionDTO.getText());
         assertThat(assertionSaved.getType()).isEqualTo(createAssertionDTO.getType());
@@ -149,6 +173,7 @@ public class AssertionServiceTests {
         assertionService.deleteById(assertion.getId());
 
         verify(assertionRepository, times(2)).deleteById(longCaptor.capture());
+        verify(commentService, times(1)).deleteById(any());
 
         assertThat(longCaptor.getAllValues().get(0)).isEqualTo(4L);
         assertThat(longCaptor.getAllValues().get(1)).isEqualTo(1L);
