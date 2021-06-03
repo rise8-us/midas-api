@@ -7,9 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.AbstractDTO;
-import mil.af.abms.midas.enums.SonarQubeMaintainability;
-import mil.af.abms.midas.enums.SonarQubeReliability;
-import mil.af.abms.midas.enums.SonarQubeSecurity;
+import mil.af.abms.midas.enums.SonarqubeMaintainability;
+import mil.af.abms.midas.enums.SonarqubeReliability;
+import mil.af.abms.midas.enums.SonarqubeSecurity;
 
 @Data
 @NoArgsConstructor
@@ -21,9 +21,9 @@ public class CoverageDTO implements AbstractDTO {
     private Integer jobId;
     private Float testCoverage;
     private Float coverageChange;
-    private SonarQubeReliability reliabilityRating;
-    private SonarQubeSecurity securityRating;
-    private SonarQubeMaintainability maintainabilityRating;
+    private SonarqubeReliability reliabilityRating;
+    private SonarqubeSecurity securityRating;
+    private SonarqubeMaintainability maintainabilityRating;
     private LocalDateTime creationDate;
     private String pipelineUrl;
     private String triggeredBy;

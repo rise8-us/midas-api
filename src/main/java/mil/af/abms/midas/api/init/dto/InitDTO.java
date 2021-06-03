@@ -10,6 +10,9 @@ import mil.af.abms.midas.api.user.dto.UserDTO;
 import mil.af.abms.midas.enums.AssertionStatus;
 import mil.af.abms.midas.enums.ProjectJourneyMap;
 import mil.af.abms.midas.enums.Roles;
+import mil.af.abms.midas.enums.SonarqubeMaintainability;
+import mil.af.abms.midas.enums.SonarqubeReliability;
+import mil.af.abms.midas.enums.SonarqubeSecurity;
 
 @Getter
 public class InitDTO implements Serializable {
@@ -26,4 +29,9 @@ public class InitDTO implements Serializable {
     private final List<RoleDTO> roles = Roles.toDTO();
     private final List<ProjectJourneyMapDTO> projectJourneyMap = ProjectJourneyMap.toDTO();
     private final List<AssertionStatusDTO> assertionStatus = AssertionStatus.toDTO();
+    private final List<SonarqubeDTO> sonarqubeReliability = SonarqubeReliability.toDTO();
+    private final List<SonarqubeDTO> sonarqubeMaintainability = SonarqubeMaintainability.toDTO();
+    private final List<SonarqubeDTO> sonarqubeSecurity = SonarqubeSecurity.toDTO();
+
+
 }

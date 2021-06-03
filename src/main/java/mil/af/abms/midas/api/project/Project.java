@@ -9,6 +9,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -43,6 +44,7 @@ public class Project extends AbstractEntity<ProjectDTO> {
     @Column(columnDefinition = "BIGINT", nullable = false)
     private Integer gitlabProjectId;
 
+
     @ManyToOne
     @JoinColumn(name = "team_id")
     private Team team;
@@ -50,6 +52,9 @@ public class Project extends AbstractEntity<ProjectDTO> {
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
+
+    @OneToMany(mappedBy = "project")
+    private Set<Coverage> coverages =  new HashSet<>();
 
     @ManyToMany
     @JoinTable(
@@ -70,11 +75,16 @@ public class Project extends AbstractEntity<ProjectDTO> {
                 getTagIds(),
                 getIdOrNull(team),
                 projectJourneyMap,
-                getIdOrNull(product)
+                getIdOrNull(product),
+                getCurrentCoverage().toDto()
         );
     }
 
     private Set<Long> getTagIds() { return tags.stream().map(Tag::getId).collect(Collectors.toSet()); }
+
+    public Coverage getCurrentCoverage() {
+        return coverages.stream().max(Comparator.comparing(Coverage::getId)).orElse(new Coverage());
+    }
 
     @Override
     public int hashCode() {

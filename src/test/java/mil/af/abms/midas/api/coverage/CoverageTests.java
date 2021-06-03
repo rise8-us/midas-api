@@ -19,9 +19,9 @@ import mil.af.abms.midas.api.coverage.dto.CoverageDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.user.User;
-import mil.af.abms.midas.enums.SonarQubeMaintainability;
-import mil.af.abms.midas.enums.SonarQubeReliability;
-import mil.af.abms.midas.enums.SonarQubeSecurity;
+import mil.af.abms.midas.enums.SonarqubeMaintainability;
+import mil.af.abms.midas.enums.SonarqubeReliability;
+import mil.af.abms.midas.enums.SonarqubeSecurity;
 
 public class CoverageTests {
 
@@ -33,9 +33,9 @@ public class CoverageTests {
             .with(c -> c.setId(1L))
             .with(c -> c.setTestCoverage(98.6F))
             .with(c -> c.setCoverageChange(-1F))
-            .with(c -> c.setMaintainabilityRating(SonarQubeMaintainability.A))
-            .with(c -> c.setReliabilityRating(SonarQubeReliability.A))
-            .with(c -> c.setSecurityRating(SonarQubeSecurity.A))
+            .with(c -> c.setMaintainabilityRating(SonarqubeMaintainability.A))
+            .with(c -> c.setReliabilityRating(SonarqubeReliability.A))
+            .with(c -> c.setSecurityRating(SonarqubeSecurity.A))
             .with(c -> c.setProject(project))
             .with(c -> c.setPipelineStatus(PipelineStatus.SUCCESS.toString()))
             .with(c -> c.setRef("ref"))
@@ -47,9 +47,9 @@ public class CoverageTests {
             .with(d -> d.setId(1L))
             .with(d -> d.setJobId(-1))
             .with(d -> d.setTestCoverage(98.6F))
-            .with(d -> d.setMaintainabilityRating(SonarQubeMaintainability.A))
-            .with(d -> d.setReliabilityRating(SonarQubeReliability.A))
-            .with(d -> d.setSecurityRating(SonarQubeSecurity.A))
+            .with(d -> d.setMaintainabilityRating(SonarqubeMaintainability.A))
+            .with(d -> d.setReliabilityRating(SonarqubeReliability.A))
+            .with(d -> d.setSecurityRating(SonarqubeSecurity.A))
             .with(d -> d.setProjectId(project.getId()))
             .with(d -> d.setCoverageChange(-1F))
             .with(c -> c.setPipelineStatus(PipelineStatus.SUCCESS.toString()))
@@ -71,9 +71,9 @@ public class CoverageTests {
     public void should_set_and_get_properties() {
         assertThat(coverage.getId()).isEqualTo(1L);
         assertThat(coverage.getTestCoverage()).isEqualTo(98.6F);
-        assertThat(coverage.getMaintainabilityRating()).isEqualTo(SonarQubeMaintainability.A);
-        assertThat(coverage.getReliabilityRating()).isEqualTo(SonarQubeReliability.A);
-        assertThat(coverage.getSecurityRating()).isEqualTo(SonarQubeSecurity.A);
+        assertThat(coverage.getMaintainabilityRating()).isEqualTo(SonarqubeMaintainability.A);
+        assertThat(coverage.getReliabilityRating()).isEqualTo(SonarqubeReliability.A);
+        assertThat(coverage.getSecurityRating()).isEqualTo(SonarqubeSecurity.A);
         assertThat(coverage.getProject()).isEqualTo(project);
         assertThat(coverage.getCreationDate()).isEqualTo(CREATION_DATE);
     }

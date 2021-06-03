@@ -16,6 +16,7 @@ import org.springframework.util.ReflectionUtils;
 
 import org.junit.jupiter.api.Test;
 
+import mil.af.abms.midas.api.coverage.Coverage;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.project.dto.ProjectDTO;
@@ -32,6 +33,14 @@ public class ProjectTests {
             .with(t -> t.setId(3L)).get();
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(3L)).get();
+    private final Coverage coverageOld = Builder.build(Coverage.class)
+            .with(c -> c.setId(9L))
+            .with(c -> c.setCreationDate(CREATION_DATE))
+            .get();
+    private final Coverage coverage = Builder.build(Coverage.class)
+            .with(c -> c.setId(10L))
+            .with(c -> c.setCreationDate(CREATION_DATE))
+            .get();
 
     Project expectedProject = Builder.build(Project.class)
             .with(p -> p.setId(1L))
@@ -42,6 +51,7 @@ public class ProjectTests {
             .with(p -> p.setGitlabProjectId(2))
             .with(p -> p.setTags(tags))
             .with(p -> p.setProjectJourneyMap(0L))
+            .with(p -> p.setCoverages(Set.of(coverage, coverageOld)))
             .with(p -> p.setProduct(product))
             .with(p -> p.setCreationDate(CREATION_DATE)).get();
 
@@ -55,6 +65,7 @@ public class ProjectTests {
             .with(p -> p.setProjectJourneyMap(0L))
             .with(p -> p.setTagIds(Set.of(2L)))
             .with(p -> p.setProductId(product.getId()))
+            .with(p -> p.setCoverage(coverage.toDto()))
             .with(p -> p.setCreationDate(CREATION_DATE)).get();
 
     @Test
@@ -98,6 +109,10 @@ public class ProjectTests {
         projectNullProduct.setProduct(null);
 
         assertThat(projectNullProduct.toDto().getProductId()).isEqualTo(null);
+    }
+
+    @Test public  void should_get_current_coverage() {
+        assertThat(expectedProject.getCurrentCoverage()).isEqualTo(coverage);
     }
 
     @Test

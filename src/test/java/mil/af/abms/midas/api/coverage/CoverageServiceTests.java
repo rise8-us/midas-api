@@ -30,9 +30,9 @@ import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.clients.GitLab4JClient;
 import mil.af.abms.midas.config.CustomProperty;
-import mil.af.abms.midas.enums.SonarQubeMaintainability;
-import mil.af.abms.midas.enums.SonarQubeReliability;
-import mil.af.abms.midas.enums.SonarQubeSecurity;
+import mil.af.abms.midas.enums.SonarqubeMaintainability;
+import mil.af.abms.midas.enums.SonarqubeReliability;
+import mil.af.abms.midas.enums.SonarqubeSecurity;
 
 @ExtendWith(SpringExtension.class)
 @Import(CoverageService.class)
@@ -61,9 +61,9 @@ public class CoverageServiceTests {
     private final Coverage coverage = Builder.build(Coverage.class)
             .with(c -> c.setId(2L))
             .with(c -> c.setTestCoverage(98.6F))
-            .with(c -> c.setMaintainabilityRating(SonarQubeMaintainability.A))
-            .with(c -> c.setReliabilityRating(SonarQubeReliability.A))
-            .with(c -> c.setSecurityRating(SonarQubeSecurity.A))
+            .with(c -> c.setMaintainabilityRating(SonarqubeMaintainability.A))
+            .with(c -> c.setReliabilityRating(SonarqubeReliability.A))
+            .with(c -> c.setSecurityRating(SonarqubeSecurity.A))
             .with(c -> c.setProject(project))
             .with(c -> c.setCreationDate(CREATION_DATE))
             .get();
@@ -97,9 +97,9 @@ public class CoverageServiceTests {
         Coverage capturedCoverage = coverageCaptor.getValue();
 
         assertThat(capturedCoverage.getTestCoverage()).isEqualTo(98.6F);
-        assertThat(capturedCoverage.getSecurityRating()).isEqualTo(SonarQubeSecurity.A);
-        assertThat(capturedCoverage.getReliabilityRating()).isEqualTo(SonarQubeReliability.A);
-        assertThat(capturedCoverage.getMaintainabilityRating()).isEqualTo(SonarQubeMaintainability.A);
+        assertThat(capturedCoverage.getSecurityRating()).isEqualTo(SonarqubeSecurity.A);
+        assertThat(capturedCoverage.getReliabilityRating()).isEqualTo(SonarqubeReliability.A);
+        assertThat(capturedCoverage.getMaintainabilityRating()).isEqualTo(SonarqubeMaintainability.A);
         assertThat(capturedCoverage.getRef()).isEqualTo("master");
         assertThat(capturedCoverage.getPipelineStatus()).isEqualTo("SUCCESS");
         assertThat(capturedCoverage.getPipelineUrl()).isEqualTo("http://foo.bar");

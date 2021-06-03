@@ -10,7 +10,7 @@ import mil.af.abms.midas.api.AbstractCRUDController;
 import mil.af.abms.midas.api.coverage.dto.CoverageDTO;
 
 @RestController
-@RequestMapping("/api/Coverages")
+@RequestMapping("/api/coverages")
 public class CoverageController extends AbstractCRUDController<Coverage, CoverageDTO, CoverageService> {
 
     @Autowired
