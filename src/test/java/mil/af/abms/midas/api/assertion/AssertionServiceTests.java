@@ -145,7 +145,7 @@ public class AssertionServiceTests {
 
         assertionService.deleteById(1L);
 
-        verify(assertionRepository,times(2)).deleteById(longCaptor.capture());
+        verify(assertionRepository, times(2)).deleteById(longCaptor.capture());
 
         Long childId = longCaptor.getAllValues().get(0);
         Long parentId = longCaptor.getAllValues().get(1);

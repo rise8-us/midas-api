@@ -31,7 +31,7 @@ public class CustomMethodSecurityExpressionHandlerTests {
     @Test
     public void should_create_root() throws Exception {
         Class<?> clazz = CustomMethodSecurityExpressionHandler.class;
-        Method method = clazz.getDeclaredMethod("createSecurityExpressionRoot" , Authentication.class, MethodInvocation.class);
+        Method method = clazz.getDeclaredMethod("createSecurityExpressionRoot", Authentication.class, MethodInvocation.class);
         method.setAccessible(true);
 
         CustomMethodSecurityExpressionRoot root = (CustomMethodSecurityExpressionRoot) method.invoke(handler, auth, methodInvocation);

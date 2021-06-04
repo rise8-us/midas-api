@@ -140,7 +140,7 @@ public class Gitlab4JClientTests {
 
     @Test
     public void should_throw_on_make_request() {
-        assertThrows(GitApiException.class, () -> client.makeRequest(() -> {throw new GitLabApiException("foo");}));
+        assertThrows(GitApiException.class, () -> client.makeRequest(() -> { throw new GitLabApiException("foo"); }));
     }
 
     @Test
@@ -150,7 +150,7 @@ public class Gitlab4JClientTests {
 
     @Test
     public void should_return_empty_on_make_optional_request() {
-        assertThat(client.makeRequestReturnOptional(() -> {throw new GitLabApiException("foo");})).isEqualTo(Optional.empty());
+        assertThat(client.makeRequestReturnOptional(() -> { throw new GitLabApiException("foo"); })).isEqualTo(Optional.empty());
     }
 
 }
