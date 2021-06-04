@@ -115,7 +115,7 @@ public class CoverageServiceTests {
         Map<String, String> emptyConditions = Map.ofEntries(Map.entry("jobId", "-1"));
         doReturn(coveragePrevious).when(coverageService).getCurrent(1L);
         when(client.getLatestCodeCoverage(any(), any())).thenReturn(emptyConditions);
-        when(client.getJob(any(),any())).thenReturn(conditions);
+        when(client.getJobInfo(any(),any())).thenReturn(conditions);
 
         Coverage coverageReturned = coverageService.updateCoverageForProject(project);
 

@@ -20,7 +20,7 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
         return SpringContext.getBean(AssertionService.class);
     }
     private static ProductService productService() { return SpringContext.getBean(ProductService.class); }
-    private static UserService userService() {
+    public static UserService userService() {
         return SpringContext.getBean(UserService.class);
     }
     private static ProjectService projectService() {
@@ -32,6 +32,7 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
     }
 
     public boolean hasTeamAccess(Long teamToModifyId) {
+        if (teamToModifyId == null) { return false; }
         User userMakingRequest = userService().getUserBySecContext();
         return userMakingRequest.getTeamIds().contains(teamToModifyId);
     }
@@ -42,8 +43,6 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
                 projectBeingAccessed.getProduct() : new Product();
         Long teamId  = projectBeingAccessed.getTeam() != null ? projectBeingAccessed.getTeam().getId() : null;
         Long productId = productContainingProject.getId();
-        Long parentId  = productContainingProject.getParent() != null ?
-                productContainingProject.getParent().getId() : null;
         return hasTeamAccess(teamId) || hasProductAccess(productId);
     }
 
@@ -53,14 +52,16 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
         Product parent = productBeingAccessed.getParent() != null ?
                 productBeingAccessed.getParent() : new Product();
         User userMakingRequest = userService().getUserBySecContext();
-        User productManager = productService().getObject(productId).getProductManager();
+        User productManager = productBeingAccessed.getProductManager();
         return userMakingRequest.equals(productManager) || hasProductAccess(parent.getId());
     }
 
     public boolean hasOGSMWriteAccess(Long ogsmId) {
         if (ogsmId == null) { return false; }
         Assertion assertionBeingAccessed = assertionService().getObject(ogsmId);
-        return hasProductAccess(assertionBeingAccessed.getProduct().getId());
+        Long productId = assertionBeingAccessed.getProduct() != null ?
+                assertionBeingAccessed.getProduct().getId() : null;
+        return hasProductAccess(productId);
     }
 
     @Override

@@ -84,7 +84,7 @@ public class CoverageService extends AbstractCRUDService<Coverage, CoverageDTO, 
     }
 
     private Coverage addJobInfoToCoverage(Project project, Coverage coverage) {
-        Map<String, String> jobInfo = client.getJob(project.getGitlabProjectId(), coverage.getJobId());
+        Map<String, String> jobInfo = client.getJobInfo(project.getGitlabProjectId(), coverage.getJobId());
         coverage.setRef(jobInfo.get("ref"));
         coverage.setPipelineUrl(jobInfo.get("pipelineUrl"));
         coverage.setPipelineStatus(jobInfo.get("pipelineStatus"));

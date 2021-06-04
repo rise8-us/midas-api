@@ -20,7 +20,6 @@ public class InitDTO implements Serializable {
         this.classification = new ClassificationDTO(classificationString, caveat);
         this.userLoggedIn = userDTO;
         this.unseenAnnouncements = announcementDTOs;
-
     }
 
     private final ClassificationDTO classification;
@@ -32,6 +31,5 @@ public class InitDTO implements Serializable {
     private final List<SonarqubeDTO> sonarqubeReliability = SonarqubeReliability.toDTO();
     private final List<SonarqubeDTO> sonarqubeMaintainability = SonarqubeMaintainability.toDTO();
     private final List<SonarqubeDTO> sonarqubeSecurity = SonarqubeSecurity.toDTO();
-
 
 }
