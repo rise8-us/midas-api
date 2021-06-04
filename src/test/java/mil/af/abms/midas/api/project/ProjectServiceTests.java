@@ -310,7 +310,6 @@ public class ProjectServiceTests {
         projectService.scheduledCoverageUpdates();
 
         verify(projectRepository, times(0)).findAll(any(Specification.class));
-
     }
 
     @Test
@@ -327,9 +326,6 @@ public class ProjectServiceTests {
 
         verify(projectRepository, times(1)).findAll(any(Specification.class));
         verify(coverageService, times(2)).updateCoverageForProject(any());
-
     }
-
-
 
 }

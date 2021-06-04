@@ -124,10 +124,6 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
         projects.forEach(coverageService::updateCoverageForProject);
     }
 
-    public List<Project> getAll() {
-        return repository.findAll();
-    }
-
     public void removeTagFromProjects(Long tagId, Set<Project> projects) {
         projects.forEach(p -> removeTagFromProject(tagId, p));
     }
