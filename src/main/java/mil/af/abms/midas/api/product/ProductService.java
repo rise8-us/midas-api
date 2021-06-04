@@ -16,6 +16,7 @@ import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductIsArchivedDTO;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
+import mil.af.abms.midas.api.project.dto.ArchiveProjectDTO;
 import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
@@ -89,8 +90,12 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
     @Transactional
     public Product updateIsArchivedById(Long id, UpdateProductIsArchivedDTO updateProductIsArchivedDTO) {
         Product product = getObject(id);
+        ArchiveProjectDTO archiveDTO = Builder.build(ArchiveProjectDTO.class)
+                .with(d -> d.setIsArchived(updateProductIsArchivedDTO.getIsArchived())).get();
+        Set<Project> projects = product.getProjects().stream().map(
+                p -> projectService.archive(p.getId(),archiveDTO)).collect(Collectors.toSet());
+        product.setProjects(projects);
         product.setIsArchived(updateProductIsArchivedDTO.getIsArchived());
-        
         return repository.save(product);
     }
 
