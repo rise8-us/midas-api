@@ -16,7 +16,6 @@ import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.GitLabApiException;
 import org.gitlab4j.api.models.Job;
 import org.gitlab4j.api.models.Project;
-import org.gitlab4j.api.models.User;
 
 import mil.af.abms.midas.api.helper.JsonMapper;
 import mil.af.abms.midas.config.CustomProperty;
@@ -41,18 +40,6 @@ public class GitLab4JClient {
         return findProjectById(id).isPresent();
     }
 
-    public Project getProjectById(Integer id) {
-        return findProjectById(id).orElseThrow(() -> new GitApiException(Project.class.getSimpleName(), id));
-    }
-
-    public Optional<User> findUserByUsername(String username) {
-        return (Optional<User>) makeRequest(() -> client.getUserApi().getOptionalUser(username));
-    }
-
-    public User getUserByUsername(String username) {
-        return findUserByUsername(username).orElseThrow(() -> new GitApiException(User.class.getSimpleName(), username));
-    }
-
     public Map<String, String> getLatestCodeCoverage(Integer projectId, Integer currentJobId) {
         Map<String, String> coverage = Map.ofEntries(Map.entry("jobId", "-1"));
         Job job = getLatestSonarQubeJob(projectId);
@@ -69,7 +56,7 @@ public class GitLab4JClient {
                 coverage = JsonMapper.getConditions(stream);
                 coverage.put("jobId", jobId.toString());
                 coverage.put("pipelineUrl", job.getPipeline().getWebUrl());
-                coverage.put("pipelineStatus", job.getPipeline().getStatus().toString());
+                coverage.put("pipelineStatus", job.getStatus().toString());
                 coverage.put("triggeredBy", job.getUser().getUsername());
                 coverage.put("ref", job.getRef());
             }
@@ -77,10 +64,9 @@ public class GitLab4JClient {
         return coverage;
     }
 
-    public Map<String, String> getJob(Integer projectId, Integer jobId) {
+    public Map<String, String> getJobInfo(Integer projectId, Integer jobId) {
         Map<String, String> jobInfo = new HashMap<>();
-        Job job =  (Job) makeRequest(
-                () -> client.getJobApi().getJob(projectId, jobId));
+        Job job =  (Job) makeRequest(() -> client.getJobApi().getJob(projectId, jobId));
         jobInfo.put("ref", job.getRef());
         jobInfo.put("pipelineUrl", job.getPipeline().getWebUrl());
         jobInfo.put("pipelineStatus", job.getStatus().toString());
@@ -90,8 +76,7 @@ public class GitLab4JClient {
     }
 
     public Job getLatestSonarQubeJob(Integer projectId) {
-        List<Job> jobs = (List<Job>) makeRequest(
-                () -> client.getJobApi().getJobs(projectId, 1, 200));
+        List<Job> jobs = (List<Job>) makeRequest(() -> client.getJobApi().getJobs(projectId, 1, 200));
         return jobs.stream()
                 .filter(j -> j.getName().equals("sonarqube"))
                 .findFirst()
@@ -99,16 +84,16 @@ public class GitLab4JClient {
     }
 
     @FunctionalInterface
-    private interface GitLabApiThunk<T> {
+    protected interface GitLabApiThunk<T> {
         T call() throws GitLabApiException, GitApiException;
     }
 
     @FunctionalInterface
-    private interface GitLabApiThunkOptional<T> {
+    protected interface GitLabApiThunkOptional<T> {
         T call();
     }
 
-    private Object makeRequest(GitLabApiThunk<?> request) {
+    protected Object makeRequest(GitLabApiThunk<?> request) {
         try {
             return request.call();
         } catch (GitLabApiException e) {
@@ -117,7 +102,7 @@ public class GitLab4JClient {
         }
     }
 
-    private Object makeRequestReturnOptional(GitLabApiThunk<?> request) {
+    protected Object makeRequestReturnOptional(GitLabApiThunk<?> request) {
         try {
             return Optional.of(request.call());
         } catch (GitLabApiException e) {
