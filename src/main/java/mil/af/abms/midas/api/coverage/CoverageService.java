@@ -52,7 +52,7 @@ public class CoverageService extends AbstractCRUDService<Coverage, CoverageDTO, 
     }
 
     public Coverage updateCoverageForProjectById(Long projectId) {
-        if(property.getGitLabUrl().equals("NONE")) { return new Coverage(); }
+        if (property.getGitLabUrl().equals("NONE")) { return new Coverage(); }
         Project project =  projectService.getObject(projectId);
         return updateCoverageForProject(project);
     }

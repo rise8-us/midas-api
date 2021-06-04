@@ -92,18 +92,18 @@ public class PlatformOneAuthenticationFilterTest {
     }
 
     @Test
-    public void should_return_empty_string_getClaimsKeyAsString() throws Exception{
+    public void should_return_empty_string_getClaimsKeyAsString() throws Exception {
         Class<?> clazz = PlatformOneAuthenticationFilter.class;
-        Method method = clazz.getDeclaredMethod("getClaimsKeyAsString" , Map.class, String.class);
+        Method method = clazz.getDeclaredMethod("getClaimsKeyAsString", Map.class, String.class);
         method.setAccessible(true);
 
         assertThat(method.invoke(filter, new HashMap<>(), "foo")).isEqualTo("");
     }
 
     @Test
-    public void should_return_empty_string_getClaimsKeyAsList() throws Exception{
+    public void should_return_empty_string_getClaimsKeyAsList() throws Exception {
         Class<?> clazz = PlatformOneAuthenticationFilter.class;
-        Method method = clazz.getDeclaredMethod("getClaimsKeyAsList" , Map.class, String.class);
+        Method method = clazz.getDeclaredMethod("getClaimsKeyAsList", Map.class, String.class);
         method.setAccessible(true);
 
         assertThat(method.invoke(filter, new HashMap<>(), "foo")).isEqualTo(new ArrayList<>());

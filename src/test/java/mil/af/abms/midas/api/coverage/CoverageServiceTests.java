@@ -115,7 +115,7 @@ public class CoverageServiceTests {
         Map<String, String> emptyConditions = Map.ofEntries(Map.entry("jobId", "-1"));
         doReturn(coveragePrevious).when(coverageService).getCurrent(1L);
         when(client.getLatestCodeCoverage(any(), any())).thenReturn(emptyConditions);
-        when(client.getJobInfo(any(),any())).thenReturn(conditions);
+        when(client.getJobInfo(any(), any())).thenReturn(conditions);
 
         Coverage coverageReturned = coverageService.updateCoverageForProject(project);
 
@@ -151,7 +151,7 @@ public class CoverageServiceTests {
     @Test
     @SuppressWarnings(value = "unchecked")
     public void should_get_unknown_when_current_is_empty() {
-        PageRequest pageRequest = PageRequest.of(1,2);
+        PageRequest pageRequest = PageRequest.of(1, 2);
         Page<Coverage> page = new PageImpl<Coverage>(List.of(), pageRequest, 0);
         when(coverageRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(page);
 

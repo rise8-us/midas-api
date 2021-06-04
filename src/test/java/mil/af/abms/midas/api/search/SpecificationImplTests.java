@@ -72,10 +72,10 @@ public class SpecificationImplTests {
         Root<Product> root = cq.from(Product.class);
         SearchCriteria criteria = new SearchCriteria("creationDate", ":", null, LocalDateTime.now().toString(), null);
         Class<?> clazz = SpecificationImpl.class;
-        Method method = clazz.getDeclaredMethod("getNestedRoot" , Root.class, String[].class);
+        Method method = clazz.getDeclaredMethod("getNestedRoot", Root.class, String[].class);
         method.setAccessible(true);
         String[] keys = {"parent", "id"};
-        Path<Product> path = (Path<Product>) method.invoke(new SpecificationImpl<>(criteria), root, keys );
+        Path<Product> path = (Path<Product>) method.invoke(new SpecificationImpl<>(criteria), root, keys);
         assertThat(path.getModel().toString()).isEqualTo("Product#parent(MANY_TO_ONE)");
 
     }

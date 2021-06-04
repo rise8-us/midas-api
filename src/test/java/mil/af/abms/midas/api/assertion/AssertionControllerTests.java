@@ -94,7 +94,7 @@ public class AssertionControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_throw_type_must_not_be_null_message_on_create() throws Exception {
-        CreateAssertionDTO createDTONullType = new CreateAssertionDTO("First",null,
+        CreateAssertionDTO createDTONullType = new CreateAssertionDTO("First", null,
                 1L, null, null, new ArrayList<>());
 
         when(productService.existsById(anyLong())).thenReturn(true);

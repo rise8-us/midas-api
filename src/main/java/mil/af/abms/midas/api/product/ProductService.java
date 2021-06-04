@@ -93,7 +93,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         ArchiveProjectDTO archiveDTO = Builder.build(ArchiveProjectDTO.class)
                 .with(d -> d.setIsArchived(updateProductIsArchivedDTO.getIsArchived())).get();
         Set<Project> projects = product.getProjects().stream().map(
-                p -> projectService.archive(p.getId(),archiveDTO)).collect(Collectors.toSet());
+                p -> projectService.archive(p.getId(), archiveDTO)).collect(Collectors.toSet());
         product.setProjects(projects);
         product.setIsArchived(updateProductIsArchivedDTO.getIsArchived());
         return repository.save(product);
