@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.AbstractDTO;
+import mil.af.abms.midas.enums.TagType;
 
 @Data
 @AllArgsConstructor
@@ -16,5 +17,6 @@ public class TagDTO implements AbstractDTO {
     private String description;
     private String color;
     private Long createdById;
+    private TagType tagType;
 
 }

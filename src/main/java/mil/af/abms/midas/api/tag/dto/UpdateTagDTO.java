@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.tag.validation.UniqueLabel;
 import mil.af.abms.midas.api.validation.ValidHex;
+import mil.af.abms.midas.enums.TagType;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,5 +26,7 @@ public class UpdateTagDTO implements Serializable {
     @NotBlank(message = "color must not be blank")
     @ValidHex
     private String color;
+
+    private TagType tagType;
 
 }
