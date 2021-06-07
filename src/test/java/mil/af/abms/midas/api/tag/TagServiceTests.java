@@ -25,6 +25,7 @@ import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.tag.dto.CreateTagDTO;
 import mil.af.abms.midas.api.tag.dto.UpdateTagDTO;
 import mil.af.abms.midas.api.user.UserService;
+import mil.af.abms.midas.enums.TagType;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @ExtendWith(SpringExtension.class)
@@ -54,7 +55,7 @@ public class TagServiceTests {
 
     @Test
     public void should_create_tag() {
-        CreateTagDTO createTagDTO = new CreateTagDTO("Tag Label", "Test Desc", "#969696");
+        CreateTagDTO createTagDTO = new CreateTagDTO("Tag Label", "Test Desc", "#969696", TagType.PRODUCT);
 
         when(tagRepository.save(tag)).thenReturn(new Tag());
 
@@ -83,7 +84,7 @@ public class TagServiceTests {
 
     @Test
     public void should_update_project_by_id() {
-        UpdateTagDTO updateTagDTO = new UpdateTagDTO("new tag", "tag test", "#969696");
+        UpdateTagDTO updateTagDTO = new UpdateTagDTO("new tag", "tag test", "#969696", TagType.PRODUCT);
         Project newProject = new Project();
         BeanUtils.copyProperties(project, newProject);
         newProject.setId(3L);

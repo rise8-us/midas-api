@@ -32,7 +32,9 @@ public class TagService extends AbstractCRUDService<Tag, TagDTO, TagRepository> 
                 .with(t -> t.setLabel(createTagDTO.getLabel()))
                 .with(t -> t.setDescription(createTagDTO.getDescription()))
                 .with(t -> t.setCreatedBy(userService.getUserBySecContext()))
-                .with(t -> t.setColor(createTagDTO.getColor())).get();
+                .with(t -> t.setColor(createTagDTO.getColor()))
+                .with(t -> t.setTagType(createTagDTO.getTagType()))
+                .get();
 
         return repository.save(newTag);
     }
@@ -50,6 +52,7 @@ public class TagService extends AbstractCRUDService<Tag, TagDTO, TagRepository> 
         foundTag.setLabel(updateTagDTO.getLabel());
         foundTag.setDescription(updateTagDTO.getDescription());
         foundTag.setColor(updateTagDTO.getColor());
+        foundTag.setTagType(updateTagDTO.getTagType());
 
         return repository.save(foundTag);
     }

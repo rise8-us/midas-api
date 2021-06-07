@@ -2,6 +2,8 @@ package mil.af.abms.midas.api.tag;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -22,6 +24,7 @@ import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.tag.dto.TagDTO;
 import mil.af.abms.midas.api.user.User;
+import mil.af.abms.midas.enums.TagType;
 
 @Entity @Getter @Setter
 @Table(name = "tag")
@@ -36,6 +39,9 @@ public class Tag extends AbstractEntity<TagDTO> {
 
     @Column(columnDefinition = "TINYTEXT default '#969696'")
     private String color;
+
+    @Enumerated(value = EnumType.STRING)
+    private TagType tagType = TagType.ALL;
 
     @ManyToMany
     @JoinTable(
@@ -59,7 +65,7 @@ public class Tag extends AbstractEntity<TagDTO> {
 
     public TagDTO toDto() {
         Long createdById = createdBy != null ? createdBy.getId() : null;
-        return new TagDTO(id, label, description, color, createdById);
+        return new TagDTO(id, label, description, color, createdById, tagType);
     }
 
     @Override

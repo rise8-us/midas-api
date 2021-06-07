@@ -24,6 +24,7 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.tag.dto.CreateTagDTO;
 import mil.af.abms.midas.api.tag.dto.UpdateTagDTO;
 import mil.af.abms.midas.api.user.User;
+import mil.af.abms.midas.enums.TagType;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @WebMvcTest({TagController.class})
@@ -50,7 +51,7 @@ public class TagControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_create_tag() throws Exception {
-        CreateTagDTO createTagDTO = new CreateTagDTO("tag test", "New Tag", "#969969");
+        CreateTagDTO createTagDTO = new CreateTagDTO("tag test", "New Tag", "#969969", TagType.PRODUCT);
 
         when(tagService.findByLabel("tag test")).thenThrow(EntityNotFoundException.class);
         when(userService.existsById(anyLong())).thenReturn(true);
@@ -67,7 +68,7 @@ public class TagControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_update_tag_by_id() throws Exception {
-        UpdateTagDTO updateTagDTO = new UpdateTagDTO("Tag Update", "Tag description", "#969696");
+        UpdateTagDTO updateTagDTO = new UpdateTagDTO("Tag Update", "Tag description", "#969696", TagType.PRODUCT);
         Tag updateTag = new Tag();
         BeanUtils.copyProperties(tag, updateTag);
         updateTag.setLabel(updateTagDTO.getLabel());

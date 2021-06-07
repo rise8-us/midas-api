@@ -13,6 +13,7 @@ import mil.af.abms.midas.enums.Roles;
 import mil.af.abms.midas.enums.SonarqubeMaintainability;
 import mil.af.abms.midas.enums.SonarqubeReliability;
 import mil.af.abms.midas.enums.SonarqubeSecurity;
+import mil.af.abms.midas.enums.TagType;
 
 @Getter
 public class InitDTO implements Serializable {
@@ -31,5 +32,6 @@ public class InitDTO implements Serializable {
     private final List<SonarqubeDTO> sonarqubeReliability = SonarqubeReliability.toDTO();
     private final List<SonarqubeDTO> sonarqubeMaintainability = SonarqubeMaintainability.toDTO();
     private final List<SonarqubeDTO> sonarqubeSecurity = SonarqubeSecurity.toDTO();
+    private final TagType[] tagTypes = TagType.values();
 
 }

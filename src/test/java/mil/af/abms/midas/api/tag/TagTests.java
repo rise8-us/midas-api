@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.tag.dto.TagDTO;
 import mil.af.abms.midas.api.user.User;
+import mil.af.abms.midas.enums.TagType;
 
 public class TagTests {
 
@@ -29,11 +30,13 @@ public class TagTests {
             .with(t -> t.setCreatedBy(user))
             .with(t -> t.setColor("#969696")).get();
     private final TagDTO tagDTO = Builder.build(TagDTO.class)
-            .with(t -> t.setId(1L))
-            .with(t -> t.setLabel("tag test"))
-            .with(t -> t.setDescription("New Tag"))
-            .with(t -> t.setCreatedById(user.getId()))
-            .with(t -> t.setColor("#969696")).get();
+            .with(d -> d.setId(1L))
+            .with(d -> d.setLabel("tag test"))
+            .with(d -> d.setDescription("New Tag"))
+            .with(d -> d.setCreatedById(user.getId()))
+            .with(d -> d.setColor("#969696"))
+            .with(d -> d.setTagType(TagType.ALL))
+            .get();
 
     @Test
     public void should_have_all_tagDTO_fields() {
@@ -74,11 +77,14 @@ public class TagTests {
         Tag tagNullCreateBy = Builder.build(Tag.class)
                 .with(t -> t.setId(3L))
                 .with(t -> t.setLabel("Null name"))
-                .with(t -> t.setColor("#123456")).get();
+                .with(t -> t.setColor("#123456"))
+                .get();
         TagDTO tagNullCreatedByDTO = Builder.build(TagDTO.class)
                 .with(t -> t.setId(3L))
                 .with(t -> t.setLabel("Null name"))
-                .with(t -> t.setColor("#123456")).get();
+                .with(t -> t.setColor("#123456"))
+                .with(d -> d.setTagType(TagType.ALL))
+                .get();
 
         assertThat(tagNullCreateBy.toDto()).isEqualTo(tagNullCreatedByDTO);
     }

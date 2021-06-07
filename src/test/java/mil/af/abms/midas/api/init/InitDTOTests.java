@@ -21,6 +21,7 @@ public class InitDTOTests {
         assertThat(dto.getSonarqubeMaintainability().size()).isEqualTo(6);
         assertThat(dto.getSonarqubeReliability().size()).isEqualTo(6);
         assertThat(dto.getSonarqubeSecurity().size()).isEqualTo(6);
+        assertThat(dto.getTagTypes().length).isGreaterThan(1);
 
     }
 
