@@ -6,21 +6,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
+import mil.af.abms.midas.api.RepositoryTestHarness;
 import mil.af.abms.midas.api.helper.Builder;
 
-@ExtendWith(SpringExtension.class)
-@DataJpaTest
-public class AnnouncementRepositoryTests {
+public class AnnouncementRepositoryTests extends RepositoryTestHarness {
 
-    @Autowired
-    TestEntityManager entityManager;
     @Autowired
     AnnouncementRepository announcementRepository;
 

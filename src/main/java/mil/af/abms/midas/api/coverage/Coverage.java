@@ -38,7 +38,7 @@ public class Coverage extends AbstractEntity<CoverageDTO> {
     private SonarqubeMaintainability maintainabilityRating = SonarqubeMaintainability.U;
 
     @ManyToOne
-    @JoinColumn(name = "project_id", nullable = false)
+    @JoinColumn(name = "project_id", nullable = true)
     private Project project;
 
     @Transient

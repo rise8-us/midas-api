@@ -31,7 +31,7 @@ import mil.af.abms.midas.enums.TagType;
 public class Tag extends AbstractEntity<TagDTO> {
 
     @NaturalId(mutable = true)
-    @Column(columnDefinition = "TINYTEXT", nullable = false, unique = true)
+    @Column(columnDefinition = "TINYTEXT")
     private String label;
 
     @Column(columnDefinition = "TEXT", nullable = true)

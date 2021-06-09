@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.annotation.DirtiesContext;
@@ -14,6 +13,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import mil.af.abms.midas.api.RepositoryTestHarness;
 import mil.af.abms.midas.api.assertion.Assertion;
 import mil.af.abms.midas.api.assertion.AssertionRepository;
 import mil.af.abms.midas.api.helper.Builder;
@@ -22,9 +22,8 @@ import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.enums.AssertionType;
 import mil.af.abms.midas.enums.ProductType;
 
-@DataJpaTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class AssertionTypeStrategyTests {
+public class AssertionTypeStrategyTests extends RepositoryTestHarness {
 
     private Product product = Builder.build(Product.class)
             .with(p -> p.setName("foo"))
