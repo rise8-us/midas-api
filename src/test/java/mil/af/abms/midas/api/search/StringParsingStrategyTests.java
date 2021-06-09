@@ -13,13 +13,14 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import mil.af.abms.midas.api.RepositoryTestHarness;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserRepository;
 
 @DataJpaTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class StringParsingStrategyTests {
+public class StringParsingStrategyTests extends RepositoryTestHarness {
 
     private final User testUser1 = Builder.build(User.class)
             .with(u -> u.setKeycloakUid("abc-123"))

@@ -30,7 +30,7 @@ spring:
   jpa:
     properties:
       hibernate:
-        dialect:
+        dialect: org.hibernate.dialect.H2Dialect
     hibernate:
       hbm2ddl:
         auto: create-drop
