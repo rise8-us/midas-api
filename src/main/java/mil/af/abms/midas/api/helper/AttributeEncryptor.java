@@ -1,17 +1,20 @@
 package mil.af.abms.midas.api.helper;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import java.security.InvalidKeyException;
-import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
 import java.util.Base64;
+import java.util.Optional;
 
 import mil.af.abms.midas.config.CustomProperty;
 
@@ -19,25 +22,30 @@ import mil.af.abms.midas.config.CustomProperty;
 public class AttributeEncryptor implements AttributeConverter<String, String> {
 
     private final CustomProperty property;
-    private final Key key;
     private final Cipher cipher;
+    private final SecretKey secretKey;
+    private final IvParameterSpec ivSpec;
 
-    private static final String AES = "AES";
+    private static final String AES = "AES/CBC/PKCS5Padding";
 
-    private String secret;
-
-    public AttributeEncryptor(CustomProperty property) throws NoSuchPaddingException, NoSuchAlgorithmException {
+    public AttributeEncryptor(CustomProperty property) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeySpecException {
         this.property = property;
-        key = new SecretKeySpec(property.getRandomString().getBytes(), AES);
+        String ketStr = Optional.ofNullable(property.getKey()).orElseThrow(IllegalStateException::new);
+        String salt = Optional.ofNullable(property.getSalt()).orElseThrow(IllegalStateException::new);
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        KeySpec keySpec = new PBEKeySpec(ketStr.toCharArray(), salt.getBytes(), 65536, 256);
+        SecretKey tmp = factory.generateSecret(keySpec);
+        secretKey = new SecretKeySpec(tmp.getEncoded(), "AES");
         cipher = Cipher.getInstance(AES);
+        ivSpec = new IvParameterSpec(new byte[16]);
     }
 
     @Override
     public String convertToDatabaseColumn(String attribute) {
         try {
-            cipher.init(Cipher.ENCRYPT_MODE, key);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivSpec);
             return Base64.getEncoder().encodeToString(cipher.doFinal(attribute.getBytes()));
-        } catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
+        } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }
@@ -45,9 +53,9 @@ public class AttributeEncryptor implements AttributeConverter<String, String> {
     @Override
     public String convertToEntityAttribute(String dbData) {
         try {
-            cipher.init(Cipher.DECRYPT_MODE, key);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec);
             return new String(cipher.doFinal(Base64.getDecoder().decode(dbData)));
-        } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
+        } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }

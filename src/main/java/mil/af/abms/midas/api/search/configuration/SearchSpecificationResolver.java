@@ -29,7 +29,7 @@ class SearchSpecificationResolver implements HandlerMethodArgumentResolver {
         return buildSpecification(webRequest.getParameter(def.searchParam()));
     }
 
-    private <T> Specification<T> buildSpecification(String search) {
+    protected <T> Specification<T> buildSpecification(String search) {
         if (search == null || search.isEmpty()) {
             return null;
         }

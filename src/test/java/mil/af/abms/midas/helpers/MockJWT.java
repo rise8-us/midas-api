@@ -21,9 +21,10 @@ public class MockJWT {
     private static final String JWT_HEADER = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
     private static final String SECRET = "Secret for mock JWT";
 
-    public static String get() {
+
+    public static String get(Boolean withCert) {
         String header = encode(JWT_HEADER.getBytes(StandardCharsets.UTF_8));
-        String jwtPayload = createJWTPayload();
+        String jwtPayload = createJWTPayload(withCert);
         String headerAndPayload = header + "." + jwtPayload;
         String signature = hmacSha256(headerAndPayload, SECRET);
         return headerAndPayload + "." + signature;
@@ -34,15 +35,16 @@ public class MockJWT {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
-    private static String createJWTPayload() {
+    private static String createJWTPayload(Boolean withCert) {
         var jwtPayload = new JSONObject();
         var groups = new JSONArray();
         groups.put("mixer-IL2-admin");
         var zoneOffset = ZoneId.systemDefault().getRules().getOffset(LocalDateTime.now());
+        var cert = withCert ? "Grogu.Yoda.1234567890" : "";
 
         try {
+            jwtPayload.put("usercertificate", cert);
             jwtPayload.put("sub", "abc-123");
-            jwtPayload.put("usercertificate", "Grogu.Yoda.1234567890");
             jwtPayload.put("name", "Grogu Yoda");
             jwtPayload.put("email", "grogu.yoda@af.mil");
             jwtPayload.put("exp", LocalDateTime.now().toEpochSecond(zoneOffset) + 6000L);

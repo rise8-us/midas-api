@@ -33,7 +33,19 @@ public class PlatformOneAuthenticationFilterTest {
         var response = new MockHttpServletResponse();
         var filterChain = new MockFilterChain();
 
-        request.addHeader("Authorization", "Bearer " + MockJWT.get());
+        request.addHeader("Authorization", "Bearer " + MockJWT.get(true));
+
+        filter.doFilterInternal(request, response, filterChain);
+
+    }
+
+    @Test
+    public void should_get_bearer_from_request_skip_dodIdStr_and_not_throw() throws Exception {
+        var request = new MockHttpServletRequest();
+        var response = new MockHttpServletResponse();
+        var filterChain = new MockFilterChain();
+
+        request.addHeader("Authorization", "Bearer " + MockJWT.get(false));
 
         filter.doFilterInternal(request, response, filterChain);
 

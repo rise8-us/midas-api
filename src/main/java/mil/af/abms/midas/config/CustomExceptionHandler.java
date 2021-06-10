@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 import org.springframework.http.HttpStatus;
@@ -59,9 +60,7 @@ public class CustomExceptionHandler {
         }
 
         void addError(String error) {
-            if (this.errors == null) {
-                this.errors = new ArrayList<>();
-            }
+            this.errors = Optional.ofNullable(this.errors).orElse(new ArrayList<>());
             this.errors.add(error);
         }
     }

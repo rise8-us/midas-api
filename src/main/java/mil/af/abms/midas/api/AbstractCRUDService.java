@@ -4,12 +4,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -44,10 +44,8 @@ public abstract class AbstractCRUDService<E extends AbstractEntity<D>, D extends
     @Override
     @Transactional
     public E getObject(Long id) {
-        if (id == null) {
-            throw new EntityNotFoundException(entityClass.getSimpleName());
-        }
-        return repository.findById(id).orElseThrow(() -> new EntityNotFoundException(entityClass.getSimpleName(), id));
+        Long eId = Optional.ofNullable(id).orElseThrow(() -> new EntityNotFoundException(entityClass.getSimpleName()));
+        return repository.findById(id).orElseThrow(() -> new EntityNotFoundException(entityClass.getSimpleName(), eId));
     }
 
     @Override
@@ -63,20 +61,14 @@ public abstract class AbstractCRUDService<E extends AbstractEntity<D>, D extends
     @Override
     @Transactional
     public Page<E> search(Specification<E> specs, Integer page, Integer size, String sortBy, String orderBy) {
-        if (page == null || size == null) {
-            page = 0;
-            size = Integer.MAX_VALUE;
-        }
+        List<String> sortOptions = List.of("ASC", "DESC");
+        page = Optional.ofNullable(page).orElse(0);
+        size = Optional.ofNullable(size).orElse(Integer.MAX_VALUE);
+        sortBy = Optional.ofNullable(sortBy).orElse("id");
+        orderBy = Optional.ofNullable(orderBy).orElse("ASC");
+        Direction direction = sortOptions.contains(orderBy.toUpperCase()) ? Direction.valueOf(orderBy) : Direction.ASC;
 
-        if (sortBy == null) {
-            sortBy = "id";
-        }
-
-        if (orderBy == null) {
-            orderBy = "asc";
-        }
-
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(orderBy.equals("desc") ? Direction.DESC : Direction.ASC, sortBy));
+        PageRequest pageRequest = PageRequest.of(page, size, direction, sortBy);
         return repository.findAll(Specification.where(specs), pageRequest);
     }
 
