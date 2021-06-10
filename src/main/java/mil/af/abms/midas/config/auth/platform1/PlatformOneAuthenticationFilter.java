@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -81,8 +82,8 @@ public class PlatformOneAuthenticationFilter extends OncePerRequestFilter {
             throw new AuthenticationCredentialsNotFoundException("no keycloak sub provided");
         }
 
-        Long dodId = dodIdStr == null ? NO_DODID : Long.valueOf(dodIdStr);
-        keycloakUid = keycloakUid == null ? localKeycloakUid : keycloakUid;
+        Long dodId = Optional.ofNullable(dodIdStr).map(Long::valueOf).orElse(NO_DODID);
+        keycloakUid = Optional.ofNullable(keycloakUid).orElse(localKeycloakUid);
         Authentication authentication = new PlatformOneAuthenticationToken(keycloakUid, dodId, displayName, email, groups);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);

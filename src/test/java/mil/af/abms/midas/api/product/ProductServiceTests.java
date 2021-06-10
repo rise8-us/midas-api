@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -125,11 +126,16 @@ public class ProductServiceTests {
 
     @Test
     public void should_update_is_archived_by_id() {
+        Product productWithProject = new Product();
+        BeanUtils.copyProperties(product, productWithProject);
+        productWithProject.setProjects(Set.of(project));
+
         UpdateProductIsArchivedDTO updateDTO = Builder.build(UpdateProductIsArchivedDTO.class)
                 .with(d -> d.setIsArchived(true)).get();
 
-        when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
-        when(productRepository.save(any())).thenReturn(product);
+        when(productRepository.findById(anyLong())).thenReturn(Optional.of(productWithProject));
+        when(productRepository.save(any())).thenReturn(productWithProject);
+        when(projectService.archive(any(), any())).thenReturn(project);
 
         productService.updateIsArchivedById(5L, updateDTO);
 

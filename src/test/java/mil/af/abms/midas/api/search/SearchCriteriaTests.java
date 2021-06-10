@@ -16,6 +16,15 @@ public class SearchCriteriaTests {
     }
 
     @Test
+    public void should_skip_op() {
+        SearchCriteria criteria = new SearchCriteria("user.username", "#", null, "yoda", null);
+
+        assertThat(criteria.getKey()).isEqualTo("user.username");
+        assertThat(criteria.getOperation()).isEqualTo(null);
+        assertThat(criteria.getValue()).isEqualTo("yoda");
+    }
+
+    @Test
     public void should_operation_to_enum() {
         for (String op : SearchOperation.getSIMPLE_OPERATION_SET()) {
             SearchCriteria criteria = new SearchCriteria("user", op, null, "yoda", null);
