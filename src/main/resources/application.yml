@@ -9,7 +9,8 @@ custom:
   jwtAdminGroup: ${ADMIN_GROUP:midas-IL2-admin}
   gitLabUrl: ${GITLAB_API_URL:NONE}
   gitLabAccessToken: ${GITLAB_ACCESS_TOKEN:NONE}
-  randomString: ${RANDOM_STRING:NONE}
+  key: ${KEY:NONE}
+  salt: ${SALT:NONE}
 
 server:
   port: 8000

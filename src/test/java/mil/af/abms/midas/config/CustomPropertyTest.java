@@ -26,6 +26,6 @@ public class CustomPropertyTest {
         assertThat(property.getMattermostToken()).isEqualTo("testToken");
         assertThat(property.getMattermostUrl()).isEqualTo("http://mattermost.foo");
         assertThat(property.getEnvironment()).isEqualTo("local");
-        assertThat(property.getRandomString()).isEqualTo("secret-key-12345");
+        assertThat(property.getKey()).isEqualTo("secret-key-12345");
     }
 }

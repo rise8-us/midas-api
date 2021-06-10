@@ -20,7 +20,8 @@ public class CustomProperty {
     private final String jwtAdminGroup;
     private final String gitLabUrl;
     private final String gitLabAccessToken;
-    private final String randomString;
+    private final String key;
+    private final String salt;
 
     public CustomProperty(
             @DefaultValue("0.0.0") String version,
@@ -32,7 +33,8 @@ public class CustomProperty {
             String mattermostUrl,
             String gitLabUrl,
             String gitLabAccessToken,
-            String randomString
+            String key,
+            String salt
     ) {
         this.version = version;
         this.classification = classification;
@@ -43,7 +45,8 @@ public class CustomProperty {
         this.jwtAdminGroup = jwtAdminGroup;
         this.gitLabUrl = gitLabUrl;
         this.gitLabAccessToken = gitLabAccessToken;
-        this.randomString = randomString;
+        this.key = key;
+        this.salt = salt;
     }
 
 }
