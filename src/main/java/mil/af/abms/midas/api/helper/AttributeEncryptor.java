@@ -4,47 +4,59 @@ import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Base64;
 import java.util.Optional;
+import java.util.Random;
 
 import mil.af.abms.midas.config.CustomProperty;
 
 @Converter
 public class AttributeEncryptor implements AttributeConverter<String, String> {
 
+    private static final int AES_KEY_SIZE = 256;
+    private static final int ITERATION_COUNT = 65536;
+    private static final int GCM_IV_LENGTH = 12;
+    private static final int GCM_TAG_LENGTH = 16;
+
     private final CustomProperty property;
+    private final Random random = new SecureRandom();
+    private final byte[] iv = new byte[GCM_IV_LENGTH];
     private final Cipher cipher;
     private final SecretKey secretKey;
-    private final IvParameterSpec ivSpec;
-
-    private static final String AES = "AES/CBC/PKCS5Padding";
 
     public AttributeEncryptor(CustomProperty property) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeySpecException {
         this.property = property;
         String ketStr = Optional.ofNullable(property.getKey()).orElseThrow(IllegalStateException::new);
         String salt = Optional.ofNullable(property.getSalt()).orElseThrow(IllegalStateException::new);
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-        KeySpec keySpec = new PBEKeySpec(ketStr.toCharArray(), salt.getBytes(), 65536, 256);
+        KeySpec keySpec = new PBEKeySpec(ketStr.toCharArray(), salt.getBytes(), ITERATION_COUNT, AES_KEY_SIZE);
         SecretKey tmp = factory.generateSecret(keySpec);
+
         secretKey = new SecretKeySpec(tmp.getEncoded(), "AES");
-        cipher = Cipher.getInstance(AES);
-        ivSpec = new IvParameterSpec(new byte[16]);
+        cipher = Cipher.getInstance("AES/GCM/NoPadding");
     }
 
     @Override
     public String convertToDatabaseColumn(String attribute) {
+        if(attribute == null || attribute.isEmpty()) { return null; }
         try {
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivSpec);
-            return Base64.getEncoder().encodeToString(cipher.doFinal(attribute.getBytes()));
+            random.nextBytes(iv);
+            GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, iv);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, gcmParameterSpec);
+            String eString = Base64.getEncoder().encodeToString(cipher.doFinal(attribute.getBytes()));
+            String ivStr = Base64.getEncoder().encodeToString(iv);
+            return  ivStr + eString;
+
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
@@ -52,9 +64,13 @@ public class AttributeEncryptor implements AttributeConverter<String, String> {
 
     @Override
     public String convertToEntityAttribute(String dbData) {
+        if (dbData == null || dbData.isEmpty()) { return null; }
         try {
-            cipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec);
-            return new String(cipher.doFinal(Base64.getDecoder().decode(dbData)));
+            byte[] iv = Base64.getDecoder().decode(dbData.substring(0, 16));
+            String cipherStr = dbData.substring(16, dbData.length());
+            GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, iv);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, gcmParameterSpec);
+            return new String(cipher.doFinal(Base64.getDecoder().decode(cipherStr)));
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
