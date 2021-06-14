@@ -19,11 +19,11 @@ public class CreateTeamDTO implements Serializable {
 
     @NotBlank(message = "Team name must not be blank")
     @UniqueName(isNew = true)
-    String name;
+    private String name;
 
     Long gitlabGroupId;
-    String description;
+    private String description;
 
     @UsersExist
-    Set<Long> userIds;
+    private Set<Long> userIds;
 }

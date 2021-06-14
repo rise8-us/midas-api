@@ -19,16 +19,10 @@ import mil.af.abms.midas.config.SpringContext;
 
 public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot implements MethodSecurityExpressionOperations {
 
-    private static AssertionService assertionService() {
-        return SpringContext.getBean(AssertionService.class);
-    }
+    private static AssertionService assertionService() { return SpringContext.getBean(AssertionService.class); }
     private static ProductService productService() { return SpringContext.getBean(ProductService.class); }
-    public static UserService userService() {
-        return SpringContext.getBean(UserService.class);
-    }
-    private static ProjectService projectService() {
-        return SpringContext.getBean(ProjectService.class);
-    }
+    private static UserService userService() { return SpringContext.getBean(UserService.class); }
+    private static ProjectService projectService() { return SpringContext.getBean(ProjectService.class); }
 
     public CustomMethodSecurityExpressionRoot(Authentication authentication) {
         super(authentication);
@@ -75,10 +69,10 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
     }
 
     @Override
-    public void setFilterObject(Object obj) { }
+    public void setFilterObject(Object obj) { /*Not Used*/ }
 
     @Override
-    public void setReturnObject(Object obj) { }
+    public void setReturnObject(Object obj) { /*Not Used*/ }
 
     @Override
     public Object getThis() {
