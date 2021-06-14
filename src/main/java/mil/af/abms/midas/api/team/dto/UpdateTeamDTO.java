@@ -27,5 +27,5 @@ public class UpdateTeamDTO implements Serializable {
     private String description;
 
     @UsersExist
-    Set<Long> userIds;
+    private Set<Long> userIds;
 }
