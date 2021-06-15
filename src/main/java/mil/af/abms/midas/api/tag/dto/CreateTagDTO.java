@@ -27,6 +27,7 @@ public class CreateTagDTO implements Serializable {
     @ValidHex
     private String color;
 
+    @NotBlank(message = "TagType can not be empty")
     private TagType tagType;
 
 }
