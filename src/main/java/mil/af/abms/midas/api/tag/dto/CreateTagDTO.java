@@ -1,6 +1,7 @@
 package mil.af.abms.midas.api.tag.dto;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import java.io.Serializable;
 
@@ -27,7 +28,7 @@ public class CreateTagDTO implements Serializable {
     @ValidHex
     private String color;
 
-    @NotBlank(message = "TagType can not be empty")
+    @NotNull(message = "TagType can not be empty")
     private TagType tagType;
 
 }
