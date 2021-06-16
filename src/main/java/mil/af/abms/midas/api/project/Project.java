@@ -20,6 +20,7 @@ import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
 import mil.af.abms.midas.api.coverage.Coverage;
+import mil.af.abms.midas.api.gitlabconfig.GitlabConfig;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.project.dto.ProjectDTO;
 import mil.af.abms.midas.api.tag.Tag;
@@ -43,6 +44,9 @@ public class Project extends AbstractEntity<ProjectDTO> {
 
     @Column(columnDefinition = "BIGINT", nullable = false)
     private Integer gitlabProjectId;
+
+    @ManyToOne
+    private GitlabConfig gitlabConfig;
 
 
     @ManyToOne
@@ -76,7 +80,8 @@ public class Project extends AbstractEntity<ProjectDTO> {
                 getIdOrNull(team),
                 projectJourneyMap,
                 getIdOrNull(product),
-                getCurrentCoverage().toDto()
+                getCurrentCoverage().toDto(),
+                getIdOrNull(gitlabConfig)
         );
     }
 

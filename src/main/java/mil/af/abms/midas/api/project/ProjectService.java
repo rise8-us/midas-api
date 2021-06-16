@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.coverage.CoverageService;
+import mil.af.abms.midas.api.gitlabconfig.GitlabConfigService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
@@ -34,10 +35,12 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
 
     private ProductService productService;
     private CoverageService coverageService;
+    private GitlabConfigService gitlabConfigService;
 
     @Autowired
-    public ProjectService(ProjectRepository repository, TeamService teamService, TagService tagService) {
+    public ProjectService(GitlabConfigService gitlabConfigService, ProjectRepository repository, TeamService teamService, TagService tagService) {
         super(repository, Project.class, ProjectDTO.class);
+        this.gitlabConfigService = gitlabConfigService;
         this.teamService = teamService;
         this.tagService = tagService;
     }
@@ -56,15 +59,17 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
     }
 
     @Transactional
-    public Project create(CreateProjectDTO createProjectDTO) {
-        Set<Tag> tags = createProjectDTO.getTagIds().stream().map(tagService::getObject).collect(Collectors.toSet());
+    public Project create(CreateProjectDTO dto) {
+        Set<Tag> tags = dto.getTagIds().stream().map(tagService::getObject).collect(Collectors.toSet());
         Project newProject = Builder.build(Project.class)
-                .with(p -> p.setName(createProjectDTO.getName()))
-                .with(p -> p.setDescription(createProjectDTO.getDescription()))
-                .with(p -> p.setProduct(productService.findByIdOrNull(createProjectDTO.getProductId())))
+                .with(p -> p.setName(dto.getName()))
+                .with(p -> p.setDescription(dto.getDescription()))
+                .with(p -> p.setProduct(productService.findByIdOrNull(dto.getProductId())))
                 .with(p -> p.setTags(tags))
-                .with(p -> p.setTeam(teamService.findByIdOrNull(createProjectDTO.getTeamId())))
-                .with(p -> p.setGitlabProjectId(createProjectDTO.getGitlabProjectId())).get();
+                .with(p -> p.setTeam(teamService.findByIdOrNull(dto.getTeamId())))
+                .with(p -> p.setGitlabProjectId(dto.getGitlabProjectId()))
+                .with(p -> p.setGitlabConfig(gitlabConfigService.findByIdOrNull(dto.getGitlabConfigId())))
+                .get();
 
         return repository.save(newProject);
     }
@@ -76,16 +81,17 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
     }
 
     @Transactional
-    public Project updateById(Long id, UpdateProjectDTO updateProjectDTO) {
+    public Project updateById(Long id, UpdateProjectDTO dto) {
         Project foundProject = getObject(id);
-        Set<Tag> tags = updateProjectDTO.getTagIds().stream().map(tagService::getObject).collect(Collectors.toSet());
+        Set<Tag> tags = dto.getTagIds().stream().map(tagService::getObject).collect(Collectors.toSet());
 
         foundProject.setTags(tags);
-        foundProject.setTeam(teamService.findByIdOrNull(updateProjectDTO.getTeamId()));
-        foundProject.setName(updateProjectDTO.getName());
-        foundProject.setDescription(updateProjectDTO.getDescription());
-        foundProject.setGitlabProjectId(updateProjectDTO.getGitlabProjectId());
-        foundProject.setProduct(productService.findByIdOrNull(updateProjectDTO.getProductId()));
+        foundProject.setTeam(teamService.findByIdOrNull(dto.getTeamId()));
+        foundProject.setName(dto.getName());
+        foundProject.setDescription(dto.getDescription());
+        foundProject.setGitlabProjectId(dto.getGitlabProjectId());
+        foundProject.setProduct(productService.findByIdOrNull(dto.getProductId()));
+        foundProject.setGitlabConfig(gitlabConfigService.findByIdOrNull(dto.getGitlabConfigId()));
 
         return repository.save(foundProject);
     }
