@@ -28,6 +28,8 @@ import org.mockito.Captor;
 
 import mil.af.abms.midas.api.coverage.Coverage;
 import mil.af.abms.midas.api.coverage.CoverageService;
+import mil.af.abms.midas.api.gitlabconfig.GitlabConfig;
+import mil.af.abms.midas.api.gitlabconfig.GitlabConfigService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
@@ -50,6 +52,8 @@ public class ProjectServiceTests {
     ProjectService projectService;
     @MockBean
     CoverageService coverageService;
+    @MockBean
+    GitlabConfigService gitlabConfigService;
     @MockBean
     CustomProperty property;
     @MockBean
@@ -85,12 +89,17 @@ public class ProjectServiceTests {
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setProjects(Set.of(project))).get();
+    private final GitlabConfig gitlabConfig = Builder.build(GitlabConfig.class)
+            .with(g -> g.setId(42L))
+            .with(g -> g.setName("Mock IL2"))
+            .get();
 
     @Test
     public void should_create_project() {
         CreateProjectDTO createProjectDTO = new CreateProjectDTO("MIDAS", 2, 33L, Set.of(3L),
-                "Project Description", null);
+                "Project Description", null, 42L);
 
+        when(gitlabConfigService.findByIdOrNull(42L)).thenReturn(gitlabConfig);
         when(projectRepository.save(project)).thenReturn(new Project());
 
         projectService.create(createProjectDTO);
@@ -101,6 +110,7 @@ public class ProjectServiceTests {
         assertThat(projectSaved.getName()).isEqualTo(createProjectDTO.getName());
         assertThat(projectSaved.getDescription()).isEqualTo(createProjectDTO.getDescription());
         assertThat(projectSaved.getGitlabProjectId()).isEqualTo(createProjectDTO.getGitlabProjectId());
+        assertThat(projectSaved.getGitlabConfig()).isEqualTo(gitlabConfig);
     }
 
     @Test
@@ -120,14 +130,18 @@ public class ProjectServiceTests {
     public void should_update_project_by_id() {
         UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(
                 "MIDAS_TWO", 5, 22L, Set.of(tag.getId()), "New Description",
-                1L);
+                1L, 43L);
         Team newTeam = new Team();
         BeanUtils.copyProperties(team, newTeam);
         newTeam.setId(22L);
+        GitlabConfig config2 = new GitlabConfig();
+        BeanUtils.copyProperties(gitlabConfig, config2);
+        config2.setId(43L);
 
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
         when(projectRepository.save(project)).thenReturn(project);
         when(teamService.findByIdOrNull(updateProjectDTO.getTeamId())).thenReturn(newTeam);
+        when(gitlabConfigService.findByIdOrNull(43L)).thenReturn(config2);
 
         projectService.updateById(1L, updateProjectDTO);
 
@@ -137,7 +151,8 @@ public class ProjectServiceTests {
         assertThat(projectSaved.getName()).isEqualTo(updateProjectDTO.getName());
         assertThat(projectSaved.getDescription()).isEqualTo(updateProjectDTO.getDescription());
         assertThat(projectSaved.getGitlabProjectId()).isEqualTo(updateProjectDTO.getGitlabProjectId());
-        assertThat(projectSaved.getTeam().getId()).isEqualTo(updateProjectDTO.getTeamId());
+        assertThat(projectSaved.getTeam()).isEqualTo(newTeam);
+        assertThat(projectSaved.getGitlabConfig()).isEqualTo(config2);
     }
 
     @Test
@@ -250,7 +265,7 @@ public class ProjectServiceTests {
     @Test
     public void should_create_project_with_null_product_id_and_null_team_id() {
         CreateProjectDTO createDTO = new CreateProjectDTO("No Product", 20, null, Set.of(3L),
-                "Project Description", null);
+                "Project Description", null, null);
 
         when(projectRepository.save(project)).thenReturn(new Project());
 
@@ -259,16 +274,16 @@ public class ProjectServiceTests {
         verify(projectRepository, times(1)).save(projectCaptor.capture());
         Project projectSaved = projectCaptor.getValue();
 
-        assertThat(projectSaved.getProduct()).isEqualTo(null);
-        assertThat(projectSaved.getTeam()).isEqualTo(null);
-
+        assertThat(projectSaved.getProduct()).isNull();
+        assertThat(projectSaved.getTeam()).isNull();
+        assertThat(projectSaved.getGitlabConfig()).isNull();
     }
 
     @Test
     public void should_update_project_with_null_product_id_and_null_team_id() {
         UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(
                 "MIDAS_TWO", 5, null, Set.of(tag.getId()), "New Description",
-                null);
+                null, null);
 
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
         when(projectRepository.save(project)).thenReturn(project);
@@ -280,7 +295,6 @@ public class ProjectServiceTests {
 
         assertThat(projectSaved.getProduct()).isEqualTo(null);
         assertThat(projectSaved.getTeam()).isEqualTo(null);
-
     }
 
     @Test

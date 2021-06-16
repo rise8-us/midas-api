@@ -80,9 +80,9 @@ public class ProjectControllerTests extends ControllerTestHarness {
         when(userService.findByKeycloakUid(any())).thenReturn(Optional.of(authUser));
     }
 
-    @Test //TODO: fix
+    @Test
     public void should_create_project() throws Exception {
-        CreateProjectDTO createProjectDTO = new CreateProjectDTO(NAME, GITLAB_PROJECT_ID, 33L, Set.of(3L), DESCRIPTION, null);
+        CreateProjectDTO createProjectDTO = new CreateProjectDTO(NAME, GITLAB_PROJECT_ID, 33L, Set.of(3L), DESCRIPTION, null, 42L);
 
         when(projectService.findByName(NAME)).thenThrow(EntityNotFoundException.class);
         when(projectService.create(any(CreateProjectDTO.class))).thenReturn(project);
@@ -101,7 +101,7 @@ public class ProjectControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_update_project() throws Exception {
-        UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5, 0L, Set.of(tag.getId()), "", 1L);
+        UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5, 0L, Set.of(tag.getId()), "", 1L, null);
 
         when(teamService.existsById(any())).thenReturn(true);
         when(tagService.existsById(any())).thenReturn(true);
@@ -121,7 +121,7 @@ public class ProjectControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_throw_team_exists_exception_on_update_project_team() throws Exception {
-        UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5, 1L, Set.of(tag.getId()), "", 1L);
+        UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5, 1L, Set.of(tag.getId()), "", 1L, null);
 
         when(projectService.findByName(NAME)).thenReturn(project);
         when(tagService.existsById(any())).thenReturn(true);
@@ -139,7 +139,7 @@ public class ProjectControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_throw_unique_name_exception_on_project() throws Exception {
-        UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5, 0L, Set.of(tag.getId()), "false", 1L);
+        UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5, 0L, Set.of(tag.getId()), "false", 1L, null);
         Project diffProjectSameName = new Project();
         BeanUtils.copyProperties(project, diffProjectSameName);
         diffProjectSameName.setId(42L);
