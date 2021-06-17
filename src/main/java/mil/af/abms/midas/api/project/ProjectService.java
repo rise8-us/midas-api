@@ -24,7 +24,6 @@ import mil.af.abms.midas.api.project.dto.UpdateProjectJourneyMapDTO;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.team.TeamService;
-import mil.af.abms.midas.config.CustomProperty;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @Service
@@ -32,10 +31,10 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
 
     private final TeamService teamService;
     private final TagService tagService;
+    private final GitlabConfigService gitlabConfigService;
 
     private ProductService productService;
     private CoverageService coverageService;
-    private GitlabConfigService gitlabConfigService;
 
     @Autowired
     public ProjectService(GitlabConfigService gitlabConfigService, ProjectRepository repository, TeamService teamService, TagService tagService) {
@@ -44,9 +43,6 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
         this.teamService = teamService;
         this.tagService = tagService;
     }
-
-    @Autowired
-    CustomProperty property;
 
     @Autowired
     public void setProductService(ProductService productService) {
@@ -121,12 +117,8 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
 
     @Scheduled(fixedRate = 3600000)
     public void scheduledCoverageUpdates() {
-
-        if (property.getGitLabUrl().equals("NONE")) {
-            return;
-        }
-
-        List<Project> projects = repository.findAll(ProjectSpecifications.hasGitlabProjectId());
+        List<Project> projects = repository.findAll(ProjectSpecifications.hasGitlabProjectId()).stream()
+                .filter(p -> p.getGitlabConfig() != null).collect(Collectors.toList());
         projects.forEach(coverageService::updateCoverageForProject);
     }
 
