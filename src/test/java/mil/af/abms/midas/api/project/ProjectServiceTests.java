@@ -46,7 +46,7 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @ExtendWith(SpringExtension.class)
 @Import(ProjectService.class)
-public class ProjectServiceTests {
+class ProjectServiceTests {
 
     @SpyBean
     ProjectService projectService;
@@ -95,7 +95,7 @@ public class ProjectServiceTests {
             .get();
 
     @Test
-    public void should_create_project() {
+    void should_create_project() {
         CreateProjectDTO createProjectDTO = new CreateProjectDTO("MIDAS", 2, 33L, Set.of(3L),
                 "Project Description", null, 42L);
 
@@ -114,20 +114,20 @@ public class ProjectServiceTests {
     }
 
     @Test
-    public void should_find_by_name() throws EntityNotFoundException {
+    void should_find_by_name() throws EntityNotFoundException {
         when(projectRepository.findByName("MIDAS")).thenReturn(Optional.of(project));
 
         assertThat(projectService.findByName("MIDAS")).isEqualTo(project);
     }
 
     @Test
-    public void should_throw_error_find_by_name() throws EntityNotFoundException {
+    void should_throw_error_find_by_name() throws EntityNotFoundException {
         assertThrows(EntityNotFoundException.class, () ->
                 projectService.findByName("MIDAS"));
     }
 
     @Test
-    public void should_update_project_by_id() {
+    void should_update_project_by_id() {
         UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(
                 "MIDAS_TWO", 5, 22L, Set.of(tag.getId()), "New Description",
                 1L, 43L);
@@ -156,7 +156,7 @@ public class ProjectServiceTests {
     }
 
     @Test
-    public void should_set_tag_to_empty_set() {
+    void should_set_tag_to_empty_set() {
         UpdateProjectDTO updateDTO = Builder.build(UpdateProjectDTO.class)
                 .with(d -> d.setTagIds(Set.of())).get();
 
@@ -172,7 +172,7 @@ public class ProjectServiceTests {
     }
 
     @Test
-    public void should_remove_tag_from_projects() {
+    void should_remove_tag_from_projects() {
         projectService.removeTagFromProjects(tagInProject.getId(), Set.of(project));
 
         verify(projectRepository, times(1)).save(projectCaptor.capture());
@@ -181,7 +181,7 @@ public class ProjectServiceTests {
     }
 
     @Test
-    public void should_remove_tag_from_project() {
+    void should_remove_tag_from_project() {
        projectService.removeTagFromProject(tagInProject.getId(), project);
 
        Set<Tag> tagsToKeep = Set.of(tagTwoInProject);
@@ -192,7 +192,7 @@ public class ProjectServiceTests {
     }
 
     @Test
-    public void should_update_project_journey_map_by_id() {
+    void should_update_project_journey_map_by_id() {
         UpdateProjectJourneyMapDTO updateJourneyMapDTO = Builder.build(UpdateProjectJourneyMapDTO.class)
                 .with(p -> p.setProjectJourneyMap(0L)).get();
 
@@ -208,7 +208,7 @@ public class ProjectServiceTests {
     }
 
     @Test
-    public void should_archive_project() {
+    void should_archive_project() {
         ArchiveProjectDTO archiveProjectDTO = Builder.build(ArchiveProjectDTO.class)
                 .with(d -> d.setIsArchived(true)).get();
 
@@ -223,7 +223,7 @@ public class ProjectServiceTests {
     }
 
     @Test
-    public void should_un_archive_project() {
+    void should_un_archive_project() {
         ArchiveProjectDTO archiveProjectDTO = Builder.build(ArchiveProjectDTO.class)
                 .with(d -> d.setIsArchived(false)).get();
 
@@ -238,7 +238,7 @@ public class ProjectServiceTests {
     }
 
     @Test
-    public void should_add_product_to_set_of_projects() {
+    void should_add_product_to_set_of_projects() {
         Project projectInSet = new Project();
         BeanUtils.copyProperties(project, projectInSet);
         Set<Project> projects = Set.of(projectInSet);
@@ -251,7 +251,7 @@ public class ProjectServiceTests {
     }
 
     @Test
-    public void should_add_product_to_project() {
+    void should_add_product_to_project() {
         Project projectWithApp = new Project();
         BeanUtils.copyProperties(project, projectWithApp);
 
@@ -263,7 +263,7 @@ public class ProjectServiceTests {
     }
 
     @Test
-    public void should_create_project_with_null_product_id_and_null_team_id() {
+    void should_create_project_with_null_product_id_and_null_team_id() {
         CreateProjectDTO createDTO = new CreateProjectDTO("No Product", 20, null, Set.of(3L),
                 "Project Description", null, null);
 
@@ -280,7 +280,7 @@ public class ProjectServiceTests {
     }
 
     @Test
-    public void should_update_project_with_null_product_id_and_null_team_id() {
+    void should_update_project_with_null_product_id_and_null_team_id() {
         UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(
                 "MIDAS_TWO", 5, null, Set.of(tag.getId()), "New Description",
                 null, null);
@@ -298,7 +298,7 @@ public class ProjectServiceTests {
     }
 
     @Test
-    public void should_update_product_with_projects() {
+    void should_update_product_with_projects() {
         Project project2 = Builder.build(Project.class)
                 .with(p -> p.setName("API"))
                 .with(p -> p.setId(3L)).get();
@@ -318,18 +318,11 @@ public class ProjectServiceTests {
 
     @Test
     @SuppressWarnings(value = "unchecked")
-    public void should_skip_scheduled_coverage_update_projects() {
-
-        when(property.getGitLabUrl()).thenReturn("NONE");
-        projectService.scheduledCoverageUpdates();
-
-        verify(projectRepository, times(0)).findAll(any(Specification.class));
-    }
-
-    @Test
-    @SuppressWarnings(value = "unchecked")
-    public void should_run_scheduled_coverage_update_projects() {
+    void should_run_scheduled_coverage_update_projects() {
+        GitlabConfig config = new GitlabConfig();
+        config.setId(1L);
         Project p2 = new Project();
+        project.setGitlabConfig(config);
         BeanUtils.copyProperties(project, p2);
 
         when(property.getGitLabUrl()).thenReturn("http://foo.bar");

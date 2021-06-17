@@ -61,7 +61,6 @@ class Gitlab4JClientTests {
     void should_get_jobInfo() {
         doReturn(job).when(client).makeRequest(any(GitLab4JClient.GitLabApiThunk.class));
         Map<String, String> jobInfo = client.getJobInfo(3209, 14);
-        System.out.println(jobInfo);
         assertThat(jobInfo)
                 .containsEntry("ref",job.getRef())
                 .containsEntry("pipelineStatus",job.getStatus().toString())

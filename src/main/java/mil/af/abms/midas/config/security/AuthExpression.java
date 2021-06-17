@@ -15,7 +15,7 @@ public final class AuthExpression {
     public static final String HAS_PRODUCT_ACCESS = "hasProductAccess(#id)" + OR + IS_ADMIN;
     public static final String HAS_OGSM_UPDATE_ACCESS = "hasOGSMWriteAccess(#id)" + OR + IS_ADMIN;
     public static final String HAS_OGSM_CREATE_ACCESS = "hasProductAccess(#createAssertionDTO.getProductId())" + OR + IS_ADMIN;
-    public static final String HAS_PROJECT_CREATE_ACCESS = HAS_PROJECT_ACCESS + OR + PORTFOLIO_LEAD + OR + PRODUCT_MANAGER;
+    public static final String HAS_PROJECT_CREATE_ACCESS = IS_PORTFOLIO_LEAD + OR + IS_PRODUCT_MANAGER + OR + IS_ADMIN;
 
     private AuthExpression() {
         throw new IllegalStateException("Utility Class");
