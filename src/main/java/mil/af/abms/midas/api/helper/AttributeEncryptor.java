@@ -28,18 +28,16 @@ public class AttributeEncryptor implements AttributeConverter<String, String> {
     private static final int GCM_IV_LENGTH = 12;
     private static final int GCM_TAG_LENGTH = 16;
 
-    private final CustomProperty property;
     private final Random random = new SecureRandom();
     private final byte[] iv = new byte[GCM_IV_LENGTH];
     private final Cipher cipher;
     private final SecretKey secretKey;
 
     public AttributeEncryptor(CustomProperty property) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeySpecException {
-        this.property = property;
-        String ketStr = Optional.ofNullable(property.getKey()).orElseThrow(IllegalStateException::new);
+        String keyStr = Optional.ofNullable(property.getKey()).orElseThrow(IllegalStateException::new);
         String salt = Optional.ofNullable(property.getSalt()).orElseThrow(IllegalStateException::new);
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-        KeySpec keySpec = new PBEKeySpec(ketStr.toCharArray(), salt.getBytes(), ITERATION_COUNT, AES_KEY_SIZE);
+        KeySpec keySpec = new PBEKeySpec(keyStr.toCharArray(), salt.getBytes(), ITERATION_COUNT, AES_KEY_SIZE);
         SecretKey tmp = factory.generateSecret(keySpec);
 
         secretKey = new SecretKeySpec(tmp.getEncoded(), "AES");
@@ -66,9 +64,9 @@ public class AttributeEncryptor implements AttributeConverter<String, String> {
     public String convertToEntityAttribute(String dbData) {
         if (dbData == null || dbData.isEmpty()) { return null; }
         try {
-            byte[] iv = Base64.getDecoder().decode(dbData.substring(0, 16));
+            byte[] ivFromStr = Base64.getDecoder().decode(dbData.substring(0, 16));
             String cipherStr = dbData.substring(16, dbData.length());
-            GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, iv);
+            GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, ivFromStr);
             cipher.init(Cipher.DECRYPT_MODE, secretKey, gcmParameterSpec);
             return new String(cipher.doFinal(Base64.getDecoder().decode(cipherStr)));
         } catch (Exception e) {

@@ -8,9 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import lombok.extern.slf4j.Slf4j;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.GitLabApiException;
@@ -18,18 +15,19 @@ import org.gitlab4j.api.models.Job;
 import org.gitlab4j.api.models.Project;
 
 import mil.af.abms.midas.api.helper.JsonMapper;
-import mil.af.abms.midas.config.CustomProperty;
 import mil.af.abms.midas.exception.GitApiException;
 
 @Slf4j
 @SuppressWarnings("unchecked")
-@Service
 public class GitLab4JClient {
+
     private static final String QUALITY_GATE_PATH = ".ci_artifacts/sonarqube/report_qualitygate_status.json";
     private final GitLabApi client;
 
-    public GitLab4JClient(@Autowired CustomProperty property) {
-        this.client = new GitLabApi(property.getGitLabUrl(), property.getGitLabAccessToken());
+    public GitLab4JClient(String url, String token) {
+        url = Optional.ofNullable(url).orElseThrow(() -> new IllegalArgumentException("A gitlab url must be provided"));
+        token = Optional.ofNullable(token).orElseThrow(() -> new IllegalArgumentException("a gitlab token must be provided"));
+        this.client = new GitLabApi(url, token);
     }
 
     public Optional<Project> findProjectById(Integer id) {
