@@ -1,6 +1,7 @@
 package mil.af.abms.midas.api.coverage;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
@@ -24,7 +25,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.Mock;
 
+import mil.af.abms.midas.api.gitlabconfig.GitlabConfig;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
@@ -36,7 +39,7 @@ import mil.af.abms.midas.enums.SonarqubeSecurity;
 
 @ExtendWith(SpringExtension.class)
 @Import(CoverageService.class)
-public class CoverageServiceTests {
+class CoverageServiceTests {
 
     @SpyBean
     CoverageService coverageService;
@@ -44,7 +47,7 @@ public class CoverageServiceTests {
     ProjectService projectService;
     @MockBean
     CoverageRepository coverageRepository;
-    @MockBean
+    @Mock
     GitLab4JClient client;
     @Captor
     ArgumentCaptor<Coverage> coverageCaptor;
@@ -54,9 +57,18 @@ public class CoverageServiceTests {
     private static final LocalDateTime CREATION_DATE = LocalDateTime.now();
     private static final DecimalFormat df = new DecimalFormat("0.0");
 
-    Project project = Builder.build(Project.class)
+    private final GitlabConfig gitlabConfig = Builder.build(GitlabConfig.class)
+            .with(g -> g.setId(1L))
+            .with(g -> g.setToken("foobarbaz"))
+            .with(g -> g.setName("bar"))
+            .with(g -> g.setDescription("foo"))
+            .with(g -> g.setBaseUrl("http://foo.bar"))
+            .with(g -> g.setCreationDate(CREATION_DATE))
+            .get();
+    private final Project project = Builder.build(Project.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setGitlabProjectId(3209))
+            .with(p -> p.setGitlabConfig(gitlabConfig))
             .get();
     private final Coverage coverage = Builder.build(Coverage.class)
             .with(c -> c.setId(2L))
@@ -82,11 +94,11 @@ public class CoverageServiceTests {
             Map.entry("pipelineStatus", "SUCCESS"),
             Map.entry("triggeredBy", "fizzBang")
     );
-
     
     @Test
-    public void should_update_coverage_for_project() {
+    void should_update_coverage_for_project() {
 
+        doReturn(client).when(coverageService).getGitlabClient(any());
         doReturn(coveragePrevious).when(coverageService).getCurrent(1L);
         when(coverageRepository.save(any())).thenReturn(coverage);
         when(client.getLatestCodeCoverage(any(), any())).thenReturn(conditions);
@@ -111,8 +123,10 @@ public class CoverageServiceTests {
     }
 
     @Test
-    public void should_skip_update_coverage_for_project() {
+    void should_skip_update_coverage_for_project() {
         Map<String, String> emptyConditions = Map.ofEntries(Map.entry("jobId", "-1"));
+
+        doReturn(client).when(coverageService).getGitlabClient(any());
         doReturn(coveragePrevious).when(coverageService).getCurrent(1L);
         when(client.getLatestCodeCoverage(any(), any())).thenReturn(emptyConditions);
         when(client.getJobInfo(any(), any())).thenReturn(conditions);
@@ -127,7 +141,7 @@ public class CoverageServiceTests {
 
 
         @Test
-    public void should_get_current() {
+    void should_get_current() {
         when(coverageRepository.findCurrentForProject(any())).thenReturn(List.of(coverage));
 
         Coverage coverageExpected = coverageService.getCurrent(1L);
@@ -135,14 +149,18 @@ public class CoverageServiceTests {
         assertThat(coverageExpected).isEqualTo(coverage);
     }
 
-    @Test public void should_set_coverage_from_project_id() {
+    @Test
+    void should_set_coverage_from_project_id() {
         when(property.getGitLabUrl()).thenReturn("http://foo.bar");
         when(projectService.getObject(1L)).thenReturn(project);
         doReturn(coverage).when(coverageService).updateCoverageForProject(project);
-        coverageService.updateCoverageForProjectById(1L);
+        var result = coverageService.updateCoverageForProjectById(1L);
+
+        assertThat(result).isEqualTo(coverage);
     }
 
-    @Test public void should_skip_coverage_from_project_id() {
+    @Test
+    void should_skip_coverage_from_project_id() {
         when(property.getGitLabUrl()).thenReturn("NONE");
         Coverage result = coverageService.updateCoverageForProjectById(1L);
         assertThat(result).isEqualTo(new Coverage());
@@ -150,7 +168,7 @@ public class CoverageServiceTests {
 
     @Test
     @SuppressWarnings(value = "unchecked")
-    public void should_get_unknown_when_current_is_empty() {
+    void should_get_unknown_when_current_is_empty() {
         PageRequest pageRequest = PageRequest.of(1, 2);
         Page<Coverage> page = new PageImpl<Coverage>(List.of(), pageRequest, 0);
         when(coverageRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(page);
@@ -158,6 +176,17 @@ public class CoverageServiceTests {
         Coverage coverageExpected = coverageService.getCurrent(1L);
 
         assertThat(coverageExpected).isEqualTo(new Coverage());
+    }
+
+    @Test
+    void should_getGitlabClient() {
+       assertThat(coverageService.getGitlabClient(project).getClass()).isEqualTo(GitLab4JClient.class);
+    }
+
+    @Test
+    void should_throw_on_getGitlabClient() {
+        var emptyProject = new Project();
+        assertThrows(IllegalArgumentException.class, () -> coverageService.getGitlabClient(emptyProject));
     }
 
 }

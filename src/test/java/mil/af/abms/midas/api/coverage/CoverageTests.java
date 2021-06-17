@@ -23,7 +23,7 @@ import mil.af.abms.midas.enums.SonarqubeMaintainability;
 import mil.af.abms.midas.enums.SonarqubeReliability;
 import mil.af.abms.midas.enums.SonarqubeSecurity;
 
-public class CoverageTests {
+class CoverageTests {
 
     private static final LocalDateTime CREATION_DATE = LocalDateTime.now();
   
@@ -60,7 +60,7 @@ public class CoverageTests {
             .get();
 
     @Test
-    public void should_have_all_coverage_dto_fields() {
+    void should_have_all_coverage_dto_fields() {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Coverage.class, fields::add);
 
@@ -68,7 +68,7 @@ public class CoverageTests {
     }
 
     @Test
-    public void should_set_and_get_properties() {
+    void should_set_and_get_properties() {
         assertThat(coverage.getId()).isEqualTo(1L);
         assertThat(coverage.getTestCoverage()).isEqualTo(98.6F);
         assertThat(coverage.getMaintainabilityRating()).isEqualTo(SonarqubeMaintainability.A);
@@ -79,17 +79,17 @@ public class CoverageTests {
     }
 
     @Test
-    public void should_return_dto() {
+    void should_return_dto() {
         assertThat(coverage.toDto()).isEqualTo(coverageDTO);
     }
 
     @Test
-    public void should_be_equal() {
+    void should_be_equal() {
         Coverage coverage2 = new Coverage();
         BeanUtils.copyProperties(coverage, coverage2);
 
         assertEquals(coverage, coverage);
-        assertNotEquals(coverage, null);
+        assertNotEquals(null, coverage);
         assertNotEquals(coverage, new User());
         assertNotEquals(coverage, new Coverage());
         assertEquals(coverage, coverage2);
