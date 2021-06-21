@@ -14,6 +14,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
@@ -45,6 +46,8 @@ public class CommentServiceTests {
     ArgumentCaptor<Comment> commentCaptor;
     @Captor
     ArgumentCaptor<Long> longCaptor;
+    @MockBean
+    SimpMessageSendingOperations websocket;
 
     private final User createdBy = Builder.build(User.class).with(u -> u.setId(3L)).get();
     private final Comment parentComment = Builder.build(Comment.class).with(c -> c.setId(55L)).get();
@@ -88,13 +91,14 @@ public class CommentServiceTests {
     }
 
     @Test
-    public void should_recursively_deleteById() {
+    void should_recursively_deleteById() {
 
-        Comment parentComment = new Comment();
+        var parentComment = new Comment();
         BeanUtils.copyProperties(comment, parentComment);
-        Comment childCommment =  Builder.build(Comment.class)
+        var childCommment =  Builder.build(Comment.class)
                 .with(c -> c.setId(5L))
                 .with(c -> c.setParent(parentComment))
+                .with(c -> c.setAssertion(assertion))
                 .get();
         parentComment.getChildren().add(childCommment);
 

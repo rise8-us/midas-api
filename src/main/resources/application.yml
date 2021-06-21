@@ -11,6 +11,7 @@ custom:
   gitLabAccessToken: ${GITLAB_ACCESS_TOKEN:NONE}
   key: ${KEY:${MYSQL_DB_ADMIN_PASSWORD}}
   salt: ${SALT:${MYSQL_HOST}}
+  allowedOrigin: ${ALLOWED_ORIGIN:*dso.mil}
 
 server:
   port: 8000
@@ -19,7 +20,7 @@ logging:
   level:
     root: INFO
     org.springframework.security: WARN
-    # org.springframework.security.web.FilterChainProxy: DEBUG
+#    org.springframework.security.web.FilterChainProxy: DEBUG
 
 spring:
   jpa:
