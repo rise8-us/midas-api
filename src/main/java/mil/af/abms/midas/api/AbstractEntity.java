@@ -1,14 +1,21 @@
 package mil.af.abms.midas.api;
 
+import static mil.af.abms.midas.config.security.websocket.WebSocketConfig.MESSAGE_TOPIC;
+
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.PostPersist;
+import javax.persistence.PostRemove;
+import javax.persistence.PostUpdate;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -20,11 +27,16 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 
 import mil.af.abms.midas.api.helper.JsonMapper;
+import mil.af.abms.midas.config.SpringContext;
 
 @Getter
 @Setter
 @MappedSuperclass
 public abstract class AbstractEntity<D extends AbstractDTO> implements Serializable {
+
+    protected static SimpMessageSendingOperations websocket() {
+        return SpringContext.getBean(SimpMessageSendingOperations.class);
+    }
 
     @Id
     @GeneratedValue
@@ -51,5 +63,22 @@ public abstract class AbstractEntity<D extends AbstractDTO> implements Serializa
     }
 
     public abstract D toDto();
+
+    private String getLowercaseClassName() {
+        return this.getClass().getSimpleName().toLowerCase();
+    }
+
+    @PostUpdate
+    @PostPersist
+    public void postSave() {
+        var endpoint = String.format("%s/update_%s", MESSAGE_TOPIC, getLowercaseClassName());
+        websocket().convertAndSend(endpoint, this.toDto());
+    }
+
+    @PostRemove
+    public void postRemove() {
+        var endpoint = String.format("%s/delete_%s", MESSAGE_TOPIC, getLowercaseClassName());
+        websocket().convertAndSend(endpoint,this.toDto());
+    }
 
 }
