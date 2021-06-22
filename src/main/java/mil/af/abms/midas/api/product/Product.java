@@ -2,6 +2,8 @@ package mil.af.abms.midas.api.product;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -38,7 +40,8 @@ public class Product extends AbstractEntity<ProductDTO> {
     private Boolean isArchived = false;
 
     @Column(columnDefinition = "VARCHAR(255)", nullable = false)
-    private ProductType type;
+    @Enumerated(EnumType.STRING)
+    private ProductType type = ProductType.PRODUCT;
 
     @ManyToOne
     @JoinColumn(name = "product_manager_id")
