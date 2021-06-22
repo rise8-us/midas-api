@@ -27,7 +27,7 @@ public class AssertionTypeStrategyTests extends RepositoryTestHarness {
 
     private Product product = Builder.build(Product.class)
             .with(p -> p.setName("foo"))
-            .with(p -> p.setType(ProductType.APPLICATION))
+            .with(p -> p.setType(ProductType.PRODUCT))
             .get();
     private  User user = Builder.build(User.class)
             .with(u -> u.setKeycloakUid("abc-123"))
