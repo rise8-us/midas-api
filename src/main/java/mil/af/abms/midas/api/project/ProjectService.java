@@ -2,7 +2,6 @@ package mil.af.abms.midas.api.project;
 
 import javax.transaction.Transactional;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -78,8 +77,8 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
 
     @Transactional
     public Project updateById(Long id, UpdateProjectDTO dto) {
-        Project foundProject = getObject(id);
-        Set<Tag> tags = dto.getTagIds().stream().map(tagService::getObject).collect(Collectors.toSet());
+        var foundProject = getObject(id);
+        var tags = dto.getTagIds().stream().map(tagService::getObject).collect(Collectors.toSet());
 
         foundProject.setTags(tags);
         foundProject.setTeam(teamService.findByIdOrNull(dto.getTeamId()));
@@ -92,16 +91,15 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
         return repository.save(foundProject);
     }
 
-    @Transactional
     public void removeTagFromProject(Long tagId, Project project) {
-        Set<Tag> tagsToKeep = project.getTags().stream().filter(t -> !t.getId().equals(tagId)).collect(Collectors.toSet());
+        var tagsToKeep = project.getTags().stream().filter(t -> !t.getId().equals(tagId)).collect(Collectors.toSet());
         project.setTags(tagsToKeep);
         repository.save(project);
     }
 
     @Transactional
     public Project updateJourneyMapById(Long id, UpdateProjectJourneyMapDTO updateProjectJourneyMapDTO) {
-        Project foundProject = getObject(id);
+        var foundProject = getObject(id);
         foundProject.setProjectJourneyMap(updateProjectJourneyMapDTO.getProjectJourneyMap());
 
         return repository.save(foundProject);
@@ -109,7 +107,7 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
 
     @Transactional
     public Project archive(Long id, ArchiveProjectDTO archiveProjectDTO) {
-        Project projectToArchive = getObject(id);
+        var projectToArchive = getObject(id);
         projectToArchive.setTeam(null);
         projectToArchive.setIsArchived(archiveProjectDTO.getIsArchived());
         return repository.save(projectToArchive);
@@ -117,7 +115,7 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
 
     @Scheduled(fixedRate = 3600000)
     public void scheduledCoverageUpdates() {
-        List<Project> projects = repository.findAll(ProjectSpecifications.hasGitlabProjectId()).stream()
+        var projects = repository.findAll(ProjectSpecifications.hasGitlabProjectId()).stream()
                 .filter(p -> p.getGitlabConfig() != null).collect(Collectors.toList());
         projects.forEach(coverageService::updateCoverageForProject);
     }

@@ -14,8 +14,8 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
         messages
                 .simpTypeMatchers(SimpMessageType.DISCONNECT, SimpMessageType.HEARTBEAT).permitAll()  // allow all DISCONNECT and HEARTBEAT
                 .simpTypeMatchers(SimpMessageType.CONNECT).authenticated()
-                .simpSubscribeDestMatchers("/topic/**").permitAll()
-                .anyMessage().permitAll();                                            // disallow everything else
+                .simpSubscribeDestMatchers("/topic/**").authenticated()
+                .anyMessage().denyAll();                                            // disallow everything else
     }
 
     @Override

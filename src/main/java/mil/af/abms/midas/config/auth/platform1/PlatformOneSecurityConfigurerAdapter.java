@@ -24,7 +24,7 @@ public class PlatformOneSecurityConfigurerAdapter extends WebSecurityConfigurerA
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        PlatformOneAuthenticationFilter platformOneAuthenticationFilter = new PlatformOneAuthenticationFilter();
+        var platformOneAuthenticationFilter = new PlatformOneAuthenticationFilter();
 
         if (env.equals("local")) {
             platformOneAuthenticationFilter.setLocalKeycloakUid(localKeycloakUid);
@@ -35,8 +35,8 @@ public class PlatformOneSecurityConfigurerAdapter extends WebSecurityConfigurerA
                 .and().authorizeRequests()
                 .anyRequest().hasAnyAuthority("IS_AUTHENTICATED").and()
                 .addFilterBefore(platformOneAuthenticationFilter, BasicAuthenticationFilter.class)
-                .cors().and().csrf()
-                .disable().headers().frameOptions().sameOrigin();
+                .csrf()
+                .disable().headers().frameOptions();
     }
 
     @Override
