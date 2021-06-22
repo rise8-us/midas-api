@@ -40,7 +40,7 @@ public class ProductTests {
             .with(p -> p.setParent(portfolio))
             .with(p -> p.setChildren(Set.of()))
             .with(p -> p.setProjects(projects))
-            .with(p -> p.setType(ProductType.APPLICATION))
+            .with(p -> p.setType(ProductType.PRODUCT))
             .get();
     private final ProductDTO productDTO = Builder.build(ProductDTO.class)
             .with(d -> d.setId(1L))
@@ -53,7 +53,7 @@ public class ProductTests {
             .with(d -> d.setTags(new HashSet<>()))
             .with(d -> d.setProjectIds(Set.of(3L)))
             .with(d -> d.setChildren(Set.of()))
-            .with(d -> d.setType(ProductType.APPLICATION))
+            .with(d -> d.setType(ProductType.PRODUCT))
             .get();
 
     @Test
