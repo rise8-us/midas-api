@@ -4,22 +4,24 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 
+import java.util.Map;
+
 import mil.af.abms.midas.api.search.SearchOperation;
+
+
 
 public interface ParsingStrategy {
 
+    static final  Map<String, ParsingStrategy> parsingStrategies = Map.ofEntries(
+            Map.entry("String", new StringParsingStrategy()),
+            Map.entry("Long", new LongParsingStrategy()),
+            Map.entry("AssertionType", new AssertionTypeParsingStrategy()),
+            Map.entry("ProductType", new ProductTypeParsingStrategy())
+    );
+
     static ParsingStrategy getStrategy(Path<?> node) {
         String javaType = node.getJavaType().getSimpleName();
-        switch (javaType) {
-            case "String":
-                return new StringParsingStrategy();
-            case "Long":
-                return new LongParsingStrategy();
-            case "AssertionType":
-                return new AssertionTypeParsingStrategy();
-            default:
-                return new NullParsingStrategy();
-        }
+        return parsingStrategies.getOrDefault(javaType, new NullParsingStrategy());
     }
 
     Predicate makePredicate(
