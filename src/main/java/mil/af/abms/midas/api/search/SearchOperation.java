@@ -1,5 +1,7 @@
 package mil.af.abms.midas.api.search;
 
+import java.util.Map;
+
 import lombok.Getter;
 
 public enum SearchOperation {
@@ -14,27 +16,18 @@ public enum SearchOperation {
     public static final String LEFT_PARENTHESIS = "(";
     public static final String RIGHT_PARENTHESIS = ")";
     @Getter
-    private static final String[] SIMPLE_OPERATION_SET = {":", "!", ">", ">=", "<", "<=", "::"};
+    protected static final Map<String, SearchOperation> simpleOperations = Map.ofEntries(
+            Map.entry(":", EQUALS),
+            Map.entry("!", NOT_EQUALS),
+            Map.entry(">", GREATER_THAN),
+            Map.entry(">=", GREATER_THAN_OR_EQUAL),
+            Map.entry("<", LESS_THAN),
+            Map.entry("<=", LESS_THAN_OR_EQUAL),
+            Map.entry("::", INCLUDES)
+    );
 
     public static SearchOperation getSimpleOperation(final String input) {
-        switch (input) {
-            case ":":
-                return EQUALS;
-            case "!":
-                return NOT_EQUALS;
-            case ">":
-                return GREATER_THAN;
-            case ">=":
-                return GREATER_THAN_OR_EQUAL;
-            case "<":
-                return LESS_THAN;
-            case "<=":
-                return LESS_THAN_OR_EQUAL;
-            case "::":
-                return INCLUDES;
-            default:
-                return null;
-        }
+        return simpleOperations.getOrDefault(input, null);
     }
 
 }

@@ -6,7 +6,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 import java.util.Objects;
 
@@ -41,14 +40,11 @@ public class Coverage extends AbstractEntity<CoverageDTO> {
     @JoinColumn(name = "project_id", nullable = true)
     private Project project;
 
-    @Transient
     private String pipelineUrl;
-    @Transient
     private String triggeredBy;
-    @Transient
     private String pipelineStatus;
-    @Transient
     private String ref;
+    private String sonarqubeUrl;
 
     @Override
     public CoverageDTO toDto() {
@@ -65,7 +61,8 @@ public class Coverage extends AbstractEntity<CoverageDTO> {
                 pipelineUrl,
                 triggeredBy,
                 pipelineStatus,
-                ref
+                ref,
+                sonarqubeUrl
         );
     }
 

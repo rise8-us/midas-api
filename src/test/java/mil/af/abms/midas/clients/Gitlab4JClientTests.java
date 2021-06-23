@@ -21,6 +21,7 @@ import org.gitlab4j.api.GitLabApiException;
 import org.gitlab4j.api.models.Job;
 import org.gitlab4j.api.models.JobStatus;
 import org.gitlab4j.api.models.Pipeline;
+import org.gitlab4j.api.models.PipelineStatus;
 import org.gitlab4j.api.models.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,6 +42,7 @@ class Gitlab4JClientTests {
             .get();
     Pipeline pipeline = Builder.build(Pipeline.class)
             .with(p -> p.setWebUrl("http://foo.bar"))
+            .with(p -> p.setStatus(PipelineStatus.SUCCESS))
             .get();
     Job job = Builder.build(Job.class)
             .with(j -> j.setId(123456))
@@ -50,6 +52,8 @@ class Gitlab4JClientTests {
             .with(j -> j.setUser(user))
             .with(j -> j.setStatus(JobStatus.SUCCESS))
             .get();
+
+    private static final String SONAR_URL = "foo\nyou can browse https://sonarqube";
 
     @Test
     void should_return_false_on_projectExistsById() {
@@ -121,6 +125,13 @@ class Gitlab4JClientTests {
                 .containsEntry("triggeredBy", user.getUsername())
                 .containsEntry("pipelineUrl", pipeline.getWebUrl())
                 .containsEntry("jobId", job.getId().toString());
+    }
+
+    @Test
+    void should_getSonarqubeProjectUrl() {
+        doReturn(Optional.of(new ByteArrayInputStream(SONAR_URL.getBytes(StandardCharsets.UTF_8))))
+                .when(client).makeRequestReturnOptional(any());
+        assertThat(client.getSonarqubeProjectUrl(1,2)).isEqualTo("https://sonarqube");
     }
 
     @Test

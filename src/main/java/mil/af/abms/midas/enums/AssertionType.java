@@ -28,7 +28,7 @@ public enum AssertionType {
             "KPIs used as checkpoints to determine if strategies are working"
     );
 
-    private final String DisplayName;
+    private final String displayName;
     private final String description;
     private final String detail;
 }

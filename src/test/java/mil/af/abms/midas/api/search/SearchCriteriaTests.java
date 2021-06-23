@@ -26,7 +26,7 @@ public class SearchCriteriaTests {
 
     @Test
     public void should_operation_to_enum() {
-        for (String op : SearchOperation.getSIMPLE_OPERATION_SET()) {
+        for (String op : SearchOperation.simpleOperations.keySet()) {
             SearchCriteria criteria = new SearchCriteria("user", op, null, "yoda", null);
 
             assertThat(criteria.getOperation()).isEqualTo(SearchOperation.getSimpleOperation(op));

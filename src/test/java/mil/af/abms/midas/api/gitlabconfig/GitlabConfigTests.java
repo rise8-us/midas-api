@@ -15,12 +15,11 @@ import org.springframework.util.ReflectionUtils;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.coverage.Coverage;
-import mil.af.abms.midas.api.coverage.dto.CoverageDTO;
 import mil.af.abms.midas.api.gitlabconfig.dto.GitlabConfigDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.user.User;
 
-public class GitlabConfigTests {
+class GitlabConfigTests {
 
     private static final LocalDateTime CREATION_DATE = LocalDateTime.now();
 
@@ -41,15 +40,15 @@ public class GitlabConfigTests {
             .get();
 
     @Test
-    public void should_have_all_coverage_dto_fields() {
+    void should_have_all_gitlabConfig_dto_fields() {
         List<Field> fields = new LinkedList<>();
-        ReflectionUtils.doWithFields(Coverage.class, fields::add);
+        ReflectionUtils.doWithFields(GitlabConfig.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(CoverageDTO.class.getDeclaredFields().length);
+        assertThat(fields.size()).isEqualTo(GitlabConfigDTO.class.getDeclaredFields().length + 1);
     }
 
     @Test
-    public void should_set_and_get_properties() {
+    void should_set_and_get_properties() {
         assertThat(gitlabConfig.getId()).isEqualTo(1L);
         assertThat(gitlabConfig.getToken()).isEqualTo("foobarbaz");
         assertThat(gitlabConfig.getName()).isEqualTo("bar");
@@ -59,13 +58,13 @@ public class GitlabConfigTests {
     }
 
     @Test
-    public void should_return_dto() {
+    void should_return_dto() {
         assertThat(gitlabConfig.toDto()).isEqualTo(gitlabConfigDTO);
     }
 
     @Test
-    public void should_be_equal() {
-        GitlabConfig gitlabConfig2 = new GitlabConfig();
+    void should_be_equal() {
+        var gitlabConfig2 = new GitlabConfig();
         BeanUtils.copyProperties(gitlabConfig, gitlabConfig2);
 
         assertEquals(gitlabConfig, gitlabConfig);
