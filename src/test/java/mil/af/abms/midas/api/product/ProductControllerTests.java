@@ -31,6 +31,7 @@ import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.api.user.User;
+import mil.af.abms.midas.enums.ProductType;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @WebMvcTest({ProductController.class})
@@ -48,9 +49,9 @@ public class ProductControllerTests extends ControllerTestHarness {
     private final static LocalDateTime CREATION_DATE = LocalDateTime.now();
 
     private final UpdateProductDTO updateProductDTO = new UpdateProductDTO("Midas", "Full Stack",
-            3L, 1L, Set.of(3L), Set.of(3L));
+            3L, 1L, Set.of(3L), Set.of(3L),Set.of(), ProductType.PRODUCT);
     private final CreateProductDTO createProductDTO = new CreateProductDTO("Midas", "backend",
-            1L, 1L, Set.of(3L), Set.of(3L));
+            1L, 1L, Set.of(3L), Set.of(3L), Set.of(), ProductType.PRODUCT);
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(5L))
             .with(p -> p.setName("Midas"))
@@ -66,7 +67,7 @@ public class ProductControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_create_product() throws Exception {
+    void should_create_product() throws Exception {
         when(productService.findByName(createProductDTO.getName())).thenThrow(EntityNotFoundException.class);
         when(productService.create(any(CreateProductDTO.class))).thenReturn(product);
         when(productService.existsById(anyLong())).thenReturn(true);
@@ -85,7 +86,7 @@ public class ProductControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_update_product_by_id() throws Exception {
+    void should_update_product_by_id() throws Exception {
         when(productService.findByName(updateProductDTO.getName())).thenReturn(product);
         when(productService.updateById(anyLong(), any(UpdateProductDTO.class))).thenReturn(product);
         when(userService.existsById(anyLong())).thenReturn(true);
@@ -103,7 +104,7 @@ public class ProductControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_throw_unique_name_validation_on_create() throws Exception {
+    void should_throw_unique_name_validation_on_create() throws Exception {
         String errorMessage = "product name already exists";
 
         when(productService.findByName(createProductDTO.getName())).thenReturn(product);
@@ -123,7 +124,7 @@ public class ProductControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_throw_unique_name_validation_error_update_product_by_id() throws Exception {
+    void should_throw_unique_name_validation_error_update_product_by_id() throws Exception {
         String errorMessage = "product name already exists";
         Product existingProduct = new Product();
         BeanUtils.copyProperties(product, existingProduct);
@@ -145,7 +146,7 @@ public class ProductControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_toggle_product_is_archived() throws Exception {
+    void should_toggle_product_is_archived() throws Exception {
         UpdateProductIsArchivedDTO archivedDTO = Builder.build(UpdateProductIsArchivedDTO.class)
                 .with(d -> d.setIsArchived(true)).get();
         product.setIsArchived(true);

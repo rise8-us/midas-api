@@ -1,6 +1,6 @@
 package mil.af.abms.midas.api.search;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -53,7 +53,7 @@ public class AssertionTypeStrategyTests extends RepositoryTestHarness {
     AssertionRepository assertionRepository;
 
     @BeforeEach
-    public void init() {
+    void init() {
         user = entityManager.persist(user);
         product = entityManager.persist(product);
         goal.setProduct(product);
@@ -66,21 +66,30 @@ public class AssertionTypeStrategyTests extends RepositoryTestHarness {
     }
 
     @Test
-    public void should_search_by_spec_and_parsing_strategy_type_equal_to() {
+    void should_search_by_spec_and_parsing_strategy_type_equal_to() {
         SearchCriteria criteria = new SearchCriteria("type", ":", null, "GOAL", null);
         Specification<Assertion> specs = new SpecificationImpl<>(criteria);
         List<Assertion> assertions = assertionRepository.findAll(specs);
 
-        assertThat(assertions.get(0).getText()).isEqualTo(goal.getText());
+        assertThat(assertions).hasSize(1);
     }
 
     @Test
-    public void should_search_by_spec_and_parsing_strategy_type_not_equalTo() {
+    void should_search_by_spec_and_parsing_strategy_type_not_equalTo() {
         SearchCriteria criteria = new SearchCriteria("type", "!", null, "GOAL", null);
         Specification<Assertion> specs = new SpecificationImpl<>(criteria);
         List<Assertion> assertions = assertionRepository.findAll(specs);
 
-        assertThat(assertions.get(0).getText()).isEqualTo(strategy.getText());
+        assertThat(assertions).hasSize(1);
+    }
+
+    @Test
+    void should_search_by_spec_and_parsing_strategy_type_null() {
+        SearchCriteria criteria = new SearchCriteria("type", "::", null, "GOAL", null);
+        Specification<Assertion> specs = new SpecificationImpl<>(criteria);
+        List<Assertion> assertions = assertionRepository.findAll(specs);
+
+        assertThat(assertions).hasSize(2);
     }
 
 }

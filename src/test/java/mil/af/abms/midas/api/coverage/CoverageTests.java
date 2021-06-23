@@ -89,7 +89,7 @@ class CoverageTests {
         BeanUtils.copyProperties(coverage, coverage2);
 
         assertEquals(coverage, coverage);
-        assertNotEquals(null, coverage);
+        assertNotEquals(coverage, null);
         assertNotEquals(coverage, new User());
         assertNotEquals(coverage, new Coverage());
         assertEquals(coverage, coverage2);

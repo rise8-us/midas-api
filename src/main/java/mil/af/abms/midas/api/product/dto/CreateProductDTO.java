@@ -11,17 +11,19 @@ import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.product.validation.UniqueName;
 import mil.af.abms.midas.api.validation.ProductExists;
+import mil.af.abms.midas.api.validation.ProductsExist;
 import mil.af.abms.midas.api.validation.ProjectsCanBeAssignedToProduct;
 import mil.af.abms.midas.api.validation.ProjectsExist;
 import mil.af.abms.midas.api.validation.TagsExist;
 import mil.af.abms.midas.api.validation.UserExists;
+import mil.af.abms.midas.enums.ProductType;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateProductDTO implements Serializable {
 
-    @NotBlank(message = "product name must not be blank")
+    @NotBlank(message = "name must not be blank")
     @UniqueName(isNew = true)
     private String name;
 
@@ -39,5 +41,10 @@ public class CreateProductDTO implements Serializable {
 
     @TagsExist
     private Set<Long> tagIds;
+
+    @ProductsExist
+    private Set<Long> childIds;
+
+    private ProductType type;
 
 }
