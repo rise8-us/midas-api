@@ -36,14 +36,14 @@ public class LongParsingStrategyTests extends RepositoryTestHarness {
     UserRepository userRepository;
 
     @BeforeEach
-    public void init() {
+    void init() {
         entityManager.persist(testUser1);
         entityManager.persist(testUser2);
         entityManager.flush();
     }
 
     @Test
-    public void should_search_by_spec_and_parsing_strat_long_greater_than_equalTo() {
+    void should_search_by_spec_and_parsing_strat_long_greater_than_equalTo() {
         SearchCriteria criteria = new SearchCriteria("id", ">=", null, "1", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -52,7 +52,7 @@ public class LongParsingStrategyTests extends RepositoryTestHarness {
     }
 
     @Test
-    public void should_search_by_spec_and_parsing_strat_long_greater_than() {
+    void should_search_by_spec_and_parsing_strat_long_greater_than() {
         SearchCriteria criteria = new SearchCriteria("id", ">", null, "1", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -61,7 +61,7 @@ public class LongParsingStrategyTests extends RepositoryTestHarness {
     }
 
     @Test
-    public void should_search_by_spec_and_parsing_strat_long_less_than() {
+    void should_search_by_spec_and_parsing_strat_long_less_than() {
         SearchCriteria criteria = new SearchCriteria("id", "<", null, "2", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -70,7 +70,7 @@ public class LongParsingStrategyTests extends RepositoryTestHarness {
     }
 
     @Test
-    public void should_search_by_spec_and_parsing_strat_long_less_than_equalTo() {
+    void should_search_by_spec_and_parsing_strat_long_less_than_equalTo() {
         SearchCriteria criteria = new SearchCriteria("id", "<=", null, "2", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -79,7 +79,7 @@ public class LongParsingStrategyTests extends RepositoryTestHarness {
     }
 
     @Test
-    public void should_search_by_spec_and_parsing_strat_long_equalTo() {
+    void should_search_by_spec_and_parsing_strat_long_equalTo() {
         SearchCriteria criteria = new SearchCriteria("id", ":", null, "2", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -88,12 +88,21 @@ public class LongParsingStrategyTests extends RepositoryTestHarness {
     }
 
     @Test
-    public void should_search_by_spec_and_parsing_strat_long_not_equalTo() {
+    void should_search_by_spec_and_parsing_strat_long_not_equalTo() {
         SearchCriteria criteria = new SearchCriteria("id", "!", null, "2", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
 
         assertThat(users.size()).isEqualTo(1);
+    }
+
+    @Test
+    void should_search_by_spec_and_parsing_strat_long_null() {
+        SearchCriteria criteria = new SearchCriteria("id", "::", null, "2", null);
+        Specification<User> specs = new SpecificationImpl<>(criteria);
+        List<User> users = userRepository.findAll(specs);
+
+        assertThat(users.size()).isEqualTo(2);
     }
 
 }

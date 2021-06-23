@@ -4,6 +4,8 @@ package mil.af.abms.midas.api.validation;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import lombok.Setter;
@@ -23,6 +25,6 @@ public class ProductExistsValidator implements ConstraintValidator<ProductExists
 
     @Override
     public boolean isValid(Long id, ConstraintValidatorContext constraintContext) {
-        return id == null ? allowNull : productService.existsById(id);
+        return Optional.ofNullable(id).map(productService::existsById).orElse(allowNull);
     }
 }

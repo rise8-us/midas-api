@@ -1,6 +1,6 @@
 package mil.af.abms.midas.api.search;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ import mil.af.abms.midas.api.user.UserRepository;
 
 @DataJpaTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class StringParsingStrategyTests extends RepositoryTestHarness {
+class StringParsingStrategyTests extends RepositoryTestHarness {
 
     private final User testUser1 = Builder.build(User.class)
             .with(u -> u.setKeycloakUid("abc-123"))
@@ -38,14 +38,14 @@ public class StringParsingStrategyTests extends RepositoryTestHarness {
     UserRepository userRepository;
 
     @BeforeEach
-    public void init() {
+    void init() {
         entityManager.persist(testUser1);
         entityManager.persist(testUser2);
         entityManager.flush();
     }
 
     @Test
-    public void should_search_by_spec_and_parsing_strat_string_equalTo() {
+    void should_search_by_spec_and_parsing_strat_string_equalTo() {
         SearchCriteria criteria = new SearchCriteria("username", ":", null, "foo", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -54,7 +54,7 @@ public class StringParsingStrategyTests extends RepositoryTestHarness {
     }
 
     @Test
-    public void should_search_by_spec_and_parsing_strat_string_not_equalTo() {
+    void should_search_by_spec_and_parsing_strat_string_not_equalTo() {
         SearchCriteria criteria = new SearchCriteria("username", "!", null, "foobar", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -63,7 +63,7 @@ public class StringParsingStrategyTests extends RepositoryTestHarness {
     }
 
     @Test
-    public void should_search_by_spec_and_parsing_strat_string_greater_than() {
+    void should_search_by_spec_and_parsing_strat_string_greater_than() {
         SearchCriteria criteria = new SearchCriteria("username", ">", null, "fooba", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -73,7 +73,7 @@ public class StringParsingStrategyTests extends RepositoryTestHarness {
     }
 
     @Test
-    public void should_search_by_spec_and_parsing_strat_string_less_than() {
+    void should_search_by_spec_and_parsing_strat_string_less_than() {
         SearchCriteria criteria = new SearchCriteria("username", "<", null, "foobar", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -83,44 +83,53 @@ public class StringParsingStrategyTests extends RepositoryTestHarness {
     }
 
     @Test
-    public void should_search_by_spec_and_parsing_strat_string_starts_with() {
+    void should_search_by_spec_and_parsing_strat_string_null() {
+        SearchCriteria criteria = new SearchCriteria("username", "<=", null, "foobar", null);
+        Specification<User> specs = new SpecificationImpl<>(criteria);
+        List<User> users = userRepository.findAll(specs);
+
+        assertThat(users).hasSize(2);
+    }
+
+    @Test
+    void should_search_by_spec_and_parsing_strat_string_starts_with() {
         SearchCriteria criteria = new SearchCriteria("username", ":", null, "foo", "*");
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
 
-        assertThat(users.size()).isEqualTo(2);
+        assertThat(users).hasSize(2);
     }
 
     @Test
-    public void should_search_by_spec_and_parsing_strat_string_ends_with() {
+    void should_search_by_spec_and_parsing_strat_string_ends_with() {
         SearchCriteria criteria = new SearchCriteria("username", ":", "*", "bar", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
 
-        assertThat(users.size()).isEqualTo(1);
+        assertThat(users).hasSize(1);
         assertThat(users.get(0).getUsername()).isEqualTo(testUser2.getUsername());
     }
 
     @Test
-    public void should_search_by_spec_and_parsing_strat_string_contains() {
+    void should_search_by_spec_and_parsing_strat_string_contains() {
         SearchCriteria criteria = new SearchCriteria("username", ":", "*", "oo", "*");
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
 
-        assertThat(users.size()).isEqualTo(2);
+        assertThat(users).hasSize(2);
     }
 
     @Test
-    public void should_search_by_spec_and_parsing_strat_string_does_not_starts_with() {
+    void should_search_by_spec_and_parsing_strat_string_does_not_starts_with() {
         SearchCriteria criteria = new SearchCriteria("username", "!", null, "foo", "*");
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
 
-        assertThat(users.size()).isEqualTo(0);
+        assertThat(users).isEmpty();
     }
 
     @Test
-    public void should_search_by_spec_and_parsing_strat_string_does_not_ends_with() {
+    void should_search_by_spec_and_parsing_strat_string_does_not_ends_with() {
         SearchCriteria criteria = new SearchCriteria("username", "!", "*", "bar", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
@@ -130,12 +139,12 @@ public class StringParsingStrategyTests extends RepositoryTestHarness {
     }
 
     @Test
-    public void should_search_by_spec_and_parsing_strat_string_does_not_contain() {
+    void should_search_by_spec_and_parsing_strat_string_does_not_contain() {
         SearchCriteria criteria = new SearchCriteria("username", "!", "*", "oo", "*");
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
 
-        assertThat(users.size()).isEqualTo(0);
+        assertThat(users).isEmpty();
     }
 
 }

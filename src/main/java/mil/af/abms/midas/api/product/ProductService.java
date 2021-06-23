@@ -41,22 +41,26 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
     public void setTagService(TagService tagService) { this.tagService = tagService; }
 
     @Transactional
-    public Product create(CreateProductDTO createProductDTO) {
-        User pmCandidate =  userService.findByIdOrNull(createProductDTO.getProductManagerId());
+    public Product create(CreateProductDTO dto) {
+        var pmCandidate =  userService.findByIdOrNull(dto.getProductManagerId());
         User productManager = pmCandidate != null ? pmCandidate : userService.getUserBySecContext();
-        Product newProduct = Builder.build(Product.class)
-                .with(p -> p.setName(createProductDTO.getName()))
-                .with(p -> p.setDescription(createProductDTO.getDescription()))
+        var newProduct = Builder.build(Product.class)
+                .with(p -> p.setName(dto.getName()))
+                .with(p -> p.setType(dto.getType()))
+                .with(p -> p.setDescription(dto.getDescription()))
                 .with(p -> p.setProductManager(productManager))
-                .with(p -> p.setTags(createProductDTO.getTagIds().stream().map(tagService::getObject)
+                .with(p -> p.setTags(dto.getTagIds().stream().map(tagService::getObject)
                         .collect(Collectors.toSet())))
-                .with(p -> p.setParent(findByIdOrNull(createProductDTO.getParentId())))
-                .with(p -> p.setProjects(createProductDTO.getProjectIds().stream()
+                .with(p -> p.setParent(findByIdOrNull(dto.getParentId())))
+                .with(p -> p.setChildren(dto.getChildIds().stream()
+                        .map(this::getObject).collect(Collectors.toSet())))
+                .with(p -> p.setProjects(dto.getProjectIds().stream()
                         .map(projectService::getObject).collect(Collectors.toSet())))
                 .get();
 
         newProduct = repository.save(newProduct);
         projectService.addProductToProjects(newProduct, newProduct.getProjects());
+        addParentToChildren(newProduct, newProduct.getChildren());
 
         return newProduct;
     }
@@ -97,6 +101,15 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         product.setProjects(projects);
         product.setIsArchived(updateProductIsArchivedDTO.getIsArchived());
         return repository.save(product);
+    }
+
+    public void addParentToChildren(Product parent, Set<Product> childern) {
+        childern.forEach(child -> addParentToChild(parent, child));
+    }
+
+    public void addParentToChild(Product parent, Product child) {
+        child.setParent(parent);
+        repository.save(child);
     }
 
 }
