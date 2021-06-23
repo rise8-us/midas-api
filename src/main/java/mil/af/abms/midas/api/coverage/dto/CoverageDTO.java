@@ -29,5 +29,6 @@ public class CoverageDTO implements AbstractDTO {
     private String triggeredBy;
     private String pipelineStatus;
     private String ref;
+    private String sonarqubeUrl;
 
 }

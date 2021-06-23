@@ -72,29 +72,32 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
     }
 
     @Transactional
-    public Product updateById(Long id, UpdateProductDTO updateProductDTO) {
+    public Product updateById(Long id, UpdateProductDTO dto) {
 
-        Product product = getObject(id);
-        Set<Project> originalProjects = product.getProjects();
+        var product = getObject(id);
+        var originalProjects = product.getProjects();
 
-        product.setName(updateProductDTO.getName());
-        product.setProductManager(userService.findByIdOrNull(updateProductDTO.getProductManagerId()));
-        product.setDescription(updateProductDTO.getDescription());
-        product.setParent(findByIdOrNull(updateProductDTO.getParentId()));
-        product.setTags(updateProductDTO.getTagIds().stream()
+        product.setName(dto.getName());
+        product.setProductManager(userService.findByIdOrNull(dto.getProductManagerId()));
+        product.setDescription(dto.getDescription());
+        product.setParent(findByIdOrNull(dto.getParentId()));
+        product.setTags(dto.getTagIds().stream()
                 .map(tagService::getObject).collect(Collectors.toSet()));
-        product.setProjects(updateProductDTO.getProjectIds().stream()
+        product.setProjects(dto.getProjectIds().stream()
                 .map(projectService::getObject).collect(Collectors.toSet()));
+        product.setChildren(dto.getChildIds().stream()
+                .map(this::getObject).collect(Collectors.toSet()));
 
         projectService.updateProjectsWithProduct(originalProjects, product.getProjects(), product);
+        addParentToChildren(product, product.getChildren());
 
         return repository.save(product);
     }
     
     @Transactional
     public Product updateIsArchivedById(Long id, UpdateProductIsArchivedDTO updateProductIsArchivedDTO) {
-        Product product = getObject(id);
-        ArchiveProjectDTO archiveDTO = Builder.build(ArchiveProjectDTO.class)
+        var product = getObject(id);
+        var archiveDTO = Builder.build(ArchiveProjectDTO.class)
                 .with(d -> d.setIsArchived(updateProductIsArchivedDTO.getIsArchived())).get();
         Set<Project> projects = product.getProjects().stream().map(
                 p -> projectService.archive(p.getId(), archiveDTO)).collect(Collectors.toSet());

@@ -4,42 +4,31 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 
+import java.util.Map;
+import java.util.function.Supplier;
+
 import mil.af.abms.midas.api.search.SearchOperation;
 
 public class StringParsingStrategy implements ParsingStrategy {
-
+    
     @Override
-    public Predicate makePredicate(
-            SearchOperation operation,
-            Path<?> nestedRoot,
-            String criteriaKey,
-            String value,
-            CriteriaBuilder builder) {
+    public Predicate makePredicate(SearchOperation operation, Path<?> nestedRoot, String criteriaKey, String value, CriteriaBuilder builder) {
 
-        switch (operation) {
-            case EQUALS:
-                return builder.equal(nestedRoot.get(criteriaKey), value);
-            case NOT_EQUALS:
-                return builder.notEqual(nestedRoot.get(criteriaKey), value);
-            case GREATER_THAN:
-                return builder.greaterThan(nestedRoot.get(criteriaKey), value);
-            case LESS_THAN:
-                return builder.lessThan(nestedRoot.get(criteriaKey), value);
-            case STARTS_WITH:
-                return builder.like(nestedRoot.get(criteriaKey), value + "%");
-            case ENDS_WITH:
-                return builder.like(nestedRoot.get(criteriaKey), "%" + value);
-            case CONTAINS:
-                return builder.like(nestedRoot.get(criteriaKey), "%" + value + "%");
-            case DOESNT_START_WITH:
-                return builder.notLike(nestedRoot.get(criteriaKey), value + "%");
-            case DOESNT_END_WITH:
-                return builder.notLike(nestedRoot.get(criteriaKey), "%" + value);
-            case DOESNT_CONTAIN:
-                return builder.notLike(nestedRoot.get(criteriaKey), "%" + value + "%");
-            default:
-                return null;
-        }
+        Map<SearchOperation, Supplier<Predicate>> predicates = Map.ofEntries(
+                Map.entry(SearchOperation.EQUALS, () -> builder.equal(nestedRoot.get(criteriaKey), value)),
+                Map.entry(SearchOperation.NOT_EQUALS, () -> builder.notEqual(nestedRoot.get(criteriaKey), value)),
+                Map.entry(SearchOperation.GREATER_THAN, () -> builder.greaterThan(nestedRoot.get(criteriaKey), value)),
+                Map.entry(SearchOperation.LESS_THAN, () -> builder.lessThan(nestedRoot.get(criteriaKey), value)),
+                Map.entry(SearchOperation.STARTS_WITH, () -> builder.like(nestedRoot.get(criteriaKey), value + "%")),
+                Map.entry(SearchOperation.ENDS_WITH, () -> builder.like(nestedRoot.get(criteriaKey), "%" + value)),
+                Map.entry(SearchOperation.CONTAINS, () -> builder.like(nestedRoot.get(criteriaKey), "%" + value + "%")),
+                Map.entry(SearchOperation.DOESNT_START_WITH, () -> builder.notLike(nestedRoot.get(criteriaKey), value + "%")),
+                Map.entry(SearchOperation.DOESNT_END_WITH, () -> builder.notLike(nestedRoot.get(criteriaKey), "%" + value)),
+                Map.entry(SearchOperation.DOESNT_CONTAIN, () -> builder.notLike(nestedRoot.get(criteriaKey), "%" + value + "%"))
+        );
+
+        return predicates.getOrDefault(operation, () -> null).get();
+
     }
 
 }

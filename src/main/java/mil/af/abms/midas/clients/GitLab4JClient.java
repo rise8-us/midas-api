@@ -1,12 +1,15 @@
 package mil.af.abms.midas.clients;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
-import java.nio.file.Path;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.gitlab4j.api.GitLabApi;
@@ -22,6 +25,7 @@ import mil.af.abms.midas.exception.GitApiException;
 public class GitLab4JClient {
 
     private static final String QUALITY_GATE_PATH = ".ci_artifacts/sonarqube/report_qualitygate_status.json";
+    private static final String SONAR_LOG_PATH = ".ci_artifacts/sonarqube/sonar-scanner.log";
     private final GitLabApi client;
 
     public GitLab4JClient(String url, String token) {
@@ -39,32 +43,33 @@ public class GitLab4JClient {
     }
 
     public Map<String, String> getLatestCodeCoverage(Integer projectId, Integer currentJobId) {
-        Map<String, String> coverage = Map.ofEntries(Map.entry("jobId", "-1"));
-        Job job = getLatestSonarQubeJob(projectId);
+        var coverage = Map.ofEntries(Map.entry("jobId", "-1"));
+        var job = getLatestSonarQubeJob(projectId);
         Integer jobId = job.getId();
 
         if (jobId > currentJobId) {
-            Path artifact = Paths.get(QUALITY_GATE_PATH);
-            Optional<InputStream> oStream = (Optional<InputStream>) makeRequestReturnOptional(
+            var artifact = Paths.get(QUALITY_GATE_PATH);
+            var oStream = (Optional<InputStream>) makeRequestReturnOptional(
                     () -> client.getJobApi().downloadSingleArtifactsFile(projectId, jobId, artifact)
             );
 
-            if (oStream.isPresent()) {
-                InputStream stream = oStream.get();
-                coverage = JsonMapper.getConditions(stream);
-                coverage.put("jobId", jobId.toString());
-                coverage.put("pipelineUrl", job.getPipeline().getWebUrl());
-                coverage.put("pipelineStatus", job.getStatus().toString());
-                coverage.put("triggeredBy", job.getUser().getUsername());
-                coverage.put("ref", job.getRef());
-            }
+            return oStream.map(s -> {
+                var jobInfo = JsonMapper.getConditions(s);
+                jobInfo.put("jobId", jobId.toString());
+                jobInfo.put("pipelineUrl", job.getPipeline().getWebUrl());
+                jobInfo.put("pipelineStatus", job.getPipeline().getStatus().toString());
+                jobInfo.put("triggeredBy", job.getUser().getUsername());
+                jobInfo.put("ref", job.getRef());
+                jobInfo.put("sonarqubeUrl", getSonarqubeProjectUrl(projectId, currentJobId));
+                return jobInfo;
+            }).orElse(coverage);
         }
         return coverage;
     }
 
     public Map<String, String> getJobInfo(Integer projectId, Integer jobId) {
         Map<String, String> jobInfo = new HashMap<>();
-        Job job =  (Job) makeRequest(() -> client.getJobApi().getJob(projectId, jobId));
+        var job =  (Job) makeRequest(() -> client.getJobApi().getJob(projectId, jobId));
         jobInfo.put("ref", job.getRef());
         jobInfo.put("pipelineUrl", job.getPipeline().getWebUrl());
         jobInfo.put("pipelineStatus", job.getStatus().toString());
@@ -79,6 +84,21 @@ public class GitLab4JClient {
                 .filter(j -> j.getName().equals("sonarqube"))
                 .findFirst()
                 .orElseThrow(() -> new GitApiException("Job", "sonarqube"));
+    }
+
+    public String getSonarqubeProjectUrl(Integer projectId, Integer jobId) {
+        var artifact = Paths.get(SONAR_LOG_PATH);
+        var oStream = (Optional<InputStream>) makeRequestReturnOptional(
+                () -> client.getJobApi().downloadSingleArtifactsFile(projectId, jobId, artifact)
+        );
+
+        return oStream.map(s ->
+                new BufferedReader(new InputStreamReader(s, StandardCharsets.UTF_8))
+                    .lines()
+                    .filter(l -> l.contains("you can browse"))
+                    .map(l -> l.replaceAll("^.*https", "https"))
+                    .collect(Collectors.joining("\n")))
+                .orElse("url unknown");
     }
 
     @FunctionalInterface

@@ -79,6 +79,7 @@ public class CoverageService extends AbstractCRUDService<Coverage, CoverageDTO, 
                 .with(c -> c.setPipelineUrl(conditions.get("pipelineUrl")))
                 .with(c -> c.setPipelineStatus(conditions.get("pipelineStatus")))
                 .with(c -> c.setRef(conditions.get("ref")))
+                .with(c -> c.setSonarqubeUrl(conditions.get("sonarqubeUrl")))
                 .get();
     }
 
