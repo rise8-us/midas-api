@@ -8,13 +8,12 @@ import java.util.Map;
 
 import mil.af.abms.midas.api.search.SearchOperation;
 
-
-
 public interface ParsingStrategy {
 
     static final  Map<String, ParsingStrategy> parsingStrategies = Map.ofEntries(
             Map.entry("String", new StringParsingStrategy()),
             Map.entry("Long", new LongParsingStrategy()),
+            Map.entry("AssertionStatus", new AssertionStatusParsingStrategy()),
             Map.entry("AssertionType", new AssertionTypeParsingStrategy()),
             Map.entry("ProductType", new ProductTypeParsingStrategy())
     );
