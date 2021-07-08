@@ -27,14 +27,12 @@ public class CoverageService extends AbstractCRUDService<Coverage, CoverageDTO, 
     private static final String SECURITY_RATING = "security_rating";
     private static final String JOB_ID = "jobId";
 
-    private final CustomProperty property;
     private ProjectService projectService;
 
 
     @Autowired
-    public CoverageService(CoverageRepository repository, CustomProperty property) {
+    public CoverageService(CoverageRepository repository) {
         super(repository, Coverage.class, CoverageDTO.class);
-        this.property = property;
     }
 
     @Autowired
@@ -51,8 +49,8 @@ public class CoverageService extends AbstractCRUDService<Coverage, CoverageDTO, 
     }
 
     public Coverage updateCoverageForProjectById(Long projectId) {
-        if (property.getGitLabUrl().equals("NONE")) { return new Coverage(); }
         var project =  projectService.getObject(projectId);
+        if (project.getGitlabConfig() == null) { return new Coverage(); }
         return updateCoverageForProject(project);
     }
 

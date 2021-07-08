@@ -18,8 +18,6 @@ public class CustomProperty {
     private final String mattermostUrl;
     private final String environment;
     private final String jwtAdminGroup;
-    private final String gitLabUrl;
-    private final String gitLabAccessToken;
     private final String key;
     private final String salt;
 
@@ -31,8 +29,6 @@ public class CustomProperty {
             @DefaultValue("midas-IL2-admin") String jwtAdminGroup,
             String mattermostToken,
             String mattermostUrl,
-            String gitLabUrl,
-            String gitLabAccessToken,
             String key,
             String salt
     ) {
@@ -43,8 +39,6 @@ public class CustomProperty {
         this.mattermostUrl = mattermostUrl;
         this.environment = environment;
         this.jwtAdminGroup = jwtAdminGroup;
-        this.gitLabUrl = gitLabUrl;
-        this.gitLabAccessToken = gitLabAccessToken;
         this.key = key;
         this.salt = salt;
     }
