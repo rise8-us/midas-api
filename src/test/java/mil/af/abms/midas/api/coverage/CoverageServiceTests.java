@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
@@ -151,7 +152,6 @@ class CoverageServiceTests {
 
     @Test
     void should_set_coverage_from_project_id() {
-        when(property.getGitLabUrl()).thenReturn("http://foo.bar");
         when(projectService.getObject(1L)).thenReturn(project);
         doReturn(coverage).when(coverageService).updateCoverageForProject(project);
         var result = coverageService.updateCoverageForProjectById(1L);
@@ -161,7 +161,11 @@ class CoverageServiceTests {
 
     @Test
     void should_skip_coverage_from_project_id() {
-        when(property.getGitLabUrl()).thenReturn("NONE");
+        Project projectWithoutGitLabConfig = new Project();
+        BeanUtils.copyProperties(project, projectWithoutGitLabConfig);
+        projectWithoutGitLabConfig.setGitlabConfig(null);
+
+        when(projectService.getObject(1L)).thenReturn(projectWithoutGitLabConfig);
         Coverage result = coverageService.updateCoverageForProjectById(1L);
         assertThat(result).isEqualTo(new Coverage());
     }

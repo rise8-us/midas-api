@@ -325,7 +325,6 @@ class ProjectServiceTests {
         project.setGitlabConfig(config);
         BeanUtils.copyProperties(project, p2);
 
-        when(property.getGitLabUrl()).thenReturn("http://foo.bar");
         when(projectRepository.findAll(any(Specification.class))).thenReturn(List.of(project, p2));
         when(coverageService.updateCoverageForProject(any())).thenReturn(new Coverage());
 
