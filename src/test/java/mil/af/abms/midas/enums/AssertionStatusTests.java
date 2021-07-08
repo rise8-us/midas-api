@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 public class AssertionStatusTests {
 
     @Test
-    public void should_have_6_values() {
-        assertThat(AssertionStatus.values().length).isEqualTo(6);
+    public void should_have_5_values() {
+        assertThat(AssertionStatus.values().length).isEqualTo(5);
     }
 
     @Test
