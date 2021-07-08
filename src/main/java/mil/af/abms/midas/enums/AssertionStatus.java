@@ -14,9 +14,8 @@ import mil.af.abms.midas.api.init.dto.AssertionStatusDTO;
 public enum AssertionStatus {
 
     NOT_STARTED("NOT_STARTED", "Not Started", "#969696"),
-    STARTED("STARTED", "Started", "#00ffd4"),
     ON_TRACK("ON_TRACK", "On Track", "#8bc34a"),
-    NEEDS_ATTENTION("NEEDS_ATTENTION", "Needs Attention", "#ff9800"),
+    BLOCKED("BLOCKED", "Blocked", "#ff9800"),
     AT_RISK("AT_RISK", "At Risk", "#e91e63"),
     COMPLETED("COMPLETED", "Completed", "#0fcf50");
 

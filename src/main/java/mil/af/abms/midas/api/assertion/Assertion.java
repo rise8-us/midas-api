@@ -2,6 +2,8 @@ package mil.af.abms.midas.api.assertion;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -40,7 +42,8 @@ public class Assertion extends AbstractEntity<AssertionDTO> {
     @Column(columnDefinition = "VARCHAR(70)")
     private AssertionType type;
 
-    @Column(columnDefinition = "BIGINT DEFAULT 0", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "VARCHAR(70) DEFAULT 'NOT_STARTED'", nullable = false)
     private AssertionStatus status = AssertionStatus.NOT_STARTED;
 
     @ManyToOne(fetch = FetchType.LAZY)

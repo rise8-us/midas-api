@@ -1,11 +1,13 @@
 package mil.af.abms.midas.api.assertion;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -27,6 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
+import mil.af.abms.midas.api.assertion.dto.BlockerAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.CreateAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.UpdateAssertionDTO;
 import mil.af.abms.midas.api.comment.Comment;
@@ -61,12 +64,12 @@ public class AssertionControllerTests extends ControllerTestHarness {
     UpdateAssertionDTO updateAssertionDTO = new UpdateAssertionDTO("updated", AssertionStatus.NOT_STARTED, List.of());
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         when(userService.findByKeycloakUid(any())).thenReturn(Optional.of(authUser));
     }
 
     @Test
-    public void should_create_assertion() throws Exception {
+    void should_create_assertion() throws Exception {
         when(assertionService.create(any(CreateAssertionDTO.class))).thenReturn(assertion);
         when(productService.existsById(anyLong())).thenReturn(true);
 
@@ -80,7 +83,7 @@ public class AssertionControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_update_by_id() throws Exception {
+    void should_update_by_id() throws Exception {
         when(assertionService.updateById(any(), any(UpdateAssertionDTO.class))).thenReturn(assertion);
 
         mockMvc.perform(put("/api/assertions/1")
@@ -93,7 +96,7 @@ public class AssertionControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_throw_type_must_not_be_null_message_on_create() throws Exception {
+    void should_throw_type_must_not_be_null_message_on_create() throws Exception {
         CreateAssertionDTO createDTONullType = new CreateAssertionDTO("First", null,
                 1L, null, null, new ArrayList<>());
 
@@ -109,7 +112,7 @@ public class AssertionControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_throw_text_must_not_be_null_message_on_update() throws Exception {
+    void should_throw_text_must_not_be_null_message_on_update() throws Exception {
         UpdateAssertionDTO updateDTONullType = new UpdateAssertionDTO("", AssertionStatus.NOT_STARTED, List.of());
         Assertion assertionNullType = new Assertion();
         BeanUtils.copyProperties(assertion, assertionNullType);
@@ -127,11 +130,30 @@ public class AssertionControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_delete_by_id() throws Exception {
+    void should_delete_by_id() throws Exception {
         mockMvc.perform(delete("/api/assertions/1"))
                 .andExpect(status().isOk());
 
         verify(assertionService, times(1)).deleteById(1L);
     }
-    
+
+    @Test
+    void should_get_all_blocker_assertions() throws Exception {
+        when(assertionService.getAllBlockerAssertions()).thenReturn(List.of(new BlockerAssertionDTO()));
+
+        mockMvc.perform(get("/api/assertions/blockers"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType((MediaType.APPLICATION_JSON_VALUE)))
+                .andExpect(jsonPath("$", hasSize(1)));
+    }
+
+    @Test
+    void should_get_blocker_assertions_by_product_id() throws Exception {
+        when(assertionService.getBlockerAssertionsByProductId(3L)).thenReturn(List.of(new BlockerAssertionDTO()));
+
+        mockMvc.perform(get("/api/assertions/blockers/3"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType((MediaType.APPLICATION_JSON_VALUE)))
+                .andExpect(jsonPath("$", hasSize(1)));
+    }
 }

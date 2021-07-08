@@ -1,9 +1,15 @@
 package mil.af.abms.midas.api.project;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.RepositoryTestHarness;
@@ -16,24 +22,38 @@ public class ProjectRepositoryTests extends RepositoryTestHarness {
     @Autowired
     ProjectRepository projectRepository;
 
-    @Test
-    public void should_find_by_name() throws EntityNotFoundException {
+    private Team savedTeam;
+    private Project testProject;
 
+    @BeforeEach
+    void beforeEach() {
         Team team = Builder.build(Team.class)
-            .with(t -> t.setName("team"))
-            .with(t -> t.setGitlabGroupId(1L))
-            .with(t -> t.setDescription("for testing")).get();
+                .with(t -> t.setName("team"))
+                .with(t -> t.setGitlabGroupId(1L))
+                .with(t -> t.setDescription("for testing")).get();
 
-        Team savedTeam = entityManager.persist(team);
+        savedTeam = entityManager.persist(team);
 
-        Project testProject = Builder.build(Project.class)
+        testProject = Builder.build(Project.class)
                 .with(p -> p.setGitlabProjectId(1))
                 .with(p -> p.setTeam(savedTeam))
                 .with(p -> p.setName("foo")).get();
-                
+
         entityManager.persist(testProject);
         entityManager.flush();
+    }
 
+    @Test
+    public void should_throw_error_if_private_constructor_is_called() {
+        Class<?> clazz = ProjectSpecifications.class;
+        Constructor<?> constructor = clazz.getDeclaredConstructors()[0];
+        constructor.setAccessible(true);
+        Exception exception = assertThrows(InvocationTargetException.class, constructor::newInstance);
+        assertThat(exception.getCause().getClass()).isEqualTo(IllegalStateException.class);
+    }
+
+    @Test
+    void should_find_by_name() throws EntityNotFoundException {
         Project foundProject = projectRepository.findByName(testProject.getName()).orElseThrow(() ->
             new EntityNotFoundException("Not Found"));
 
@@ -49,5 +69,12 @@ public class ProjectRepositoryTests extends RepositoryTestHarness {
             new EntityNotFoundException("Not found"));
 
         assertThat(projectNoTeam.getTeam()).isEqualTo(null);
+    }
+
+    @Test
+    void should_have_gitlab_id() throws EntityNotFoundException {
+        List<Project> projects = projectRepository.findAll(ProjectSpecifications.hasGitlabProjectId());
+
+        assertThat(projects.size()).isEqualTo(1);
     }
 }

@@ -17,7 +17,7 @@ public class InitDTOTests {
         
         assertThat(dto.getRoles().size()).isEqualTo(5);
         assertThat(dto.getProjectJourneyMap().size()).isEqualTo(4);
-        assertThat(dto.getAssertionStatus().size()).isEqualTo(6);
+        assertThat(dto.getAssertionStatus().size()).isEqualTo(5);
         assertThat(dto.getSonarqubeMaintainability().size()).isEqualTo(6);
         assertThat(dto.getSonarqubeReliability().size()).isEqualTo(6);
         assertThat(dto.getSonarqubeSecurity().size()).isEqualTo(6);
