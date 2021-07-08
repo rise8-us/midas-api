@@ -11,6 +11,7 @@ export MYSQL_DB_ADMIN_USER=localDBUser
 export MYSQL_DB_ADMIN_PASSWORD=localDBPassword
 export ENVIRONMENT=local # require for local dev
 export ADMIN_GROUP=midas-IL2-admin
+export ALLOWED_ORIGIN=*localhost*
 
 # OPTIONAL
 # export CLASSIFICATION=  # Options: UNCLASS,CUI,SECRET,SCI.  defaults to UNCLASS when null
