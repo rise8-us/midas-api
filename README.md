@@ -26,16 +26,16 @@ Platform 1 CtF criteria
 - secure configuration for web security
 - custom method security for securing endpoints
 - Gitlab4j 
+- websockets
 
 ## Awaiting integration
 
-- websockets
+- CDS (Cross Domain Solution)
 
 # Running the API
 
 1. Have [Docker](https://docs.docker.com/get-docker/) installed  
-1. Clone mixer-api repo
-1. replace mixer in files with desired app name
+1. Have minimum of [Java 11](https://adoptopenjdk.net/) (Recommend [SDKMan](https://sdkman.io/) for Java Ver Manager)
 1. Navigate to the `localRun` folder
 1. Follow steps in `.example_envrc`
 1. Execute `docker-compose up -d`.
