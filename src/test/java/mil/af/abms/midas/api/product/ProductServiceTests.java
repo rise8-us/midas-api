@@ -26,6 +26,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
+import mil.af.abms.midas.api.gitlabconfig.GitlabConfig;
+import mil.af.abms.midas.api.gitlabconfig.GitlabConfigService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
@@ -40,10 +42,12 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @ExtendWith(SpringExtension.class)
 @Import(ProductService.class)
-public class ProductServiceTests {
+class ProductServiceTests {
 
     @SpyBean
     ProductService productService;
+    @MockBean
+    GitlabConfigService gitlabConfigService;
     @MockBean
     UserService userService;
     @MockBean
@@ -55,29 +59,34 @@ public class ProductServiceTests {
     @Captor
     ArgumentCaptor<Product> productCaptor;
 
-    User user = Builder.build(User.class)
+    private final User user = Builder.build(User.class)
             .with(u -> u.setId(3L))
             .with(u -> u.setKeycloakUid("abc-123"))
             .with(u -> u.setUsername("Lambo")).get();
-    Project project = Builder.build(Project.class)
+    private final Project project = Builder.build(Project.class)
             .with(p -> p.setId(4L))
             .with(p -> p.setName("backend")).get();
-    Product product = Builder.build(Product.class)
+    private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(5L))
             .with(p -> p.setName("Midas")).get();
-    Product parent = Builder.build(Product.class)
+    private final Product parent = Builder.build(Product.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setChildren(Set.of(product)))
             .with(p -> p.setName("Metrics")).get();
-    Product child = Builder.build(Product.class)
+    private final Product child = Builder.build(Product.class)
             .with(p -> p.setId(6L))
             .with(p -> p.setName("Metrics")).get();
+    private final GitlabConfig gitlabConfig = Builder.build(GitlabConfig.class)
+            .with(g -> g.setId(42L))
+            .with(g -> g.setName("Mock IL2"))
+            .get();
 
     @Test
     void should_create_product() {
         CreateProductDTO createProductDTO = new CreateProductDTO("homeOne", "new name",
-                3L, 1L, Set.of(4L), Set.of(3L),Set.of(child.getId()), ProductType.PRODUCT);
+                3L, 1L, Set.of(4L), Set.of(3L),Set.of(child.getId()), ProductType.PRODUCT, 454, 42L);
 
+        when(gitlabConfigService.findByIdOrNull(createProductDTO.getGitlabConfigId())).thenReturn(gitlabConfig);
         when(userService.findByIdOrNull(3L)).thenReturn(user);
         doReturn(child).when(productService).getObject(child.getId());
         when(projectService.getObject(anyLong())).thenReturn(project);
@@ -95,8 +104,9 @@ public class ProductServiceTests {
         assertThat(productSaved.getDescription()).isEqualTo(createProductDTO.getDescription());
         assertThat(productSaved.getChildren()).isEqualTo(Set.of(child));
         assertThat(productSaved.getType()).isEqualTo(ProductType.PRODUCT);
+        assertThat(productSaved.getGitlabGroupId()).isEqualTo(createProductDTO.getGitlabGroupId());
+        assertThat(productSaved.getGitlabConfig()).isEqualTo(gitlabConfig);
         assertFalse(productSaved.getIsArchived());
-
     }
 
     @Test
@@ -115,9 +125,10 @@ public class ProductServiceTests {
     @Test
     void should_update_product_by_id() {
         UpdateProductDTO updateProductDTO = new UpdateProductDTO("oneHome", "taxable",
-                user.getId(), 1L, Set.of(project.getId()), Set.of(3L), Set.of(), ProductType.PRODUCT);
+                user.getId(), 1L, Set.of(project.getId()), Set.of(3L), Set.of(), ProductType.PRODUCT, 451, 42L);
 
         when(userService.findByIdOrNull(user.getId())).thenReturn(user);
+        when(gitlabConfigService.findByIdOrNull(updateProductDTO.getGitlabConfigId())).thenReturn(gitlabConfig);
         when(projectService.getObject(anyLong())).thenReturn(project);
         when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
         when(productRepository.save(product)).thenReturn(product);
@@ -131,6 +142,8 @@ public class ProductServiceTests {
         assertThat(productSaved.getProductManager().getId()).isEqualTo(updateProductDTO.getProductManagerId());
         assertThat(productSaved.getDescription()).isEqualTo(updateProductDTO.getDescription());
         assertThat(productSaved.getProjects()).isEqualTo(Set.of(project));
+        assertThat(productSaved.getGitlabGroupId()).isEqualTo(updateProductDTO.getGitlabGroupId());
+        assertThat(productSaved.getGitlabConfig()).isEqualTo(gitlabConfig);
     }
 
     @Test
@@ -157,7 +170,7 @@ public class ProductServiceTests {
     @Test
     void should_create_product_with_null_product_manager_and_null_portfolio_id() {
         CreateProductDTO createDTO = new CreateProductDTO("name", "description",
-                null, null, Set.of(1L), Set.of(1L), Set.of(), ProductType.PRODUCT);
+                null, null, Set.of(1L), Set.of(1L), Set.of(), ProductType.PRODUCT, null, null);
 
         when(productRepository.save(any())).thenReturn(product);
         doNothing().when(projectService).addProductToProjects(any(), any());
@@ -173,7 +186,7 @@ public class ProductServiceTests {
     @Test
     void should_update_product_with_null_product_manager_and_null_portfolio_id() {
         UpdateProductDTO updateDTO = new UpdateProductDTO("name", "description",
-                null, null, Set.of(1L), Set.of(1L), Set.of(), ProductType.PRODUCT);
+                null, null, Set.of(1L), Set.of(1L), Set.of(), ProductType.PRODUCT, null, null);
 
         when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
         when(productRepository.save(product)).thenReturn(product);

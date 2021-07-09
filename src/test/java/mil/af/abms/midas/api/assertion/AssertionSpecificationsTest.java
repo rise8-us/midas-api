@@ -46,7 +46,7 @@ class AssertionSpecificationsTest extends RepositoryTestHarness {
     }
 
     @Test
-    public void should_throw_error_if_private_constructor_is_called() {
+    void should_throw_error_if_private_constructor_is_called() {
         Class<?> clazz = AssertionSpecifications.class;
         Constructor<?> constructor = clazz.getDeclaredConstructors()[0];
         constructor.setAccessible(true);

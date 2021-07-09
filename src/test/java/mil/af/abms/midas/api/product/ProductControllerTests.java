@@ -49,9 +49,9 @@ public class ProductControllerTests extends ControllerTestHarness {
     private final static LocalDateTime CREATION_DATE = LocalDateTime.now();
 
     private final UpdateProductDTO updateProductDTO = new UpdateProductDTO("Midas", "Full Stack",
-            3L, 1L, Set.of(3L), Set.of(3L),Set.of(), ProductType.PRODUCT);
+            3L, 1L, Set.of(3L), Set.of(3L),Set.of(), ProductType.PRODUCT, null, null);
     private final CreateProductDTO createProductDTO = new CreateProductDTO("Midas", "backend",
-            1L, 1L, Set.of(3L), Set.of(3L), Set.of(), ProductType.PRODUCT);
+            1L, 1L, Set.of(3L), Set.of(3L), Set.of(), ProductType.PRODUCT, null, null);
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(5L))
             .with(p -> p.setName("Midas"))
@@ -62,7 +62,7 @@ public class ProductControllerTests extends ControllerTestHarness {
             .with(p -> p.setProjects(Set.of(new Project()))).get();
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         when(userService.findByKeycloakUid(any())).thenReturn(Optional.of(authUser));
     }
 
