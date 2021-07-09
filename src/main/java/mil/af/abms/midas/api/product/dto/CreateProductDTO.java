@@ -47,4 +47,8 @@ public class CreateProductDTO implements Serializable {
 
     private ProductType type;
 
+    private Integer gitlabGroupId;
+
+    private Long gitlabConfigId;
+
 }

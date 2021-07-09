@@ -42,7 +42,7 @@ public class Project extends AbstractEntity<ProjectDTO> {
     @Column(columnDefinition = "BIGINT DEFAULT 0", nullable = false)
     private Long projectJourneyMap = 0L;
 
-    @Column(columnDefinition = "BIGINT", nullable = false)
+    @Column(columnDefinition = "INT", nullable = false)
     private Integer gitlabProjectId;
 
     @ManyToOne

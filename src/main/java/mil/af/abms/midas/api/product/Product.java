@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
+import mil.af.abms.midas.api.gitlabconfig.GitlabConfig;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.tag.Tag;
@@ -39,6 +40,9 @@ public class Product extends AbstractEntity<ProductDTO> {
     @Column(columnDefinition = "BIT(1) DEFAULT 0", nullable = false)
     private Boolean isArchived = false;
 
+    @Column(columnDefinition = "INT")
+    private Integer gitlabGroupId;
+
     @Column(columnDefinition = "VARCHAR(255)", nullable = false)
     @Enumerated(EnumType.STRING)
     private ProductType type = ProductType.PRODUCT;
@@ -46,6 +50,9 @@ public class Product extends AbstractEntity<ProductDTO> {
     @ManyToOne
     @JoinColumn(name = "product_manager_id")
     private User productManager;
+
+    @ManyToOne
+    private GitlabConfig gitlabConfig;
 
     @ManyToOne
     @JoinColumn(name = "parent_id", nullable = true)
@@ -68,7 +75,7 @@ public class Product extends AbstractEntity<ProductDTO> {
     public ProductDTO toDto() {
         Set<TagDTO> tagDTOs = tags.stream().map(Tag::toDto).collect(Collectors.toSet());
         return new ProductDTO(id, getIdOrNull(productManager), getIdOrNull(parent), name, description,
-                isArchived, creationDate, getIds(projects), tagDTOs, getIds(children), type);
+                isArchived, creationDate, getIds(projects), tagDTOs, getIds(children), type, gitlabGroupId, getIdOrNull(gitlabConfig));
     }
 
     @Override

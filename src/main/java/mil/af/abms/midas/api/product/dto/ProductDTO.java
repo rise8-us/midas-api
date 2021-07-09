@@ -27,5 +27,7 @@ public class ProductDTO implements AbstractDTO {
     private Set<TagDTO> tags;
     private Set<Long> children;
     private ProductType type;
+    private Integer gitlabGroupId;
+    private Long gitlabConfigId;
 
 }
