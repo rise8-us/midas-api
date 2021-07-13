@@ -1,5 +1,6 @@
 package mil.af.abms.midas.api.coverage;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -28,12 +29,15 @@ public class Coverage extends AbstractEntity<CoverageDTO> {
     private Integer jobId = -1;
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "VARCHAR(100) DEFAULT 'U'", nullable = false)
     private SonarqubeReliability reliabilityRating = SonarqubeReliability.U;
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "VARCHAR(100) DEFAULT 'U'", nullable = false)
     private SonarqubeSecurity securityRating = SonarqubeSecurity.U;
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "VARCHAR(100) DEFAULT 'U'", nullable = false)
     private SonarqubeMaintainability maintainabilityRating = SonarqubeMaintainability.U;
 
     @ManyToOne

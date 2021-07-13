@@ -15,8 +15,8 @@ public enum AssertionStatus {
 
     NOT_STARTED("NOT_STARTED", "Not Started", "#969696"),
     ON_TRACK("ON_TRACK", "On Track", "#8bc34a"),
-    BLOCKED("BLOCKED", "Blocked", "#ff9800"),
-    AT_RISK("AT_RISK", "At Risk", "#e91e63"),
+    BLOCKED("BLOCKED", "Blocked", "#e91e63"),
+    AT_RISK("AT_RISK", "At Risk", "#ff9800"),
     COMPLETED("COMPLETED", "Completed", "#0fcf50");
 
     private final String name;

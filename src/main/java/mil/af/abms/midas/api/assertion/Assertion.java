@@ -39,6 +39,7 @@ public class Assertion extends AbstractEntity<AssertionDTO> {
     @Column(columnDefinition = "TEXT")
     private String text;
 
+    @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(70)")
     private AssertionType type;
 
