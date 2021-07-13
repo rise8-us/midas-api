@@ -10,11 +10,11 @@ import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.config.security.AuthExpression;
 
-public class AuthExpressionTests {
+class AuthExpressionTests {
 
 
     @Test
-    public void should_throw_error_if_private_constructor_is_called() throws Exception {
+    void should_throw_error_if_private_constructor_is_called() throws Exception {
         Class<?> clazz = AuthExpression.class;
         Constructor<?> constructor = clazz.getDeclaredConstructors()[0];
         constructor.setAccessible(true);

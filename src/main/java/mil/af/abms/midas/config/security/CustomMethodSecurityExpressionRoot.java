@@ -10,10 +10,8 @@ import mil.af.abms.midas.api.assertion.Assertion;
 import mil.af.abms.midas.api.assertion.AssertionService;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
-import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.team.Team;
-import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.config.SpringContext;
 
@@ -28,26 +26,32 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
         super(authentication);
     }
 
+    public boolean isSelf(Long userToModifyId) {
+        var userToModify = userService().getObject(userToModifyId);
+        var userMakingRequest = userService().getUserBySecContext();
+        return userMakingRequest.equals(userToModify);
+    }
+
     public boolean hasTeamAccess(Long teamToModifyId) {
         if (teamToModifyId == null) { return false; }
-        User userMakingRequest = userService().getUserBySecContext();
+        var userMakingRequest = userService().getUserBySecContext();
         return userMakingRequest.getTeamIds().contains(teamToModifyId);
     }
 
     public boolean hasProjectAccess(Long projectId) {
-        Project projectBeingAccessed = projectService().getObject(projectId);
-        Product productContainingProject = Optional.ofNullable(projectBeingAccessed.getProduct()).orElse(new Product());
-        Long teamId  = Optional.ofNullable(projectBeingAccessed.getTeam()).map(Team::getId).orElse(null);
-        Long productId = productContainingProject.getId();
+        var projectBeingAccessed = projectService().getObject(projectId);
+        var productContainingProject = Optional.ofNullable(projectBeingAccessed.getProduct()).orElse(new Product());
+        var teamId  = Optional.ofNullable(projectBeingAccessed.getTeam()).map(Team::getId).orElse(null);
+        var productId = productContainingProject.getId();
         return hasTeamAccess(teamId) || hasProductAccess(productId);
     }
 
     public boolean hasProductAccess(Long productId) {
         if (productId == null) { return false; }
-        Product productBeingAccessed = productService().getObject(productId);
-        Product parent = Optional.ofNullable(productBeingAccessed.getParent()).orElse(new Product());
-        User userMakingRequest = userService().getUserBySecContext();
-        User productManager = productBeingAccessed.getProductManager();
+        var productBeingAccessed = productService().getObject(productId);
+        var parent = Optional.ofNullable(productBeingAccessed.getParent()).orElse(new Product());
+        var userMakingRequest = userService().getUserBySecContext();
+        var productManager = productBeingAccessed.getProductManager();
         return userMakingRequest.equals(productManager) || hasProductAccess(parent.getId());
     }
 

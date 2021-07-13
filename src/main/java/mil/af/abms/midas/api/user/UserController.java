@@ -15,6 +15,7 @@ import mil.af.abms.midas.api.user.dto.UpdateUserDTO;
 import mil.af.abms.midas.api.user.dto.UpdateUserDisabledDTO;
 import mil.af.abms.midas.api.user.dto.UpdateUserRolesDTO;
 import mil.af.abms.midas.api.user.dto.UserDTO;
+import mil.af.abms.midas.config.security.annotations.HasUserUpdateAccess;
 import mil.af.abms.midas.config.security.annotations.IsAdmin;
 
 @CrossOrigin
@@ -27,6 +28,7 @@ public class UserController extends AbstractCRUDController<User, UserDTO, UserSe
         super(service);
     }
 
+    @HasUserUpdateAccess
     @PutMapping("/{id}")
     public UserDTO updateById(@Valid @RequestBody UpdateUserDTO updateUserDTO, @PathVariable Long id) {
         return service.updateById(id, updateUserDTO).toDto();
