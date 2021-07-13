@@ -40,7 +40,7 @@ public class TagsExistValidatorTests {
             .with(t -> t.setId(1L))
             .with(t -> t.setLabel("tag test"))
             .with(t -> t.setDescription("New Tag"))
-            .with(t -> t.setColor("#9699696")).get();
+            .with(t -> t.setColor("#969696")).get();
 
     @BeforeEach
     public void init() {

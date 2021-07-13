@@ -41,6 +41,7 @@ public class Tag extends AbstractEntity<TagDTO> {
     private String color;
 
     @Enumerated(value = EnumType.STRING)
+    @Column(columnDefinition = "VARCHAR(70) DEFAULT 'ALL'", nullable = false)
     private TagType tagType = TagType.ALL;
 
     @ManyToMany
