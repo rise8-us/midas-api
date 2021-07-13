@@ -8,7 +8,9 @@ public final class AuthExpression {
     public static final String PRODUCT_MANAGER = "PRODUCT_MANAGER";
     public static final String OR = " or ";
     public static final String END_EXP =  "')";
+    public static final String SELF = "isSelf(#id)";
     public static final String IS_ADMIN = HAS_AUTHORITY + ADMIN + END_EXP;
+    public static final String HAS_USER_UPDATE_ACCESS = SELF + OR + IS_ADMIN;
     public static final String IS_PORTFOLIO_LEAD = HAS_AUTHORITY + PORTFOLIO_LEAD + END_EXP;
     public static final String IS_PRODUCT_MANAGER = HAS_AUTHORITY + PRODUCT_MANAGER + END_EXP;
     public static final String HAS_PROJECT_ACCESS = "hasProjectAccess(#id)" + OR + IS_ADMIN;
