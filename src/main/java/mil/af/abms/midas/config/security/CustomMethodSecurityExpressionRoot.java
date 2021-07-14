@@ -27,7 +27,7 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
     }
 
     public boolean isSelf(Long userToModifyId) {
-        var userToModify = userService().getObject(userToModifyId);
+        var userToModify = userService().findById(userToModifyId);
         var userMakingRequest = userService().getUserBySecContext();
         return userMakingRequest.equals(userToModify);
     }
@@ -39,7 +39,7 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
     }
 
     public boolean hasProjectAccess(Long projectId) {
-        var projectBeingAccessed = projectService().getObject(projectId);
+        var projectBeingAccessed = projectService().findById(projectId);
         var productContainingProject = Optional.ofNullable(projectBeingAccessed.getProduct()).orElse(new Product());
         var teamId  = Optional.ofNullable(projectBeingAccessed.getTeam()).map(Team::getId).orElse(null);
         var productId = productContainingProject.getId();
@@ -48,7 +48,7 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
 
     public boolean hasProductAccess(Long productId) {
         if (productId == null) { return false; }
-        var productBeingAccessed = productService().getObject(productId);
+        var productBeingAccessed = productService().findById(productId);
         var parent = Optional.ofNullable(productBeingAccessed.getParent()).orElse(new Product());
         var userMakingRequest = userService().getUserBySecContext();
         var productManager = productBeingAccessed.getProductManager();
@@ -57,7 +57,7 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
 
     public boolean hasOGSMWriteAccess(Long ogsmId) {
         if (ogsmId == null) { return false; }
-        Assertion assertionBeingAccessed = assertionService().getObject(ogsmId);
+        Assertion assertionBeingAccessed = assertionService().findById(ogsmId);
         Long productId = Optional.ofNullable(assertionBeingAccessed.getProduct()).map(Product::getId).orElse(null);
         return hasProductAccess(productId);
     }

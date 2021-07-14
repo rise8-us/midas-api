@@ -113,7 +113,7 @@ public class UserServiceTests {
     public void should_get_user_by_id() throws EntityNotFoundException {
         when(userRepository.findById(any())).thenReturn(Optional.of(expectedUser));
 
-        assertThat(userService.getObject(1L)).isEqualTo(expectedUser);
+        assertThat(userService.findById(1L)).isEqualTo(expectedUser);
     }
 
     @Test
@@ -133,7 +133,7 @@ public class UserServiceTests {
     @Test
     public void should_throw_error_when_id_null() throws EntityNotFoundException {
         EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () ->
-                userService.getObject(null));
+                userService.findById(null));
         assertThat(e).hasMessage("Failed to find User");
     }
 
@@ -155,7 +155,7 @@ public class UserServiceTests {
     public void should_throw_error_when_id_not_found() throws EntityNotFoundException {
         when(userRepository.findById(any())).thenReturn(Optional.empty());
 
-        EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> userService.getObject(1L));
+        EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> userService.findById(1L));
         assertThat(e).hasMessage("Failed to find User with id 1");
     }
 
@@ -177,7 +177,7 @@ public class UserServiceTests {
                 .with(u -> u.setDisplayName("YoDiddy")).get();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(expectedUser));
-        when(teamService.getObject(1L)).thenReturn(team);
+        when(teamService.findById(1L)).thenReturn(team);
         when(userRepository.save(any(User.class))).thenReturn(new User());
 
         userService.updateById(1L, updateDTO);

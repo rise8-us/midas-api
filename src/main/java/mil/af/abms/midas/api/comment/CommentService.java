@@ -48,7 +48,7 @@ public class CommentService extends AbstractCRUDService<Comment, CommentDTO, Com
 
     @Transactional
     public Comment updateById(Long id, UpdateCommentDTO dto) {
-        var comment = getObject(id);
+        var comment = findById(id);
         comment.setText(dto.getText());
         comment.setLastEdit(LocalDateTime.now());
 
@@ -58,7 +58,7 @@ public class CommentService extends AbstractCRUDService<Comment, CommentDTO, Com
     @Transactional
     @Override
     public void deleteById(Long id) {
-        var comment = getObject(id);
+        var comment = findById(id);
         var assertion = comment.getAssertion();
         assertion.getComments().remove(comment);
         websocket.convertAndSend("/topic/update_assertion", assertion.toDto());

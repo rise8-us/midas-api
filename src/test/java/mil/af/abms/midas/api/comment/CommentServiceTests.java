@@ -102,8 +102,8 @@ public class CommentServiceTests {
                 .get();
         parentComment.getChildren().add(childCommment);
 
-        doReturn(parentComment).when(commentService).getObject(1L);
-        doReturn(childCommment).when(commentService).getObject(5L);
+        doReturn(parentComment).when(commentService).findById(1L);
+        doReturn(childCommment).when(commentService).findById(5L);
         doNothing().when(commentRepository).deleteById(1L);
         doNothing().when(commentRepository).deleteById(5L);
 

@@ -152,7 +152,7 @@ class CoverageServiceTests {
 
     @Test
     void should_set_coverage_from_project_id() {
-        when(projectService.getObject(1L)).thenReturn(project);
+        when(projectService.findById(1L)).thenReturn(project);
         doReturn(coverage).when(coverageService).updateCoverageForProject(project);
         var result = coverageService.updateCoverageForProjectById(1L);
 
@@ -165,7 +165,7 @@ class CoverageServiceTests {
         BeanUtils.copyProperties(project, projectWithoutGitLabConfig);
         projectWithoutGitLabConfig.setGitlabConfig(null);
 
-        when(projectService.getObject(1L)).thenReturn(projectWithoutGitLabConfig);
+        when(projectService.findById(1L)).thenReturn(projectWithoutGitLabConfig);
         Coverage result = coverageService.updateCoverageForProjectById(1L);
         assertThat(result).isEqualTo(new Coverage());
     }

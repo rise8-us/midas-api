@@ -55,7 +55,7 @@ public class TeamServiceTests {
     public void should_create_team() {
         CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 2L, "dev team", Set.of(3L));
 
-        when(userService.getObject(3L)).thenReturn(user);
+        when(userService.findById(3L)).thenReturn(user);
         when(teamRepository.save(team)).thenReturn(new Team());
 
         teamService.create(createTeamDTO);
@@ -86,7 +86,7 @@ public class TeamServiceTests {
     public void should_update_team_by_id() {
         UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("Home One", 22L, "dev team", Set.of(3L));
 
-        when(userService.getObject(3L)).thenReturn(user);
+        when(userService.findById(3L)).thenReturn(user);
         when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
         when(teamRepository.save(team)).thenReturn(team);
 

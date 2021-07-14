@@ -86,9 +86,10 @@ class CustomMethodSecurityExpressionRootTests {
     void should_control_user_access() {
         var user2 = TestUtil.clone(user);
         user2.setId(303L);
+        user2.setKeycloakUid("efg");
 
-        doReturn(user).when(userService).getObject(user.getId());
-        doReturn(user2).when(userService).getObject(user2.getId());
+        doReturn(user).when(userService).findById(user.getId());
+        doReturn(user2).when(userService).findById(user2.getId());
 
         assertTrue(security.isSelf(2L));
         assertFalse(security.isSelf(303L));
@@ -103,14 +104,14 @@ class CustomMethodSecurityExpressionRootTests {
     void hasProjectAccess_should_call_with_null() {
         project.setTeam(null);
         project.setProduct(null);
-        when(projectService.getObject(1L)).thenReturn(project);
+        when(projectService.findById(1L)).thenReturn(project);
 
         assertFalse(security.hasProjectAccess(1L));
     }
 
     @Test
     void hasProjectAccess_should_call_with_team_and_product() {
-        when(projectService.getObject(1L)).thenReturn(project);
+        when(projectService.findById(1L)).thenReturn(project);
         doReturn(true).when(security).hasTeamAccess(3L);
         doReturn(true).when(security).hasProductAccess(4L);
 
@@ -119,7 +120,7 @@ class CustomMethodSecurityExpressionRootTests {
 
     @Test
     void hasProjectAccess_should_call_with_team_false_and_product_false() {
-        when(projectService.getObject(1L)).thenReturn(project);
+        when(projectService.findById(1L)).thenReturn(project);
         doReturn(false).when(security).hasTeamAccess(3L);
         doReturn(false).when(security).hasProductAccess(4L);
 
@@ -128,7 +129,7 @@ class CustomMethodSecurityExpressionRootTests {
 
     @Test
     void hasProjectAccess_should_call_with_team_true_and_product_false() {
-        when(projectService.getObject(1L)).thenReturn(project);
+        when(projectService.findById(1L)).thenReturn(project);
         doReturn(true).when(security).hasTeamAccess(3L);
         doReturn(false).when(security).hasProductAccess(4L);
 
@@ -137,7 +138,7 @@ class CustomMethodSecurityExpressionRootTests {
 
     @Test
     void hasProjectAccess_should_call_with_team_false_and_product_true() {
-        when(projectService.getObject(1L)).thenReturn(project);
+        when(projectService.findById(1L)).thenReturn(project);
         doReturn(false).when(security).hasTeamAccess(3L);
         doReturn(true).when(security).hasProductAccess(4L);
 
@@ -146,7 +147,7 @@ class CustomMethodSecurityExpressionRootTests {
 
     @Test
     void hasProductAccess_should_call_with_productManager_true_and_product_false() {
-        when(productService.getObject(product.getId())).thenReturn(product);
+        when(productService.findById(product.getId())).thenReturn(product);
         doReturn(false).when(security).hasProductAccess(5L);
 
         assertTrue(security.hasProductAccess(4L));
@@ -155,7 +156,7 @@ class CustomMethodSecurityExpressionRootTests {
     @Test
     void hasProductAccess_should_call_with_productManager_false_and_product_true() {
         product.setProductManager(null);
-        when(productService.getObject(product.getId())).thenReturn(product);
+        when(productService.findById(product.getId())).thenReturn(product);
         doReturn(true).when(security).hasProductAccess(5L);
 
         assertTrue(security.hasProductAccess(4L));
@@ -164,7 +165,7 @@ class CustomMethodSecurityExpressionRootTests {
     @Test
     void hasProductAccess_should_call_with_productManager_false_and_product_false() {
         product.setProductManager(null);
-        when(productService.getObject(product.getId())).thenReturn(product);
+        when(productService.findById(product.getId())).thenReturn(product);
         doReturn(false).when(security).hasProductAccess(5L);
 
         assertFalse(security.hasProductAccess(4L));
@@ -174,7 +175,7 @@ class CustomMethodSecurityExpressionRootTests {
     @Test
     void hasProductAccess_should_create_new_product_for_parent() {
         product.setParent(null);
-        when(productService.getObject(product.getId())).thenReturn(product);
+        when(productService.findById(product.getId())).thenReturn(product);
         doReturn(false).when(security).hasProductAccess(null);
 
         assertTrue(security.hasProductAccess(4L));
@@ -187,7 +188,7 @@ class CustomMethodSecurityExpressionRootTests {
 
     @Test
     void hasOGSMWriteAccess_true() {
-        when(assertionService.getObject(assertion.getId())).thenReturn(assertion);
+        when(assertionService.findById(assertion.getId())).thenReturn(assertion);
         doReturn(true).when(security).hasProductAccess(product.getId());
 
         assertTrue(security.hasOGSMWriteAccess(assertion.getId()));
@@ -196,7 +197,7 @@ class CustomMethodSecurityExpressionRootTests {
     @Test
     void hasOGSMWriteAccess_false_when_productId_null() {
         assertion.setProduct(null);
-        when(assertionService.getObject(assertion.getId())).thenReturn(assertion);
+        when(assertionService.findById(assertion.getId())).thenReturn(assertion);
 
         assertFalse(security.hasOGSMWriteAccess(assertion.getId()));
     }

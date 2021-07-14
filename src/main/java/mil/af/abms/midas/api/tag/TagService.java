@@ -47,7 +47,7 @@ public class TagService extends AbstractCRUDService<Tag, TagDTO, TagRepository> 
 
     @Transactional
     public Tag updateById(Long id, UpdateTagDTO updateTagDTO) {
-        Tag foundTag = getObject(id);
+        Tag foundTag = findById(id);
 
         foundTag.setLabel(updateTagDTO.getLabel());
         foundTag.setDescription(updateTagDTO.getDescription());

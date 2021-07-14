@@ -73,7 +73,7 @@ public class ProductControllerTests extends ControllerTestHarness {
         when(productService.existsById(anyLong())).thenReturn(true);
         when(userService.existsById(anyLong())).thenReturn(true);
         when(projectService.existsById(anyLong())).thenReturn(true);
-        when(projectService.getObject(anyLong())).thenReturn(new Project());
+        when(projectService.findById(anyLong())).thenReturn(new Project());
         when(tagService.existsById(any())).thenReturn(true);
 
         mockMvc.perform(post("/api/products")
@@ -91,7 +91,7 @@ public class ProductControllerTests extends ControllerTestHarness {
         when(productService.updateById(anyLong(), any(UpdateProductDTO.class))).thenReturn(product);
         when(userService.existsById(anyLong())).thenReturn(true);
         when(projectService.existsById(anyLong())).thenReturn(true);
-        when(projectService.getObject(anyLong())).thenReturn(new Project());
+        when(projectService.findById(anyLong())).thenReturn(new Project());
         when(tagService.existsById(any())).thenReturn(true);
 
         mockMvc.perform(put("/api/products/5")
@@ -112,7 +112,7 @@ public class ProductControllerTests extends ControllerTestHarness {
         when(tagService.existsById(any())).thenReturn(true);
         when(productService.existsById(any())).thenReturn(true);
         when(projectService.existsById(any())).thenReturn(true);
-        when(projectService.getObject(anyLong())).thenReturn(new Project());
+        when(projectService.findById(anyLong())).thenReturn(new Project());
 
         mockMvc.perform(post("/api/products")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -134,7 +134,7 @@ public class ProductControllerTests extends ControllerTestHarness {
         when(userService.existsById(anyLong())).thenReturn(true);
         when(tagService.existsById(any())).thenReturn(true);
         when(projectService.existsById(anyLong())).thenReturn(true);
-        when(projectService.getObject(anyLong())).thenReturn(new Project());
+        when(projectService.findById(anyLong())).thenReturn(new Project());
 
         mockMvc.perform(put("/api/products/5")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)

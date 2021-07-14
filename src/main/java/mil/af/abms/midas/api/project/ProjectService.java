@@ -55,7 +55,7 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
 
     @Transactional
     public Project create(CreateProjectDTO dto) {
-        Set<Tag> tags = dto.getTagIds().stream().map(tagService::getObject).collect(Collectors.toSet());
+        Set<Tag> tags = dto.getTagIds().stream().map(tagService::findById).collect(Collectors.toSet());
         Project newProject = Builder.build(Project.class)
                 .with(p -> p.setName(dto.getName()))
                 .with(p -> p.setDescription(dto.getDescription()))
@@ -77,8 +77,8 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
 
     @Transactional
     public Project updateById(Long id, UpdateProjectDTO dto) {
-        var foundProject = getObject(id);
-        var tags = dto.getTagIds().stream().map(tagService::getObject).collect(Collectors.toSet());
+        var foundProject = findById(id);
+        var tags = dto.getTagIds().stream().map(tagService::findById).collect(Collectors.toSet());
 
         foundProject.setTags(tags);
         foundProject.setTeam(teamService.findByIdOrNull(dto.getTeamId()));
@@ -99,7 +99,7 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
 
     @Transactional
     public Project updateJourneyMapById(Long id, UpdateProjectJourneyMapDTO updateProjectJourneyMapDTO) {
-        var foundProject = getObject(id);
+        var foundProject = findById(id);
         foundProject.setProjectJourneyMap(updateProjectJourneyMapDTO.getProjectJourneyMap());
 
         return repository.save(foundProject);
@@ -107,7 +107,7 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
 
     @Transactional
     public Project archive(Long id, ArchiveProjectDTO archiveProjectDTO) {
-        var projectToArchive = getObject(id);
+        var projectToArchive = findById(id);
         projectToArchive.setTeam(null);
         projectToArchive.setIsArchived(archiveProjectDTO.getIsArchived());
         return repository.save(projectToArchive);
