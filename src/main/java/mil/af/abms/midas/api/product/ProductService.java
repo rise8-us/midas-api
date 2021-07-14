@@ -55,13 +55,13 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
                 .with(p -> p.setProductManager(productManager))
                 .with(p -> p.setGitlabGroupId(dto.getGitlabGroupId()))
                 .with(p -> p.setGitlabConfig(gitlabConfigService.findByIdOrNull(dto.getGitlabConfigId())))
-                .with(p -> p.setTags(dto.getTagIds().stream().map(tagService::getObject)
+                .with(p -> p.setTags(dto.getTagIds().stream().map(tagService::findById)
                         .collect(Collectors.toSet())))
                 .with(p -> p.setParent(findByIdOrNull(dto.getParentId())))
                 .with(p -> p.setChildren(dto.getChildIds().stream()
-                        .map(this::getObject).collect(Collectors.toSet())))
+                        .map(this::findById).collect(Collectors.toSet())))
                 .with(p -> p.setProjects(dto.getProjectIds().stream()
-                        .map(projectService::getObject).collect(Collectors.toSet())))
+                        .map(projectService::findById).collect(Collectors.toSet())))
                 .get();
 
         newProduct = repository.save(newProduct);
@@ -80,7 +80,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
     @Transactional
     public Product updateById(Long id, UpdateProductDTO dto) {
 
-        var product = getObject(id);
+        var product = findById(id);
         var originalProjects = product.getProjects();
 
         product.setName(dto.getName());
@@ -90,11 +90,11 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         product.setGitlabGroupId(dto.getGitlabGroupId());
         product.setGitlabConfig(gitlabConfigService.findByIdOrNull(dto.getGitlabConfigId()));
         product.setTags(dto.getTagIds().stream()
-                .map(tagService::getObject).collect(Collectors.toSet()));
+                .map(tagService::findById).collect(Collectors.toSet()));
         product.setProjects(dto.getProjectIds().stream()
-                .map(projectService::getObject).collect(Collectors.toSet()));
+                .map(projectService::findById).collect(Collectors.toSet()));
         product.setChildren(dto.getChildIds().stream()
-                .map(this::getObject).collect(Collectors.toSet()));
+                .map(this::findById).collect(Collectors.toSet()));
 
         projectService.updateProjectsWithProduct(originalProjects, product.getProjects(), product);
         addParentToChildren(product, product.getChildren());
@@ -104,7 +104,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
     
     @Transactional
     public Product updateIsArchivedById(Long id, UpdateProductIsArchivedDTO updateProductIsArchivedDTO) {
-        var product = getObject(id);
+        var product = findById(id);
         var archiveDTO = Builder.build(ArchiveProjectDTO.class)
                 .with(d -> d.setIsArchived(updateProductIsArchivedDTO.getIsArchived())).get();
         Set<Project> projects = product.getProjects().stream().map(

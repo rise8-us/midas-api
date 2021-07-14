@@ -88,9 +88,9 @@ class ProductServiceTests {
 
         when(gitlabConfigService.findByIdOrNull(createProductDTO.getGitlabConfigId())).thenReturn(gitlabConfig);
         when(userService.findByIdOrNull(3L)).thenReturn(user);
-        doReturn(child).when(productService).getObject(child.getId());
-        when(projectService.getObject(anyLong())).thenReturn(project);
-        doReturn(parent).when(productService).getObject(parent.getId());
+        doReturn(child).when(productService).findById(child.getId());
+        when(projectService.findById(anyLong())).thenReturn(project);
+        doReturn(parent).when(productService).findById(parent.getId());
         when(productRepository.save(any())).thenReturn(product);
         doNothing().when(projectService).addProductToProjects(any(), any());
 
@@ -129,7 +129,7 @@ class ProductServiceTests {
 
         when(userService.findByIdOrNull(user.getId())).thenReturn(user);
         when(gitlabConfigService.findByIdOrNull(updateProductDTO.getGitlabConfigId())).thenReturn(gitlabConfig);
-        when(projectService.getObject(anyLong())).thenReturn(project);
+        when(projectService.findById(anyLong())).thenReturn(project);
         when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
         when(productRepository.save(product)).thenReturn(product);
 

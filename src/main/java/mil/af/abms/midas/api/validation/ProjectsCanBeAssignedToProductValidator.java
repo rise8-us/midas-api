@@ -25,7 +25,7 @@ public class ProjectsCanBeAssignedToProductValidator implements ConstraintValida
 
                 Set<Project> projectWithExistingProducts =
                 ids.stream()
-                        .map(projectService::getObject)
+                        .map(projectService::findById)
                         .filter(p -> p.getProduct() != null)
                         .filter(p -> !p.getProduct().getId().equals(HttpPathVariableIdGrabber.getPathId()))
                         .peek(i -> constraintContext.buildConstraintViolationWithTemplate(

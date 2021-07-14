@@ -161,7 +161,7 @@ class ProjectServiceTests {
                 .with(d -> d.setTagIds(Set.of())).get();
 
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
-        when(tagService.getObject(1L)).thenReturn(tag);
+        when(tagService.findById(1L)).thenReturn(tag);
 
         projectService.updateById(1L, updateDTO);
 

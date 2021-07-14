@@ -28,7 +28,7 @@ public class Startup {
     public void init() {
         LOG.info("ENVIRONMENT: " + property.getEnvironment());
         if (!property.getEnvironment().equalsIgnoreCase("local")) {
-            User rootUser = userService.getObject(1L);
+            User rootUser = userService.findById(1L);
 
             if (Boolean.FALSE.equals(rootUser.getIsDisabled())) {
                 LOG.info("DISABLING ROOT USER");

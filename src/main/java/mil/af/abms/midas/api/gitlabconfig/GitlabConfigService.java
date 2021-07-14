@@ -33,7 +33,7 @@ public class GitlabConfigService extends AbstractCRUDService<GitlabConfig, Gitla
 
     @Transactional
     public GitlabConfig updateById(Long id, CreateUpdateGitlabConfigDTO dto) {
-        GitlabConfig configToUpdate = getObject(id);
+        GitlabConfig configToUpdate = findById(id);
         configToUpdate.setBaseUrl(dto.getBaseUrl());
         configToUpdate.setName(dto.getName());
         configToUpdate.setDescription(dto.getDescription());

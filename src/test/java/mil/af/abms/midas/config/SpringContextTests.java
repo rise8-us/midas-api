@@ -41,6 +41,6 @@ public class SpringContextTests {
         when(announcementRepository.findById(any())).thenReturn(Optional.of(expectedAnnouncement));
 
         assertThat(announcementService().getClass().getSimpleName()).isEqualTo("AnnouncementService");
-        assertThat(announcementService().getObject(1L).getMessage()).isEqualTo(expectedAnnouncement.getMessage());
+        assertThat(announcementService().findById(1L).getMessage()).isEqualTo(expectedAnnouncement.getMessage());
     }
 }

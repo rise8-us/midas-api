@@ -11,8 +11,6 @@ public interface CRUDService<E extends AbstractEntity<D>, D extends AbstractDTO>
 
     Boolean existsById(Long id);
 
-    E getObject(Long id);
-
     E findById(Long id);
 
     E findByIdOrNull(Long id);

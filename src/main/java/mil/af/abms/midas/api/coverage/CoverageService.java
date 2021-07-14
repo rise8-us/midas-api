@@ -13,7 +13,6 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.clients.GitLab4JClient;
-import mil.af.abms.midas.config.CustomProperty;
 import mil.af.abms.midas.enums.SonarqubeMaintainability;
 import mil.af.abms.midas.enums.SonarqubeReliability;
 import mil.af.abms.midas.enums.SonarqubeSecurity;
@@ -49,7 +48,7 @@ public class CoverageService extends AbstractCRUDService<Coverage, CoverageDTO, 
     }
 
     public Coverage updateCoverageForProjectById(Long projectId) {
-        var project =  projectService.getObject(projectId);
+        var project =  projectService.findById(projectId);
         if (project.getGitlabConfig() == null) { return new Coverage(); }
         return updateCoverageForProject(project);
     }

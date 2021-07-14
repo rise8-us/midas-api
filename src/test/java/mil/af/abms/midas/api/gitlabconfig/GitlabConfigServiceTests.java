@@ -75,7 +75,7 @@ public class GitlabConfigServiceTests {
                 .with(d -> d.setToken("mockTokenU"))
                 .get();
 
-        doReturn(gitlabConfig).when(gitlabConfigService).getObject(1L);
+        doReturn(gitlabConfig).when(gitlabConfigService).findById(1L);
         when(gitlabConfigRepository.save(any())).thenReturn(gitlabConfig);
 
         gitlabConfigService.updateById(1L, uDto);
@@ -99,7 +99,7 @@ public class GitlabConfigServiceTests {
                 .with(d -> d.setToken(null))
                 .get();
 
-        doReturn(gitlabConfig).when(gitlabConfigService).getObject(1L);
+        doReturn(gitlabConfig).when(gitlabConfigService).findById(1L);
         when(gitlabConfigRepository.save(any())).thenReturn(gitlabConfig);
 
         gitlabConfigService.updateById(1L, uDto);

@@ -178,8 +178,8 @@ public class AssertionServiceTests {
         Assertion assertionChild = Builder.build(Assertion.class).with(a -> a.setId(2L)).get();
         assertionParent.setChildren(Set.of(assertionChild));
 
-        doReturn(assertionParent).when(assertionService).getObject(1L);
-        doReturn(assertionChild).when(assertionService).getObject(2L);
+        doReturn(assertionParent).when(assertionService).findById(1L);
+        doReturn(assertionChild).when(assertionService).findById(2L);
         doNothing().when(assertionRepository).deleteById(1L);
         doNothing().when(assertionRepository).deleteById(2L);
 
@@ -205,8 +205,8 @@ public class AssertionServiceTests {
         parentAssertion.getChildren().add(childAssertion);
         Comment comment = Builder.build(Comment.class).with(c -> c.setId(5L)).get();
 
-        doReturn(parentAssertion).when(assertionService).getObject(1L);
-        doReturn(childAssertion).when(assertionService).getObject(4L);
+        doReturn(parentAssertion).when(assertionService).findById(1L);
+        doReturn(childAssertion).when(assertionService).findById(4L);
         doNothing().when(commentService).deleteById(5L);
         doNothing().when(assertionRepository).deleteById(any());
 

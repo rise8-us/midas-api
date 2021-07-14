@@ -56,7 +56,7 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
                 .with(a -> a.setText(dto.getText()))
                 .with(a -> a.setType(dto.getType()))
                 .with(a -> a.setStatus(AssertionStatus.NOT_STARTED))
-                .with(a -> a.setProduct(productService.getObject(dto.getProductId())))
+                .with(a -> a.setProduct(productService.findById(dto.getProductId())))
                 .with(a -> a.setParent(findByIdOrNull(dto.getParentId())))
                 .with(a -> a.setCreatedBy(userService.getUserBySecContext()))
                 .get();
@@ -71,7 +71,7 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
 
     @Transactional
     public Assertion updateById(Long id, UpdateAssertionDTO dto) {
-        Assertion assertion = getObject(id);
+        Assertion assertion = findById(id);
 
         Set<Assertion> newChildren = dto.getChildren().stream().map(d -> {
             d.setParentId(id);
@@ -87,7 +87,7 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
     @Transactional
     @Override
     public void deleteById(Long id) {
-        Assertion assertionToDelete = getObject(id);
+        Assertion assertionToDelete = findById(id);
         assertionToDelete.getComments().forEach(c -> commentService.deleteById(c.getId()));
         assertionToDelete.getChildren().forEach(a -> deleteById(a.getId()));
         repository.deleteById(id);

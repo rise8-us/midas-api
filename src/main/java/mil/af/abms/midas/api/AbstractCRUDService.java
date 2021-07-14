@@ -34,7 +34,7 @@ public abstract class AbstractCRUDService<E extends AbstractEntity<D>, D extends
     @Transactional
     public Boolean existsById(Long id) {
         try {
-            getObject(id);
+            findById(id);
             return true;
         } catch (EntityNotFoundException e) {
             return false;
@@ -43,20 +43,14 @@ public abstract class AbstractCRUDService<E extends AbstractEntity<D>, D extends
 
     @Override
     @Transactional
-    public E getObject(Long id) {
+    public E findById(Long id) {
         Long eId = Optional.ofNullable(id).orElseThrow(() -> new EntityNotFoundException(entityClass.getSimpleName()));
         return repository.findById(id).orElseThrow(() -> new EntityNotFoundException(entityClass.getSimpleName(), eId));
     }
 
     @Override
     @Transactional
-    public E findById(Long id) {
-        return getObject(id);
-    }
-
-    @Override
-    @Transactional
-    public E findByIdOrNull(Long id) { return id != null ? getObject(id) : null; }
+    public E findByIdOrNull(Long id) { return id != null ? findById(id) : null; }
 
     @Override
     @Transactional
@@ -68,7 +62,7 @@ public abstract class AbstractCRUDService<E extends AbstractEntity<D>, D extends
         orderBy = Optional.ofNullable(orderBy).orElse("ASC");
         Direction direction = sortOptions.contains(orderBy.toUpperCase()) ? Direction.valueOf(orderBy) : Direction.ASC;
 
-        PageRequest pageRequest = PageRequest.of(page, size, direction, sortBy);
+        var pageRequest = PageRequest.of(page, size, direction, sortBy);
         return repository.findAll(Specification.where(specs), pageRequest);
     }
 
@@ -82,7 +76,7 @@ public abstract class AbstractCRUDService<E extends AbstractEntity<D>, D extends
     @Override
     @Transactional
     public void deleteById(Long id) {
-        repository.delete(getObject(id));
+        repository.delete(findById(id));
     }
 
     @Override

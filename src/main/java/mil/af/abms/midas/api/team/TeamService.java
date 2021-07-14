@@ -35,7 +35,7 @@ public class TeamService extends AbstractCRUDService<Team, TeamDTO, TeamReposito
                 .with(t -> t.setDescription(createTeamDTO.getDescription()))
                 .with(t -> t.setGitlabGroupId(createTeamDTO.getGitlabGroupId()))
                 .with(t -> t.setUsers(
-                        createTeamDTO.getUserIds().stream().map(userService::getObject).collect(Collectors.toSet()))
+                        createTeamDTO.getUserIds().stream().map(userService::findById).collect(Collectors.toSet()))
                 ).get();
 
         return repository.save(newTeam);
@@ -49,18 +49,18 @@ public class TeamService extends AbstractCRUDService<Team, TeamDTO, TeamReposito
 
     @Transactional
     public Team updateById(Long id, UpdateTeamDTO updateTeamDTO) {
-        Team foundTeam = getObject(id);
+        Team foundTeam = findById(id);
         foundTeam.setName(updateTeamDTO.getName());
         foundTeam.setGitlabGroupId(updateTeamDTO.getGitlabGroupId());
         foundTeam.setDescription(updateTeamDTO.getDescription());
-        foundTeam.setUsers(updateTeamDTO.getUserIds().stream().map(userService::getObject).collect(Collectors.toSet()));
+        foundTeam.setUsers(updateTeamDTO.getUserIds().stream().map(userService::findById).collect(Collectors.toSet()));
 
         return repository.save(foundTeam);
     }
 
     @Transactional
     public Team updateIsArchivedById(Long id, UpdateTeamIsArchivedDTO updateTeamIsArchivedDTO) {
-        Team team = getObject(id);
+        Team team = findById(id);
 
         team.setIsArchived(updateTeamIsArchivedDTO.getIsArchived());
 

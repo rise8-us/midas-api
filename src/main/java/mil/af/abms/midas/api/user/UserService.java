@@ -61,9 +61,9 @@ public class UserService extends AbstractCRUDService<User, UserDTO, UserReposito
 
     @Transactional
     public User updateById(Long id, UpdateUserDTO updateUserDTO) {
-        User user = getObject(id);
+        User user = findById(id);
 
-        Set<Team> teams = updateUserDTO.getTeamIds().stream().map(teamService::getObject).collect(Collectors.toSet());
+        Set<Team> teams = updateUserDTO.getTeamIds().stream().map(teamService::findById).collect(Collectors.toSet());
         user.setTeams(teams);
 
         user.setUsername(updateUserDTO.getUsername());
@@ -75,7 +75,7 @@ public class UserService extends AbstractCRUDService<User, UserDTO, UserReposito
 
     @Transactional
     public User updateRolesById(Long id, UpdateUserRolesDTO updateUserRolesDTO) {
-        User user = getObject(id);
+        User user = findById(id);
         user.setRoles(updateUserRolesDTO.getRoles());
 
         return repository.save(user);
@@ -83,7 +83,7 @@ public class UserService extends AbstractCRUDService<User, UserDTO, UserReposito
 
     @Transactional
     public User updateIsDisabledById(Long id, UpdateUserDisabledDTO updateUserDisabledDTO) {
-        User user = getObject(id);
+        User user = findById(id);
 
         user.setIsDisabled(updateUserDisabledDTO.isDisabled());
 
