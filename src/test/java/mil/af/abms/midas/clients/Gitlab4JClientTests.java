@@ -33,7 +33,6 @@ import mil.af.abms.midas.exception.GitApiException;
 @ExtendWith(SpringExtension.class)
 class Gitlab4JClientTests {
 
-
     @Spy
     GitLab4JClient client = new GitLab4JClient("url", "token");
 
@@ -66,10 +65,10 @@ class Gitlab4JClientTests {
         doReturn(job).when(client).makeRequest(any(GitLab4JClient.GitLabApiThunk.class));
         Map<String, String> jobInfo = client.getJobInfo(3209, 14);
         assertThat(jobInfo)
-                .containsEntry("ref",job.getRef())
-                .containsEntry("pipelineStatus",job.getStatus().toString())
+                .containsEntry("ref", job.getRef())
+                .containsEntry("pipelineStatus", job.getStatus().toString())
                 .containsEntry("triggeredBy", user.getUsername())
-                .containsEntry("pipelineUrl",pipeline.getWebUrl());
+                .containsEntry("pipelineUrl", pipeline.getWebUrl());
     }
 
     @Test
@@ -95,7 +94,7 @@ class Gitlab4JClientTests {
 
         Map<String, String> jobInfo = client.getLatestCodeCoverage(3209, 3209);
 
-        assertThat(jobInfo).containsEntry("jobId","-1");
+        assertThat(jobInfo).containsEntry("jobId", "-1");
     }
 
     @Test
@@ -105,7 +104,7 @@ class Gitlab4JClientTests {
 
         Map<String, String> jobInfo = client.getLatestCodeCoverage(3209, 333209);
 
-        assertThat(jobInfo).containsEntry("jobId","-1");
+        assertThat(jobInfo).containsEntry("jobId", "-1");
     }
 
     @Test
@@ -131,7 +130,7 @@ class Gitlab4JClientTests {
     void should_getSonarqubeProjectUrl() {
         doReturn(Optional.of(new ByteArrayInputStream(SONAR_URL.getBytes(StandardCharsets.UTF_8))))
                 .when(client).makeRequestReturnOptional(any());
-        assertThat(client.getSonarqubeProjectUrl(1,2)).isEqualTo("https://sonarqube");
+        assertThat(client.getSonarqubeProjectUrl(1, 2)).isEqualTo("https://sonarqube");
     }
 
     @Test
