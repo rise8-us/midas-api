@@ -84,7 +84,7 @@ class ProductServiceTests {
     @Test
     void should_create_product() {
         CreateProductDTO createProductDTO = new CreateProductDTO("homeOne", "new name",
-                3L, 1L, Set.of(4L), Set.of(3L),Set.of(child.getId()), ProductType.PRODUCT, 454, 42L);
+                3L, 1L, Set.of(4L), Set.of(3L), Set.of(child.getId()), ProductType.PRODUCT, 454, 42L);
 
         when(gitlabConfigService.findByIdOrNull(createProductDTO.getGitlabConfigId())).thenReturn(gitlabConfig);
         when(userService.findByIdOrNull(3L)).thenReturn(user);

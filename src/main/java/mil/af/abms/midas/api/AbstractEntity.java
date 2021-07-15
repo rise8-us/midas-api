@@ -78,7 +78,7 @@ public abstract class AbstractEntity<D extends AbstractDTO> implements Serializa
     @PostRemove
     public void postRemove() {
         var endpoint = String.format("%s/delete_%s", MESSAGE_TOPIC, getLowercaseClassName());
-        websocket().convertAndSend(endpoint,this.toDto());
+        websocket().convertAndSend(endpoint, this.toDto());
     }
 
 }

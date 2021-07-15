@@ -22,14 +22,14 @@ public class SearchSpecificationResolverTests {
     }
 
     @Test
-    void should_return_false_on_supportsParameter_when_bad_param() throws Exception{
+    void should_return_false_on_supportsParameter_when_bad_param() throws Exception {
         Class<String> clazz = String.class;
         Method equals = clazz.getMethod("equals", Object.class);
         assertFalse(resolver.supportsParameter(new MethodParameter(equals, 0)));
     }
 
     @Test
-    void should_return_false_on_supportsParameter_when_bad_annotation() throws Exception{
+    void should_return_false_on_supportsParameter_when_bad_annotation() throws Exception {
         Class<Specification> clazz = Specification.class;
         Method not = clazz.getMethod("not", Specification.class);
         assertFalse(resolver.supportsParameter(new MethodParameter(not, 0)));

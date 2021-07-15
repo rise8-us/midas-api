@@ -46,7 +46,7 @@ public class AttributeEncryptor implements AttributeConverter<String, String> {
 
     @Override
     public String convertToDatabaseColumn(String attribute) {
-        if(attribute == null || attribute.isEmpty()) { return null; }
+        if (attribute == null || attribute.isEmpty()) { return null; }
         try {
             random.nextBytes(iv);
             GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, iv);
