@@ -13,14 +13,17 @@ custom:
   salt: ${SALT:${MYSQL_HOST}}
   allowedOrigin: ${ALLOWED_ORIGIN:*dso.mil}
 
+
 server:
   port: 8000
 
 logging:
   level:
+    org:
+      springframework:
+        security: INFO
+        web: INFO
     root: INFO
-    org.springframework.security: WARN
-#    org.springframework.security.web.FilterChainProxy: DEBUG
 
 spring:
   jpa:
