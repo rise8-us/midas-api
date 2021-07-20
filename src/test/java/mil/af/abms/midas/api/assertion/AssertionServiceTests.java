@@ -2,6 +2,7 @@ package mil.af.abms.midas.api.assertion;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -20,6 +21,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +32,7 @@ import org.mockito.Captor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import mil.af.abms.midas.api.assertion.dto.AssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.BlockerAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.CreateAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.UpdateAssertionDTO;
@@ -45,7 +48,7 @@ import mil.af.abms.midas.enums.AssertionType;
 
 @ExtendWith(SpringExtension.class)
 @Import(AssertionService.class)
-public class AssertionServiceTests {
+class AssertionServiceTests {
     
     @SpyBean
     private AssertionService assertionService;
@@ -57,6 +60,8 @@ public class AssertionServiceTests {
     private ProductService productService;
     @MockBean
     CommentService commentService;
+    @MockBean
+    SimpMessageSendingOperations websocket;
     
     @Captor
     private ArgumentCaptor<Assertion> assertionCaptor;
@@ -125,7 +130,7 @@ public class AssertionServiceTests {
     }
 
     @Test
-    public void should_create_assertion() {
+    void should_create_assertion() {
         doReturn(assertion).when(assertionService).findByIdOrNull(1L);
         when(assertionRepository.save(any())).thenAnswer((new Answer<Assertion>() {
             private int count = 0;
@@ -151,7 +156,7 @@ public class AssertionServiceTests {
     }
 
     @Test
-    public void should_update_assertion_by_id() {
+    void should_update_assertion_by_id() {
         UpdateAssertionDTO updateAssertionDTO = new UpdateAssertionDTO("updated", AssertionStatus.ON_TRACK, List.of(createAssertionDTO));
         Assertion newAssertion = new Assertion();
         BeanUtils.copyProperties(assertion, newAssertion);
@@ -172,7 +177,7 @@ public class AssertionServiceTests {
     }
 
     @Test
-    public void should_delete_tree() {
+    void should_delete_tree() {
         Assertion assertionParent = new Assertion();
         BeanUtils.copyProperties(assertion, assertionParent);
         Assertion assertionChild = Builder.build(Assertion.class).with(a -> a.setId(2L)).get();
@@ -195,7 +200,7 @@ public class AssertionServiceTests {
     }
 
     @Test
-    public void should_recursively_deleteById() {
+    void should_recursively_deleteById() {
         Assertion parentAssertion = new Assertion();
         BeanUtils.copyProperties(assertion, parentAssertion);
         Assertion childAssertion = Builder.build(Assertion.class)
@@ -205,22 +210,23 @@ public class AssertionServiceTests {
         parentAssertion.getChildren().add(childAssertion);
         Comment comment = Builder.build(Comment.class).with(c -> c.setId(5L)).get();
 
-        doReturn(parentAssertion).when(assertionService).findById(1L);
-        doReturn(childAssertion).when(assertionService).findById(4L);
-        doNothing().when(commentService).deleteById(5L);
+        doReturn(parentAssertion).when(assertionService).findById(parentAssertion.getId());
+        doReturn(childAssertion).when(assertionService).findById(childAssertion.getId());
+        doNothing().when(commentService).deleteComment(comment);
         doNothing().when(assertionRepository).deleteById(any());
 
         assertionService.deleteById(assertion.getId());
 
         verify(assertionRepository, times(2)).deleteById(longCaptor.capture());
-        verify(commentService, times(1)).deleteById(any());
+        verify(commentService, times(1)).deleteComment(any());
+        verify(websocket, times(2)).convertAndSend(anyString(), any(AssertionDTO.class));
 
         assertThat(longCaptor.getAllValues().get(0)).isEqualTo(4L);
         assertThat(longCaptor.getAllValues().get(1)).isEqualTo(1L);
     }
 
     @Test
-    public void should_get_blocker_assertions_by_product_id() {
+    void should_get_blocker_assertions_by_product_id() {
         Assertion blockedAssertion = new Assertion();
         BeanUtils.copyProperties(assertion, blockedAssertion);
         blockedAssertion.setStatus(AssertionStatus.BLOCKED);
@@ -265,7 +271,7 @@ public class AssertionServiceTests {
     }
 
     @Test
-    public void should_get_all_blocker_assertions() {
+    void should_get_all_blocker_assertions() {
         Comment comment2 = new Comment();
         BeanUtils.copyProperties(comment, comment2);
         comment2.setId(501L);
