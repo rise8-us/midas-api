@@ -61,5 +61,4 @@ public class AppConfig implements WebMvcConfigurer {
                 defaultContentType(MediaType.APPLICATION_JSON).
                 mediaType("json", MediaType.APPLICATION_JSON);
     }
-
 }
