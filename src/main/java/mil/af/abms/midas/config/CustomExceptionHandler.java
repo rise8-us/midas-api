@@ -20,10 +20,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.WebRequest;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import mil.af.abms.midas.exception.AbstractRuntimeException;
 
 @ControllerAdvice
+@Slf4j
 public class CustomExceptionHandler {
 
     private static final Function<Object, String> GENERATE_ERROR_MSG = obj -> "Validation failed. " + obj + " error(s)";
@@ -46,7 +48,7 @@ public class CustomExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(AbstractRuntimeException.class)
     public ResponseEntity<Object> handleCustomExceptions(AbstractRuntimeException ex, WebRequest request) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
@@ -55,6 +57,16 @@ public class CustomExceptionHandler {
         body.put("error", ex.getStatus().getReasonPhrase());
         body.put("path", request.getDescription(false).split("=")[1]);
         return new ResponseEntity<>(body, ex.getStatus());
+    }
+
+    @ResponseBody
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> exception(Exception ex) {
+        log.error(ex.getLocalizedMessage());
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", ex.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
     @Getter
