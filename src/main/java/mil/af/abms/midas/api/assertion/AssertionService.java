@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
@@ -50,6 +51,9 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
         this.commentService = commentService;
     }
 
+    @Autowired
+    SimpMessageSendingOperations websocket;
+
     @Transactional
     public Assertion create(CreateAssertionDTO dto) {
         Assertion newAssertion = Builder.build(Assertion.class)
@@ -88,7 +92,7 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
     @Override
     public void deleteById(Long id) {
         Assertion assertionToDelete = findById(id);
-        assertionToDelete.getComments().forEach(c -> commentService.deleteById(c.getId()));
+        removeRelatedComments(assertionToDelete);
         assertionToDelete.getChildren().forEach(a -> deleteById(a.getId()));
         repository.deleteById(id);
     }
@@ -124,5 +128,11 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
             a.setComments(Set.of());
             return new BlockerAssertionDTO(productParentId, product.getId(), product.getName(), a.toDto(), latestComment.toDto());
         }).collect(Collectors.toList());
+    }
+
+    protected void removeRelatedComments(Assertion assertion) {
+        assertion.getComments().forEach(commentService::deleteComment);
+        assertion.setComments(Set.of());
+        websocket.convertAndSend("/topic/update_assertion", assertion.toDto());
     }
 }

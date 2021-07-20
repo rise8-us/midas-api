@@ -3,12 +3,14 @@ package mil.af.abms.midas.api.comment;
 import javax.transaction.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
+import mil.af.abms.midas.api.assertion.Assertion;
 import mil.af.abms.midas.api.assertion.AssertionService;
 import mil.af.abms.midas.api.comment.dto.CommentDTO;
 import mil.af.abms.midas.api.comment.dto.CreateCommentDTO;
@@ -59,10 +61,19 @@ public class CommentService extends AbstractCRUDService<Comment, CommentDTO, Com
     @Override
     public void deleteById(Long id) {
         var comment = findById(id);
-        var assertion = comment.getAssertion();
-        assertion.getComments().remove(comment);
-        websocket.convertAndSend("/topic/update_assertion", assertion.toDto());
+        removeAssertionRelationIfExists(comment);
         comment.getChildren().forEach(c -> deleteById(c.getId()));
         repository.deleteById(id);
+    }
+
+    public void deleteComment(Comment comment) {
+        comment.getChildren().forEach(this::deleteComment);
+        repository.deleteById(comment.getId());
+    }
+
+    protected void removeAssertionRelationIfExists(Comment comment) {
+        var assertion = Optional.ofNullable(comment.getAssertion()).orElse(new Assertion());
+        assertion.getComments().remove(comment);
+        websocket.convertAndSend("/topic/update_assertion", assertion.toDto());
     }
  }
