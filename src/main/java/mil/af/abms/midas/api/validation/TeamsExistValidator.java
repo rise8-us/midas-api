@@ -19,13 +19,15 @@ public class TeamsExistValidator implements ConstraintValidator<TeamsExist, Set<
     public boolean isValid(Set<Long> ids, ConstraintValidatorContext constraintContext) {
         constraintContext.disableDefaultConstraintViolation();
 
-        Set<Long> nonExistentIds = ids.stream().filter(i -> !teamService.existsById(i)).peek(i ->
-                constraintContext.buildConstraintViolationWithTemplate(
-                        String.format("Team with id: %s does not exists", i)
-                ).addConstraintViolation()
+        var violations = ids.stream().filter(i -> !teamService.existsById(i)).map(i -> {
+                    constraintContext.buildConstraintViolationWithTemplate(
+                            String.format("Team with id: %s does not exists", i)
+                    ).addConstraintViolation();
+                    return i;
+                }
         ).collect(Collectors.toSet());
 
-        return nonExistentIds.isEmpty();
+        return violations.isEmpty();
     }
     
 }

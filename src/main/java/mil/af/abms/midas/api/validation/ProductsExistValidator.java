@@ -19,13 +19,13 @@ public class ProductsExistValidator implements ConstraintValidator<ProductsExist
     public boolean isValid(Set<Long> ids, ConstraintValidatorContext constraintContext) {
         constraintContext.disableDefaultConstraintViolation();
 
-        Set<Long> nonExistentIds = ids.stream().filter(i -> !productService.existsById(i)).peek(i ->
-                constraintContext.buildConstraintViolationWithTemplate(
-                        String.format("Product with id: %s does not exists", i)
-                ).addConstraintViolation()
-        ).collect(Collectors.toSet());
+        var violations = ids.stream().filter(i -> !productService.existsById(i)).map(i ->
+            constraintContext.buildConstraintViolationWithTemplate(
+                        String.format("Product with id: %s does not exists", i))
+                    .addConstraintViolation()
+        ).collect(Collectors.toList());
 
-        return nonExistentIds.isEmpty();
+        return violations.isEmpty();
     }
     
 }

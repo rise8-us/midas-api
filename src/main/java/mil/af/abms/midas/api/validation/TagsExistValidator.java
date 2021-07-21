@@ -19,12 +19,12 @@ public class TagsExistValidator implements ConstraintValidator<TagsExist, Set<Lo
     public boolean isValid(Set<Long> ids, ConstraintValidatorContext constraintContext) {
         constraintContext.disableDefaultConstraintViolation();
 
-        Set<Long> nonExistentIds = ids.stream().filter(i -> !tagService.existsById(i)).peek(i ->
+        var violations = ids.stream().filter(i -> !tagService.existsById(i)).map(i ->
                 constraintContext.buildConstraintViolationWithTemplate(
                         String.format("Tag with id: %s does not exists", i)
                 ).addConstraintViolation()
         ).collect(Collectors.toSet());
 
-        return nonExistentIds.isEmpty();
+        return violations.isEmpty();
     }
 }

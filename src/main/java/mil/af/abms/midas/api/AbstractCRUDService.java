@@ -33,12 +33,7 @@ public abstract class AbstractCRUDService<E extends AbstractEntity<D>, D extends
     @Override
     @Transactional
     public Boolean existsById(Long id) {
-        try {
-            findById(id);
-            return true;
-        } catch (EntityNotFoundException e) {
-            return false;
-        }
+        return repository.existsById(id);
     }
 
     @Override
