@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import mil.af.abms.midas.api.helper.HttpPathVariableIdGrabber;
-import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
 
 public class ProjectsCanBeAssignedToProductValidator implements ConstraintValidator<ProjectsCanBeAssignedToProduct, Set<Long>> {
@@ -23,12 +22,12 @@ public class ProjectsCanBeAssignedToProductValidator implements ConstraintValida
 
 
 
-                Set<Project> projectWithExistingProducts =
-                ids.stream()
+                var projectWithExistingProducts =
+                ids.stream().filter(projectService::existsById)
                         .map(projectService::findById)
                         .filter(p -> p.getProduct() != null)
                         .filter(p -> !p.getProduct().getId().equals(HttpPathVariableIdGrabber.getPathId()))
-                        .peek(i -> constraintContext.buildConstraintViolationWithTemplate(
+                        .map(i -> constraintContext.buildConstraintViolationWithTemplate(
                                 String.format("Project %s already assigned to Product %s",
                                         i.getName(), i.getProduct().getName())).addConstraintViolation()
                 ).collect(Collectors.toSet());

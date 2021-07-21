@@ -47,7 +47,7 @@ public class PlatformOneAuthenticationProvider implements AuthenticationProvider
         List<GrantedAuthority> authorityList = new ArrayList<>();
         Map<Roles, Boolean> rolesMap = Roles.getRoles((user.getRoles()));
         rolesMap.forEach((role, hasRole) -> {
-            if (hasRole) {
+            if (Boolean.TRUE.equals(hasRole)) {
                 SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(role.getName());
                 authorityList.add(simpleGrantedAuthority);
             }

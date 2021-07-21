@@ -62,7 +62,7 @@ public class CustomExceptionHandler {
     @ResponseBody
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> exception(Exception ex) {
-        log.error(ex.getLocalizedMessage());
+        log.error(ex.getLocalizedMessage(), ex);
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("message", ex.getMessage());

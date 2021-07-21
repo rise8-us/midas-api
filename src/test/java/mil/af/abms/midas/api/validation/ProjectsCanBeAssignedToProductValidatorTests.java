@@ -27,7 +27,7 @@ import mil.af.abms.midas.helpers.RequestContext;
 
 @ExtendWith(SpringExtension.class)
 @Import({ProjectsCanBeAssignedToProductValidator.class})
-public class ProjectsCanBeAssignedToProductValidatorTests {
+class ProjectsCanBeAssignedToProductValidatorTests {
 
     @Autowired
     ProjectsCanBeAssignedToProductValidator validator;
@@ -52,12 +52,12 @@ public class ProjectsCanBeAssignedToProductValidatorTests {
             .with(t -> t.setDescription("No product")).get();
 
     @BeforeEach
-    public void init() {
+    void init() {
         when(context.buildConstraintViolationWithTemplate(anyString())).thenReturn(builder);
     }
 
     @Test
-    public void should_validate_project_not_assigned_to_any_product() {
+    void should_validate_project_not_assigned_to_any_product() {
         RequestContext.setRequestContext("id", "4");
         when(projectService.findById(2L)).thenReturn(projectWithOutProduct);
 
@@ -65,7 +65,7 @@ public class ProjectsCanBeAssignedToProductValidatorTests {
     }
 
     @Test
-    public void should_validate_project_assigned_to_self() {
+    void should_validate_project_assigned_to_self() {
         RequestContext.setRequestContext("id", "4");
         when(projectService.findById(1L)).thenReturn(projectWithProduct);
 
@@ -73,9 +73,10 @@ public class ProjectsCanBeAssignedToProductValidatorTests {
     }
 
     @Test
-    public void should_fail_update_product_when_project_assigned_different_product() {
+    void should_fail_update_product_when_project_assigned_different_product() {
         RequestContext.setRequestContext("id", "5");
-        when(projectService.findById(1L)).thenReturn(projectWithProduct);
+        when(projectService.existsById(projectWithProduct.getId())).thenReturn(true);
+        when(projectService.findById(projectWithProduct.getId())).thenReturn(projectWithProduct);
 
         assertFalse(validator.isValid(Set.of(1L), context));
     }

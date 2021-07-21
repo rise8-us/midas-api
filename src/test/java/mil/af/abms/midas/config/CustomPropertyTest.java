@@ -13,18 +13,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(SpringExtension.class)
 @EnableConfigurationProperties(CustomProperty.class)
 @TestPropertySource(locations = "classpath:customPropertyTest.properties")
-public class CustomPropertyTest {
+class CustomPropertyTest {
 
     @Autowired
     CustomProperty property;
 
     @Test
-    public void should_return_application_yml_value() {
-        assertThat(property.getVersion()).isEqualTo("0.0.1");
+    void should_return_application_yml_value() {
         assertThat(property.getClassification()).isEqualTo("UNCLASS");
         assertThat(property.getCaveat()).isEqualTo("IL2");
-        assertThat(property.getMattermostToken()).isEqualTo("testToken");
-        assertThat(property.getMattermostUrl()).isEqualTo("http://mattermost.foo");
         assertThat(property.getEnvironment()).isEqualTo("local");
         assertThat(property.getKey()).isEqualTo("secret-key-12345");
     }

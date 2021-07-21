@@ -19,13 +19,13 @@ public class UsersExistValidator implements ConstraintValidator<UsersExist, Set<
     public boolean isValid(Set<Long> ids, ConstraintValidatorContext constraintContext) {
         constraintContext.disableDefaultConstraintViolation();
 
-        Set<Long> nonExistentIds = ids.stream().filter(i -> !userService.existsById(i)).peek(i ->
+        var violations = ids.stream().filter(i -> !userService.existsById(i)).map(i ->
                 constraintContext.buildConstraintViolationWithTemplate(
                         String.format("User with id: %s does not exists", i)
                 ).addConstraintViolation()
         ).collect(Collectors.toSet());
 
-        return nonExistentIds.isEmpty();
+        return violations.isEmpty();
     }
     
 }
