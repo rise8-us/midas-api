@@ -26,14 +26,14 @@ import org.junit.jupiter.api.Test;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.config.auth.platform1.PlatformOneAuthenticationToken;
 
-public class JsonMapperTests {
+class JsonMapperTests {
 
     private final User user = Builder.build(User.class)
             .with(u -> u.setId(1L))
             .with(u -> u.setKeycloakUid("Hello")).get();
 
     @Test
-    public void should_throw_error_if_private_constructor_is_called() throws Exception {
+    void should_throw_error_if_private_constructor_is_called() throws Exception {
         Class<?> clazz = JsonMapper.class;
         Constructor<?> constructor = clazz.getDeclaredConstructors()[0];
         constructor.setAccessible(true);
@@ -42,7 +42,7 @@ public class JsonMapperTests {
     }
 
     @Test
-    public void should_get_keycloak_uid_from_auth() throws AuthenticationCredentialsNotFoundException {
+    void should_get_keycloak_uid_from_auth() throws AuthenticationCredentialsNotFoundException {
         List<GrantedAuthority> authorityList = new ArrayList<>();
         authorityList.add(new SimpleGrantedAuthority("IS_AUTHENTICATED"));
         Authentication auth = new PlatformOneAuthenticationToken(user, null, authorityList);
@@ -51,13 +51,14 @@ public class JsonMapperTests {
     }
 
     @Test
-    public void should_throw_on_get_keycloak_uid_from_auth() throws AuthenticationCredentialsNotFoundException {
+    void should_throw_on_get_keycloak_uid_from_auth() throws AuthenticationCredentialsNotFoundException {
 
         assertThrows(AuthenticationCredentialsNotFoundException.class,
                 () -> JsonMapper.getKeycloakUidFromAuth(null));
     }
 
-    @Test public void should_build_conditions_map() throws IOException {
+    @Test
+    void should_build_conditions_map() throws IOException {
         String resourceName = "src/test/resources/condition.json";
         String conditionStr = Files.readString(Path.of(resourceName));
         InputStream stream = new ByteArrayInputStream(conditionStr.getBytes(StandardCharsets.UTF_8));
@@ -67,7 +68,8 @@ public class JsonMapperTests {
         assertThat(conditions.get("coverage")).isEqualTo("88.2");
     }
 
-    @Test public void should_throw_on_build_conditions_map() {
+    @Test
+    void should_throw_on_build_conditions_map() {
         String conditionStr = "src/test/resources/condition.json";
         InputStream stream = new ByteArrayInputStream(conditionStr.getBytes(StandardCharsets.UTF_8));
         Map<String, String> conditions = JsonMapper.getConditions(stream);
