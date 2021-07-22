@@ -37,7 +37,7 @@ import mil.af.abms.midas.api.user.dto.UserDTO;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @WebMvcTest({UserController.class})
-public class UserControllerTests extends ControllerTestHarness {
+class UserControllerTests extends ControllerTestHarness {
 
     @MockBean
     TeamService teamService;
@@ -75,12 +75,12 @@ public class UserControllerTests extends ControllerTestHarness {
     private final List<User> users = List.of(user, user2);
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         when(userService.findByKeycloakUid(any())).thenReturn(Optional.of(authUser));
     }
 
     @Test
-    public void should_get_user_by_id() throws Exception {
+    void should_get_user_by_id() throws Exception {
         when(userService.findById(any())).thenReturn(user);
 
         mockMvc.perform(get("/api/users/1"))
@@ -90,7 +90,7 @@ public class UserControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_update_user() throws Exception {
+    void should_update_user() throws Exception {
        user.setDisplayName("YoDiddy");
 
         when(userService.findByUsername(any())).thenReturn(user);
@@ -107,7 +107,7 @@ public class UserControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_throw_unique_name_exception_on_update_user() throws Exception {
+    void should_throw_unique_name_exception_on_update_user() throws Exception {
         String expectedMessage = "username already in use";
 
         when(userService.findByUsername(any())).thenReturn(user);
@@ -123,7 +123,7 @@ public class UserControllerTests extends ControllerTestHarness {
     }
     
     @Test
-    public void should_update_user_roles() throws Exception {
+    void should_update_user_roles() throws Exception {
         UpdateUserRolesDTO updateUserRolesDTO = Builder.build(UpdateUserRolesDTO.class)
                 .with(p -> p.setRoles(1L)).get();
         UserDTO userDTOUpdated = user.toDto();
@@ -141,7 +141,7 @@ public class UserControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_toggle_user_disabled() throws Exception {
+    void should_toggle_user_disabled() throws Exception {
         UpdateUserDisabledDTO updateUserDisabledDTO = Builder.build(UpdateUserDisabledDTO.class)
                 .with(p -> p.setDisabled(true)).get();
         user.setIsDisabled(true);
@@ -158,7 +158,7 @@ public class UserControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_search_users() throws Exception {
+    void should_search_users() throws Exception {
         Page<User> page = new PageImpl<>(users);
         List<UserDTO> userDTOs = users.stream().map(User::toDto).collect(Collectors.toList());
 
@@ -173,7 +173,7 @@ public class UserControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_throw_entityNotFound_when_id_not_found() throws Exception {
+    void should_throw_entityNotFound_when_id_not_found() throws Exception {
         EntityNotFoundException expectedError = new EntityNotFoundException(User.class.getSimpleName(), 1L);
         when(userService.findById(any())).thenThrow(expectedError);
 
@@ -184,7 +184,7 @@ public class UserControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_delete_by_id() throws Exception {
+    void should_delete_by_id() throws Exception {
         mockMvc.perform(delete("/api/users/1"))
                 .andExpect(status().isOk());
 
