@@ -29,7 +29,12 @@ public class SecurityLogger {
     @EventListener
     public void authenticationFailure(AbstractAuthenticationFailureEvent event) {
         String userName = event.getAuthentication().getName();
-        String source = RequestParser.getRemoteAddress(((FilterInvocation) event.getSource()).getRequest());
+        String source = "unknown";
+        try {
+            source = RequestParser.getRemoteAddress(((FilterInvocation) event.getSource()).getRequest());
+        } catch (ClassCastException e) {
+            log.error("Mangled source");
+        }
         log.error(String.format("MIDAS: Failed login  [source: \"%s\" username: \"%s\"]", source, userName));
     }
 
@@ -37,12 +42,13 @@ public class SecurityLogger {
     public void authorizationFailure(AuthorizationFailureEvent event) {
         Object principal = event.getAuthentication().getPrincipal();
         String message = event.getAccessDeniedException().getMessage();
+        String source = "unknown";
         try {
-            String source = RequestParser.getRemoteAddress(((FilterInvocation) event.getSource()).getRequest());
-            log.error(String.format("MIDAS: Unauthorized access - [source: \"%s\" username: \"%s\", message: \"%s\"]", source, principal, message));
+            source = RequestParser.getRemoteAddress(((FilterInvocation) event.getSource()).getRequest());
         } catch (ClassCastException e) {
-            log.error("MIDAS: Unauthorized websocket access");
+            log.error("Mangled source");
         }
+        log.error(String.format("MIDAS: Unauthorized access - [source: \"%s\" username: \"%s\", message: \"%s\"]", source, principal, message));
     }
 
 }
