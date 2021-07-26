@@ -17,13 +17,13 @@ public class SecurityLogger {
     @EventListener
     public void authenticated(AuthenticationSuccessEvent event) {
         String userName = event.getAuthentication().getName();
-        log.debug(String.format("MIDAS: Successful login - [username: %s]", userName));
+        log.info(String.format("MIDAS: Successful login - [username: %s]", userName));
     }
 
     @EventListener
     public void authorized(AuthorizedEvent event) {
         String userName = event.getAuthentication().getName();
-        log.debug(String.format("MIDAS: Authorization successful [username: %s]", userName));
+        log.info(String.format("MIDAS: Authorization successful [username: %s]", userName));
     }
 
     @EventListener
