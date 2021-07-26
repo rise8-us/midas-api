@@ -35,7 +35,7 @@ class HttpPathVariableIdGrabberTests {
     @Test
     void should_return_null_path_id() {
         RequestContext.setRequestContext("noIdKey", "doesNotMatter");
-        assertThat(HttpPathVariableIdGrabber.getPathIdByName(null)).isNull();
+        assertThat(HttpPathVariableIdGrabber.getPathIdByName("")).isEqualTo(-1);
 
     }
 

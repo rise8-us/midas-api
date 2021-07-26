@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -19,13 +20,16 @@ public class RequestParser {
     }
 
     public static String getUser(HttpServletRequest request) {
-        return Optional.ofNullable(request.getHeader(AUTHORIZATION)).map(a -> a.substring(7)).map(accessToken -> {
-            var decodedJWT = JWT.decode(accessToken);
-            var claims = decodedJWT.getClaims();
-            return Optional.ofNullable(claims).map(c -> c.get("sub").asString()).orElse(
-                    "No Authorization header present"
-            );
-        }).orElse(USER);
+        try {
+            return Optional.ofNullable(request.getHeader(AUTHORIZATION)).map(a -> a.substring(7)).map(accessToken -> {
+                var decodedJWT = JWT.decode(accessToken);
+                var claims = decodedJWT.getClaims();
+                return Optional.ofNullable(claims).map(c -> c.get("sub").asString()).orElse(USER);
+            }).orElse(USER);
+        } catch (JWTDecodeException e) {
+                log.warn("Invalid JWT");
+                return USER;
+            }
     }
 
     public static String getRemoteAddress(HttpServletRequest request) {
