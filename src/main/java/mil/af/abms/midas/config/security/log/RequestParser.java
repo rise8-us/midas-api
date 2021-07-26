@@ -40,7 +40,7 @@ public class RequestParser {
     public static String getRemoteAddress(HttpServletRequest request) {
         String ipFromHeader = Optional.ofNullable(request.getHeader(X_FORWARDED_FOR)).orElse("");
         if (!ipFromHeader.isEmpty()) {
-            log.debug("ip from proxy - X-FORWARDED-FOR : " + ipFromHeader);
+            log.info("ip from proxy - X-FORWARDED-FOR : " + ipFromHeader);
             return ipFromHeader;
         }
         return request.getRemoteAddr();
