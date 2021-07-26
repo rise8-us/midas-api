@@ -91,21 +91,11 @@ public class PlatformOneAuthenticationFilter extends OncePerRequestFilter {
     }
 
     protected String getClaimsKeyAsString(Map<String, Claim> claims, String key) {
-        try {
-            return claims.get(key).asString();
-        } catch (NullPointerException e) {
-            log.error(e.getMessage());
-            return "";
-        }
+        return Optional.ofNullable(claims).map(c -> c.get(key).asString()).orElse("");
     }
 
     protected List<String> getClaimsKeyAsList(Map<String, Claim> claims, String key) {
-        try {
-            return claims.get(key).asList(String.class);
-        } catch (NullPointerException e) {
-            log.error(e.getMessage());
-            return new ArrayList<>();
-        }
+        return Optional.ofNullable(claims).map(c -> c.get(key).asList(String.class)).orElse(List.of());
     }
 }
 

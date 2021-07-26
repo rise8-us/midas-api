@@ -1,5 +1,6 @@
 package mil.af.abms.midas.api.helper;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +45,7 @@ public class JsonMapper {
             JsonNode conditions = dateMapper().readTree(sonarqubeQualityStream).get("projectStatus").get("conditions");
             conditions.iterator().forEachRemaining(c ->
                     conditionMap.put(c.get("metricKey").asText(), c.get("actualValue").asText()));
-        } catch (Exception e) {
+        } catch (IOException e) {
             log.error(e.getLocalizedMessage());
         }
         return conditionMap;

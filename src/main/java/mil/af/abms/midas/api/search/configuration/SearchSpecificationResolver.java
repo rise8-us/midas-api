@@ -1,5 +1,7 @@
 package mil.af.abms.midas.api.search.configuration;
 
+import java.util.Optional;
+
 import org.springframework.core.MethodParameter;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
@@ -10,6 +12,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 import mil.af.abms.midas.api.search.SpecificationsBuilder;
 import mil.af.abms.midas.api.search.annotation.SearchSpec;
+import mil.af.abms.midas.exception.IllegalRequestHeadersException;
 
 class SearchSpecificationResolver implements HandlerMethodArgumentResolver {
 
@@ -24,8 +27,9 @@ class SearchSpecificationResolver implements HandlerMethodArgumentResolver {
             ModelAndViewContainer mavContainer,
             NativeWebRequest webRequest,
             WebDataBinderFactory binderFactory
-    ) throws Exception {
-        SearchSpec def = parameter.getParameterAnnotation(SearchSpec.class);
+    ) throws IllegalRequestHeadersException {
+        SearchSpec def = Optional.ofNullable(parameter.getParameterAnnotation(SearchSpec.class)).orElseThrow(
+                () -> new IllegalRequestHeadersException("search param not found"));
         return buildSpecification(webRequest.getParameter(def.searchParam()));
     }
 
