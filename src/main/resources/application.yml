@@ -21,9 +21,9 @@ logging:
   level:
     org:
       springframework:
-        security: INFO
-        web: INFO
-    root: INFO
+        security: WARN
+        web: WARN
+    root: WARN
 
 spring:
   jpa:

@@ -23,12 +23,12 @@ import mil.af.abms.midas.config.auth.platform1.PlatformOneAuthenticationToken;
 import mil.af.abms.midas.helpers.MockJWT;
 
 @ExtendWith(SpringExtension.class)
-public class PlatformOneAuthenticationFilterTest {
+class PlatformOneAuthenticationFilterTest {
 
     PlatformOneAuthenticationFilter filter = new PlatformOneAuthenticationFilter();
 
     @Test
-    public void should_get_bearer_from_request_and_not_throw() throws Exception {
+    void should_get_bearer_from_request_and_not_throw() throws Exception {
         var request = new MockHttpServletRequest();
         var response = new MockHttpServletResponse();
         var filterChain = new MockFilterChain();
@@ -40,7 +40,7 @@ public class PlatformOneAuthenticationFilterTest {
     }
 
     @Test
-    public void should_get_bearer_from_request_skip_dodIdStr_and_not_throw() throws Exception {
+    void should_get_bearer_from_request_skip_dodIdStr_and_not_throw() throws Exception {
         var request = new MockHttpServletRequest();
         var response = new MockHttpServletResponse();
         var filterChain = new MockFilterChain();
@@ -52,7 +52,7 @@ public class PlatformOneAuthenticationFilterTest {
     }
 
     @Test
-    public void should_throw_when_no_keycloak_sub() throws Exception {
+    void should_throw_when_no_keycloak_sub() throws Exception {
         var request = new MockHttpServletRequest();
         var response = new MockHttpServletResponse();
         var filterChain = new MockFilterChain();
@@ -62,7 +62,7 @@ public class PlatformOneAuthenticationFilterTest {
     }
 
     @Test
-    public void should_throw_when_bearer_empty() throws Exception {
+    void should_throw_when_bearer_empty() throws Exception {
         var request = new MockHttpServletRequest();
         var response = new MockHttpServletResponse();
         var filterChain = new MockFilterChain();
@@ -74,7 +74,7 @@ public class PlatformOneAuthenticationFilterTest {
     }
 
     @Test
-    public void should_throw_when_bearer_jwt_invalid() throws Exception {
+    void should_throw_when_bearer_jwt_invalid() throws Exception {
         var request = new MockHttpServletRequest();
         var response = new MockHttpServletResponse();
         var filterChain = new MockFilterChain();
@@ -88,7 +88,7 @@ public class PlatformOneAuthenticationFilterTest {
     }
 
     @Test
-    public void should_set_all_required_fields_for_token() {
+    void should_set_all_required_fields_for_token() {
         PlatformOneAuthenticationToken token = new PlatformOneAuthenticationToken(null, null, null, null, null);
         token.setKeycloakUid("123-abc");
         token.setDodId(1L);
@@ -104,7 +104,7 @@ public class PlatformOneAuthenticationFilterTest {
     }
 
     @Test
-    public void should_return_empty_string_getClaimsKeyAsString() throws Exception {
+    void should_return_empty_string_getClaimsKeyAsString() throws Exception {
         Class<?> clazz = PlatformOneAuthenticationFilter.class;
         Method method = clazz.getDeclaredMethod("getClaimsKeyAsString", Map.class, String.class);
         method.setAccessible(true);
@@ -113,7 +113,7 @@ public class PlatformOneAuthenticationFilterTest {
     }
 
     @Test
-    public void should_return_empty_string_getClaimsKeyAsList() throws Exception {
+    void should_return_empty_string_getClaimsKeyAsList() throws Exception {
         Class<?> clazz = PlatformOneAuthenticationFilter.class;
         Method method = clazz.getDeclaredMethod("getClaimsKeyAsList", Map.class, String.class);
         method.setAccessible(true);
@@ -122,13 +122,13 @@ public class PlatformOneAuthenticationFilterTest {
     }
 
     @Test
-    public void should_get_and_set() {
+    void should_get_and_set() {
         filter.setLocalKeycloakUid("fizzBang");
         assertThat(filter.getLocalKeycloakUid()).isEqualTo("fizzBang");
     }
 
     @Test
-    public void should_set_and_get_token() {
+    void should_set_and_get_token() {
         PlatformOneAuthenticationToken token = new PlatformOneAuthenticationToken(null, null, null, null, null);
         token.setCredentials("fizz");
         token.setPrincipal("bang");

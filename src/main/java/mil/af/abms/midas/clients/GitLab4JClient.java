@@ -60,7 +60,7 @@ public class GitLab4JClient {
                 jobInfo.put("pipelineStatus", job.getPipeline().getStatus().toString());
                 jobInfo.put("triggeredBy", job.getUser().getUsername());
                 jobInfo.put("ref", job.getRef());
-                jobInfo.put("sonarqubeUrl", getSonarqubeProjectUrl(projectId, currentJobId));
+                jobInfo.put("sonarqubeUrl", getSonarqubeProjectUrl(projectId, jobId));
                 return jobInfo;
             }).orElse(coverage);
         }
@@ -91,7 +91,6 @@ public class GitLab4JClient {
         var oStream = (Optional<InputStream>) makeRequestReturnOptional(
                 () -> client.getJobApi().downloadSingleArtifactsFile(projectId, jobId, artifact)
         );
-
         return oStream.map(s ->
                 new BufferedReader(new InputStreamReader(s, StandardCharsets.UTF_8))
                     .lines()

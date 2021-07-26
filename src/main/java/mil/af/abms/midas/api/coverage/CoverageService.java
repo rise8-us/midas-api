@@ -28,7 +28,6 @@ public class CoverageService extends AbstractCRUDService<Coverage, CoverageDTO, 
 
     private ProjectService projectService;
 
-
     @Autowired
     public CoverageService(CoverageRepository repository) {
         super(repository, Coverage.class, CoverageDTO.class);
