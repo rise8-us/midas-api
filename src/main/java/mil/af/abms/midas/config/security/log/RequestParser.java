@@ -2,12 +2,9 @@ package mil.af.abms.midas.config.security.log;
 
 import javax.servlet.http.HttpServletRequest;
 
-import java.util.Map;
 import java.util.Optional;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.Claim;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -22,19 +19,13 @@ public class RequestParser {
     }
 
     public static String getUser(HttpServletRequest request) {
-        try {
-            String accessToken = request.getHeader(AUTHORIZATION).substring(7);
-            DecodedJWT decodedJWT = JWT.decode(accessToken);
-            Map<String, Claim> claims = decodedJWT.getClaims();
-            return claims.get("sub").asString();
-        } catch (NullPointerException e) {
-            log.warn("No Authorization header present: {} {} {}", request.getMethod(), request.getRequestURI(),
-                    getRemoteAddress(request));
-        } catch (Exception e) {
-            log.warn("INVALID JWT: {} {} {}", request.getMethod(), request.getRequestURI(),
-                    getRemoteAddress(request));
-        }
-        return USER;
+        return Optional.ofNullable(request.getHeader(AUTHORIZATION)).map(a -> a.substring(7)).map(accessToken -> {
+            var decodedJWT = JWT.decode(accessToken);
+            var claims = decodedJWT.getClaims();
+            return Optional.ofNullable(claims).map(c -> c.get("sub").asString()).orElse(
+                    "No Authorization header present"
+            );
+        }).orElse(USER);
     }
 
     public static String getRemoteAddress(HttpServletRequest request) {
