@@ -11,7 +11,6 @@ import org.springframework.security.access.event.AuthorizationFailureEvent;
 import org.springframework.security.access.event.AuthorizedEvent;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent;
-import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -55,14 +54,6 @@ class SecurityLoggerTests {
         logger.setLevel(Level.DEBUG);
         logger.addAppender(memoryAppender);
         memoryAppender.start();
-    }
-
-    @Test
-    void log_auth_success() {
-        runner.withBean(SecurityLogger.class).run(context -> {
-                context.publishEvent(new AuthenticationSuccessEvent(auth));
-            assertThat(memoryAppender.countEventsForLogger(SecurityLogger.class.getName())).isEqualTo(1);
-        });
     }
 
     @Test
