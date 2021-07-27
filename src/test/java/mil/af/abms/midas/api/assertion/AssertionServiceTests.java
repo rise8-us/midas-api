@@ -226,6 +226,7 @@ class AssertionServiceTests {
     }
 
     @Test
+    @SuppressWarnings(value = "unchecked")
     void should_get_blocker_assertions_by_product_id() {
         Assertion blockedAssertion = new Assertion();
         BeanUtils.copyProperties(assertion, blockedAssertion);
@@ -271,6 +272,7 @@ class AssertionServiceTests {
     }
 
     @Test
+    @SuppressWarnings(value = "unchecked")
     void should_get_all_blocker_assertions() {
         Comment comment2 = new Comment();
         BeanUtils.copyProperties(comment, comment2);

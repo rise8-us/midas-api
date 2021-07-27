@@ -23,7 +23,7 @@ logging:
       springframework:
         security: WARN
         web: WARN
-    root: WARN
+    root: INFO
 
 spring:
   jpa:

@@ -124,24 +124,6 @@ class CoverageServiceTests {
     }
 
     @Test
-    void should_skip_update_coverage_for_project() {
-        Map<String, String> emptyConditions = Map.ofEntries(Map.entry("jobId", "-1"));
-
-        doReturn(client).when(coverageService).getGitlabClient(any());
-        doReturn(coveragePrevious).when(coverageService).getCurrent(1L);
-        when(client.getLatestCodeCoverage(any(), any())).thenReturn(emptyConditions);
-        when(client.getJobInfo(any(), any())).thenReturn(conditions);
-
-        Coverage coverageReturned = coverageService.updateCoverageForProject(project);
-
-        assertThat(coverageReturned.getTriggeredBy()).isEqualTo("fizzBang");
-        assertThat(coverageReturned.getPipelineUrl()).isEqualTo("http://foo.bar");
-        assertThat(coverageReturned.getRef()).isEqualTo("master");
-        assertThat(coverageReturned.getPipelineStatus()).isEqualTo("SUCCESS");
-    }
-
-
-        @Test
     void should_get_current() {
         when(coverageRepository.findCurrentForProject(any())).thenReturn(List.of(coverage));
 

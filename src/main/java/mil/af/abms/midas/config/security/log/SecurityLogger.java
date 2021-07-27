@@ -4,7 +4,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.security.access.event.AuthorizationFailureEvent;
 import org.springframework.security.access.event.AuthorizedEvent;
 import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent;
-import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.stereotype.Service;
 
@@ -13,12 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class SecurityLogger {
-
-    @EventListener
-    public void authenticated(AuthenticationSuccessEvent event) {
-        String userName = event.getAuthentication().getName();
-        log.info(String.format("MIDAS: Successful login - [username: %s]", userName));
-    }
 
     @EventListener
     public void authorized(AuthorizedEvent event) {
