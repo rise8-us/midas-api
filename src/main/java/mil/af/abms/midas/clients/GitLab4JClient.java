@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -65,17 +64,6 @@ public class GitLab4JClient {
             }).orElse(coverage);
         }
         return coverage;
-    }
-
-    public Map<String, String> getJobInfo(Integer projectId, Integer jobId) {
-        Map<String, String> jobInfo = new HashMap<>();
-        var job =  (Job) makeRequest(() -> client.getJobApi().getJob(projectId, jobId));
-        jobInfo.put("ref", job.getRef());
-        jobInfo.put("pipelineUrl", job.getPipeline().getWebUrl());
-        jobInfo.put("pipelineStatus", job.getStatus().toString());
-        jobInfo.put("triggeredBy", job.getUser().getUsername());
-
-        return jobInfo;
     }
 
     public Job getLatestSonarQubeJob(Integer projectId) {

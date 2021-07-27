@@ -40,7 +40,7 @@ public class CoverageService extends AbstractCRUDService<Coverage, CoverageDTO, 
         var client = getGitlabClient(project);
         var coverageCurrent = getCurrent(project.getId());
         Map<String, String> conditions = client.getLatestCodeCoverage(project.getGitlabProjectId(), coverageCurrent.getJobId());
-        if (conditions.get(JOB_ID).equals("-1")) { return addJobInfoToCoverage(project, coverageCurrent); }
+        if (conditions.get(JOB_ID).equals("-1")) { return coverageCurrent; }
         var coverageNew = mapToCoverage(conditions, project, coverageCurrent.getTestCoverage());
 
         return repository.save(coverageNew);
@@ -77,16 +77,6 @@ public class CoverageService extends AbstractCRUDService<Coverage, CoverageDTO, 
                 .with(c -> c.setRef(conditions.get("ref")))
                 .with(c -> c.setSonarqubeUrl(conditions.get("sonarqubeUrl")))
                 .get();
-    }
-
-    private Coverage addJobInfoToCoverage(Project project, Coverage coverage) {
-        var client = getGitlabClient(project);
-        Map<String, String> jobInfo = client.getJobInfo(project.getGitlabProjectId(), coverage.getJobId());
-        coverage.setRef(jobInfo.get("ref"));
-        coverage.setPipelineUrl(jobInfo.get("pipelineUrl"));
-        coverage.setPipelineStatus(jobInfo.get("pipelineStatus"));
-        coverage.setTriggeredBy(jobInfo.get("triggeredBy"));
-        return coverage;
     }
 
     protected GitLab4JClient getGitlabClient(Project project) {

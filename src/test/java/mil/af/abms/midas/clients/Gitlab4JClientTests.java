@@ -61,17 +61,6 @@ class Gitlab4JClientTests {
     }
 
     @Test
-    void should_get_jobInfo() {
-        doReturn(job).when(client).makeRequest(any(GitLab4JClient.GitLabApiThunk.class));
-        Map<String, String> jobInfo = client.getJobInfo(3209, 14);
-        assertThat(jobInfo)
-                .containsEntry("ref", job.getRef())
-                .containsEntry("pipelineStatus", job.getStatus().toString())
-                .containsEntry("triggeredBy", user.getUsername())
-                .containsEntry("pipelineUrl", pipeline.getWebUrl());
-    }
-
-    @Test
     void should_getLatestSonarQubeJob() {
         doReturn(List.of(job)).when(client).makeRequest(any());
 
