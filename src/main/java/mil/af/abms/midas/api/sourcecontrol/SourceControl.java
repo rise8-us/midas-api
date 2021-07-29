@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.gitlabconfig;
+package mil.af.abms.midas.api.sourcecontrol;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -11,12 +11,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
-import mil.af.abms.midas.api.gitlabconfig.dto.GitlabConfigDTO;
+import mil.af.abms.midas.api.sourcecontrol.dto.SourceControlDTO;
 import mil.af.abms.midas.api.helper.AttributeEncryptor;
 
 @Entity @Setter @Getter
-@Table(name = "gitlab_config")
-public class GitlabConfig extends AbstractEntity<GitlabConfigDTO> {
+@Table(name = "source_control" +
+        "")
+public class SourceControl extends AbstractEntity<SourceControlDTO> {
 
 
     @Column(unique = true, nullable = false)
@@ -32,8 +33,8 @@ public class GitlabConfig extends AbstractEntity<GitlabConfigDTO> {
     private String token;
 
     @Override
-    public GitlabConfigDTO toDto() {
-        return new GitlabConfigDTO(id, name, description, baseUrl, creationDate);
+    public SourceControlDTO toDto() {
+        return new SourceControlDTO(id, name, description, baseUrl, creationDate);
     }
 
     @Override
@@ -45,7 +46,7 @@ public class GitlabConfig extends AbstractEntity<GitlabConfigDTO> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        GitlabConfig that = (GitlabConfig) o;
+        SourceControl that = (SourceControl) o;
         return this.hashCode() == that.hashCode();
     }
 

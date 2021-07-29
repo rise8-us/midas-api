@@ -33,6 +33,6 @@ public class UpdateProjectDTO implements Serializable {
 
     private String description;
     private Long productId;
-    private Long gitlabConfigId;
+    private Long sourceControlId;
 
 }

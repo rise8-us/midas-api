@@ -17,7 +17,7 @@ import org.springframework.util.ReflectionUtils;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.coverage.Coverage;
-import mil.af.abms.midas.api.gitlabconfig.GitlabConfig;
+import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.project.dto.ProjectDTO;
@@ -42,7 +42,7 @@ public class ProjectTests {
             .with(c -> c.setId(10L))
             .with(c -> c.setCreationDate(CREATION_DATE))
             .get();
-    private final GitlabConfig gitlabConfig = Builder.build(GitlabConfig.class)
+    private final SourceControl sourceControl = Builder.build(SourceControl.class)
             .with(g -> g.setId(42L))
             .with(g -> g.setName("Mock IL2"))
             .get();
@@ -58,7 +58,7 @@ public class ProjectTests {
             .with(p -> p.setProjectJourneyMap(0L))
             .with(p -> p.setCoverages(Set.of(coverage, coverageOld)))
             .with(p -> p.setProduct(product))
-            .with(p -> p.setGitlabConfig(gitlabConfig))
+            .with(p -> p.setSourceControl(sourceControl))
             .with(p -> p.setCreationDate(CREATION_DATE)).get();
 
     ProjectDTO expectedProjectDTO = Builder.build(ProjectDTO.class)
@@ -72,7 +72,7 @@ public class ProjectTests {
             .with(p -> p.setTagIds(Set.of(2L)))
             .with(p -> p.setProductId(product.getId()))
             .with(p -> p.setCoverage(coverage.toDto()))
-            .with(d -> d.setGitlabConfigId(gitlabConfig.getId()))
+            .with(d -> d.setSourceControlId(sourceControl.getId()))
             .with(p -> p.setCreationDate(CREATION_DATE)).get();
 
     @Test
@@ -92,7 +92,7 @@ public class ProjectTests {
         assertThat(expectedProject.getProjectJourneyMap()).isEqualTo(0L);
         assertTrue(expectedProject.getIsArchived());
         assertThat(expectedProject.getGitlabProjectId()).isEqualTo(2L);
-        assertThat(expectedProject.getGitlabConfig()).isEqualTo(gitlabConfig);
+        assertThat(expectedProject.getSourceControl()).isEqualTo(sourceControl);
         assertThat(expectedProject.getCreationDate()).isEqualTo(CREATION_DATE);
     }
 

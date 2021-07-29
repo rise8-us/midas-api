@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.coverage.dto.CoverageDTO;
-import mil.af.abms.midas.api.gitlabconfig.GitlabConfig;
+import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
@@ -48,7 +48,7 @@ public class CoverageService extends AbstractCRUDService<Coverage, CoverageDTO, 
 
     public Coverage updateCoverageForProjectById(Long projectId) {
         var project =  projectService.findById(projectId);
-        if (project.getGitlabConfig() == null) { return new Coverage(); }
+        if (project.getSourceControl() == null) { return new Coverage(); }
         return updateCoverageForProject(project);
     }
 
@@ -80,8 +80,8 @@ public class CoverageService extends AbstractCRUDService<Coverage, CoverageDTO, 
     }
 
     protected GitLab4JClient getGitlabClient(Project project) {
-        var url = Optional.ofNullable(project.getGitlabConfig()).map(GitlabConfig::getBaseUrl).orElse(null);
-        var token = Optional.ofNullable(project.getGitlabConfig()).map(GitlabConfig::getToken).orElse(null);
+        var url = Optional.ofNullable(project.getSourceControl()).map(SourceControl::getBaseUrl).orElse(null);
+        var token = Optional.ofNullable(project.getSourceControl()).map(SourceControl::getToken).orElse(null);
         return new GitLab4JClient(url, token);
     }
 

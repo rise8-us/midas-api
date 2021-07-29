@@ -27,6 +27,6 @@ public class ProjectDTO implements AbstractDTO {
     private Long projectJourneyMap;
     private Long productId;
     private CoverageDTO coverage;
-    private Long gitlabConfigId;
+    private Long sourceControlId;
 
 }

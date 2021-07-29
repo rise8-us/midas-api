@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.gitlabconfig;
+package mil.af.abms.midas.api.sourcecontrol;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -17,16 +17,16 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 
 
 @Import({ AttributeEncryptor.class })
-public class GitlabConfigRepositoryTests extends RepositoryTestHarness {
+class SourceControlRepositoryTests extends RepositoryTestHarness {
 
     @Autowired
     private TestEntityManager entityManager;
     @Autowired
-    private GitlabConfigRepository gitlabConfigRepository;
+    private SourceControlRepository sourceControlRepository;
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    private final GitlabConfig config = Builder.build(GitlabConfig.class)
+    private final SourceControl config = Builder.build(SourceControl.class)
             .with(c -> c.setName("foo"))
             .with(c -> c.setDescription("bar"))
             .with(c -> c.setBaseUrl("http://fizz.bang"))
@@ -39,19 +39,19 @@ public class GitlabConfigRepositoryTests extends RepositoryTestHarness {
     }
 
     @Test
-    public void should_find_by_name() throws EntityNotFoundException {
-        GitlabConfig foundGitlabConfig = gitlabConfigRepository.findByName(config.getName()).orElseThrow(() ->
+    void should_find_by_name() throws EntityNotFoundException {
+        SourceControl foundSourceControl = sourceControlRepository.findByName(config.getName()).orElseThrow(() ->
             new EntityNotFoundException("Not Found"));
 
-        assertThat(foundGitlabConfig.getToken()).isEqualTo(config.getToken());
+        assertThat(foundSourceControl.getToken()).isEqualTo(config.getToken());
     }
 
     @Test
-    public void readEncrypted() {
-        GitlabConfig configReturned = jdbcTemplate.queryForObject(
-                "select * from gitlab_config where name = ?",
+    void readEncrypted() {
+        SourceControl configReturned = jdbcTemplate.queryForObject(
+                "select * from source_control where name = ?",
                 (resultSet, i) -> {
-                    GitlabConfig result = new GitlabConfig();
+                    SourceControl result = new SourceControl();
                     result.setName(resultSet.getString("name"));
                     result.setToken(resultSet.getString("token"));
                     return result;

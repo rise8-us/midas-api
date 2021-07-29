@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.coverage.CoverageService;
-import mil.af.abms.midas.api.gitlabconfig.GitlabConfigService;
+import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
@@ -30,15 +30,15 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
 
     private final TeamService teamService;
     private final TagService tagService;
-    private final GitlabConfigService gitlabConfigService;
+    private final SourceControlService sourceControlService;
 
     private ProductService productService;
     private CoverageService coverageService;
 
     @Autowired
-    public ProjectService(GitlabConfigService gitlabConfigService, ProjectRepository repository, TeamService teamService, TagService tagService) {
+    public ProjectService(SourceControlService sourceControlService, ProjectRepository repository, TeamService teamService, TagService tagService) {
         super(repository, Project.class, ProjectDTO.class);
-        this.gitlabConfigService = gitlabConfigService;
+        this.sourceControlService = sourceControlService;
         this.teamService = teamService;
         this.tagService = tagService;
     }
@@ -63,7 +63,7 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
                 .with(p -> p.setTags(tags))
                 .with(p -> p.setTeam(teamService.findByIdOrNull(dto.getTeamId())))
                 .with(p -> p.setGitlabProjectId(dto.getGitlabProjectId()))
-                .with(p -> p.setGitlabConfig(gitlabConfigService.findByIdOrNull(dto.getGitlabConfigId())))
+                .with(p -> p.setSourceControl(sourceControlService.findByIdOrNull(dto.getSourceControlId())))
                 .get();
 
         return repository.save(newProject);
@@ -86,7 +86,7 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
         foundProject.setDescription(dto.getDescription());
         foundProject.setGitlabProjectId(dto.getGitlabProjectId());
         foundProject.setProduct(productService.findByIdOrNull(dto.getProductId()));
-        foundProject.setGitlabConfig(gitlabConfigService.findByIdOrNull(dto.getGitlabConfigId()));
+        foundProject.setSourceControl(sourceControlService.findByIdOrNull(dto.getSourceControlId()));
 
         return repository.save(foundProject);
     }
@@ -116,7 +116,7 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
     @Scheduled(fixedRate = 3600000)
     public void scheduledCoverageUpdates() {
         var projects = repository.findAll(ProjectSpecifications.hasGitlabProjectId()).stream()
-                .filter(p -> p.getGitlabConfig() != null).collect(Collectors.toList());
+                .filter(p -> p.getSourceControl() != null).collect(Collectors.toList());
         projects.forEach(coverageService::updateCoverageForProject);
     }
 

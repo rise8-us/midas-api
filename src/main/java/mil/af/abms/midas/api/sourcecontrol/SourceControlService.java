@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.gitlabconfig;
+package mil.af.abms.midas.api.sourcecontrol;
 
 import javax.transaction.Transactional;
 
@@ -8,21 +8,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
-import mil.af.abms.midas.api.gitlabconfig.dto.CreateUpdateGitlabConfigDTO;
-import mil.af.abms.midas.api.gitlabconfig.dto.GitlabConfigDTO;
+import mil.af.abms.midas.api.sourcecontrol.dto.CreateUpdateSourceControlDTO;
+import mil.af.abms.midas.api.sourcecontrol.dto.SourceControlDTO;
 
 @Service
-public class GitlabConfigService extends AbstractCRUDService<GitlabConfig, GitlabConfigDTO, GitlabConfigRepository> {
+public class SourceControlService extends AbstractCRUDService<SourceControl, SourceControlDTO, SourceControlRepository> {
 
 
     @Autowired
-    public GitlabConfigService(GitlabConfigRepository repository) {
-        super(repository, GitlabConfig.class, GitlabConfigDTO.class);
+    public SourceControlService(SourceControlRepository repository) {
+        super(repository, SourceControl.class, SourceControlDTO.class);
     }
 
     @Transactional
-    public GitlabConfig create(CreateUpdateGitlabConfigDTO dto) {
-        GitlabConfig configNew = new GitlabConfig();
+    public SourceControl create(CreateUpdateSourceControlDTO dto) {
+        SourceControl configNew = new SourceControl();
         configNew.setBaseUrl(dto.getBaseUrl());
         configNew.setName(dto.getName());
         configNew.setDescription(dto.getDescription());
@@ -32,8 +32,8 @@ public class GitlabConfigService extends AbstractCRUDService<GitlabConfig, Gitla
    }
 
     @Transactional
-    public GitlabConfig updateById(Long id, CreateUpdateGitlabConfigDTO dto) {
-        GitlabConfig configToUpdate = findById(id);
+    public SourceControl updateById(Long id, CreateUpdateSourceControlDTO dto) {
+        SourceControl configToUpdate = findById(id);
         configToUpdate.setBaseUrl(dto.getBaseUrl());
         configToUpdate.setName(dto.getName());
         configToUpdate.setDescription(dto.getDescription());

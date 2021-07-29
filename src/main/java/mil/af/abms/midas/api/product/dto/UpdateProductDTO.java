@@ -47,6 +47,6 @@ public class UpdateProductDTO implements Serializable {
 
     private Integer gitlabGroupId;
 
-    private Long gitlabConfigId;
+    private Long sourceControlId;
 
 }

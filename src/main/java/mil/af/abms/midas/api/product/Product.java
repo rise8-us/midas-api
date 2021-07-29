@@ -19,7 +19,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
-import mil.af.abms.midas.api.gitlabconfig.GitlabConfig;
+import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.tag.Tag;
@@ -52,7 +52,7 @@ public class Product extends AbstractEntity<ProductDTO> {
     private User productManager;
 
     @ManyToOne
-    private GitlabConfig gitlabConfig;
+    private SourceControl sourceControl;
 
     @ManyToOne
     @JoinColumn(name = "parent_id", nullable = true)
@@ -75,7 +75,7 @@ public class Product extends AbstractEntity<ProductDTO> {
     public ProductDTO toDto() {
         Set<TagDTO> tagDTOs = tags.stream().map(Tag::toDto).collect(Collectors.toSet());
         return new ProductDTO(id, getIdOrNull(productManager), getIdOrNull(parent), name, description,
-                isArchived, creationDate, getIds(projects), tagDTOs, getIds(children), type, gitlabGroupId, getIdOrNull(gitlabConfig));
+                isArchived, creationDate, getIds(projects), tagDTOs, getIds(children), type, gitlabGroupId, getIdOrNull(sourceControl));
     }
 
     @Override

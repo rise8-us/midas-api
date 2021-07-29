@@ -28,6 +28,6 @@ public class ProductDTO implements AbstractDTO {
     private Set<Long> children;
     private ProductType type;
     private Integer gitlabGroupId;
-    private Long gitlabConfigId;
+    private Long sourceControlId;
 
 }

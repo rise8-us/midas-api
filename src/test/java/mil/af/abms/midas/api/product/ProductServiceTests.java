@@ -26,8 +26,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
-import mil.af.abms.midas.api.gitlabconfig.GitlabConfig;
-import mil.af.abms.midas.api.gitlabconfig.GitlabConfigService;
+import mil.af.abms.midas.api.sourcecontrol.SourceControl;
+import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
@@ -47,7 +47,7 @@ class ProductServiceTests {
     @SpyBean
     ProductService productService;
     @MockBean
-    GitlabConfigService gitlabConfigService;
+    SourceControlService sourceControlService;
     @MockBean
     UserService userService;
     @MockBean
@@ -76,7 +76,7 @@ class ProductServiceTests {
     private final Product child = Builder.build(Product.class)
             .with(p -> p.setId(6L))
             .with(p -> p.setName("Metrics")).get();
-    private final GitlabConfig gitlabConfig = Builder.build(GitlabConfig.class)
+    private final SourceControl sourceControl = Builder.build(SourceControl.class)
             .with(g -> g.setId(42L))
             .with(g -> g.setName("Mock IL2"))
             .get();
@@ -86,7 +86,7 @@ class ProductServiceTests {
         CreateProductDTO createProductDTO = new CreateProductDTO("homeOne", "new name",
                 3L, 1L, Set.of(4L), Set.of(3L), Set.of(child.getId()), ProductType.PRODUCT, 454, 42L);
 
-        when(gitlabConfigService.findByIdOrNull(createProductDTO.getGitlabConfigId())).thenReturn(gitlabConfig);
+        when(sourceControlService.findByIdOrNull(createProductDTO.getSourceControlId())).thenReturn(sourceControl);
         when(userService.findByIdOrNull(3L)).thenReturn(user);
         doReturn(child).when(productService).findById(child.getId());
         when(projectService.findById(anyLong())).thenReturn(project);
@@ -105,7 +105,7 @@ class ProductServiceTests {
         assertThat(productSaved.getChildren()).isEqualTo(Set.of(child));
         assertThat(productSaved.getType()).isEqualTo(ProductType.PRODUCT);
         assertThat(productSaved.getGitlabGroupId()).isEqualTo(createProductDTO.getGitlabGroupId());
-        assertThat(productSaved.getGitlabConfig()).isEqualTo(gitlabConfig);
+        assertThat(productSaved.getSourceControl()).isEqualTo(sourceControl);
         assertFalse(productSaved.getIsArchived());
     }
 
@@ -128,7 +128,7 @@ class ProductServiceTests {
                 user.getId(), 1L, Set.of(project.getId()), Set.of(3L), Set.of(), ProductType.PRODUCT, 451, 42L);
 
         when(userService.findByIdOrNull(user.getId())).thenReturn(user);
-        when(gitlabConfigService.findByIdOrNull(updateProductDTO.getGitlabConfigId())).thenReturn(gitlabConfig);
+        when(sourceControlService.findByIdOrNull(updateProductDTO.getSourceControlId())).thenReturn(sourceControl);
         when(projectService.findById(anyLong())).thenReturn(project);
         when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
         when(productRepository.save(product)).thenReturn(product);
@@ -143,7 +143,7 @@ class ProductServiceTests {
         assertThat(productSaved.getDescription()).isEqualTo(updateProductDTO.getDescription());
         assertThat(productSaved.getProjects()).isEqualTo(Set.of(project));
         assertThat(productSaved.getGitlabGroupId()).isEqualTo(updateProductDTO.getGitlabGroupId());
-        assertThat(productSaved.getGitlabConfig()).isEqualTo(gitlabConfig);
+        assertThat(productSaved.getSourceControl()).isEqualTo(sourceControl);
     }
 
     @Test
