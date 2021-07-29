@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
-import mil.af.abms.midas.api.gitlabconfig.GitlabConfigService;
+import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
@@ -29,7 +29,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
     private UserService userService;
     private ProjectService projectService;
     private TagService tagService;
-    private GitlabConfigService gitlabConfigService;
+    private SourceControlService sourceControlService;
 
     public ProductService(ProductRepository repository) {
         super(repository, Product.class, ProductDTO.class);
@@ -42,7 +42,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
     @Autowired
     public void setTagService(TagService tagService) { this.tagService = tagService; }
     @Autowired
-    public void setGitlabConfigService(GitlabConfigService gitlabConfigService) { this.gitlabConfigService = gitlabConfigService; }
+    public void setSourceControlService(SourceControlService sourceControlService) { this.sourceControlService = sourceControlService; }
 
     @Transactional
     public Product create(CreateProductDTO dto) {
@@ -54,7 +54,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
                 .with(p -> p.setDescription(dto.getDescription()))
                 .with(p -> p.setProductManager(productManager))
                 .with(p -> p.setGitlabGroupId(dto.getGitlabGroupId()))
-                .with(p -> p.setGitlabConfig(gitlabConfigService.findByIdOrNull(dto.getGitlabConfigId())))
+                .with(p -> p.setSourceControl(sourceControlService.findByIdOrNull(dto.getSourceControlId())))
                 .with(p -> p.setTags(dto.getTagIds().stream().map(tagService::findById)
                         .collect(Collectors.toSet())))
                 .with(p -> p.setParent(findByIdOrNull(dto.getParentId())))
@@ -88,7 +88,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         product.setDescription(dto.getDescription());
         product.setParent(findByIdOrNull(dto.getParentId()));
         product.setGitlabGroupId(dto.getGitlabGroupId());
-        product.setGitlabConfig(gitlabConfigService.findByIdOrNull(dto.getGitlabConfigId()));
+        product.setSourceControl(sourceControlService.findByIdOrNull(dto.getSourceControlId()));
         product.setTags(dto.getTagIds().stream()
                 .map(tagService::findById).collect(Collectors.toSet()));
         product.setProjects(dto.getProjectIds().stream()

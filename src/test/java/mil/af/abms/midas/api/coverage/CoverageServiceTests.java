@@ -28,7 +28,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 
-import mil.af.abms.midas.api.gitlabconfig.GitlabConfig;
+import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
@@ -58,7 +58,7 @@ class CoverageServiceTests {
     private static final LocalDateTime CREATION_DATE = LocalDateTime.now();
     private static final DecimalFormat df = new DecimalFormat("0.0");
 
-    private final GitlabConfig gitlabConfig = Builder.build(GitlabConfig.class)
+    private final SourceControl sourceControl = Builder.build(SourceControl.class)
             .with(g -> g.setId(1L))
             .with(g -> g.setToken("foobarbaz"))
             .with(g -> g.setName("bar"))
@@ -69,7 +69,7 @@ class CoverageServiceTests {
     private final Project project = Builder.build(Project.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setGitlabProjectId(3209))
-            .with(p -> p.setGitlabConfig(gitlabConfig))
+            .with(p -> p.setSourceControl(sourceControl))
             .get();
     private final Coverage coverage = Builder.build(Coverage.class)
             .with(c -> c.setId(2L))
@@ -145,7 +145,7 @@ class CoverageServiceTests {
     void should_skip_coverage_from_project_id() {
         Project projectWithoutGitLabConfig = new Project();
         BeanUtils.copyProperties(project, projectWithoutGitLabConfig);
-        projectWithoutGitLabConfig.setGitlabConfig(null);
+        projectWithoutGitLabConfig.setSourceControl(null);
 
         when(projectService.findById(1L)).thenReturn(projectWithoutGitLabConfig);
         Coverage result = coverageService.updateCoverageForProjectById(1L);

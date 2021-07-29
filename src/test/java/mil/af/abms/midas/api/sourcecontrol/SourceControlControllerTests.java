@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.gitlabconfig;
+package mil.af.abms.midas.api.sourcecontrol;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -21,20 +21,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
-import mil.af.abms.midas.api.gitlabconfig.dto.CreateUpdateGitlabConfigDTO;
+import mil.af.abms.midas.api.sourcecontrol.dto.CreateUpdateSourceControlDTO;
 import mil.af.abms.midas.api.helper.Builder;
 
-@WebMvcTest({GitlabConfigController.class})
-public class GitlabConfigControllerTests extends ControllerTestHarness {
+@WebMvcTest({SourceControlController.class})
+public class SourceControlControllerTests extends ControllerTestHarness {
     
     @Autowired
-    GitlabConfigController gitlabConfigController;
+    SourceControlController sourceControlController;
     @MockBean
-    private GitlabConfigService gitlabConfigService;
+    private SourceControlService sourceControlService;
     
     private static final LocalDateTime CREATION_DATE = LocalDateTime.now();
     
-    private final GitlabConfig gitlabConfig = Builder.build(GitlabConfig.class)
+    private final SourceControl sourceControl = Builder.build(SourceControl.class)
             .with(g -> g.setId(1L))
             .with(g -> g.setToken("foobarbaz"))
             .with(g -> g.setName("bar"))
@@ -42,7 +42,7 @@ public class GitlabConfigControllerTests extends ControllerTestHarness {
             .with(g -> g.setBaseUrl("http://foo.bar"))
             .with(g -> g.setCreationDate(CREATION_DATE))
             .get();
-    private final CreateUpdateGitlabConfigDTO cDto = Builder.build(CreateUpdateGitlabConfigDTO.class)
+    private final CreateUpdateSourceControlDTO cDto = Builder.build(CreateUpdateSourceControlDTO.class)
             .with(d -> d.setToken("foobarbaz"))
             .with(d -> d.setName("bar"))
             .with(d -> d.setDescription("foo"))
@@ -56,10 +56,10 @@ public class GitlabConfigControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_create_gitlab_config() throws Exception {
-        when(gitlabConfigService.create(any())).thenReturn(gitlabConfig);
+    public void should_create_source_control() throws Exception {
+        when(sourceControlService.create(any())).thenReturn(sourceControl);
 
-        mockMvc.perform(post("/api/gitlabConfigs")
+        mockMvc.perform(post("/api/sourceControls")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(mapper.writeValueAsString(cDto))
         )
@@ -69,14 +69,14 @@ public class GitlabConfigControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_update_gitlab_config() throws Exception {
-        CreateUpdateGitlabConfigDTO uDto = new CreateUpdateGitlabConfigDTO();
+    public void should_update_source_control() throws Exception {
+        CreateUpdateSourceControlDTO uDto = new CreateUpdateSourceControlDTO();
         BeanUtils.copyProperties(cDto, uDto);
         uDto.setName("bar");
 
-        when(gitlabConfigService.updateById(any(), any())).thenReturn(gitlabConfig);
+        when(sourceControlService.updateById(any(), any())).thenReturn(sourceControl);
 
-        mockMvc.perform(put("/api/gitlabConfigs/1")
+        mockMvc.perform(put("/api/sourceControls/1")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(mapper.writeValueAsString(cDto))
         )

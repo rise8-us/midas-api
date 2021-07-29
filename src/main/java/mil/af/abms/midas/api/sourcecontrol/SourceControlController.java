@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.gitlabconfig;
+package mil.af.abms.midas.api.sourcecontrol;
 
 import javax.validation.Valid;
 
@@ -11,25 +11,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import mil.af.abms.midas.api.AbstractCRUDController;
-import mil.af.abms.midas.api.gitlabconfig.dto.CreateUpdateGitlabConfigDTO;
-import mil.af.abms.midas.api.gitlabconfig.dto.GitlabConfigDTO;
+import mil.af.abms.midas.api.sourcecontrol.dto.CreateUpdateSourceControlDTO;
+import mil.af.abms.midas.api.sourcecontrol.dto.SourceControlDTO;
 
 @RestController
-@RequestMapping("/api/gitlabConfigs")
-public class GitlabConfigController extends AbstractCRUDController<GitlabConfig, GitlabConfigDTO, GitlabConfigService> {
+@RequestMapping("/api/sourceControls")
+public class SourceControlController extends AbstractCRUDController<SourceControl, SourceControlDTO, SourceControlService> {
 
     @Autowired
-    public GitlabConfigController(GitlabConfigService service) {
+    public SourceControlController(SourceControlService service) {
         super(service);
     }
 
     @PostMapping
-    public GitlabConfigDTO create(@Valid @RequestBody CreateUpdateGitlabConfigDTO cDto) {
+    public SourceControlDTO create(@Valid @RequestBody CreateUpdateSourceControlDTO cDto) {
         return service.create(cDto).toDto();
     }
 
     @PutMapping("/{id}")
-    public GitlabConfigDTO create(@PathVariable Long id, @Valid @RequestBody CreateUpdateGitlabConfigDTO uDto) {
+    public SourceControlDTO create(@PathVariable Long id, @Valid @RequestBody CreateUpdateSourceControlDTO uDto) {
         return service.updateById(id, uDto).toDto();
     }
 

@@ -28,8 +28,8 @@ import org.mockito.Captor;
 
 import mil.af.abms.midas.api.coverage.Coverage;
 import mil.af.abms.midas.api.coverage.CoverageService;
-import mil.af.abms.midas.api.gitlabconfig.GitlabConfig;
-import mil.af.abms.midas.api.gitlabconfig.GitlabConfigService;
+import mil.af.abms.midas.api.sourcecontrol.SourceControl;
+import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
@@ -53,7 +53,7 @@ class ProjectServiceTests {
     @MockBean
     CoverageService coverageService;
     @MockBean
-    GitlabConfigService gitlabConfigService;
+    SourceControlService sourceControlService;
     @MockBean
     CustomProperty property;
     @MockBean
@@ -89,7 +89,7 @@ class ProjectServiceTests {
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setProjects(Set.of(project))).get();
-    private final GitlabConfig gitlabConfig = Builder.build(GitlabConfig.class)
+    private final SourceControl sourceControl = Builder.build(SourceControl.class)
             .with(g -> g.setId(42L))
             .with(g -> g.setName("Mock IL2"))
             .get();
@@ -99,7 +99,7 @@ class ProjectServiceTests {
         CreateProjectDTO createProjectDTO = new CreateProjectDTO("MIDAS", 2, 33L, Set.of(3L),
                 "Project Description", null, 42L);
 
-        when(gitlabConfigService.findByIdOrNull(42L)).thenReturn(gitlabConfig);
+        when(sourceControlService.findByIdOrNull(42L)).thenReturn(sourceControl);
         when(projectRepository.save(project)).thenReturn(new Project());
 
         projectService.create(createProjectDTO);
@@ -110,7 +110,7 @@ class ProjectServiceTests {
         assertThat(projectSaved.getName()).isEqualTo(createProjectDTO.getName());
         assertThat(projectSaved.getDescription()).isEqualTo(createProjectDTO.getDescription());
         assertThat(projectSaved.getGitlabProjectId()).isEqualTo(createProjectDTO.getGitlabProjectId());
-        assertThat(projectSaved.getGitlabConfig()).isEqualTo(gitlabConfig);
+        assertThat(projectSaved.getSourceControl()).isEqualTo(sourceControl);
     }
 
     @Test
@@ -134,14 +134,14 @@ class ProjectServiceTests {
         Team newTeam = new Team();
         BeanUtils.copyProperties(team, newTeam);
         newTeam.setId(22L);
-        GitlabConfig config2 = new GitlabConfig();
-        BeanUtils.copyProperties(gitlabConfig, config2);
+        SourceControl config2 = new SourceControl();
+        BeanUtils.copyProperties(sourceControl, config2);
         config2.setId(43L);
 
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
         when(projectRepository.save(project)).thenReturn(project);
         when(teamService.findByIdOrNull(updateProjectDTO.getTeamId())).thenReturn(newTeam);
-        when(gitlabConfigService.findByIdOrNull(43L)).thenReturn(config2);
+        when(sourceControlService.findByIdOrNull(43L)).thenReturn(config2);
 
         projectService.updateById(1L, updateProjectDTO);
 
@@ -152,7 +152,7 @@ class ProjectServiceTests {
         assertThat(projectSaved.getDescription()).isEqualTo(updateProjectDTO.getDescription());
         assertThat(projectSaved.getGitlabProjectId()).isEqualTo(updateProjectDTO.getGitlabProjectId());
         assertThat(projectSaved.getTeam()).isEqualTo(newTeam);
-        assertThat(projectSaved.getGitlabConfig()).isEqualTo(config2);
+        assertThat(projectSaved.getSourceControl()).isEqualTo(config2);
     }
 
     @Test
@@ -276,7 +276,7 @@ class ProjectServiceTests {
 
         assertThat(projectSaved.getProduct()).isNull();
         assertThat(projectSaved.getTeam()).isNull();
-        assertThat(projectSaved.getGitlabConfig()).isNull();
+        assertThat(projectSaved.getSourceControl()).isNull();
     }
 
     @Test
@@ -319,10 +319,10 @@ class ProjectServiceTests {
     @Test
     @SuppressWarnings(value = "unchecked")
     void should_run_scheduled_coverage_update_projects() {
-        GitlabConfig config = new GitlabConfig();
+        SourceControl config = new SourceControl();
         config.setId(1L);
         Project p2 = new Project();
-        project.setGitlabConfig(config);
+        project.setSourceControl(config);
         BeanUtils.copyProperties(project, p2);
 
         when(projectRepository.findAll(any(Specification.class))).thenReturn(List.of(project, p2));
