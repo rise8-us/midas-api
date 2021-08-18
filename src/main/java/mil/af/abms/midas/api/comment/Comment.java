@@ -45,6 +45,10 @@ public class Comment extends AbstractEntity<CommentDTO> {
     @JoinColumn(name = "parent_id", nullable = true)
     private Comment parent;
 
+    @ManyToOne
+    @JoinColumn(name = "edited_by_id", nullable = true)
+    private User editedBy;
+
     @OneToMany(mappedBy = "parent", orphanRemoval = true)
     private Set<Comment> children = new HashSet<>();
 
@@ -63,7 +67,9 @@ public class Comment extends AbstractEntity<CommentDTO> {
                 text,
                 getIds(children),
                 creationDate,
-                lastEdit);
+                lastEdit,
+                getIdOrNull(editedBy)
+        );
     }
 
     @Override

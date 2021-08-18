@@ -16,6 +16,8 @@ import mil.af.abms.midas.api.announcement.Announcement;
 import mil.af.abms.midas.api.announcement.AnnouncementService;
 import mil.af.abms.midas.api.announcement.dto.AnnouncementDTO;
 import mil.af.abms.midas.api.init.dto.InitDTO;
+import mil.af.abms.midas.api.product.Product;
+import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.api.user.dto.UserDTO;
 import mil.af.abms.midas.config.CustomProperty;
@@ -28,21 +30,29 @@ public class InitController {
     private final CustomProperty property;
     private final UserService userService;
     private final AnnouncementService announcementService;
+    private final TeamService teamService;
 
     @Autowired
-    public InitController(CustomProperty property, UserService userService, AnnouncementService announcementService) {
+    public InitController(
+            CustomProperty property, UserService userService, AnnouncementService announcementService, TeamService teamService
+    ) {
         this.userService = userService;
         this.property = property;
         this.announcementService = announcementService;
+        this.teamService = teamService;
     }
 
     @ApiOperation(value = "context info",
             notes = "Returns classification context, available roles a user may have, user login, and unseen announcements")
     @GetMapping
     public InitDTO getInfo(Authentication auth) {
+        var loggedInUser = userService.getUserBySecContext();
+        var userProductIds = loggedInUser.getTeamIds().stream().map(teamService::findById).flatMap(t -> {
+            return t.getProducts().stream().map(Product::getId);
+        }).collect(Collectors.toSet());
         UserDTO userDTO = userService.getUserBySecContext().toDto();
         List<AnnouncementDTO> announcementDTOs = announcementService.getUnseenAnnouncements(userService.getUserBySecContext())
                 .stream().map(Announcement::toDto).collect(Collectors.toList());
-        return new InitDTO(property.getClassification(), property.getCaveat(), userDTO, announcementDTOs);
+        return new InitDTO(property.getClassification(), property.getCaveat(), userDTO, announcementDTOs, userProductIds);
     }
 }

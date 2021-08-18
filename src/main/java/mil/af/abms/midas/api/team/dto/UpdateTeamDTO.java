@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.team.validation.UniqueName;
+import mil.af.abms.midas.api.validation.UserExists;
 import mil.af.abms.midas.api.validation.UsersExist;
 
 @Getter
@@ -28,4 +29,10 @@ public class UpdateTeamDTO implements Serializable {
 
     @UsersExist
     private Set<Long> userIds;
+    @UserExists
+    private Long productManagerId;
+    @UserExists
+    private Long designerId;
+    @UserExists
+    private Long techLeadId;
 }

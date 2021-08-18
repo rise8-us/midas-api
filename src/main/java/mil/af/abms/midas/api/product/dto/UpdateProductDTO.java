@@ -49,4 +49,9 @@ public class UpdateProductDTO implements Serializable {
 
     private Long sourceControlId;
 
+    private Set<Long> teamIds;
+    private String vision;
+    private String mission;
+    private String problemStatement;
+
 }

@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -19,30 +20,45 @@ import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.announcement.Announcement;
 import mil.af.abms.midas.api.announcement.AnnouncementService;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.product.Product;
+import mil.af.abms.midas.api.team.Team;
+import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.config.CustomProperty;
 
 @WebMvcTest(InitController.class)
-public class InitControllerTest extends ControllerTestHarness {
+class InitControllerTest extends ControllerTestHarness {
 
     @MockBean
     private CustomProperty property;
     @MockBean
     private AnnouncementService announcementService;
+    @MockBean
+    TeamService teamService;
+
+    private Team team = Builder.build(Team.class)
+            .with(t -> t.setId(2L))
+            .get();
+    private Product product = Builder.build(Product.class)
+            .with(t -> t.setId(3L))
+            .get();
 
     @BeforeEach
-    public void init() {
+    void init() {
         when(userService.findByKeycloakUid(any())).thenReturn(Optional.of(authUser));
         when(userService.getUserBySecContext()).thenReturn(authUser);
     }
 
     @Test
-    public void should_get_from_public_info() throws Exception {
+    void should_get_from_public_info() throws Exception {
         Announcement announcementEntity = Builder.build(Announcement.class)
                 .with(a -> a.setId(1L))
                 .with(a -> a.setCreationDate(LocalDateTime.now()))
                 .with(a -> a.setMessage("HELLO")).get();
+        team.setProducts(Set.of(product));
+        authUser.setTeams(Set.of(team));
 
         when(userService.getUserBySecContext()).thenReturn(authUser);
+        when(teamService.findById(team.getId())).thenReturn(team);
         when(announcementService.getUnseenAnnouncements(any())).thenReturn(List.of(announcementEntity));
         when(property.getClassification()).thenReturn("UNCLASS");
         when(property.getCaveat()).thenReturn("IL2");
@@ -64,6 +80,7 @@ public class InitControllerTest extends ControllerTestHarness {
                 .andExpect(jsonPath("$.userLoggedIn").isNotEmpty())
                 .andExpect(jsonPath("$.userLoggedIn.keycloakUid").value("abc-123"))
                 .andExpect(jsonPath("$.unseenAnnouncements").isArray())
-                .andExpect(jsonPath("$.unseenAnnouncements[0].message").value("HELLO"));
+                .andExpect(jsonPath("$.unseenAnnouncements[0].message").value("HELLO"))
+                .andExpect(jsonPath("$.productIdsForLoggedInUser[0]").value(product.getId()));
     }
 }

@@ -45,6 +45,7 @@ import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.enums.AssertionStatus;
 import mil.af.abms.midas.enums.AssertionType;
+import mil.af.abms.midas.enums.CompletionType;
 
 @ExtendWith(SpringExtension.class)
 @Import(AssertionService.class)
@@ -124,9 +125,9 @@ class AssertionServiceTests {
                 .with(a -> a.setCreatedBy(createdBy)).get();
 
         createAssertionDTOChild = new CreateAssertionDTO("Strat", AssertionType.STRATEGY,
-                3L, null, null, new ArrayList<>());
+                3L, null, null, new ArrayList<>(),null, null, null, null,null);
         createAssertionDTO = new CreateAssertionDTO("First", AssertionType.GOAL,
-                3L, null, null, List.of(createAssertionDTOChild));
+                3L, null, null, List.of(createAssertionDTOChild), null, null, CompletionType.STRING, null,null);
     }
 
     @Test
@@ -157,7 +158,7 @@ class AssertionServiceTests {
 
     @Test
     void should_update_assertion_by_id() {
-        UpdateAssertionDTO updateAssertionDTO = new UpdateAssertionDTO("updated", AssertionStatus.ON_TRACK, List.of(createAssertionDTO));
+        UpdateAssertionDTO updateAssertionDTO = new UpdateAssertionDTO("updated", AssertionStatus.ON_TRACK, List.of(createAssertionDTO), null, null, null, null,null, false);
         Assertion newAssertion = new Assertion();
         BeanUtils.copyProperties(assertion, newAssertion);
         newAssertion.setType(AssertionType.MEASURE);

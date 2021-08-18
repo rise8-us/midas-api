@@ -15,7 +15,7 @@ public class RestQueryVisitorImpl<T> extends RestQueryBaseVisitor<Specification<
         Specification<T> right = visit(ctx.right);
         String op = ctx.logicalOp.getText();
 
-        if ("OR".equals(op)) {
+        if (op.equals(SearchOperation.OR_OPERATOR)) {
             return left.or(right);
         }
         return left.and(right);
@@ -41,16 +41,18 @@ public class RestQueryVisitorImpl<T> extends RestQueryBaseVisitor<Specification<
         String key = ctx.key().getText();
         String op = ctx.op().getText();
         String value = ctx.value().getText();
+
+        if ( ctx.value().NULL() != null ) {
+            op = op.equals(":") ? ":~" : "!~";
+        }
+
         if (ctx.value().STRING() != null) {
             value = value
-                    .replace("^\"", "")
-                    .replace("\"$", "")
-                    .replace("^'", "")
-                    .replace("'$", "")
-                    .replace("\\\"", "\"")
-                    .replace("\\'", "'")
+                    .replace("\"", "")
+                    .replace("'", "")
                     .trim();
         }
+
         Matcher matcher = val.matcher(value);
         matcher.find();
         SearchCriteria criteria = new SearchCriteria(key, op, matcher.group(1), matcher.group(2), matcher.group(3));

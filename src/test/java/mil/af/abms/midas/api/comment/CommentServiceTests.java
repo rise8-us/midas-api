@@ -1,6 +1,7 @@
 package mil.af.abms.midas.api.comment;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -32,7 +33,7 @@ import mil.af.abms.midas.api.user.UserService;
 
 @ExtendWith(SpringExtension.class)
 @Import(CommentService.class)
-public class CommentServiceTests {
+class CommentServiceTests {
 
     @SpyBean
     CommentService commentService;
@@ -60,7 +61,7 @@ public class CommentServiceTests {
             .with(c -> c.setCreatedBy(createdBy)).get();
 
     @Test
-    public void should_create_comment() {
+    void should_create_comment() {
         CreateCommentDTO createDTO = new CreateCommentDTO(parentComment.getId(), assertion.getId(), "something new");
 
         when(commentRepository.findById(createDTO.getParentId())).thenReturn(Optional.of(parentComment));
@@ -78,16 +79,18 @@ public class CommentServiceTests {
     }
 
     @Test
-    public void should_update_comment_by_id() {
+    void should_update_comment_by_id() {
         UpdateCommentDTO updateDTO = new UpdateCommentDTO("something updated");
 
         when(commentRepository.findById(anyLong())).thenReturn(Optional.of(comment));
+        when(userService.getUserBySecContext()).thenReturn(createdBy);
         commentService.updateById(1L, updateDTO);
 
         verify(commentRepository, times(1)).save(commentCaptor.capture());
         Comment commentSaved = commentCaptor.getValue();
 
         assertThat(commentSaved.getText()).isEqualTo(updateDTO.getText());
+        assertThat(commentSaved.getEditedBy()).isEqualTo(createdBy);
     }
 
     @Test
@@ -95,15 +98,15 @@ public class CommentServiceTests {
 
         var parentComment = new Comment();
         BeanUtils.copyProperties(comment, parentComment);
-        var childCommment =  Builder.build(Comment.class)
+        var childComment =  Builder.build(Comment.class)
                 .with(c -> c.setId(5L))
                 .with(c -> c.setParent(parentComment))
                 .with(c -> c.setAssertion(assertion))
                 .get();
-        parentComment.getChildren().add(childCommment);
+        parentComment.getChildren().add(childComment);
 
         doReturn(parentComment).when(commentService).findById(1L);
-        doReturn(childCommment).when(commentService).findById(5L);
+        doReturn(childComment).when(commentService).findById(5L);
         doNothing().when(commentRepository).deleteById(1L);
         doNothing().when(commentRepository).deleteById(5L);
 
@@ -113,6 +116,27 @@ public class CommentServiceTests {
 
         assertThat(longCaptor.getAllValues().get(0)).isEqualTo(5L);
         assertThat(longCaptor.getAllValues().get(1)).isEqualTo(1L);
+
+    }
+
+    @Test
+    void should_deleteComment() {
+        var parentComment = new Comment();
+        BeanUtils.copyProperties(comment, parentComment);
+        var childComment =  Builder.build(Comment.class)
+                .with(c -> c.setId(5L))
+                .with(c -> c.setParent(parentComment))
+                .with(c -> c.setAssertion(assertion))
+                .get();
+        parentComment.getChildren().add(childComment);
+
+        doReturn(parentComment).when(commentService).findById(1L);
+        doReturn(childComment).when(commentService).findById(5L);
+        doNothing().when(commentService).deleteById(any());
+
+        commentService.deleteComment(parentComment);
+        verify(commentRepository, times(2)).deleteById(anyLong());
+
 
     }
 

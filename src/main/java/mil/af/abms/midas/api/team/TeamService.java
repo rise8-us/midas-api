@@ -29,13 +29,16 @@ public class TeamService extends AbstractCRUDService<Team, TeamDTO, TeamReposito
     public void setUserService(UserService userService) { this.userService = userService; }
 
     @Transactional
-    public Team create(CreateTeamDTO createTeamDTO) {
+    public Team create(CreateTeamDTO dto) {
         Team newTeam = Builder.build(Team.class)
-                .with(t -> t.setName(createTeamDTO.getName()))
-                .with(t -> t.setDescription(createTeamDTO.getDescription()))
-                .with(t -> t.setGitlabGroupId(createTeamDTO.getGitlabGroupId()))
-                .with(t -> t.setUsers(
-                        createTeamDTO.getUserIds().stream().map(userService::findById).collect(Collectors.toSet()))
+                .with(t -> t.setName(dto.getName()))
+                .with(t -> t.setDescription(dto.getDescription()))
+                .with(t -> t.setGitlabGroupId(dto.getGitlabGroupId()))
+                .with(t -> t.setProductManager(userService.findByIdOrNull(dto.getProductManagerId())))
+                .with(t -> t.setDesigner(userService.findByIdOrNull(dto.getDesignerId())))
+                .with(t -> t.setTechLead(userService.findByIdOrNull(dto.getTechLeadId())))
+                .with(t -> t.setMembers(
+                        dto.getUserIds().stream().map(userService::findById).collect(Collectors.toSet()))
                 ).get();
 
         return repository.save(newTeam);
@@ -48,12 +51,15 @@ public class TeamService extends AbstractCRUDService<Team, TeamDTO, TeamReposito
     }
 
     @Transactional
-    public Team updateById(Long id, UpdateTeamDTO updateTeamDTO) {
+    public Team updateById(Long id, UpdateTeamDTO dto) {
         Team foundTeam = findById(id);
-        foundTeam.setName(updateTeamDTO.getName());
-        foundTeam.setGitlabGroupId(updateTeamDTO.getGitlabGroupId());
-        foundTeam.setDescription(updateTeamDTO.getDescription());
-        foundTeam.setUsers(updateTeamDTO.getUserIds().stream().map(userService::findById).collect(Collectors.toSet()));
+        foundTeam.setName(dto.getName());
+        foundTeam.setGitlabGroupId(dto.getGitlabGroupId());
+        foundTeam.setDescription(dto.getDescription());
+        foundTeam.setProductManager(userService.findByIdOrNull(dto.getProductManagerId()));
+        foundTeam.setDesigner(userService.findByIdOrNull(dto.getDesignerId()));
+        foundTeam.setTechLead(userService.findByIdOrNull(dto.getTechLeadId()));
+        foundTeam.setMembers(dto.getUserIds().stream().map(userService::findById).collect(Collectors.toSet()));
 
         return repository.save(foundTeam);
     }

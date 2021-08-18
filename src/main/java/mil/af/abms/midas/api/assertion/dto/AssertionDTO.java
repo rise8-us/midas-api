@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import mil.af.abms.midas.api.AbstractDTO;
 import mil.af.abms.midas.enums.AssertionStatus;
 import mil.af.abms.midas.enums.AssertionType;
+import mil.af.abms.midas.enums.CompletionType;
 
 @Data
 @NoArgsConstructor
@@ -32,5 +33,11 @@ public class AssertionDTO implements AbstractDTO {
 
     private LocalDateTime creationDate;
     private LocalDateTime completedDate;
+    private LocalDateTime startDate;
+    private LocalDateTime dueDate;
+
+    private Boolean isArchived;
+    private CompletionType completionType;
+    private Long assignedPersonId;
 
 }

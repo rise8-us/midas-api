@@ -3,6 +3,7 @@ package mil.af.abms.midas.api.assertion;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
@@ -18,12 +19,14 @@ import org.junit.jupiter.api.Test;
 import mil.af.abms.midas.api.assertion.dto.AssertionDTO;
 import mil.af.abms.midas.api.comment.Comment;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.helper.TimeConversion;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.enums.AssertionStatus;
 import mil.af.abms.midas.enums.AssertionType;
+import mil.af.abms.midas.enums.CompletionType;
 
-public class AssertionTests {
+class AssertionTests {
 
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
     private final Set<Comment> comments = Set.of(Builder.build(Comment.class).with(c -> c.setId(2L)).get());
@@ -37,6 +40,10 @@ public class AssertionTests {
             .with(a -> a.setProduct(product))
             .with(a -> a.setCreationDate(CREATION_DATE))
             .with(a -> a.setComments(comments))
+            .with(a -> a.setDueDate(TimeConversion.getTimeOrNull("2021-07-09T00:00:00")))
+            .with(a -> a.setComments(comments))
+            .with(a -> a.setComments(comments))
+            .with(a -> a.setComments(comments))
             .with(a -> a.setCreatedBy(createdBy)).get();
     private final AssertionDTO assertionDTO = Builder.build(AssertionDTO.class)
             .with(d -> d.setId(1L))
@@ -47,10 +54,13 @@ public class AssertionTests {
             .with(d -> d.setCreationDate(CREATION_DATE))
             .with(d -> d.setCommentIds(Set.of(2L)))
             .with(d -> d.setChildren(List.of()))
+            .with(d -> d.setIsArchived(false))
+            .with(d -> d.setCompletionType(CompletionType.STRING))
+            .with(d -> d.setDueDate(TimeConversion.getTimeOrNull("2021-07-09T00:00:00")))
             .with(d -> d.setCreatedById(createdBy.getId())).get();
 
     @Test
-    public void should_have_all_assertion_dto_fields() {
+    void should_have_all_assertion_dto_fields() {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Assertion.class, fields::add);
 
@@ -58,7 +68,7 @@ public class AssertionTests {
     }
 
     @Test
-    public void should_set_and_get_properties() {
+    void should_set_and_get_properties() {
         assertThat(assertion.getId()).isEqualTo(1L);
         assertThat(assertion.getType()).isEqualTo(AssertionType.OBJECTIVE);
         assertThat(assertion.getCreatedBy()).isEqualTo(createdBy);
@@ -68,29 +78,29 @@ public class AssertionTests {
     }
 
     @Test
-    public void should_return_dto() {
+    void should_return_dto() {
         assertThat(assertion.toDto()).isEqualTo(assertionDTO);
     }
 
     @Test
-    public void should_be_equal() {
+    void should_be_equal() {
         Assertion assertion2 = new Assertion();
         BeanUtils.copyProperties(assertion, assertion2);
 
         assertEquals(assertion, assertion);
-        assertNotEquals(assertion, null);
+        assertNotEquals(null, assertion);
         assertNotEquals(assertion, new User());
         assertNotEquals(assertion, new Assertion());
         assertEquals(assertion, assertion2);
     }
 
     @Test
-    public void should_return_with_null_created_by() {
+    void should_return_with_null_created_by() {
         Assertion assertionNullCreatedBy = new Assertion();
         BeanUtils.copyProperties(assertion, assertionNullCreatedBy);
         assertionNullCreatedBy.setCreatedBy(null);
 
-        assertThat(assertionNullCreatedBy.toDto().getCreatedById()).isEqualTo(null);
+        assertNull(assertionNullCreatedBy.toDto().getCreatedById());
     }
 
 }

@@ -19,11 +19,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
-import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.project.Project;
+import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.tag.dto.TagDTO;
+import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.enums.ProductType;
 
@@ -36,6 +37,15 @@ public class Product extends AbstractEntity<ProductDTO> {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Column(columnDefinition = "TEXT")
+    private String vision;
+
+    @Column(columnDefinition = "TEXT")
+    private String mission;
+
+    @Column(columnDefinition = "TEXT")
+    private String problemStatement;
 
     @Column(columnDefinition = "BIT(1) DEFAULT 0", nullable = false)
     private Boolean isArchived = false;
@@ -72,10 +82,34 @@ public class Product extends AbstractEntity<ProductDTO> {
     )
     private Set<Tag> tags = new HashSet<>();
 
+    @ManyToMany
+    @JoinTable(
+            name = "product_team",
+            joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = true),
+            inverseJoinColumns = @JoinColumn(name = "team_id", referencedColumnName = "id", nullable = true)
+    )
+    private Set<Team> teams = new HashSet<>();
+
     public ProductDTO toDto() {
         Set<TagDTO> tagDTOs = tags.stream().map(Tag::toDto).collect(Collectors.toSet());
-        return new ProductDTO(id, getIdOrNull(productManager), getIdOrNull(parent), name, description,
-                isArchived, creationDate, getIds(projects), tagDTOs, getIds(children), type, gitlabGroupId, getIdOrNull(sourceControl));
+        return new ProductDTO(
+                id, getIdOrNull(productManager),
+                getIdOrNull(parent),
+                name,
+                description,
+                isArchived,
+                creationDate,
+                getIds(projects),
+                tagDTOs,
+                getIds(children),
+                type,
+                gitlabGroupId,
+                getIdOrNull(sourceControl),
+                getIds(teams),
+                vision,
+                mission,
+                problemStatement
+        );
     }
 
     @Override

@@ -24,6 +24,7 @@ value
    | ENCODED_STRING
    | NUMBER
    | BOOL
+   | NULL
    ;
 
 op
@@ -39,6 +40,10 @@ op
 BOOL
     : 'true'
     | 'false'
+    ;
+NULL
+    : 'null'
+    | 'NULL'
     ;
 
 STRING

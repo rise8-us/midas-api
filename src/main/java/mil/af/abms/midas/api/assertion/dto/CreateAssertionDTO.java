@@ -14,6 +14,7 @@ import mil.af.abms.midas.api.validation.AssertionExists;
 import mil.af.abms.midas.api.validation.ProductExists;
 import mil.af.abms.midas.enums.AssertionStatus;
 import mil.af.abms.midas.enums.AssertionType;
+import mil.af.abms.midas.enums.CompletionType;
 
 @Data
 @NoArgsConstructor
@@ -35,5 +36,11 @@ public class CreateAssertionDTO implements Serializable {
     private AssertionStatus status;
 
     private List<CreateAssertionDTO> children;
+
+    private Long assignedPersonId;
+    private Boolean isArchived =  false;
+    private CompletionType completionType = CompletionType.STRING;
+    private String startDate;
+    private String dueDate;
 
 }

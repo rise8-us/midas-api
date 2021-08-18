@@ -22,5 +22,9 @@ public class TeamDTO implements AbstractDTO {
     private String description;
     private Set<Long> projectIds;
     private Set<Long> userIds;
+    private Set<Long> productIds;
+    private Long productManagerId;
+    private Long designerId;
+    private Long techLeadId;
 
 }

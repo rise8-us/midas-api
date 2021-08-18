@@ -23,7 +23,7 @@ import mil.af.abms.midas.api.helper.Builder;
 
 @ExtendWith(SpringExtension.class)
 @Import(SourceControlService.class)
-public class SourceControlServiceTests {
+class SourceControlServiceTests {
 
     @SpyBean
     SourceControlService sourceControlService;
@@ -44,7 +44,7 @@ public class SourceControlServiceTests {
             .get();
     
     @Test
-    public void should_update_create_source_control() {
+    void should_update_create_source_control() {
         CreateUpdateSourceControlDTO cDto = Builder.build(CreateUpdateSourceControlDTO.class)
                 .with(d -> d.setBaseUrl("http://foo.bar"))
                 .with(d -> d.setDescription("foo"))
@@ -67,7 +67,7 @@ public class SourceControlServiceTests {
     }
 
     @Test
-    public void should_update_update_source_control() {
+    void should_update_update_source_control() {
         CreateUpdateSourceControlDTO uDto = Builder.build(CreateUpdateSourceControlDTO.class)
                 .with(d -> d.setBaseUrl("http://foo.bar.baz"))
                 .with(d -> d.setDescription("fooU"))
@@ -91,12 +91,35 @@ public class SourceControlServiceTests {
     }
 
     @Test
-    public void should_update_update_source_control_but_not_token() {
+    void should_update_update_source_control_and_skip_token_update() {
         CreateUpdateSourceControlDTO uDto = Builder.build(CreateUpdateSourceControlDTO.class)
                 .with(d -> d.setBaseUrl("http://foo.bar.baz"))
                 .with(d -> d.setDescription("fooU"))
                 .with(d -> d.setName("barU"))
-                .with(d -> d.setToken(null))
+                .get();
+
+        doReturn(sourceControl).when(sourceControlService).findById(1L);
+        when(sourceControlRepository.save(any())).thenReturn(sourceControl);
+
+        sourceControlService.updateById(1L, uDto);
+
+        verify(sourceControlRepository).save(sourceControlCaptor.capture());
+        SourceControl capturedConfig = sourceControlCaptor.getValue();
+
+        assertThat(capturedConfig.getDescription()).isEqualTo(uDto.getDescription());
+        assertThat(capturedConfig.getName()).isEqualTo(uDto.getName());
+        assertThat(capturedConfig.getBaseUrl()).isEqualTo(uDto.getBaseUrl());
+        assertThat(capturedConfig.getToken()).isEqualTo(sourceControl.getToken());
+
+    }
+
+    @Test
+    void should_update_update_source_control_but_not_token() {
+        CreateUpdateSourceControlDTO uDto = Builder.build(CreateUpdateSourceControlDTO.class)
+                .with(d -> d.setBaseUrl("http://foo.bar.baz"))
+                .with(d -> d.setDescription("fooU"))
+                .with(d -> d.setName("barU"))
+                .with(d -> d.setToken(""))
                 .get();
 
         doReturn(sourceControl).when(sourceControlService).findById(1L);
