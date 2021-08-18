@@ -15,10 +15,12 @@ class SearchOperationTests {
         assertThat(SearchOperation.getSimpleOperation("<")).isEqualTo(SearchOperation.LESS_THAN);
         assertThat(SearchOperation.getSimpleOperation("<=")).isEqualTo(SearchOperation.LESS_THAN_OR_EQUAL);
         assertThat(SearchOperation.getSimpleOperation("::")).isEqualTo(SearchOperation.INCLUDES);
+        assertThat(SearchOperation.getSimpleOperation(":~")).isEqualTo(SearchOperation.NULL);
+        assertThat(SearchOperation.getSimpleOperation("!~")).isEqualTo(SearchOperation.NOT_NULL);
     }
 
     @Test
     void should_get_simple_operators() {
-        assertThat(SearchOperation.simpleOperations.entrySet().size()).isEqualTo(7);
+        assertThat(SearchOperation.simpleOperations.entrySet().size()).isEqualTo(9);
     }
 }

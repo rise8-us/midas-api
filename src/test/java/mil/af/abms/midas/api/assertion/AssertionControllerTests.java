@@ -60,8 +60,8 @@ public class AssertionControllerTests extends ControllerTestHarness {
             .with(a -> a.setCreationDate(CREATION_DATE))
             .with(a -> a.setComments(comments))
             .with(a -> a.setCreatedBy(createdBy)).get();
-    CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", AssertionType.GOAL, 1L, null, null, new ArrayList<>());
-    UpdateAssertionDTO updateAssertionDTO = new UpdateAssertionDTO("updated", AssertionStatus.NOT_STARTED, List.of());
+    CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", AssertionType.GOAL, 1L, null, null, new ArrayList<>(), null, null, null, null,null);
+    UpdateAssertionDTO updateAssertionDTO = new UpdateAssertionDTO("updated", AssertionStatus.NOT_STARTED, List.of(), null, null, null, null,null, false);
 
     @BeforeEach
     void init() throws Exception {
@@ -98,7 +98,7 @@ public class AssertionControllerTests extends ControllerTestHarness {
     @Test
     void should_throw_type_must_not_be_null_message_on_create() throws Exception {
         CreateAssertionDTO createDTONullType = new CreateAssertionDTO("First", null,
-                1L, null, null, new ArrayList<>());
+                1L, null, null, new ArrayList<>(), null, null, null, null,null);
 
         when(productService.existsById(anyLong())).thenReturn(true);
 
@@ -113,7 +113,7 @@ public class AssertionControllerTests extends ControllerTestHarness {
 
     @Test
     void should_throw_text_must_not_be_null_message_on_update() throws Exception {
-        UpdateAssertionDTO updateDTONullType = new UpdateAssertionDTO("", AssertionStatus.NOT_STARTED, List.of());
+        UpdateAssertionDTO updateDTONullType = new UpdateAssertionDTO("", AssertionStatus.NOT_STARTED, List.of(), null, null, null, null,null, false);
         Assertion assertionNullType = new Assertion();
         BeanUtils.copyProperties(assertion, assertionNullType);
         assertionNullType.setType(null);

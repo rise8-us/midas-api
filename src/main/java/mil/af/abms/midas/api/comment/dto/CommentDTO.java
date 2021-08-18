@@ -23,5 +23,6 @@ public class CommentDTO implements AbstractDTO {
     private Set<Long> children;
     private LocalDateTime creationDate;
     private LocalDateTime lastEdit;
+    private Long editedById;
 
 }

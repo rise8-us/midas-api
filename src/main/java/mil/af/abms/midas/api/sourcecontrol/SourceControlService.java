@@ -37,7 +37,11 @@ public class SourceControlService extends AbstractCRUDService<SourceControl, Sou
         configToUpdate.setBaseUrl(dto.getBaseUrl());
         configToUpdate.setName(dto.getName());
         configToUpdate.setDescription(dto.getDescription());
-        Optional.ofNullable(dto.getToken()).ifPresent(configToUpdate::setToken);
+        Optional.ofNullable(dto.getToken()).ifPresent(t -> {
+            if (!t.isEmpty()) {
+                configToUpdate.setToken(t);
+            }
+        });
 
         return repository.save(configToUpdate);
    }

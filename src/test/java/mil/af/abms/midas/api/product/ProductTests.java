@@ -4,6 +4,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
@@ -20,14 +21,16 @@ import org.junit.jupiter.api.Test;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.project.Project;
+import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.enums.ProductType;
 
-public class ProductTests {
+class ProductTests {
 
     private static final LocalDateTime TEST_TIME = LocalDateTime.now();
 
     private final User lead = Builder.build(User.class).with(u -> u.setId(3L)).get();
+    private final Team team = Builder.build(Team.class).with(t -> t.setId(4L)).get();
     private final Set<Project> projects = Set.of(Builder.build(Project.class).with(p -> p.setId(3L)).get());
     private final Product portfolio = Builder.build(Product.class).with(p -> p.setId(3L)).get();
     private final Product product = Builder.build(Product.class)
@@ -41,6 +44,7 @@ public class ProductTests {
             .with(p -> p.setChildren(Set.of()))
             .with(p -> p.setProjects(projects))
             .with(p -> p.setType(ProductType.PRODUCT))
+            .with(p -> p.setTeams(Set.of(team)))
             .get();
     private final ProductDTO productDTO = Builder.build(ProductDTO.class)
             .with(d -> d.setId(1L))
@@ -54,10 +58,11 @@ public class ProductTests {
             .with(d -> d.setProjectIds(Set.of(3L)))
             .with(d -> d.setChildren(Set.of()))
             .with(d -> d.setType(ProductType.PRODUCT))
+            .with(d -> d.setTeamIds(Set.of(4L)))
             .get();
 
     @Test
-    public void should_have_all_dto_fields() {
+    void should_have_all_dto_fields() {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Product.class, fields::add);
 
@@ -65,7 +70,7 @@ public class ProductTests {
     }
 
     @Test
-    public void should_be_equal() {
+    void should_be_equal() {
         Product product2 = new Product();
         BeanUtils.copyProperties(product, product2);
 
@@ -77,7 +82,7 @@ public class ProductTests {
     }
 
     @Test
-    public void should_get_properties() {
+    void should_get_properties() {
         assertThat(product.getId()).isEqualTo(1L);
         assertThat(product.getName()).isEqualTo("Midas");
         assertThat(product.getDescription()).isEqualTo("test product");
@@ -89,18 +94,18 @@ public class ProductTests {
     }
 
     @Test
-    public void can_return_dto() {
+    void can_return_dto() {
         assertThat(product.toDto()).isEqualTo(productDTO);
     }
 
     @Test
-    public void should_return_dto_with_null_fields() {
+    void should_return_dto_with_null_fields() {
         Product nullAppAndProduct = new Product();
         BeanUtils.copyProperties(product, nullAppAndProduct);
         nullAppAndProduct.setProductManager(null);
         nullAppAndProduct.setParent(null);
 
-        assertThat(nullAppAndProduct.toDto().getProductManagerId()).isEqualTo(null);
-        assertThat(nullAppAndProduct.toDto().getParentId()).isEqualTo(null);
+        assertNull(nullAppAndProduct.toDto().getProductManagerId());
+        assertNull(nullAppAndProduct.toDto().getParentId());
     }
 }

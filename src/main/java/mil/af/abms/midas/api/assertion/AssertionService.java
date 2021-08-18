@@ -20,6 +20,7 @@ import mil.af.abms.midas.api.assertion.dto.UpdateAssertionDTO;
 import mil.af.abms.midas.api.comment.Comment;
 import mil.af.abms.midas.api.comment.CommentService;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.helper.TimeConversion;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.user.UserService;
@@ -63,6 +64,10 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
                 .with(a -> a.setProduct(productService.findById(dto.getProductId())))
                 .with(a -> a.setParent(findByIdOrNull(dto.getParentId())))
                 .with(a -> a.setCreatedBy(userService.getUserBySecContext()))
+                .with(a -> a.setAssignedPerson(userService.findByIdOrNull(dto.getAssignedPersonId())))
+                .with(a -> a.setCompletionType(dto.getCompletionType()))
+                .with(a -> a.setStartDate(TimeConversion.getTimeOrNull(dto.getStartDate())))
+                .with(a -> a.setDueDate(TimeConversion.getTimeOrNull(dto.getDueDate())))
                 .get();
         newAssertion = repository.save(newAssertion);
         Long parentId = newAssertion.getId();
@@ -84,6 +89,10 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
         assertion.getChildren().addAll(newChildren);
         assertion.setStatus(dto.getStatus());
         assertion.setText(dto.getText());
+        assertion.setAssignedPerson(userService.findByIdOrNull(dto.getAssignedPersonId()));
+        assertion.setCompletionType(dto.getCompletionType());
+        assertion.setStartDate(TimeConversion.getTimeOrNull(dto.getStartDate()));
+        assertion.setDueDate(TimeConversion.getTimeOrNull(dto.getDueDate()));
 
         return repository.save(assertion);
     }

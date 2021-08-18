@@ -53,6 +53,7 @@ public class CommentService extends AbstractCRUDService<Comment, CommentDTO, Com
         var comment = findById(id);
         comment.setText(dto.getText());
         comment.setLastEdit(LocalDateTime.now());
+        comment.setEditedBy(userService.getUserBySecContext());
 
         return repository.save(comment);
     }

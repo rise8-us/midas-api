@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.enums.AssertionStatus;
+import mil.af.abms.midas.enums.CompletionType;
 
 @Data
 @AllArgsConstructor
@@ -24,5 +25,12 @@ public class UpdateAssertionDTO implements Serializable {
     private AssertionStatus status;
 
     private List<CreateAssertionDTO> children;
+
+    private Long assignedPersonId;
+    private Boolean isArchived = false;
+    private CompletionType completionType;
+    private String startDate;
+    private String dueDate;
+    private Boolean completed;
 
 }

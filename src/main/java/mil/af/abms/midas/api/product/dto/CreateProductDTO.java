@@ -46,9 +46,11 @@ public class CreateProductDTO implements Serializable {
     private Set<Long> childIds;
 
     private ProductType type;
-
     private Integer gitlabGroupId;
-
     private Long sourceControlId;
+    private Set<Long> teamIds;
+    private String vision;
+    private String mission;
+    private String problemStatement;
 
 }

@@ -35,7 +35,7 @@ import mil.af.abms.midas.enums.ProductType;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @WebMvcTest({ProductController.class})
-public class ProductControllerTests extends ControllerTestHarness {
+class ProductControllerTests extends ControllerTestHarness {
     
     @MockBean
     ProductService productService;
@@ -48,10 +48,38 @@ public class ProductControllerTests extends ControllerTestHarness {
 
     private final static LocalDateTime CREATION_DATE = LocalDateTime.now();
 
-    private final UpdateProductDTO updateProductDTO = new UpdateProductDTO("Midas", "Full Stack",
-            3L, 1L, Set.of(3L), Set.of(3L), Set.of(), ProductType.PRODUCT, null, null);
-    private final CreateProductDTO createProductDTO = new CreateProductDTO("Midas", "backend",
-            1L, 1L, Set.of(3L), Set.of(3L), Set.of(), ProductType.PRODUCT, null, null);
+    private final UpdateProductDTO updateProductDTO = new UpdateProductDTO(
+            "Midas",
+            "Full Stack",
+            3L,
+            1L,
+            Set.of(3L),
+            Set.of(3L),
+            Set.of(),
+            ProductType.PRODUCT,
+            null,
+            null,
+            Set.of(),
+            null,
+            null,
+            null
+    );
+    private final CreateProductDTO createProductDTO = new CreateProductDTO(
+            "Midas",
+            "backend",
+            1L,
+            1L,
+            Set.of(3L),
+            Set.of(3L),
+            Set.of(),
+            ProductType.PRODUCT,
+            null,
+            null,
+            Set.of(),
+            null,
+            null,
+            null
+    );
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(5L))
             .with(p -> p.setName("Midas"))

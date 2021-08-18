@@ -30,7 +30,7 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @ExtendWith(SpringExtension.class)
 @Import(TeamService.class)
-public class TeamServiceTests {
+class TeamServiceTests {
 
     @Autowired
     TeamService teamService;
@@ -44,18 +44,21 @@ public class TeamServiceTests {
     User user = Builder.build(User.class)
             .with(u -> u.setUsername("foo"))
             .with(u -> u.setKeycloakUid("abc-123"))
-            .with(u -> u.setId(3L)).get();
+            .with(u -> u.setId(3L))
+            .get();
     Team team = Builder.build(Team.class)
             .with(t -> t.setName("MIDAS"))
             .with(t -> t.setDescription("dev team"))
-            .with(t -> t.setId(1L)).get();
+            .with(t -> t.setId(1L))
+            .get();
     Set<User> users = Set.of(user);
 
     @Test
-    public void should_create_team() {
-        CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 2L, "dev team", Set.of(3L));
+    void should_create_team() {
+        CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 2L, "dev team", Set.of(3L), 3L, 3L, 3L);
 
         when(userService.findById(3L)).thenReturn(user);
+        when(userService.findByIdOrNull(3L)).thenReturn(user);
         when(teamRepository.save(team)).thenReturn(new Team());
 
         teamService.create(createTeamDTO);
@@ -66,27 +69,31 @@ public class TeamServiceTests {
         assertThat(teamSaved.getName()).isEqualTo(createTeamDTO.getName());
         assertThat(teamSaved.getGitlabGroupId()).isEqualTo(createTeamDTO.getGitlabGroupId());
         assertThat(teamSaved.getDescription()).isEqualTo(createTeamDTO.getDescription());
-        assertThat(teamSaved.getUsers()).isEqualTo(users);
+        assertThat(teamSaved.getMembers()).isEqualTo(users);
+        assertThat(teamSaved.getProductManager()).isEqualTo(user);
+        assertThat(teamSaved.getDesigner()).isEqualTo(user);
+        assertThat(teamSaved.getTechLead()).isEqualTo(user);
     }
 
     @Test
-    public void should_find_by_name() throws EntityNotFoundException {
+    void should_find_by_name() throws EntityNotFoundException {
         when(teamRepository.findByName("MIDAS")).thenReturn(Optional.of(team));
 
         assertThat(teamService.findByName("MIDAS")).isEqualTo(team);
     }
 
     @Test
-    public void should_throw_error_find_by_name() throws EntityNotFoundException {
+    void should_throw_error_find_by_name() throws EntityNotFoundException {
         assertThrows(EntityNotFoundException.class, () ->
                 teamService.findByName("MIDAS"));
     }
 
     @Test
-    public void should_update_team_by_id() {
-        UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("Home One", 22L, "dev team", Set.of(3L));
+    void should_update_team_by_id() {
+        UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("Home One", 22L, "dev team", Set.of(3L), 3L, 3L, 3L);
 
         when(userService.findById(3L)).thenReturn(user);
+        when(userService.findByIdOrNull(3L)).thenReturn(user);
         when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
         when(teamRepository.save(team)).thenReturn(team);
 
@@ -98,10 +105,13 @@ public class TeamServiceTests {
         assertThat(teamSaved.getName()).isEqualTo(updateTeamDTO.getName());
         assertThat(teamSaved.getGitlabGroupId()).isEqualTo(updateTeamDTO.getGitlabGroupId());
         assertThat(teamSaved.getDescription()).isEqualTo(updateTeamDTO.getDescription());
+        assertThat(teamSaved.getProductManager()).isEqualTo(user);
+        assertThat(teamSaved.getDesigner()).isEqualTo(user);
+        assertThat(teamSaved.getTechLead()).isEqualTo(user);
     }
 
     @Test
-    public void should_update_is_archived_by_id() {
+    void should_update_is_archived_by_id() {
         UpdateTeamIsArchivedDTO updateDTO = Builder.build(UpdateTeamIsArchivedDTO.class)
                 .with(d -> d.setIsArchived(true)).get();
 

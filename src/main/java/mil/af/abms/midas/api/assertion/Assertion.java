@@ -31,6 +31,7 @@ import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.enums.AssertionStatus;
 import mil.af.abms.midas.enums.AssertionType;
+import mil.af.abms.midas.enums.CompletionType;
 
 @Entity @Setter @Getter
 @Table(name = "assertion")
@@ -38,6 +39,9 @@ public class Assertion extends AbstractEntity<AssertionDTO> {
 
     @Column(columnDefinition = "TEXT")
     private String text;
+
+    @Column(columnDefinition = "BIT(1) DEFAULT 0", nullable = false)
+    private Boolean isArchived = false;
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(70)")
@@ -47,6 +51,10 @@ public class Assertion extends AbstractEntity<AssertionDTO> {
     @Column(columnDefinition = "VARCHAR(70) DEFAULT 'NOT_STARTED'", nullable = false)
     private AssertionStatus status = AssertionStatus.NOT_STARTED;
 
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "VARCHAR(70) DEFAULT 'STRING'", nullable = false)
+    private CompletionType completionType = CompletionType.STRING;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
@@ -54,6 +62,10 @@ public class Assertion extends AbstractEntity<AssertionDTO> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by_id")
     private User createdBy;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_person_id")
+    private User assignedPerson;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
@@ -65,11 +77,23 @@ public class Assertion extends AbstractEntity<AssertionDTO> {
     @OneToMany(mappedBy = "assertion", orphanRemoval = true)
     private Set<Comment> comments = new HashSet<>();
 
-    @Column(columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP", nullable = false)
+    @Column(columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP", nullable = true)
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     protected LocalDateTime completedDate;
+
+    @Column(columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP", nullable = true)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    protected LocalDateTime startDate;
+
+    @Column(columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP", nullable = true)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    protected LocalDateTime dueDate;
 
     public AssertionDTO toDto() {
         return new AssertionDTO(
@@ -83,7 +107,13 @@ public class Assertion extends AbstractEntity<AssertionDTO> {
                 getIds(comments),
                 children.stream().map(Assertion::toDto).collect(Collectors.toList()),
                 creationDate,
-                completedDate
+                completedDate,
+                startDate,
+                dueDate,
+                isArchived,
+                completionType,
+                getIdOrNull(assignedPerson)
+
         );
     }
 

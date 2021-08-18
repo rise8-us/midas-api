@@ -19,6 +19,7 @@ import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.project.dto.ArchiveProjectDTO;
 import mil.af.abms.midas.api.tag.TagService;
+import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
@@ -30,6 +31,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
     private ProjectService projectService;
     private TagService tagService;
     private SourceControlService sourceControlService;
+    private TeamService teamService;
 
     public ProductService(ProductRepository repository) {
         super(repository, Product.class, ProductDTO.class);
@@ -43,6 +45,8 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
     public void setTagService(TagService tagService) { this.tagService = tagService; }
     @Autowired
     public void setSourceControlService(SourceControlService sourceControlService) { this.sourceControlService = sourceControlService; }
+    @Autowired
+    public void setTeamService(TeamService teamService) { this.teamService = teamService; }
 
     @Transactional
     public Product create(CreateProductDTO dto) {
@@ -52,9 +56,14 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
                 .with(p -> p.setName(dto.getName()))
                 .with(p -> p.setType(dto.getType()))
                 .with(p -> p.setDescription(dto.getDescription()))
+                .with(p -> p.setVision(dto.getVision()))
+                .with(p -> p.setMission(dto.getMission()))
+                .with(p -> p.setProblemStatement(dto.getProblemStatement()))
                 .with(p -> p.setProductManager(productManager))
                 .with(p -> p.setGitlabGroupId(dto.getGitlabGroupId()))
                 .with(p -> p.setSourceControl(sourceControlService.findByIdOrNull(dto.getSourceControlId())))
+                .with(p -> p.setTeams(dto.getTeamIds().stream().map(teamService::findById)
+                        .collect(Collectors.toSet())))
                 .with(p -> p.setTags(dto.getTagIds().stream().map(tagService::findById)
                         .collect(Collectors.toSet())))
                 .with(p -> p.setParent(findByIdOrNull(dto.getParentId())))
@@ -86,9 +95,14 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         product.setName(dto.getName());
         product.setProductManager(userService.findByIdOrNull(dto.getProductManagerId()));
         product.setDescription(dto.getDescription());
+        product.setVision(dto.getVision());
+        product.setMission(dto.getMission());
+        product.setProblemStatement(dto.getProblemStatement());
         product.setParent(findByIdOrNull(dto.getParentId()));
         product.setGitlabGroupId(dto.getGitlabGroupId());
         product.setSourceControl(sourceControlService.findByIdOrNull(dto.getSourceControlId()));
+        product.setTeams(dto.getTeamIds().stream().map(teamService::findById)
+                .collect(Collectors.toSet()));
         product.setTags(dto.getTagIds().stream()
                 .map(tagService::findById).collect(Collectors.toSet()));
         product.setProjects(dto.getProjectIds().stream()

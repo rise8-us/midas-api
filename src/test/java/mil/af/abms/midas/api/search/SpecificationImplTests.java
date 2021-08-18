@@ -28,7 +28,7 @@ import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserRepository;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class SpecificationImplTests extends RepositoryTestHarness {
+class SpecificationImplTests extends RepositoryTestHarness {
 
     private final User testUser1 = Builder.build(User.class)
             .with(u -> u.setKeycloakUid("abc-123"))
@@ -48,15 +48,15 @@ public class SpecificationImplTests extends RepositoryTestHarness {
     Root<Comment> root;
 
     @BeforeEach
-    public void init() {
+    void init() {
         entityManager.persist(testUser1);
         entityManager.persist(testUser2);
         entityManager.flush();
     }
 
     @Test
-    public void should_use_null_parse_strategy() {
-        SearchCriteria criteria = new SearchCriteria("creationDate", ":", null, LocalDateTime.now().toString(), null);
+    void should_use_null_parse_strategy() {
+        SearchCriteria criteria = new SearchCriteria("teams", ":", null, "bar", null);
         Specification<User> specs = new SpecificationImpl<>(criteria);
         List<User> users = userRepository.findAll(specs);
 
@@ -65,7 +65,7 @@ public class SpecificationImplTests extends RepositoryTestHarness {
 
     @Test
     @SuppressWarnings(value = "unchecked")
-    public void should_return_empty_string_getClaimsKeyAsList() throws Exception {
+    void should_return_empty_string_getClaimsKeyAsList() throws Exception {
         CriteriaBuilder cb = entityManager.getEntityManager().getCriteriaBuilder();
         CriteriaQuery<Product> cq = cb.createQuery(Product.class);
         Root<Product> root = cq.from(Product.class);
