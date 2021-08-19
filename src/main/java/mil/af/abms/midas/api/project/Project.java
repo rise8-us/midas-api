@@ -20,9 +20,9 @@ import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
 import mil.af.abms.midas.api.coverage.Coverage;
-import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.project.dto.ProjectDTO;
+import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.team.Team;
 

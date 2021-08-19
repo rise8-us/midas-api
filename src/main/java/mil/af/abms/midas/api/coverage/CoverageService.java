@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.coverage.dto.CoverageDTO;
-import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
+import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.clients.GitLab4JClient;
 import mil.af.abms.midas.enums.SonarqubeMaintainability;
 import mil.af.abms.midas.enums.SonarqubeReliability;

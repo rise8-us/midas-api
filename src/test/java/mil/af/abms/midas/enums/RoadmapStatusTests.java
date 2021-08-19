@@ -13,8 +13,8 @@ class RoadmapStatusTests {
 
     @Test
     void should_get_fields() {
-        assertThat(RoadmapStatus.NOT_STARTED.getName()).isEqualTo("NOT_STARTED");
-        assertThat(RoadmapStatus.NOT_STARTED.getLabel()).isEqualTo("Not Started");
-        assertThat(RoadmapStatus.NOT_STARTED.getColor()).isEqualTo("#969696");
+        assertThat(RoadmapStatus.FUTURE.getName()).isEqualTo("FUTURE");
+        assertThat(RoadmapStatus.FUTURE.getLabel()).isEqualTo("Future");
+        assertThat(RoadmapStatus.FUTURE.getColor()).isEqualTo("#797979");
     }
 }

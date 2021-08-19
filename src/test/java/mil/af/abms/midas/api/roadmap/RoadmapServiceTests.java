@@ -21,10 +21,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.roadmap.dto.CreateRoadmapDTO;
-import mil.af.abms.midas.api.roadmap.dto.UpdateRoadmapDTO;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
+import mil.af.abms.midas.api.roadmap.dto.CreateRoadmapDTO;
+import mil.af.abms.midas.api.roadmap.dto.UpdateRoadmapDTO;
 import mil.af.abms.midas.enums.RoadmapStatus;
 
 @ExtendWith(SpringExtension.class)
@@ -45,7 +45,7 @@ class RoadmapServiceTests {
             .get();
     Roadmap roadmap = Builder.build(Roadmap.class)
             .with(p -> p.setTitle("MIDAS"))
-            .with(p -> p.setStatus(RoadmapStatus.NOT_STARTED))
+            .with(p -> p.setStatus(RoadmapStatus.FUTURE))
             .with(p -> p.setDescription("dev roadmap"))
             .with(p -> p.setId(1L))
             .with(p -> p.setPosition(0))
@@ -78,7 +78,7 @@ class RoadmapServiceTests {
     @Test
     void should_bulk_update_roadmap() {
         UpdateRoadmapDTO updateRoadmapDTO = new UpdateRoadmapDTO(
-                "Home One", "dev roadmap", RoadmapStatus.COMPLETED, 1, 1L, "2021-10-10"
+                "Home One", "dev roadmap", RoadmapStatus.COMPLETE, 1, 1L, "2021-10-10"
         );
 
         doReturn(roadmap).when(roadmapService).updateById(1L, updateRoadmapDTO);
@@ -91,7 +91,7 @@ class RoadmapServiceTests {
     @Test
     void should_update_roadmap_by_id() {
         UpdateRoadmapDTO updateRoadmapDTO = new UpdateRoadmapDTO(
-                "Home One", "dev roadmap", RoadmapStatus.COMPLETED, 1, 1L, "2021-11-10"
+                "Home One", "dev roadmap", RoadmapStatus.COMPLETE, 1, 1L, "2021-11-10"
         );
 
         when(roadmapRepository.findById(1L)).thenReturn(Optional.of(roadmap));
@@ -106,7 +106,7 @@ class RoadmapServiceTests {
         assertThat(roadmapSaved.getStatus()).isEqualTo(updateRoadmapDTO.getStatus());
         assertThat(roadmapSaved.getDescription()).isEqualTo(updateRoadmapDTO.getDescription());
         assertThat(roadmapSaved.getPosition()).isEqualTo(updateRoadmapDTO.getIndex());
-        assertThat(roadmapSaved.getTargetDate()).isEqualTo(LocalDateTime.of(2021,11, 10, 0, 0));
+        assertThat(roadmapSaved.getTargetDate()).isEqualTo(LocalDateTime.of(2021, 11, 10, 0, 0));
     }
 
 }

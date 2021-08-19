@@ -1,6 +1,5 @@
 package mil.af.abms.midas.api.init;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +13,10 @@ import io.swagger.annotations.ApiOperation;
 
 import mil.af.abms.midas.api.announcement.Announcement;
 import mil.af.abms.midas.api.announcement.AnnouncementService;
-import mil.af.abms.midas.api.announcement.dto.AnnouncementDTO;
 import mil.af.abms.midas.api.init.dto.InitDTO;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.api.user.UserService;
-import mil.af.abms.midas.api.user.dto.UserDTO;
 import mil.af.abms.midas.config.CustomProperty;
 
 @RestController
@@ -47,11 +44,10 @@ public class InitController {
     @GetMapping
     public InitDTO getInfo(Authentication auth) {
         var loggedInUser = userService.getUserBySecContext();
-        var userProductIds = loggedInUser.getTeamIds().stream().map(teamService::findById).flatMap(t -> {
-            return t.getProducts().stream().map(Product::getId);
-        }).collect(Collectors.toSet());
-        UserDTO userDTO = userService.getUserBySecContext().toDto();
-        List<AnnouncementDTO> announcementDTOs = announcementService.getUnseenAnnouncements(userService.getUserBySecContext())
+        var userProductIds = loggedInUser.getTeamIds().stream().map(teamService::findById)
+                .flatMap(t -> t.getProducts().stream().map(Product::getId)).collect(Collectors.toSet());
+        var userDTO = userService.getUserBySecContext().toDto();
+        var announcementDTOs = announcementService.getUnseenAnnouncements(userService.getUserBySecContext())
                 .stream().map(Announcement::toDto).collect(Collectors.toList());
         return new InitDTO(property.getClassification(), property.getCaveat(), userDTO, announcementDTOs, userProductIds);
     }

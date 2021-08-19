@@ -25,8 +25,8 @@ public class LocalDateTimeParsingStrategy implements ParsingStrategy {
 
 
         Map<SearchOperation, Supplier<Predicate>> predicates = Map.ofEntries(
-                Map.entry(SearchOperation.NULL,() -> builder.isNull(nestedRoot.get(criteriaKey))),
-                Map.entry(SearchOperation.NOT_NULL,() -> builder.isNotNull(nestedRoot.get(criteriaKey))),
+                Map.entry(SearchOperation.NULL, () -> builder.isNull(nestedRoot.get(criteriaKey))),
+                Map.entry(SearchOperation.NOT_NULL, () -> builder.isNotNull(nestedRoot.get(criteriaKey))),
                 Map.entry(SearchOperation.EQUALS, () -> builder.equal(nestedRoot.get(criteriaKey), TimeConversion.getTime(value))),
                 Map.entry(SearchOperation.NOT_EQUALS, () -> builder.notEqual(nestedRoot.get(criteriaKey), TimeConversion.getTime(value))),
                 Map.entry(SearchOperation.GREATER_THAN, () -> builder.greaterThan(nestedRoot.get(criteriaKey), TimeConversion.getTime(value))),

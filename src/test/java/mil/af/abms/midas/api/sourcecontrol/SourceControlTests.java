@@ -15,8 +15,8 @@ import org.springframework.util.ReflectionUtils;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.coverage.Coverage;
-import mil.af.abms.midas.api.sourcecontrol.dto.SourceControlDTO;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.sourcecontrol.dto.SourceControlDTO;
 import mil.af.abms.midas.api.user.User;
 
 class SourceControlTests {
