@@ -34,8 +34,8 @@ class RoadmapControllerTests extends ControllerTestHarness {
     private final static LocalDateTime CREATION_DATE = LocalDateTime.now();
 
     private final UpdateRoadmapDTO updateRoadmapDTO = new UpdateRoadmapDTO(
-            "Do cool things", "awesome stuff", RoadmapStatus.COMPLETED, 0, 1L, "2021-10-10")
-            ;
+            "Do cool things", "awesome stuff", RoadmapStatus.COMPLETE, 0, 1L, "2021-10-10"
+    );
     private final CreateRoadmapDTO createRoadmapDTO = new CreateRoadmapDTO(
             "Do things", "stuff", 2L, RoadmapStatus.IN_PROGRESS, 1, "2021-11-10"
     );

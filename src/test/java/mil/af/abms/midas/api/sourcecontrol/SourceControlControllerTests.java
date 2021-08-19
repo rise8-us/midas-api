@@ -21,8 +21,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
-import mil.af.abms.midas.api.sourcecontrol.dto.CreateUpdateSourceControlDTO;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.sourcecontrol.dto.CreateUpdateSourceControlDTO;
 
 @WebMvcTest({SourceControlController.class})
 public class SourceControlControllerTests extends ControllerTestHarness {

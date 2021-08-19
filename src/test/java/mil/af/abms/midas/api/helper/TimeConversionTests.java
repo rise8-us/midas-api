@@ -14,7 +14,7 @@ import mil.af.abms.midas.exception.InvalidInputParameterException;
 
 class TimeConversionTests {
 
-    private static final LocalDateTime TEST_TIME = LocalDateTime.of(2021,10,10,0,0);
+    private static final LocalDateTime TEST_TIME = LocalDateTime.of(2021, 10, 10, 0, 0);
 
     @Test
     void should_throw_error_if_private_constructor_is_called() throws Exception {

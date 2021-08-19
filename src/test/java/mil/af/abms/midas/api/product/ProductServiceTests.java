@@ -26,14 +26,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
-import mil.af.abms.midas.api.sourcecontrol.SourceControl;
-import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductIsArchivedDTO;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
+import mil.af.abms.midas.api.sourcecontrol.SourceControl;
+import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
 import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.api.user.User;
@@ -87,7 +87,7 @@ class ProductServiceTests {
     @Test
     void should_create_product() {
         CreateProductDTO createProductDTO = new CreateProductDTO("homeOne", "new name",
-                3L, 1L, Set.of(4L), Set.of(3L), Set.of(child.getId()), ProductType.PRODUCT, 454, 42L, Set.of(),"foo", "bar", "baz");
+                3L, 1L, Set.of(4L), Set.of(3L), Set.of(child.getId()), ProductType.PRODUCT, 454, 42L, Set.of(), "foo", "bar", "baz");
 
         when(sourceControlService.findByIdOrNull(createProductDTO.getSourceControlId())).thenReturn(sourceControl);
         when(userService.findByIdOrNull(3L)).thenReturn(user);
@@ -132,7 +132,7 @@ class ProductServiceTests {
     void should_update_product_by_id() {
         UpdateProductDTO updateProductDTO = new UpdateProductDTO("oneHome", "taxable",
                 user.getId(), 1L, Set.of(project.getId()), Set.of(3L), Set.of(), ProductType.PRODUCT,
-                451, 42L, Set.of(),"foo", "bar", "baz"
+                451, 42L, Set.of(), "foo", "bar", "baz"
         );
 
         when(userService.findByIdOrNull(user.getId())).thenReturn(user);
@@ -181,7 +181,7 @@ class ProductServiceTests {
     @Test
     void should_create_product_with_null_product_manager_and_null_portfolio_id() {
         CreateProductDTO createDTO = new CreateProductDTO("name", "description",
-                null, null, Set.of(1L), Set.of(1L), Set.of(), ProductType.PRODUCT, null, null, Set.of(),null, null, null);
+                null, null, Set.of(1L), Set.of(1L), Set.of(), ProductType.PRODUCT, null, null, Set.of(), null, null, null);
 
         when(productRepository.save(any())).thenReturn(product);
         doNothing().when(projectService).addProductToProjects(any(), any());
@@ -197,7 +197,7 @@ class ProductServiceTests {
     @Test
     void should_update_product_with_null_product_manager_and_null_portfolio_id() {
         UpdateProductDTO updateDTO = new UpdateProductDTO("name", "description",
-                null, null, Set.of(1L), Set.of(1L), Set.of(), ProductType.PRODUCT, null, null, Set.of(),null, null, null);
+                null, null, Set.of(1L), Set.of(1L), Set.of(), ProductType.PRODUCT, null, null, Set.of(), null, null, null);
 
         when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
         when(productRepository.save(product)).thenReturn(product);

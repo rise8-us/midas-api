@@ -31,8 +31,8 @@ public class Roadmap extends AbstractEntity<RoadmapDTO> {
     private String title;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "VARCHAR(70) DEFAULT 'NOT_STARTED'", nullable = false)
-    private RoadmapStatus status = RoadmapStatus.NOT_STARTED;
+    @Column(columnDefinition = "VARCHAR(70) DEFAULT 'FUTURE'", nullable = false)
+    private RoadmapStatus status = RoadmapStatus.FUTURE;
 
     @Column(columnDefinition = "TEXT")
     private String description;

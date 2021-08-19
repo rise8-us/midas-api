@@ -28,8 +28,6 @@ import org.mockito.Captor;
 
 import mil.af.abms.midas.api.coverage.Coverage;
 import mil.af.abms.midas.api.coverage.CoverageService;
-import mil.af.abms.midas.api.sourcecontrol.SourceControl;
-import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
@@ -37,6 +35,8 @@ import mil.af.abms.midas.api.project.dto.ArchiveProjectDTO;
 import mil.af.abms.midas.api.project.dto.CreateProjectDTO;
 import mil.af.abms.midas.api.project.dto.UpdateProjectDTO;
 import mil.af.abms.midas.api.project.dto.UpdateProjectJourneyMapDTO;
+import mil.af.abms.midas.api.sourcecontrol.SourceControl;
+import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.team.Team;

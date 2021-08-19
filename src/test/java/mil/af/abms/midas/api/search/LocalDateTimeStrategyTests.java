@@ -26,8 +26,8 @@ import mil.af.abms.midas.enums.ProductType;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class LocalDateTimeStrategyTests extends RepositoryTestHarness {
 
-    private static final LocalDateTime START_OCTOBER = LocalDateTime.of(2021,10,10,10,10);
-    private static final LocalDateTime START_NOVEMBER = LocalDateTime.of(2021,11,10,10,10);
+    private static final LocalDateTime START_OCTOBER = LocalDateTime.of(2021, 10, 10, 10, 10);
+    private static final LocalDateTime START_NOVEMBER = LocalDateTime.of(2021, 11, 10, 10, 10);
 
     private Product product = Builder.build(Product.class)
             .with(p -> p.setName("foo"))

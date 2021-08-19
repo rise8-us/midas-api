@@ -18,8 +18,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
-import mil.af.abms.midas.api.sourcecontrol.dto.CreateUpdateSourceControlDTO;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.sourcecontrol.dto.CreateUpdateSourceControlDTO;
 
 @ExtendWith(SpringExtension.class)
 @Import(SourceControlService.class)

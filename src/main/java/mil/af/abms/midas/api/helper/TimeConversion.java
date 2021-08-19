@@ -32,7 +32,7 @@ public final class TimeConversion {
 
         try {
             return LocalDateTime.parse(value, formatter);
-        } catch (DateTimeParseException e ) {
+        } catch (DateTimeParseException e) {
             throw new InvalidInputParameterException(
                     String.format("Improperly formatted LocalDateTime String, must be %s or %s", DAY_PATTERN, DAY_TIME_PATTERN)
             );

@@ -13,9 +13,9 @@ import mil.af.abms.midas.api.init.dto.RoadmapStatusDTO;
 @Getter
 public enum RoadmapStatus {
 
-    NOT_STARTED("NOT_STARTED", "Not Started", "#969696"),
-    IN_PROGRESS("IN_PROGRESS", "On Track", "#8bc34a"),
-    COMPLETED("COMPLETED", "Completed", "#0fcf50");
+    FUTURE("FUTURE", "Future", "#797979"),
+    IN_PROGRESS("IN_PROGRESS", "On Track", "#7FFFD4"),
+    COMPLETE("COMPLETE", "Complete", "#8BC34A");
 
     private final String name;
     private final String label;
