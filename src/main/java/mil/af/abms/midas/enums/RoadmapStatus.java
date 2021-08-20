@@ -14,7 +14,7 @@ import mil.af.abms.midas.api.init.dto.RoadmapStatusDTO;
 public enum RoadmapStatus {
 
     FUTURE("FUTURE", "Future", "#797979"),
-    IN_PROGRESS("IN_PROGRESS", "On Track", "#7FFFD4"),
+    IN_PROGRESS("IN_PROGRESS", "In Progress", "#7FFFD4"),
     COMPLETE("COMPLETE", "Complete", "#8BC34A");
 
     private final String name;
