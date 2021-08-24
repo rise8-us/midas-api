@@ -29,10 +29,10 @@ public class UpdateTeamDTO implements Serializable {
 
     @UsersExist
     private Set<Long> userIds;
-    @UserExists
+    @UserExists(message = "The Product Manger must be a valid MIDAS user", allowNull = true)
     private Long productManagerId;
-    @UserExists
+    @UserExists(message = "The Designer must be a valid MIDAS user", allowNull = true)
     private Long designerId;
-    @UserExists
+    @UserExists(message = "The Tech Lead must be a valid MIDAS user", allowNull = true)
     private Long techLeadId;
 }
