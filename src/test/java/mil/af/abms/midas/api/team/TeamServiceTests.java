@@ -10,8 +10,8 @@ import static org.mockito.Mockito.when;
 import java.util.Optional;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -21,6 +21,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.team.dto.CreateTeamDTO;
 import mil.af.abms.midas.api.team.dto.UpdateTeamDTO;
 import mil.af.abms.midas.api.team.dto.UpdateTeamIsArchivedDTO;
@@ -32,10 +33,12 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 @Import(TeamService.class)
 class TeamServiceTests {
 
-    @Autowired
+    @SpyBean
     TeamService teamService;
     @MockBean
     UserService userService;
+    @MockBean
+    ProductService productService;
     @MockBean
     TeamRepository teamRepository;
     @Captor
@@ -55,7 +58,7 @@ class TeamServiceTests {
 
     @Test
     void should_create_team() {
-        CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 2L, "dev team", Set.of(3L), 3L, 3L, 3L);
+        CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 2L, "dev team", Set.of(3L), 3L, 3L, 3L, Set.of());
 
         when(userService.findById(3L)).thenReturn(user);
         when(userService.findByIdOrNull(3L)).thenReturn(user);
@@ -90,7 +93,7 @@ class TeamServiceTests {
 
     @Test
     void should_update_team_by_id() {
-        UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("Home One", 22L, "dev team", Set.of(3L), 3L, 3L, 3L);
+        UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("Home One", 22L, "dev team", Set.of(3L), 3L, 3L, 3L, Set.of());
 
         when(userService.findById(3L)).thenReturn(user);
         when(userService.findByIdOrNull(3L)).thenReturn(user);

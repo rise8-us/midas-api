@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.team.validation.UniqueName;
+import mil.af.abms.midas.api.validation.ProductsExist;
 import mil.af.abms.midas.api.validation.UserExists;
 import mil.af.abms.midas.api.validation.UsersExist;
 
@@ -35,4 +36,6 @@ public class UpdateTeamDTO implements Serializable {
     private Long designerId;
     @UserExists(message = "The Tech Lead must be a valid MIDAS user", allowNull = true)
     private Long techLeadId;
+    @ProductsExist
+    private Set<Long> productIds = Set.of();
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.team.dto.CreateTeamDTO;
 import mil.af.abms.midas.api.team.dto.TeamDTO;
 import mil.af.abms.midas.api.team.dto.UpdateTeamDTO;
@@ -20,6 +21,7 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 public class TeamService extends AbstractCRUDService<Team, TeamDTO, TeamRepository> {
 
     private UserService userService;
+    private ProductService productService;
 
     public TeamService(TeamRepository repository) {
         super(repository, Team.class, TeamDTO.class);
@@ -27,6 +29,8 @@ public class TeamService extends AbstractCRUDService<Team, TeamDTO, TeamReposito
 
     @Autowired
     public void setUserService(UserService userService) { this.userService = userService; }
+    @Autowired
+    public void setProductServicei(ProductService productService) { this.productService = productService; }
 
     @Transactional
     public Team create(CreateTeamDTO dto) {
@@ -37,6 +41,8 @@ public class TeamService extends AbstractCRUDService<Team, TeamDTO, TeamReposito
                 .with(t -> t.setProductManager(userService.findByIdOrNull(dto.getProductManagerId())))
                 .with(t -> t.setDesigner(userService.findByIdOrNull(dto.getDesignerId())))
                 .with(t -> t.setTechLead(userService.findByIdOrNull(dto.getTechLeadId())))
+                .with(t -> t.setProducts(dto.getProductIds().stream().map(productService::findById)
+                        .collect(Collectors.toSet())))
                 .with(t -> t.setMembers(
                         dto.getUserIds().stream().map(userService::findById).collect(Collectors.toSet()))
                 ).get();

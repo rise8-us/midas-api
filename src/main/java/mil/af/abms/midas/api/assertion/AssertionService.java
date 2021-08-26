@@ -32,9 +32,11 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
     private UserService userService;
     private ProductService productService;
     private CommentService commentService;
+    private final SimpMessageSendingOperations websocket;
 
-    public AssertionService(AssertionRepository repository) {
+    public AssertionService(AssertionRepository repository, SimpMessageSendingOperations websocket) {
         super(repository, Assertion.class, AssertionDTO.class);
+        this.websocket = websocket;
     }
 
     @Autowired
@@ -51,9 +53,6 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
     public void setCommentService(CommentService commentService) {
         this.commentService = commentService;
     }
-
-    @Autowired
-    SimpMessageSendingOperations websocket;
 
     @Transactional
     public Assertion create(CreateAssertionDTO dto) {
@@ -86,7 +85,8 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
             d.setParentId(id);
             return this.create(d);
         }).collect(Collectors.toSet());
-        assertion.getChildren().addAll(newChildren);
+        newChildren.addAll(assertion.getChildren());
+        assertion.setChildren(newChildren);
         assertion.setStatus(dto.getStatus());
         assertion.setText(dto.getText());
         assertion.setAssignedPerson(userService.findByIdOrNull(dto.getAssignedPersonId()));
@@ -94,6 +94,8 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
         assertion.setStartDate(TimeConversion.getTimeOrNull(dto.getStartDate()));
         assertion.setDueDate(TimeConversion.getTimeOrNull(dto.getDueDate()));
 
+        updateChildrenToCompletedIfParentComplete(assertion);
+        updateParentIfAllSiblingsComplete(assertion);
         return repository.save(assertion);
     }
 
@@ -132,10 +134,15 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
             Comment latestComment = a.getComments().stream().max(Comparator.comparing(Comment::getId)).orElse(new Comment());
             latestComment.setChildren(Set.of());
             Product product = a.getProduct();
-            Long productParentId = Optional.ofNullable(product.getParent()).map(Product::getId).orElse(null);
+            Long productParentId = Optional.ofNullable(product).map(Product::getParent).map(Product::getId).orElse(null);
             a.setChildren(Set.of());
             a.setComments(Set.of());
-            return new BlockerAssertionDTO(productParentId, product.getId(), product.getName(), a.toDto(), latestComment.toDto());
+            return new BlockerAssertionDTO(
+                    productParentId,
+                    a.getIdOrNull(product),
+                    Optional.ofNullable(product).map(Product::getName).orElse(null),
+                    a.toDto(), latestComment.toDto()
+            );
         }).collect(Collectors.toList());
     }
 
@@ -143,5 +150,27 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
         assertion.getComments().forEach(commentService::deleteComment);
         assertion.setComments(Set.of());
         websocket.convertAndSend("/topic/update_assertion", assertion.toDto());
+    }
+
+    protected void updateParentIfAllSiblingsComplete(Assertion assertion) {
+        if (assertion.getParent() == null ) return;
+        var parent =  assertion.getParent();
+        var isComplete = parent.getChildren().stream().filter(
+                c -> c.getStatus().equals(AssertionStatus.COMPLETED)).count() == parent.getChildren().size();
+       if (isComplete) {
+           parent.setStatus(AssertionStatus.COMPLETED);
+           updateParentIfAllSiblingsComplete(parent);
+           repository.save(parent);
+       }
+    }
+
+    protected void updateChildrenToCompletedIfParentComplete(Assertion assertion) {
+        if (AssertionStatus.COMPLETED.equals(assertion.getStatus())) {
+            assertion.getChildren().forEach(childAssertion -> {
+            	childAssertion.setStatus(AssertionStatus.COMPLETED);
+                updateChildrenToCompletedIfParentComplete(childAssertion);
+                repository.save(childAssertion);
+            });
+        }
     }
 }
