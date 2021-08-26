@@ -23,21 +23,24 @@ import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.team.dto.CreateTeamDTO;
 import mil.af.abms.midas.api.team.dto.UpdateTeamDTO;
 import mil.af.abms.midas.api.team.dto.UpdateTeamIsArchivedDTO;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @WebMvcTest({TeamController.class})
-public class TeamControllerTests extends ControllerTestHarness {
+class TeamControllerTests extends ControllerTestHarness {
 
     @MockBean
     private TeamService teamService;
+    @MockBean
+    private ProductService productService;  //needed for product exists validation on dtos
 
     private final static LocalDateTime CREATION_DATE = LocalDateTime.now();
 
-    private final UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("MIDAS", 5L, "dev team", Set.of(3L), 3L, 3L, 3L);
-    private final CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 1L, "dev team", Set.of(3L), 3L, 3L, 3L);
+    private final UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("MIDAS", 5L, "dev team", Set.of(3L), 3L, 3L, 3L, Set.of());
+    private final CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 1L, "dev team", Set.of(3L), 3L, 3L, 3L, Set.of());
     private final Team team = Builder.build(Team.class)
             .with(t -> t.setId(2L))
             .with(t -> t.setName("MIDAS"))
@@ -46,12 +49,12 @@ public class TeamControllerTests extends ControllerTestHarness {
             .with(t -> t.setGitlabGroupId(5L)).get();
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         when(userService.findByKeycloakUid(any())).thenReturn(Optional.of(authUser));
     }
 
     @Test
-    public void should_create_team() throws Exception {
+    void should_create_team() throws Exception {
         when(teamService.findByName("MIDAS")).thenThrow(EntityNotFoundException.class);
         when(teamService.create(any(CreateTeamDTO.class))).thenReturn(team);
         when(userService.existsById(anyLong())).thenReturn(true);
@@ -66,7 +69,7 @@ public class TeamControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_update_team_by_id() throws Exception {
+    void should_update_team_by_id() throws Exception {
         when(teamService.findByName(updateTeamDTO.getName())).thenReturn(team);
         when(teamService.updateById(anyLong(), any(UpdateTeamDTO.class))).thenReturn(team);
         when(userService.existsById(anyLong())).thenReturn(true);
@@ -81,7 +84,7 @@ public class TeamControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_throw_unique_name_validation_error_update_team_by_id() throws Exception {
+    void should_throw_unique_name_validation_error_update_team_by_id() throws Exception {
         String expectedMessage = "team name already exists";
         Team existingTeam = new Team();
         BeanUtils.copyProperties(team, existingTeam);
@@ -100,7 +103,7 @@ public class TeamControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_throw_unique_name_validation_on_create() throws Exception {
+    void should_throw_unique_name_validation_on_create() throws Exception {
         String expectedMessage = "team name already exists";
 
         when(teamService.findByName(updateTeamDTO.getName())).thenReturn(team);
@@ -116,7 +119,7 @@ public class TeamControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_toggle_team_is_archived() throws Exception {
+    void should_toggle_team_is_archived() throws Exception {
         UpdateTeamIsArchivedDTO updateTeamIsArchivedDTO = Builder.build(UpdateTeamIsArchivedDTO.class)
                 .with(d -> d.setIsArchived(true)).get();
         team.setIsArchived(true);

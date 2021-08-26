@@ -27,6 +27,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.invocation.InvocationOnMock;
@@ -50,7 +52,7 @@ import mil.af.abms.midas.enums.CompletionType;
 @ExtendWith(SpringExtension.class)
 @Import(AssertionService.class)
 class AssertionServiceTests {
-    
+
     @SpyBean
     private AssertionService assertionService;
     @MockBean
@@ -63,21 +65,22 @@ class AssertionServiceTests {
     CommentService commentService;
     @MockBean
     SimpMessageSendingOperations websocket;
-    
+
     @Captor
     private ArgumentCaptor<Assertion> assertionCaptor;
-    @Captor ArgumentCaptor<Long> longCaptor;
+    @Captor
+    ArgumentCaptor<Long> longCaptor;
 
     private LocalDateTime CREATION_DATE;
     private User createdBy;
     private Product childProduct;
     private Comment childComment;
-    private Assertion childAssertion;
+    private Assertion assertionSibling;
 
     private Product product;
     private Comment comment;
     private Assertion assertionChild;
-    private Assertion assertion;
+    private Assertion assertionParent;
     private CreateAssertionDTO createAssertionDTOChild;
     private CreateAssertionDTO createAssertionDTO;
 
@@ -90,15 +93,6 @@ class AssertionServiceTests {
                 .with(p -> p.setId(5L))
                 .with(p -> p.setName("Halo2")).get();
         childComment = Builder.build(Comment.class).with(c -> c.setId(204L)).with(c -> c.setCreatedBy(createdBy)).get();
-        childAssertion = Builder.build(Assertion.class)
-                .with(a -> a.setId(9L))
-                .with(a -> a.setProduct(childProduct))
-                .with(a -> a.setText("First"))
-                .with(a -> a.setType(AssertionType.GOAL))
-                .with(a -> a.setStatus(AssertionStatus.BLOCKED))
-                .with(a -> a.setComments(Set.of(childComment)))
-                .with(a -> a.setCreationDate(CREATION_DATE))
-                .with(a -> a.setCreatedBy(createdBy)).get();
 
         product = Builder.build(Product.class)
                 .with(p -> p.setId(3L))
@@ -108,9 +102,10 @@ class AssertionServiceTests {
         childProduct.setParent(product);
 
         comment = Builder.build(Comment.class).with(c -> c.setId(404L)).with(c -> c.setCreatedBy(createdBy)).get();
-        assertion = Builder.build(Assertion.class)
+        assertionParent = Builder.build(Assertion.class)
                 .with(a -> a.setId(1L))
                 .with(a -> a.setProduct(product))
+                .with(a -> a.setStatus(AssertionStatus.ON_TRACK))
                 .with(a -> a.setText("First"))
                 .with(a -> a.setType(AssertionType.GOAL))
                 .with(a -> a.setComments(Set.of(comment)))
@@ -118,9 +113,21 @@ class AssertionServiceTests {
                 .with(a -> a.setCreatedBy(createdBy)).get();
         assertionChild = Builder.build(Assertion.class)
                 .with(a -> a.setId(2L))
+                .with(a -> a.setParent(assertionParent))
                 .with(a -> a.setProduct(product))
                 .with(a -> a.setText("Strat"))
+                .with(a -> a.setStatus(AssertionStatus.BLOCKED))
                 .with(a -> a.setType(AssertionType.STRATEGY))
+                .with(a -> a.setCreationDate(CREATION_DATE))
+                .with(a -> a.setCreatedBy(createdBy)).get();
+        assertionSibling = Builder.build(Assertion.class)
+                .with(a -> a.setId(9L))
+                .with(a -> a.setProduct(childProduct))
+                .with(a -> a.setParent(assertionParent))
+                .with(a -> a.setText("First"))
+                .with(a -> a.setType(AssertionType.GOAL))
+                .with(a -> a.setStatus(AssertionStatus.BLOCKED))
+                .with(a -> a.setComments(Set.of(childComment)))
                 .with(a -> a.setCreationDate(CREATION_DATE))
                 .with(a -> a.setCreatedBy(createdBy)).get();
 
@@ -132,15 +139,16 @@ class AssertionServiceTests {
 
     @Test
     void should_create_assertion() {
-        doReturn(assertion).when(assertionService).findByIdOrNull(1L);
+        doReturn(assertionParent).when(assertionService).findByIdOrNull(1L);
         when(assertionRepository.save(any())).thenAnswer((new Answer<Assertion>() {
             private int count = 0;
+
             public Assertion answer(InvocationOnMock invocation) {
                 count++;
                 if (count == 1) {
-                    return assertion;
+                    return assertionParent;
                 }
-                    return assertionChild;
+                return assertionChild;
 
             }
         }));
@@ -158,29 +166,37 @@ class AssertionServiceTests {
 
     @Test
     void should_update_assertion_by_id() {
-        UpdateAssertionDTO updateAssertionDTO = new UpdateAssertionDTO("updated", AssertionStatus.ON_TRACK, List.of(createAssertionDTO), null, null, null, null, null, false);
-        Assertion newAssertion = new Assertion();
-        BeanUtils.copyProperties(assertion, newAssertion);
+        var updateAssertionDTO = new UpdateAssertionDTO("updated", AssertionStatus.COMPLETED, List.of(createAssertionDTO), null, null, null, null, null, false);
+        assertionParent.setChildren(Set.of(assertionChild));
+        assertionChild.setStatus(AssertionStatus.BLOCKED);
+        var newAssertion = new Assertion();
+        BeanUtils.copyProperties(assertionParent, newAssertion);
         newAssertion.setType(AssertionType.MEASURE);
         newAssertion.setText("additional update");
+        newAssertion.setId(10L);
 
         when(assertionRepository.findById(1L)).thenReturn(Optional.of(newAssertion));
         when(assertionRepository.save(newAssertion)).thenReturn(newAssertion);
+        when(assertionRepository.save(assertionChild)).thenReturn(assertionChild);
+        doNothing().when(assertionService).updateParentIfAllSiblingsComplete(any());
+        doNothing().when(assertionService).updateChildrenToCompletedIfParentComplete(any());
+
         doReturn(newAssertion).when(assertionService).create(any());
 
         assertionService.updateById(1L, updateAssertionDTO);
 
         verify(assertionRepository, times(1)).save(assertionCaptor.capture());
-        Assertion assertionSaved = assertionCaptor.getValue();
+        var assertionSaved = assertionCaptor.getValue();
 
         assertThat(assertionSaved.getText()).isEqualTo(updateAssertionDTO.getText());
         assertThat(assertionSaved.getStatus()).isEqualTo(updateAssertionDTO.getStatus());
+
     }
 
     @Test
     void should_delete_tree() {
         Assertion assertionParent = new Assertion();
-        BeanUtils.copyProperties(assertion, assertionParent);
+        BeanUtils.copyProperties(this.assertionParent, assertionParent);
         Assertion assertionChild = Builder.build(Assertion.class).with(a -> a.setId(2L)).get();
         assertionParent.setChildren(Set.of(assertionChild));
 
@@ -203,7 +219,7 @@ class AssertionServiceTests {
     @Test
     void should_recursively_deleteById() {
         Assertion parentAssertion = new Assertion();
-        BeanUtils.copyProperties(assertion, parentAssertion);
+        BeanUtils.copyProperties(this.assertionParent, parentAssertion);
         Assertion childAssertion = Builder.build(Assertion.class)
                 .with(a -> a.setId(4L))
                 .with(a -> a.setParent(parentAssertion))
@@ -216,7 +232,7 @@ class AssertionServiceTests {
         doNothing().when(commentService).deleteComment(comment);
         doNothing().when(assertionRepository).deleteById(any());
 
-        assertionService.deleteById(assertion.getId());
+        assertionService.deleteById(this.assertionParent.getId());
 
         verify(assertionRepository, times(2)).deleteById(longCaptor.capture());
         verify(commentService, times(1)).deleteComment(any());
@@ -228,64 +244,18 @@ class AssertionServiceTests {
 
     @Test
     @SuppressWarnings(value = "unchecked")
-    void should_get_blocker_assertions_by_product_id() {
-        Assertion blockedAssertion = new Assertion();
-        BeanUtils.copyProperties(assertion, blockedAssertion);
-        blockedAssertion.setStatus(AssertionStatus.BLOCKED);
-
-        Comment comment2 = new Comment();
-        BeanUtils.copyProperties(comment, comment2);
-        comment2.setId(501L);
-
-        Assertion atRiskAssertion = new Assertion();
-        BeanUtils.copyProperties(assertion, atRiskAssertion);
-        atRiskAssertion.setStatus(AssertionStatus.AT_RISK);
-        atRiskAssertion.setComments(Set.of(comment, comment2));
-
-        when(productService.findById(3L)).thenReturn(product);
-        when(productService.findById(5L)).thenReturn(childProduct);
-        when(assertionRepository.findAll(any(Specification.class))).thenAnswer((new Answer<List<Assertion>>() {
-            private int count = 0;
-            public List<Assertion> answer(InvocationOnMock invocation) {
-                count++;
-                if (count == 1) {
-                    return List.of(blockedAssertion, atRiskAssertion);
-                }
-                return List.of(childAssertion);
-            }
-        }));
-
-        List<Assertion> expectedAssertionList = List.of(blockedAssertion, atRiskAssertion, childAssertion).stream().map(a -> {
-            Assertion assertion = new Assertion();
-            BeanUtils.copyProperties(a, assertion);
-            assertion.setComments(Set.of());
-            assertion.setChildren(Set.of());
-            return assertion;
-        }).collect(Collectors.toList());
-
-        List<BlockerAssertionDTO> expected = List.of(
-                new BlockerAssertionDTO(null, product.getId(), product.getName(), expectedAssertionList.get(0).toDto(), comment.toDto()),
-                new BlockerAssertionDTO(null, product.getId(), product.getName(), expectedAssertionList.get(1).toDto(), comment2.toDto()),
-                new BlockerAssertionDTO(childProduct.getParent().getId(), childProduct.getId(), childProduct.getName(), expectedAssertionList.get(2).toDto(), childComment.toDto())
-        );
-
-        assertThat(assertionService.getBlockerAssertionsByProductId(3L)).isEqualTo(expected);
-    }
-
-    @Test
-    @SuppressWarnings(value = "unchecked")
     void should_get_all_blocker_assertions() {
         Comment comment2 = new Comment();
         BeanUtils.copyProperties(comment, comment2);
         comment2.setId(501L);
 
         Assertion blockedAssertion = new Assertion();
-        BeanUtils.copyProperties(assertion, blockedAssertion);
+        BeanUtils.copyProperties(assertionParent, blockedAssertion);
         blockedAssertion.setStatus(AssertionStatus.BLOCKED);
         blockedAssertion.setComments(Set.of(comment, comment2));
 
         Assertion atRiskAssertion = new Assertion();
-        BeanUtils.copyProperties(assertion, atRiskAssertion);
+        BeanUtils.copyProperties(assertionParent, atRiskAssertion);
         atRiskAssertion.setStatus(AssertionStatus.AT_RISK);
 
         List<Assertion> assertionList = List.of(blockedAssertion, atRiskAssertion);
@@ -309,4 +279,16 @@ class AssertionServiceTests {
         assertThat(assertionService.getAllBlockerAssertions()).isEqualTo(expected);
     }
 
+    @ParameterizedTest
+    @CsvSource(value = {"COMPLETED: true", "BLOCKED: false"}, delimiter = ':')
+    void should_return_boolean_when_self_and_Siblings_are_completed(String status, boolean expected) {
+        assertionChild.setStatus(AssertionStatus.COMPLETED);
+        assertionSibling.setStatus(AssertionStatus.valueOf(status));
+        assertionParent.setStatus(AssertionStatus.ON_TRACK);
+        assertionParent.setChildren(Set.of(assertionChild, assertionSibling));
+
+        assertionService.updateParentIfAllSiblingsComplete(assertionSibling);
+
+        assertThat(assertionParent.getStatus().equals(AssertionStatus.COMPLETED)).isEqualTo(expected);
+    }
 }
