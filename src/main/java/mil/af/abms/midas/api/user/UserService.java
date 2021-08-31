@@ -66,9 +66,11 @@ public class UserService extends AbstractCRUDService<User, UserDTO, UserReposito
         Set<Team> teams = updateUserDTO.getTeamIds().stream().map(teamService::findById).collect(Collectors.toSet());
         user.setTeams(teams);
 
-        user.setUsername(updateUserDTO.getUsername());
-        user.setEmail(updateUserDTO.getEmail());
-        user.setDisplayName(updateUserDTO.getDisplayName());
+        if (updateUserDTO.getUsername() != null ) user.setUsername(updateUserDTO.getUsername());
+        if (updateUserDTO.getEmail() != null ) user.setEmail(updateUserDTO.getEmail());
+        if (updateUserDTO.getDisplayName() != null ) user.setDisplayName(updateUserDTO.getDisplayName());
+        if (updateUserDTO.getPhone() != null ) user.setPhone(updateUserDTO.getPhone());
+        if (updateUserDTO.getCompany() != null ) user.setCompany(updateUserDTO.getCompany());
 
         return repository.save(user);
     }

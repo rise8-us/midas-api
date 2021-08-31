@@ -24,4 +24,6 @@ public class UserDTO implements AbstractDTO {
     private Long roles;
     private LocalDateTime lastLogin;
     private Set<Long> teamIds;
+    private String phone;
+    private String company;
 }

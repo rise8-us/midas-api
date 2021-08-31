@@ -26,5 +26,7 @@ public class UpdateUserDTO implements Serializable {
 
     private String email;
     private String displayName;
+    private String phone;
+    private String company;
 
 }
