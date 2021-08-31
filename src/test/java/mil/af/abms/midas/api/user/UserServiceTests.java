@@ -76,6 +76,8 @@ class UserServiceTests {
             .with(u -> u.setDisplayName("Baby Yoda"))
             .with(u -> u.setDodId(1L))
             .with(u -> u.setIsDisabled(false))
+            .with(u -> u.setCompany("rise8"))
+            .with(u -> u.setPhone("(555) 867-5309"))
             .with(u -> u.setCreationDate(CREATION_DATE)).get();
     private final User expectedUser2 = Builder.build(User.class)
             .with(u -> u.setId(2L))
@@ -174,7 +176,9 @@ class UserServiceTests {
                 .with(u -> u.setUsername("foobar"))
                 .with(u -> u.setEmail("foo.bar@rise8.us"))
                 .with(u -> u.setTeamIds(Set.of(1L)))
-                .with(u -> u.setDisplayName("YoDiddy")).get();
+                .with(u -> u.setDisplayName("YoDiddy"))
+                .with(u -> u.setCompany("rise8"))
+                .with(u -> u.setPhone("(555) 867-5309")).get();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(expectedUser));
         when(teamService.findById(1L)).thenReturn(team);
@@ -189,6 +193,8 @@ class UserServiceTests {
         assertThat(userSaved.getUsername()).isEqualTo(updateDTO.getUsername());
         assertThat(userSaved.getEmail()).isEqualTo(updateDTO.getEmail());
         assertThat(userSaved.getTeams()).isEqualTo(Set.of(team));
+        assertThat(userSaved.getPhone()).isEqualTo(updateDTO.getPhone());
+        assertThat(userSaved.getCompany()).isEqualTo(updateDTO.getCompany());
 
     }
 

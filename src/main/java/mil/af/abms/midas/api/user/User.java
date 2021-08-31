@@ -40,6 +40,12 @@ public class User extends AbstractEntity<UserDTO> {
     private String email;
 
     @Column(columnDefinition = "VARCHAR(100)")
+    private String phone;
+
+    @Column(columnDefinition = "VARCHAR(100)")
+    private String company;
+
+    @Column(columnDefinition = "VARCHAR(100)")
     private String displayName;
 
     @Column(columnDefinition = "BIGINT")
@@ -67,7 +73,7 @@ public class User extends AbstractEntity<UserDTO> {
 
     public UserDTO toDto() {
         return new UserDTO(id, keycloakUid, username, email, displayName,
-            creationDate, dodId, isDisabled, roles, lastLogin, getTeamIds());
+            creationDate, dodId, isDisabled, roles, lastLogin, getTeamIds(), phone, company);
     }
 
     public Set<Long> getTeamIds() {

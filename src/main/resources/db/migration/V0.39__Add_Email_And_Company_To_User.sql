@@ -1,0 +1,3 @@
+ALTER TABLE `user`
+   ADD COLUMN `phone` VARCHAR(100),
+   ADD COLUMN `company` VARCHAR(100);
