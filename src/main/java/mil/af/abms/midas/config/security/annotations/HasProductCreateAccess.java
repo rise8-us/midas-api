@@ -11,6 +11,6 @@ import mil.af.abms.midas.config.security.AuthExpression;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-@PreAuthorize(AuthExpression.HAS_PROJECT_CREATE_ACCESS)
-public @interface HasProjectCreateAccess {
+@PreAuthorize(AuthExpression.HAS_PRODUCT_CREATE_ACCESS)
+public @interface HasProductCreateAccess {
 }

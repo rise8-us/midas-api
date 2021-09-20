@@ -41,7 +41,7 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
     public boolean hasProjectAccess(Long projectId) {
         var projectBeingAccessed = projectService().findById(projectId);
         var productContainingProject = Optional.ofNullable(projectBeingAccessed.getProduct()).orElse(new Product());
-        var teamId  = Optional.ofNullable(projectBeingAccessed.getTeam()).map(Team::getId).orElse(null);
+        var teamId = Optional.ofNullable(projectBeingAccessed.getTeam()).map(Team::getId).orElse(null);
         var productId = productContainingProject.getId();
         return hasTeamAccess(teamId) || hasProductAccess(productId);
     }
@@ -52,7 +52,8 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
         var parent = Optional.ofNullable(productBeingAccessed.getParent()).orElse(new Product());
         var userMakingRequest = userService().getUserBySecContext();
         var productManager = productBeingAccessed.getProductManager();
-        return userMakingRequest.equals(productManager) || hasProductAccess(parent.getId());
+        var teamId = productBeingAccessed.getTeams().stream().findFirst().map(Team::getId).orElse(null);
+        return userMakingRequest.equals(productManager) || hasProductAccess(parent.getId()) || hasTeamAccess(teamId);
     }
 
     public boolean hasOGSMWriteAccess(Long ogsmId) {
