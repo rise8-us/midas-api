@@ -128,8 +128,8 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         return repository.save(product);
     }
 
-    public void addParentToChildren(Product parent, Set<Product> childern) {
-        childern.forEach(child -> addParentToChild(parent, child));
+    public void addParentToChildren(Product parent, Set<Product> children) {
+        children.forEach(child -> addParentToChild(parent, child));
     }
 
     public void addParentToChild(Product parent, Product child) {
