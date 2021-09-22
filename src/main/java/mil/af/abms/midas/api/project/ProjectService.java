@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -31,16 +32,24 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
     private final TeamService teamService;
     private final TagService tagService;
     private final SourceControlService sourceControlService;
+    private final SimpMessageSendingOperations websocket;
 
     private ProductService productService;
     private CoverageService coverageService;
 
     @Autowired
-    public ProjectService(SourceControlService sourceControlService, ProjectRepository repository, TeamService teamService, TagService tagService) {
+    public ProjectService(
+            SourceControlService sourceControlService,
+            ProjectRepository repository,
+            TeamService teamService,
+            TagService tagService,
+            SimpMessageSendingOperations websocket
+    ) {
         super(repository, Project.class, ProjectDTO.class);
         this.sourceControlService = sourceControlService;
         this.teamService = teamService;
         this.tagService = tagService;
+        this.websocket = websocket;
     }
 
     @Autowired
@@ -66,7 +75,10 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
                 .with(p -> p.setSourceControl(sourceControlService.findByIdOrNull(dto.getSourceControlId())))
                 .get();
 
-        return repository.save(newProject);
+        var createdProject = repository.save(newProject);
+        addCoverageOnCreateOrUpdate(createdProject);
+
+        return createdProject;
     }
 
     @Transactional
@@ -88,7 +100,11 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
         foundProject.setProduct(productService.findByIdOrNull(dto.getProductId()));
         foundProject.setSourceControl(sourceControlService.findByIdOrNull(dto.getSourceControlId()));
 
-        return repository.save(foundProject);
+        var updatedProject = repository.save(foundProject);
+        addCoverageOnCreateOrUpdate(updatedProject);
+
+        return updatedProject;
+
     }
 
     public void removeTagFromProject(Long tagId, Project project) {
@@ -113,7 +129,7 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
         return repository.save(projectToArchive);
     }
 
-    @Scheduled(fixedRate = 3600000)
+    @Scheduled(fixedRate = 900000)
     public void scheduledCoverageUpdates() {
         var projects = repository.findAll(ProjectSpecifications.hasGitlabProjectId()).stream()
                 .filter(p -> p.getSourceControl() != null).collect(Collectors.toList());
@@ -133,14 +149,22 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
         repository.save(project);
     }
 
+    public void updateProjectsWithProduct(Set<Project> existingProjects, Set<Project> updatedProjects, Product product) {
+        existingProjects.stream().filter(e -> !updatedProjects.contains(e)).forEach(this::removeProduct);
+        updatedProjects.forEach(u -> addProductToProject(product, u));
+    }
+
     protected void removeProduct(Project project) {
         project.setProduct(null);
         repository.save(project);
     }
 
-    public void updateProjectsWithProduct(Set<Project> existingProjects, Set<Project> updatedProjects, Product product) {
-        existingProjects.stream().filter(e -> !updatedProjects.contains(e)).forEach(this::removeProduct);
-        updatedProjects.forEach(u -> addProductToProject(product, u));
+    protected void addCoverageOnCreateOrUpdate(Project project) {
+        if (project.getSourceControl() != null && project.getGitlabProjectId() != null) {
+            var coverage = coverageService.updateCoverageForProject(project);
+            project.getCoverages().add(coverage);
+            websocket.convertAndSend("/topic/update_project", project.toDto());
+        }
     }
 
 }

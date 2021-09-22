@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -69,8 +70,8 @@ public class GitLab4JClient {
     public Job getLatestSonarQubeJob(Integer projectId) {
         List<Job> jobs = (List<Job>) makeRequest(() -> client.getJobApi().getJobs(projectId, 1, 200));
         return jobs.stream()
-                .filter(j -> j.getName().equals("sonarqube"))
-                .findFirst()
+                .filter(j -> j.getName().equals("sonarqube") && j.getRef().equals("master"))
+                .max(Comparator.comparing(Job::getId))
                 .orElseThrow(() -> new GitApiException("Job", "sonarqube"));
     }
 
