@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,6 +20,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
@@ -64,6 +66,8 @@ class ProjectServiceTests {
     TagService tagService;
     @MockBean
     ProjectRepository projectRepository;
+    @MockBean
+    SimpMessageSendingOperations websocket;
 
     @Captor
     ArgumentCaptor<Project> projectCaptor;
@@ -92,6 +96,9 @@ class ProjectServiceTests {
     private final SourceControl sourceControl = Builder.build(SourceControl.class)
             .with(g -> g.setId(42L))
             .with(g -> g.setName("Mock IL2"))
+            .get();
+    private final Coverage coverage = Builder.build(Coverage.class)
+            .with(c -> c.setId(4L))
             .get();
 
     @Test
@@ -142,6 +149,7 @@ class ProjectServiceTests {
         when(projectRepository.save(project)).thenReturn(project);
         when(teamService.findByIdOrNull(updateProjectDTO.getTeamId())).thenReturn(newTeam);
         when(sourceControlService.findByIdOrNull(43L)).thenReturn(config2);
+        doNothing().when(projectService).addCoverageOnCreateOrUpdate(any());
 
         projectService.updateById(1L, updateProjectDTO);
 
@@ -162,6 +170,7 @@ class ProjectServiceTests {
 
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
         when(tagService.findById(1L)).thenReturn(tag);
+        doNothing().when(projectService).addCoverageOnCreateOrUpdate(any());
 
         projectService.updateById(1L, updateDTO);
 
@@ -268,6 +277,7 @@ class ProjectServiceTests {
                 "Project Description", null, null);
 
         when(projectRepository.save(project)).thenReturn(new Project());
+        doNothing().when(projectService).addCoverageOnCreateOrUpdate(any());
 
         projectService.create(createDTO);
 
@@ -334,4 +344,48 @@ class ProjectServiceTests {
         verify(coverageService, times(2)).updateCoverageForProject(any());
     }
 
+    @Test
+    void should_add_coverage_on_create_or_update() {
+        SourceControl sourceControl = new SourceControl();
+        sourceControl.setId(1L);
+        Project p2 = new Project();
+        BeanUtils.copyProperties(project, p2);
+        p2.setSourceControl(sourceControl);
+        p2.setGitlabProjectId(2);
+
+        when(coverageService.updateCoverageForProject(p2)).thenReturn(coverage);
+        projectService.addCoverageOnCreateOrUpdate(p2);
+
+        verify(coverageService, times(1)).updateCoverageForProject(p2);
+        verify(websocket, times(1)).convertAndSend("/topic/update_project", p2.toDto());
+    }
+
+    @Test
+    void should_skip_add_coverage_on_create_or_update() {
+        SourceControl sourceControl = new SourceControl();
+        sourceControl.setId(1L);
+        Project p2 = new Project();
+        BeanUtils.copyProperties(project, p2);
+        p2.setSourceControl(sourceControl);
+        p2.setGitlabProjectId(2);
+
+        p2.setSourceControl(null);
+        projectService.addCoverageOnCreateOrUpdate(p2);
+
+        verify(coverageService, times(0)).updateCoverageForProject(p2);
+        verify(websocket, times(0)).convertAndSend("/topic/update_project", p2.toDto());
+
+        p2.setGitlabProjectId(null);
+        projectService.addCoverageOnCreateOrUpdate(p2);
+
+        verify(coverageService, times(0)).updateCoverageForProject(p2);
+        verify(websocket, times(0)).convertAndSend("/topic/update_project", p2.toDto());
+
+        p2.setSourceControl(sourceControl);
+        projectService.addCoverageOnCreateOrUpdate(p2);
+
+        verify(coverageService, times(0)).updateCoverageForProject(p2);
+        verify(websocket, times(0)).convertAndSend("/topic/update_project", p2.toDto());
+
+    }
 }
