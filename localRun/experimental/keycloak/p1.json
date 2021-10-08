@@ -1,0 +1,201 @@
+{
+  "id": "flighttracker",
+  "realm": "flighttracker",
+  "enabled": true,
+  "roles": {
+    "client": {
+      "flighttracker": [
+        {
+          "id": "911fd612-089a-4b2b-9df7-64a447c942ad",
+          "name": "ROLE_flighttracker.editor",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "1144dafd-ffd2-4c60-837d-26f9ee093fed",
+          "attributes": {}
+        },
+        {
+          "id": "52cde48e-5272-427a-bfe2-18d4a46ffd12",
+          "name": "ROLE_flighttracker.viewer",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "1144dafd-ffd2-4c60-837d-26f9ee093fed",
+          "attributes": {}
+        }
+      ]
+    }
+  },
+  "users": [
+    {
+      "id": "da8eea96-345a-4713-8615-b145d731f375",
+      "createdTimestamp": 1600897128767,
+      "username": "baduser",
+      "enabled": true,
+      "totp": false,
+      "emailVerified": false,
+      "credentials": [
+        {
+          "id": "708496b8-dc86-407c-a079-a6e60a10fdad",
+          "type": "password",
+          "createdDate": 1600897180356,
+          "secretData": "{\"value\":\"se/G1dOzyYuGSWDZEdLn3l6VU2meWEI6eYbRhyK2hGlIsRwe0sF1ivvy3B/e5E8Td7cz+whjSRzhiEzSGhM8jg==\",\"salt\":\"HsXMCqfX7RXEr+btX4HPsA==\"}",
+          "credentialData": "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\"}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "uma_authorization",
+        "offline_access"
+      ],
+      "clientRoles": {
+        "account": [
+          "view-profile",
+          "manage-account"
+        ]
+      },
+      "notBefore": 0,
+      "groups": []
+    },
+    {
+      "id": "7f03fd39-d5bf-494c-a819-0ceaa428f591",
+      "createdTimestamp": 1593564562999,
+      "username": "user",
+      "enabled": true,
+      "totp": false,
+      "emailVerified": true,
+      "firstName": "User",
+      "lastName": "Edit",
+      "credentials": [
+        {
+          "id": "71158527-6e29-4f5b-8d66-7faf97256d8c",
+          "type": "password",
+          "createdDate": 1593564571612,
+          "secretData": "{\"value\":\"3cC1IuvMAYzOGs8J321TKZgsJiL+iP36/1albhDLK1fFJP+jG7JtAPaJZ9VfzUnij0gpYo86uUMM5Nwln98+tg==\",\"salt\":\"dXADjpNiHec7bqBGqbbuPw==\"}",
+          "credentialData": "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\"}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "clientRoles": {
+        "flighttracker": [
+          "ROLE_flighttracker.editor"
+        ]
+      },
+      "notBefore": 0,
+      "groups": []
+    },
+    {
+      "id": "47e287a6-8c80-4867-8a77-c18d888e0459",
+      "createdTimestamp": 1613592009683,
+      "username": "viewer",
+      "enabled": true,
+      "totp": false,
+      "emailVerified": false,
+      "firstName": "viewer",
+      "lastName": "see",
+      "credentials": [
+        {
+          "id": "b081460d-0f0a-47b3-8d43-c27ee9a42a72",
+          "type": "password",
+          "createdDate": 1613592035147,
+          "secretData": "{\"value\":\"TQ1mAALmlozscNbo6GQJjnEWefyfpTSxzW8Thn18DCT6g6Nbrk8areeq9LZ6ULrNYuY73tcY3jEf8/yzt3/ULQ==\",\"salt\":\"dcofNDTcBZP8H3v9sX6SaA==\"}",
+          "credentialData": "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\"}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "clientRoles": {
+        "flighttracker": [
+          "ROLE_flighttracker.viewer"
+        ]
+      },
+      "notBefore": 0,
+      "groups": []
+    }
+  ],
+  "clientScopeMappings": {
+    "flighttracker": [
+      {
+        "clientScope": "flighttracker.editor",
+        "roles": [
+          "ROLE_flighttracker.editor"
+        ]
+      },
+      {
+        "clientScope": "flighttracker.viewer",
+        "roles": [
+          "ROLE_flighttracker.viewer"
+        ]
+      }
+    ]
+  },
+  "clients": [
+    {
+      "id": "1144dafd-ffd2-4c60-837d-26f9ee093fed",
+      "clientId": "flighttracker",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "5751392f-23a5-41db-ad8b-360afa5b3dbe",
+      "redirectUris": [
+        "http://localhost:3001",
+        "http://localhost:8444",
+        "http://localhost:3001/*",
+        "http://localhost:8444/*"
+      ],
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": true,
+      "publicClient": false,
+      "frontchannelLogout": false,
+      "protocol": "openid-connect",
+      "fullScopeAllowed": true,
+      "protocolMappers": [
+        {
+          "id": "651c2020-05b0-48f8-bf6c-af009f3d4ae2",
+          "name": "user_name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "username",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "user_name",
+            "jsonType.label": "String"
+          }
+        }
+      ],
+      "defaultClientScopes": [],
+      "optionalClientScopes": [
+        "flighttracker.viewer",
+        "flighttracker.editor"
+      ]
+    }
+  ],
+  "clientScopes": [
+    {
+      "id": "4726c4b5-e429-4bdc-9382-a6f4f634ba93",
+      "name": "flighttracker.editor",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      }
+    },
+    {
+      "id": "7442a9e6-6442-4d4b-be49-b867abc494e7",
+      "name": "flighttracker.viewer",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      }
+    }
+  ],
+  "keycloakVersion": "10.0.2"
+}

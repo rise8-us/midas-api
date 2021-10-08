@@ -83,7 +83,7 @@ class ProductControllerTests extends ControllerTestHarness {
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(5L))
             .with(p -> p.setName("Midas"))
-            .with(p -> p.setProductManager(new User()))
+            .with(p -> p.setOwner(new User()))
             .with(p -> p.setDescription("stack full"))
             .with(p -> p.setCreationDate(CREATION_DATE))
             .with(p -> p.setIsArchived(false))

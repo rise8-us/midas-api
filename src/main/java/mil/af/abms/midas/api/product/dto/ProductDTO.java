@@ -17,7 +17,7 @@ import mil.af.abms.midas.enums.ProductType;
 public class ProductDTO implements AbstractDTO {
 
     private Long id;
-    private Long productManagerId;
+    private Long ownerId;
     private Long parentId;
     private String name;
     private String description;

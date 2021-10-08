@@ -17,14 +17,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 
-import mil.af.abms.midas.clients.GitLab4JClient;
+import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
 
 @ExtendWith(SpringExtension.class)
-@Import({GitProjectExistsValidator.class})
+@Import({GitLabProjectExistsValidator.class})
 public class GitProjectExistsValidatorTests {
 
     @Autowired
-    GitProjectExistsValidator validator;
+    GitLabProjectExistsValidator validator;
     @MockBean
     private GitLab4JClient gitLab4JClient;
     @Mock

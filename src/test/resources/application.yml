@@ -1,5 +1,5 @@
 custom:
-  environment: other
+  environment: local
   version: 0.0.1
   classification: UNCLASS
   caveat: IL2
@@ -8,6 +8,7 @@ custom:
   localKeycloakUid: "abc-123-def"
   gitLabUrl: "http://foo"
   gitLabAccessToken: "bar"
+  dbname: appDB
 
 server:
   port: 5000
@@ -18,7 +19,7 @@ logging:
 
 spring:
   profiles:
-    active: util, test
+    active: test
   datasource:
     driver-class-name: org.h2.Driver
     url: jdbc:h2:mem:testdb;DB_CLOSE_ON_EXIT=FALSE

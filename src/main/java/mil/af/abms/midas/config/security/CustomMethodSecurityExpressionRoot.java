@@ -8,6 +8,9 @@ import org.springframework.security.core.Authentication;
 
 import mil.af.abms.midas.api.assertion.Assertion;
 import mil.af.abms.midas.api.assertion.AssertionService;
+import mil.af.abms.midas.api.comment.CommentService;
+import mil.af.abms.midas.api.feature.FeatureService;
+import mil.af.abms.midas.api.persona.PersonaService;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.project.ProjectService;
@@ -21,6 +24,9 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
     private static ProductService productService() { return SpringContext.getBean(ProductService.class); }
     private static UserService userService() { return SpringContext.getBean(UserService.class); }
     private static ProjectService projectService() { return SpringContext.getBean(ProjectService.class); }
+    private static CommentService commentService() { return SpringContext.getBean(CommentService.class); }
+    private static PersonaService personaService() { return SpringContext.getBean(PersonaService.class); }
+    private static FeatureService featureService() { return SpringContext.getBean(FeatureService.class); }
 
     public CustomMethodSecurityExpressionRoot(Authentication authentication) {
         super(authentication);
@@ -51,7 +57,7 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
         var productBeingAccessed = productService().findById(productId);
         var parent = Optional.ofNullable(productBeingAccessed.getParent()).orElse(new Product());
         var userMakingRequest = userService().getUserBySecContext();
-        var productManager = productBeingAccessed.getProductManager();
+        var productManager = productBeingAccessed.getOwner();
         var teamId = productBeingAccessed.getTeams().stream().findFirst().map(Team::getId).orElse(null);
         return userMakingRequest.equals(productManager) || hasProductAccess(parent.getId()) || hasTeamAccess(teamId);
     }
@@ -61,6 +67,27 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
         Assertion assertionBeingAccessed = assertionService().findById(ogsmId);
         Long productId = Optional.ofNullable(assertionBeingAccessed.getProduct()).map(Product::getId).orElse(null);
         return hasProductAccess(productId);
+    }
+
+    public boolean isCommentCreator(Long commentId) {
+        if (commentId == null) { return false; }
+        var commentToModify = commentService().findById(commentId);
+        var userMakingRequest = userService().getUserBySecContext();
+        return userMakingRequest.getId().equals(commentToModify.getCreatedBy().getId());
+    }
+
+    public boolean hasPersonaAccess(Long personaId) {
+        if (personaId == null) { return false; }
+        var personaBeingAccessed = personaService().findById(personaId);
+        if (personaBeingAccessed.getProduct() == null) { return false; }
+        return hasProductAccess(personaBeingAccessed.getProduct().getId());
+    }
+
+    public boolean hasFeatureAccess(Long featureId) {
+        if (featureId == null) { return false; }
+        var featureBeingAccessed = featureService().findById(featureId);
+        if(featureBeingAccessed.getProduct() == null) { return false; }
+        return hasProductAccess(featureBeingAccessed.getProduct().getId());
     }
 
     @Override

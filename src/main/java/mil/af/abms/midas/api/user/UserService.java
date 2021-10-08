@@ -60,17 +60,17 @@ public class UserService extends AbstractCRUDService<User, UserDTO, UserReposito
     }
 
     @Transactional
-    public User updateById(Long id, UpdateUserDTO updateUserDTO) {
+    public User updateById(Long id, UpdateUserDTO dto) {
         User user = findById(id);
 
-        Set<Team> teams = updateUserDTO.getTeamIds().stream().map(teamService::findById).collect(Collectors.toSet());
+        Set<Team> teams = dto.getTeamIds().stream().map(teamService::findById).collect(Collectors.toSet());
         user.setTeams(teams);
 
-        if (updateUserDTO.getUsername() != null ) user.setUsername(updateUserDTO.getUsername());
-        if (updateUserDTO.getEmail() != null ) user.setEmail(updateUserDTO.getEmail());
-        if (updateUserDTO.getDisplayName() != null ) user.setDisplayName(updateUserDTO.getDisplayName());
-        if (updateUserDTO.getPhone() != null ) user.setPhone(updateUserDTO.getPhone());
-        if (updateUserDTO.getCompany() != null ) user.setCompany(updateUserDTO.getCompany());
+        user.setUsername(Optional.ofNullable(dto.getUsername()).orElse(user.getUsername()));
+        user.setEmail(Optional.ofNullable(dto.getEmail()).orElse(user.getEmail()));
+        user.setDisplayName(Optional.ofNullable(dto.getDisplayName()).orElse(user.getDisplayName()));
+        user.setPhone(Optional.ofNullable(dto.getPhone()).orElse(user.getPhone()));
+        user.setCompany(Optional.ofNullable(dto.getCompany()).orElse(user.getCompany()));
 
         return repository.save(user);
     }

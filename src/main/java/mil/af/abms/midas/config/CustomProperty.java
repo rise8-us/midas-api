@@ -26,12 +26,14 @@ public class CustomProperty {
             String key,
             String salt
     ) {
+
         this.classification = classification;
         this.caveat = caveat;
         this.environment = environment;
         this.jwtAdminGroup = jwtAdminGroup;
         this.key = key;
         this.salt = salt;
+
     }
 
 }

@@ -6,15 +6,14 @@ import java.io.Serializable;
 import java.util.Set;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import mil.af.abms.midas.api.project.validation.UniqueName;
 import mil.af.abms.midas.api.validation.TagsExist;
 import mil.af.abms.midas.api.validation.TeamExists;
 
-@Getter @Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateProjectDTO implements Serializable {

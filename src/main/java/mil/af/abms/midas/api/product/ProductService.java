@@ -5,7 +5,9 @@ import javax.transaction.Transactional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
@@ -27,14 +29,18 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 @Service
 public class ProductService extends AbstractCRUDService<Product, ProductDTO, ProductRepository> {
 
+    private final SimpMessageSendingOperations websocket;
+    private final SourceControlService sourceControlService;
+
     private UserService userService;
     private ProjectService projectService;
     private TagService tagService;
-    private SourceControlService sourceControlService;
     private TeamService teamService;
 
-    public ProductService(ProductRepository repository) {
+    public ProductService(ProductRepository repository, SimpMessageSendingOperations websocket, SourceControlService sourceControlService) {
         super(repository, Product.class, ProductDTO.class);
+        this.websocket = websocket;
+        this.sourceControlService = sourceControlService;
     }
 
     @Autowired
@@ -44,14 +50,12 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
     @Autowired
     public void setTagService(TagService tagService) { this.tagService = tagService; }
     @Autowired
-    public void setSourceControlService(SourceControlService sourceControlService) { this.sourceControlService = sourceControlService; }
-    @Autowired
     public void setTeamService(TeamService teamService) { this.teamService = teamService; }
 
     @Transactional
     public Product create(CreateProductDTO dto) {
-        var pmCandidate =  userService.findByIdOrNull(dto.getProductManagerId());
-        User productManager = pmCandidate != null ? pmCandidate : userService.getUserBySecContext();
+        var productOwner =  userService.findByIdOrNull(dto.getOwnerId());
+        User productManager = productOwner != null ? productOwner : userService.getUserBySecContext();
         var newProduct = Builder.build(Product.class)
                 .with(p -> p.setName(dto.getName()))
                 .with(p -> p.setType(dto.getType()))
@@ -59,7 +63,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
                 .with(p -> p.setVision(dto.getVision()))
                 .with(p -> p.setMission(dto.getMission()))
                 .with(p -> p.setProblemStatement(dto.getProblemStatement()))
-                .with(p -> p.setProductManager(productManager))
+                .with(p -> p.setOwner(productManager))
                 .with(p -> p.setGitlabGroupId(dto.getGitlabGroupId()))
                 .with(p -> p.setSourceControl(sourceControlService.findByIdOrNull(dto.getSourceControlId())))
                 .with(p -> p.setTeams(dto.getTeamIds().stream().map(teamService::findById)
@@ -89,11 +93,13 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
     @Transactional
     public Product updateById(Long id, UpdateProductDTO dto) {
 
-        var product = findById(id);
+        var originalProduct = findById(id);
+        var product = new Product();
+        BeanUtils.copyProperties(originalProduct, product);
         var originalProjects = product.getProjects();
 
         product.setName(dto.getName());
-        product.setProductManager(userService.findByIdOrNull(dto.getProductManagerId()));
+        product.setOwner(userService.findByIdOrNull(dto.getOwnerId()));
         product.setDescription(dto.getDescription());
         product.setVision(dto.getVision());
         product.setMission(dto.getMission());
@@ -112,6 +118,11 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
 
         projectService.updateProjectsWithProduct(originalProjects, product.getProjects(), product);
         addParentToChildren(product, product.getChildren());
+
+        if (!originalProduct.getTeams().equals(product.getTeams())) {
+            updateTeamRemovedFromProduct(originalProduct, product);
+            updateTeamAddedToProduct(originalProduct, product);
+        }
 
         return repository.save(product);
     }
@@ -135,6 +146,20 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
     public void addParentToChild(Product parent, Product child) {
         child.setParent(parent);
         repository.save(child);
+    }
+
+    protected void updateTeamRemovedFromProduct(Product origProduct, Product updatedProduct) {
+        origProduct.getTeams().stream().filter(t -> !updatedProduct.getTeams().contains(t)).forEach(team -> {
+            team.getProducts().remove(updatedProduct);
+            websocket.convertAndSend("/topic/update_team", team.toDto());
+        });
+    }
+
+    protected void updateTeamAddedToProduct(Product origProduct, Product updatedProduct) {
+        updatedProduct.getTeams().stream().filter(t -> !origProduct.getTeams().contains(t)).forEach(team -> {
+            team.getProducts().add(updatedProduct);
+            websocket.convertAndSend("/topic/update_team", team.toDto());
+        });
     }
 
 }

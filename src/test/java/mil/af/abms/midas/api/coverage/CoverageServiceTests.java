@@ -32,7 +32,7 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
-import mil.af.abms.midas.clients.GitLab4JClient;
+import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
 import mil.af.abms.midas.config.CustomProperty;
 import mil.af.abms.midas.enums.SonarqubeMaintainability;
 import mil.af.abms.midas.enums.SonarqubeReliability;

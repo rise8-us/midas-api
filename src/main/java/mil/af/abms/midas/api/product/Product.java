@@ -58,8 +58,8 @@ public class Product extends AbstractEntity<ProductDTO> {
     private ProductType type = ProductType.PRODUCT;
 
     @ManyToOne
-    @JoinColumn(name = "product_manager_id")
-    private User productManager;
+    @JoinColumn(name = "owner_id")
+    private User owner;
 
     @ManyToOne
     private SourceControl sourceControl;
@@ -93,7 +93,7 @@ public class Product extends AbstractEntity<ProductDTO> {
     public ProductDTO toDto() {
         Set<TagDTO> tagDTOs = tags.stream().map(Tag::toDto).collect(Collectors.toSet());
         return new ProductDTO(
-                id, getIdOrNull(productManager),
+                id, getIdOrNull(owner),
                 getIdOrNull(parent),
                 name,
                 description,

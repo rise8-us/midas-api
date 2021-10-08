@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.validation.AssertionExists;
 import mil.af.abms.midas.api.validation.ProductExists;
-import mil.af.abms.midas.enums.AssertionStatus;
 import mil.af.abms.midas.enums.AssertionType;
 import mil.af.abms.midas.enums.CompletionType;
+import mil.af.abms.midas.enums.ProgressionStatus;
 
 @Data
 @NoArgsConstructor
@@ -33,7 +33,7 @@ public class CreateAssertionDTO implements Serializable {
     @AssertionExists
     private Long parentId;
 
-    private AssertionStatus status;
+    private ProgressionStatus status;
 
     private List<CreateAssertionDTO> children;
 

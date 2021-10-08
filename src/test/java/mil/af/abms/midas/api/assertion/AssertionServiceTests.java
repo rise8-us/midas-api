@@ -45,9 +45,9 @@ import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
-import mil.af.abms.midas.enums.AssertionStatus;
 import mil.af.abms.midas.enums.AssertionType;
 import mil.af.abms.midas.enums.CompletionType;
+import mil.af.abms.midas.enums.ProgressionStatus;
 
 @ExtendWith(SpringExtension.class)
 @Import(AssertionService.class)
@@ -105,7 +105,7 @@ class AssertionServiceTests {
         assertionParent = Builder.build(Assertion.class)
                 .with(a -> a.setId(1L))
                 .with(a -> a.setProduct(product))
-                .with(a -> a.setStatus(AssertionStatus.ON_TRACK))
+                .with(a -> a.setStatus(ProgressionStatus.ON_TRACK))
                 .with(a -> a.setText("First"))
                 .with(a -> a.setType(AssertionType.GOAL))
                 .with(a -> a.setComments(Set.of(comment)))
@@ -116,7 +116,7 @@ class AssertionServiceTests {
                 .with(a -> a.setParent(assertionParent))
                 .with(a -> a.setProduct(product))
                 .with(a -> a.setText("Strat"))
-                .with(a -> a.setStatus(AssertionStatus.BLOCKED))
+                .with(a -> a.setStatus(ProgressionStatus.BLOCKED))
                 .with(a -> a.setType(AssertionType.STRATEGY))
                 .with(a -> a.setCreationDate(CREATION_DATE))
                 .with(a -> a.setCreatedBy(createdBy)).get();
@@ -126,7 +126,7 @@ class AssertionServiceTests {
                 .with(a -> a.setParent(assertionParent))
                 .with(a -> a.setText("First"))
                 .with(a -> a.setType(AssertionType.GOAL))
-                .with(a -> a.setStatus(AssertionStatus.BLOCKED))
+                .with(a -> a.setStatus(ProgressionStatus.BLOCKED))
                 .with(a -> a.setComments(Set.of(childComment)))
                 .with(a -> a.setCreationDate(CREATION_DATE))
                 .with(a -> a.setCreatedBy(createdBy)).get();
@@ -166,9 +166,9 @@ class AssertionServiceTests {
 
     @Test
     void should_update_assertion_by_id() {
-        var updateAssertionDTO = new UpdateAssertionDTO("updated", AssertionStatus.COMPLETED, List.of(createAssertionDTO), null, null, null, null, null, false);
+        var updateAssertionDTO = new UpdateAssertionDTO("updated", ProgressionStatus.COMPLETED, List.of(createAssertionDTO), null, null, null, null, null, false);
         assertionParent.setChildren(Set.of(assertionChild));
-        assertionChild.setStatus(AssertionStatus.BLOCKED);
+        assertionChild.setStatus(ProgressionStatus.BLOCKED);
         var newAssertion = new Assertion();
         BeanUtils.copyProperties(assertionParent, newAssertion);
         newAssertion.setType(AssertionType.MEASURE);
@@ -251,12 +251,12 @@ class AssertionServiceTests {
 
         Assertion blockedAssertion = new Assertion();
         BeanUtils.copyProperties(assertionParent, blockedAssertion);
-        blockedAssertion.setStatus(AssertionStatus.BLOCKED);
+        blockedAssertion.setStatus(ProgressionStatus.BLOCKED);
         blockedAssertion.setComments(Set.of(comment, comment2));
 
         Assertion atRiskAssertion = new Assertion();
         BeanUtils.copyProperties(assertionParent, atRiskAssertion);
-        atRiskAssertion.setStatus(AssertionStatus.AT_RISK);
+        atRiskAssertion.setStatus(ProgressionStatus.AT_RISK);
 
         List<Assertion> assertionList = List.of(blockedAssertion, atRiskAssertion);
 
@@ -282,13 +282,22 @@ class AssertionServiceTests {
     @ParameterizedTest
     @CsvSource(value = {"COMPLETED: true", "BLOCKED: false"}, delimiter = ':')
     void should_return_boolean_when_self_and_Siblings_are_completed(String status, boolean expected) {
-        assertionChild.setStatus(AssertionStatus.COMPLETED);
-        assertionSibling.setStatus(AssertionStatus.valueOf(status));
-        assertionParent.setStatus(AssertionStatus.ON_TRACK);
+        assertionChild.setStatus(ProgressionStatus.COMPLETED);
+        assertionSibling.setStatus(ProgressionStatus.valueOf(status));
+        assertionParent.setStatus(ProgressionStatus.ON_TRACK);
         assertionParent.setChildren(Set.of(assertionChild, assertionSibling));
 
         assertionService.updateParentIfAllSiblingsComplete(assertionSibling);
 
-        assertThat(assertionParent.getStatus().equals(AssertionStatus.COMPLETED)).isEqualTo(expected);
+        assertThat(assertionParent.getStatus().equals(ProgressionStatus.COMPLETED)).isEqualTo(expected);
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"COMPLETED: true", "BLOCKED: false"}, delimiter = ':')
+    void should_return_boolean_when_parent_is_completed(String status, boolean expected) {
+        assertionParent.setStatus(ProgressionStatus.valueOf(status));
+        assertionParent.setChildren(Set.of(assertionChild));
+        assertionService.updateChildrenToCompletedIfParentComplete(assertionParent);
+        assertThat(assertionChild.getStatus().equals(ProgressionStatus.COMPLETED)).isEqualTo(expected);
     }
 }

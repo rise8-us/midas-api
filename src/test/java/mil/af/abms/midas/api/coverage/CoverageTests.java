@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.lang.reflect.Field;
-import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,8 +24,6 @@ import mil.af.abms.midas.enums.SonarqubeSecurity;
 
 class CoverageTests {
 
-    private static final LocalDateTime CREATION_DATE = LocalDateTime.now();
-  
     private final Project project = Builder.build(Project.class)
             .with(p -> p.setId(3L)).get();
     private final Coverage coverage = Builder.build(Coverage.class)
@@ -41,7 +38,6 @@ class CoverageTests {
             .with(c -> c.setRef("ref"))
             .with(c -> c.setPipelineUrl("http://foo.bar"))
             .with(c -> c.setTriggeredBy("fizzBang"))
-            .with(c -> c.setCreationDate(CREATION_DATE))
             .get();
     private final CoverageDTO coverageDTO = Builder.build(CoverageDTO.class)
             .with(d -> d.setId(1L))
@@ -56,7 +52,7 @@ class CoverageTests {
             .with(d -> d.setRef("ref"))
             .with(d -> d.setPipelineUrl("http://foo.bar"))
             .with(d -> d.setTriggeredBy("fizzBang"))
-            .with(d -> d.setCreationDate(CREATION_DATE))
+            .with(d -> d.setCreationDate(coverage.getCreationDate()))
             .get();
 
     @Test
@@ -75,7 +71,6 @@ class CoverageTests {
         assertThat(coverage.getReliabilityRating()).isEqualTo(SonarqubeReliability.A);
         assertThat(coverage.getSecurityRating()).isEqualTo(SonarqubeSecurity.A);
         assertThat(coverage.getProject()).isEqualTo(project);
-        assertThat(coverage.getCreationDate()).isEqualTo(CREATION_DATE);
     }
 
     @Test

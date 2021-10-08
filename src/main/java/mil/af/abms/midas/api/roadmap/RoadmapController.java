@@ -28,8 +28,8 @@ public class RoadmapController extends AbstractCRUDController<Roadmap, RoadmapDT
     }
 
     @PostMapping
-    public RoadmapDTO create(@Valid @RequestBody CreateRoadmapDTO teamDTO) {
-        return service.create(teamDTO).toDto();
+    public RoadmapDTO create(@Valid @RequestBody CreateRoadmapDTO roadmapDTO) {
+        return service.create(roadmapDTO).toDto();
     }
 
     @PutMapping("/{id}")

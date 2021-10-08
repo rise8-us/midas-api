@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Field;
-import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,14 +19,10 @@ import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.user.User;
 
 class FeatureTests {
-
-    private static final LocalDateTime TEST_TIME = LocalDateTime.now();
-
     private final Product product = Builder.build(Product.class).with(u -> u.setId(4L)).get();
     private final Feature feature = Builder.build(Feature.class)
             .with(f -> f.setId(1L))
-            .with(f -> f.setTitle("MIDAS"))
-            .with(f -> f.setCreationDate(TEST_TIME))
+            .with(f -> f.setTitle("title"))
             .with(f -> f.setDescription("dev feature"))
             .with(f -> f.setProduct(product))
             .get();
@@ -35,7 +30,7 @@ class FeatureTests {
             .with(f -> f.setId(feature.getId()))
             .with(f -> f.setTitle(feature.getTitle()))
             .with(f -> f.setDescription(feature.getDescription()))
-            .with(f -> f.setCreationDate(TEST_TIME))
+            .with(f -> f.setCreationDate(feature.getCreationDate()))
             .with(f -> f.setProductId(product.getId()))
             .get();
 
@@ -62,8 +57,7 @@ class FeatureTests {
     @Test
     void should_get_properties() {
         assertThat(feature.getId()).isEqualTo(1L);
-        assertThat(feature.getTitle()).isEqualTo("MIDAS");
-        assertThat(feature.getCreationDate()).isEqualTo(TEST_TIME);
+        assertThat(feature.getTitle()).isEqualTo("title");
         assertThat(feature.getDescription()).isEqualTo("dev feature");
     }
 

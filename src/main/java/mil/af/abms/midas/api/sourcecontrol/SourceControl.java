@@ -15,10 +15,8 @@ import mil.af.abms.midas.api.helper.AttributeEncryptor;
 import mil.af.abms.midas.api.sourcecontrol.dto.SourceControlDTO;
 
 @Entity @Setter @Getter
-@Table(name = "source_control" +
-        "")
+@Table(name = "source_control")
 public class SourceControl extends AbstractEntity<SourceControlDTO> {
-
 
     @Column(unique = true, nullable = false)
     private String name;

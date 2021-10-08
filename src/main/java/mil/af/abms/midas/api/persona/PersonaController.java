@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,6 +18,7 @@ import mil.af.abms.midas.api.AbstractCRUDController;
 import mil.af.abms.midas.api.persona.dto.CreatePersonaDTO;
 import mil.af.abms.midas.api.persona.dto.PersonaDTO;
 import mil.af.abms.midas.api.persona.dto.UpdatePersonaDTO;
+import mil.af.abms.midas.config.security.annotations.HasPersonaAccess;
 
 @RestController
 @RequestMapping("/api/personas")
@@ -42,4 +44,10 @@ public class PersonaController extends AbstractCRUDController<Persona, PersonaDT
         return service.bulkUpdate(updatePersonaDTOs).stream().map(Persona::toDto).collect(Collectors.toList());
     }
 
+    @Override
+    @HasPersonaAccess
+    @DeleteMapping("/{id}")
+    public void deleteById(@PathVariable Long id) {
+        service.deleteById(id);
+    }
 }

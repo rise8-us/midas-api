@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.lang.reflect.Field;
-import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -23,8 +22,6 @@ import mil.af.abms.midas.enums.AssertionType;
 
 public class CommentTests {
 
-    private static final LocalDateTime NOW = LocalDateTime.now();
-
     private final User createdBy = Builder.build(User.class).with(u -> u.setId(1L)).get();
     private final Assertion assertion = Builder.build(Assertion.class)
             .with(a -> a.setId(1L))
@@ -38,7 +35,6 @@ public class CommentTests {
             .with(c -> c.setParent(parentComment))
             .with(c -> c.setAssertion(assertion))
             .with(c -> c.setCreatedBy(createdBy))
-            .with(c -> c.setCreationDate(NOW))
             .get();
     private final CommentDTO commentDTO = Builder.build(CommentDTO.class)
             .with(c -> c.setId(1L))
@@ -46,7 +42,7 @@ public class CommentTests {
             .with(c -> c.setParentId(parentComment.getId()))
             .with(c -> c.setAssertionId(assertion.getId()))
             .with(c -> c.setAuthor(createdBy.toDto()))
-            .with(d -> d.setCreationDate(NOW))
+            .with(d -> d.setCreationDate(comment.getCreationDate()))
             .with(d -> d.setChildren(Set.of()))
             .get();
 

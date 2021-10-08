@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.Set;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.product.validation.UniqueName;
@@ -17,7 +17,7 @@ import mil.af.abms.midas.api.validation.TagsExist;
 import mil.af.abms.midas.api.validation.UserExists;
 import mil.af.abms.midas.enums.ProductType;
 
-@Getter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateProductDTO implements Serializable {
@@ -29,7 +29,7 @@ public class UpdateProductDTO implements Serializable {
     private String description;
 
     @UserExists(allowNull = true)
-    private Long productManagerId;
+    private Long ownerId;
 
     private Long parentId;
 

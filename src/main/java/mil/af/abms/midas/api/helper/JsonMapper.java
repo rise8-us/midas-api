@@ -51,4 +51,14 @@ public class JsonMapper {
         return conditionMap;
     }
 
+    public static JsonNode convertToJsonNode(String input) {
+        try {
+            return dateMapper().readTree(dateMapper().getFactory().createParser(input));
+        } catch (Exception e) {
+            log.error(e.getLocalizedMessage());
+        }
+
+        return null;
+    }
+
 }

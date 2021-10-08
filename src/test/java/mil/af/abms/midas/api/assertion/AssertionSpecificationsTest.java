@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import mil.af.abms.midas.api.RepositoryTestHarness;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
-import mil.af.abms.midas.enums.AssertionStatus;
+import mil.af.abms.midas.enums.ProgressionStatus;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 class AssertionSpecificationsTest extends RepositoryTestHarness {
@@ -37,7 +37,7 @@ class AssertionSpecificationsTest extends RepositoryTestHarness {
         LocalDateTime COMPLETED_DATE = LocalDateTime.now();
         Assertion assertion = Builder.build(Assertion.class)
                 .with(a -> a.setProduct(savedProduct))
-                .with(a -> a.setStatus(AssertionStatus.COMPLETED))
+                .with(a -> a.setStatus(ProgressionStatus.COMPLETED))
                 .with(a -> a.setCompletedDate(COMPLETED_DATE))
                 .get();
 
@@ -62,7 +62,7 @@ class AssertionSpecificationsTest extends RepositoryTestHarness {
 
     @Test
     void should_find_by_status() throws EntityNotFoundException {
-        List<Assertion> assertions = assertionRepository.findAll(AssertionSpecifications.hasStatus(AssertionStatus.COMPLETED));
+        List<Assertion> assertions = assertionRepository.findAll(AssertionSpecifications.hasStatus(ProgressionStatus.COMPLETED));
         assertThat(assertions.size()).isEqualTo(1);
     }
 }

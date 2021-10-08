@@ -17,7 +17,7 @@ import mil.af.abms.midas.api.product.Product;
 @Table(name = "feature")
 public class Feature extends AbstractEntity<FeatureDTO> {
 
-    @Column(nullable = false, columnDefinition = "VARCHAR(70)")
+    @Column(nullable = false, columnDefinition = "VARCHAR(255)")
     private String title;
 
     @Column(columnDefinition = "TEXT")
@@ -31,7 +31,14 @@ public class Feature extends AbstractEntity<FeatureDTO> {
     private Product product;
 
     public FeatureDTO toDto() {
-        return new FeatureDTO(id, title, creationDate, description, getIdOrNull(product), position);
+        return new FeatureDTO(
+                id,
+                title,
+                creationDate,
+                description,
+                getIdOrNull(product),
+                position
+        );
     }
 
     @Override

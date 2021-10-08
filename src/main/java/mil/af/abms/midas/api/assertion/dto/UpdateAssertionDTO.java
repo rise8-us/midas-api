@@ -10,8 +10,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import mil.af.abms.midas.enums.AssertionStatus;
 import mil.af.abms.midas.enums.CompletionType;
+import mil.af.abms.midas.enums.ProgressionStatus;
 
 @Data
 @AllArgsConstructor
@@ -22,7 +22,7 @@ public class UpdateAssertionDTO implements Serializable {
     private String text;
 
     @NotNull(message = "A status must be provided")
-    private AssertionStatus status;
+    private ProgressionStatus status;
 
     private List<CreateAssertionDTO> children;
 

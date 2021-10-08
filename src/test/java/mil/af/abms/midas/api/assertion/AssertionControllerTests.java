@@ -37,8 +37,8 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.user.User;
-import mil.af.abms.midas.enums.AssertionStatus;
 import mil.af.abms.midas.enums.AssertionType;
+import mil.af.abms.midas.enums.ProgressionStatus;
 
 @WebMvcTest({AssertionController.class})
 public class AssertionControllerTests extends ControllerTestHarness {
@@ -61,7 +61,7 @@ public class AssertionControllerTests extends ControllerTestHarness {
             .with(a -> a.setComments(comments))
             .with(a -> a.setCreatedBy(createdBy)).get();
     CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", AssertionType.GOAL, 1L, null, null, new ArrayList<>(), null, null, null, null, null);
-    UpdateAssertionDTO updateAssertionDTO = new UpdateAssertionDTO("updated", AssertionStatus.NOT_STARTED, List.of(), null, null, null, null, null, false);
+    UpdateAssertionDTO updateAssertionDTO = new UpdateAssertionDTO("updated", ProgressionStatus.NOT_STARTED, List.of(), null, null, null, null, null, false);
 
     @BeforeEach
     void init() throws Exception {
@@ -113,7 +113,7 @@ public class AssertionControllerTests extends ControllerTestHarness {
 
     @Test
     void should_throw_text_must_not_be_null_message_on_update() throws Exception {
-        UpdateAssertionDTO updateDTONullType = new UpdateAssertionDTO("", AssertionStatus.NOT_STARTED, List.of(), null, null, null, null, null, false);
+        UpdateAssertionDTO updateDTONullType = new UpdateAssertionDTO("", ProgressionStatus.NOT_STARTED, List.of(), null, null, null, null, null, false);
         Assertion assertionNullType = new Assertion();
         BeanUtils.copyProperties(assertion, assertionNullType);
         assertionNullType.setType(null);
@@ -147,13 +147,4 @@ public class AssertionControllerTests extends ControllerTestHarness {
                 .andExpect(jsonPath("$", hasSize(1)));
     }
 
-    @Test
-    void should_get_blocker_assertions_by_product_id() throws Exception {
-        when(assertionService.getBlockerAssertionsByProductId(3L)).thenReturn(List.of(new BlockerAssertionDTO()));
-
-        mockMvc.perform(get("/api/assertions/blockers/3"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType((MediaType.APPLICATION_JSON_VALUE)))
-                .andExpect(jsonPath("$", hasSize(1)));
-    }
 }

@@ -1,6 +1,7 @@
 package mil.af.abms.midas.api.helper;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
@@ -78,4 +79,16 @@ class JsonMapperTests {
 
     }
 
+    @Test
+    void should_convert_to_jsonNode() {
+        String in = "{\"id\": 1, \"stringVar\": \"stringValue\"}";
+
+        assertEquals(1, JsonMapper.convertToJsonNode(in).get("id").asInt());
+        assertEquals("stringValue", JsonMapper.convertToJsonNode(in).get("stringVar").asText());
+    }
+
+    @Test
+    void should_throw_convert_to_jsonNode() {
+        assertThat(JsonMapper.convertToJsonNode("{id = 1}")).isEqualTo(null);
+    }
 }
