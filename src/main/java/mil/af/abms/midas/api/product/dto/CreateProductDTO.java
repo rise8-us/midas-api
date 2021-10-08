@@ -30,7 +30,7 @@ public class CreateProductDTO implements Serializable {
     private String description;
 
     @UserExists(allowNull = true)
-    private Long productManagerId;
+    private Long ownerId;
 
     @ProductExists
     private Long parentId;

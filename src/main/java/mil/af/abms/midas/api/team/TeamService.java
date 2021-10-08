@@ -5,6 +5,7 @@ import javax.transaction.Transactional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
@@ -22,15 +23,17 @@ public class TeamService extends AbstractCRUDService<Team, TeamDTO, TeamReposito
 
     private UserService userService;
     private ProductService productService;
+    private final SimpMessageSendingOperations websocket;
 
-    public TeamService(TeamRepository repository) {
+    public TeamService(TeamRepository repository, SimpMessageSendingOperations websocket) {
         super(repository, Team.class, TeamDTO.class);
+        this.websocket = websocket;
     }
 
     @Autowired
     public void setUserService(UserService userService) { this.userService = userService; }
     @Autowired
-    public void setProductServicei(ProductService productService) { this.productService = productService; }
+    public void setProductService(ProductService productService) { this.productService = productService; }
 
     @Transactional
     public Team create(CreateTeamDTO dto) {
@@ -47,7 +50,14 @@ public class TeamService extends AbstractCRUDService<Team, TeamDTO, TeamReposito
                         dto.getUserIds().stream().map(userService::findById).collect(Collectors.toSet()))
                 ).get();
 
-        return repository.save(newTeam);
+        var savedTeam = repository.save(newTeam);
+
+        newTeam.getProducts().forEach(product -> {
+            product.getTeams().add(savedTeam);
+            websocket.convertAndSend("/topic/update_product", product.toDto());
+        });
+
+        return savedTeam;
     }
 
     @Transactional

@@ -19,9 +19,9 @@ import mil.af.abms.midas.api.assertion.AssertionRepository;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.user.User;
-import mil.af.abms.midas.enums.AssertionStatus;
 import mil.af.abms.midas.enums.AssertionType;
 import mil.af.abms.midas.enums.ProductType;
+import mil.af.abms.midas.enums.ProgressionStatus;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class LocalDateTimeStrategyTests extends RepositoryTestHarness {
@@ -41,7 +41,7 @@ class LocalDateTimeStrategyTests extends RepositoryTestHarness {
     private final Assertion goal = Builder.build(Assertion.class)
             .with(a -> a.setText("goal"))
             .with(a -> a.setType(AssertionType.GOAL))
-            .with(a -> a.setStatus(AssertionStatus.ON_TRACK))
+            .with(a -> a.setStatus(ProgressionStatus.ON_TRACK))
             .with(a -> a.setStartDate(START_OCTOBER))
             .with(a -> a.setCreationDate(LocalDateTime.now()))
             .with(a -> a.setCompletedDate(LocalDateTime.now()))
@@ -49,7 +49,7 @@ class LocalDateTimeStrategyTests extends RepositoryTestHarness {
     private final Assertion strategy = Builder.build(Assertion.class)
             .with(a -> a.setText("strategy"))
             .with(a -> a.setType(AssertionType.STRATEGY))
-            .with(a -> a.setStatus(AssertionStatus.ON_TRACK))
+            .with(a -> a.setStatus(ProgressionStatus.ON_TRACK))
             .with(a -> a.setStartDate(START_NOVEMBER))
             .with(a -> a.setCreationDate(LocalDateTime.now()))
             .with(a -> a.setCompletedDate(LocalDateTime.now()))

@@ -32,7 +32,7 @@ import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.team.TeamService;
-import mil.af.abms.midas.clients.GitLab4JClient;
+import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @WebMvcTest({ProjectController.class})

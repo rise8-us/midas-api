@@ -9,7 +9,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
@@ -35,9 +34,7 @@ class TeamControllerTests extends ControllerTestHarness {
     @MockBean
     private TeamService teamService;
     @MockBean
-    private ProductService productService;  //needed for product exists validation on dtos
-
-    private final static LocalDateTime CREATION_DATE = LocalDateTime.now();
+    private ProductService productService;
 
     private final UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("MIDAS", 5L, "dev team", Set.of(3L), 3L, 3L, 3L, Set.of());
     private final CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 1L, "dev team", Set.of(3L), 3L, 3L, 3L, Set.of());

@@ -25,6 +25,7 @@ import mil.af.abms.midas.api.project.dto.ProjectDTO;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.team.Team;
+import mil.af.abms.midas.api.user.User;
 
 @Entity @Getter @Setter
 @Table(name = "project")
@@ -46,8 +47,11 @@ public class Project extends AbstractEntity<ProjectDTO> {
     private Integer gitlabProjectId;
 
     @ManyToOne
-    private SourceControl sourceControl;
+    @JoinColumn(name = "owner_id")
+    private User owner;
 
+    @ManyToOne
+    private SourceControl sourceControl;
 
     @ManyToOne
     @JoinColumn(name = "team_id")
@@ -81,7 +85,8 @@ public class Project extends AbstractEntity<ProjectDTO> {
                 projectJourneyMap,
                 getIdOrNull(product),
                 getCurrentCoverage().toDto(),
-                getIdOrNull(sourceControl)
+                getIdOrNull(sourceControl),
+                getIdOrNull(owner)
         );
     }
 

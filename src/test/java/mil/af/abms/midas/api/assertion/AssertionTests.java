@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.lang.reflect.Field;
-import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -22,13 +21,12 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.helper.TimeConversion;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.user.User;
-import mil.af.abms.midas.enums.AssertionStatus;
 import mil.af.abms.midas.enums.AssertionType;
 import mil.af.abms.midas.enums.CompletionType;
+import mil.af.abms.midas.enums.ProgressionStatus;
 
 class AssertionTests {
 
-    private final LocalDateTime CREATION_DATE = LocalDateTime.now();
     private final Set<Comment> comments = Set.of(Builder.build(Comment.class).with(c -> c.setId(2L)).get());
     private final User createdBy = Builder.build(User.class).with(u -> u.setId(3L)).get();
     private final Product product = Builder.build(Product.class)
@@ -38,7 +36,6 @@ class AssertionTests {
             .with(a -> a.setText("First"))
             .with(a -> a.setType(AssertionType.OBJECTIVE))
             .with(a -> a.setProduct(product))
-            .with(a -> a.setCreationDate(CREATION_DATE))
             .with(a -> a.setComments(comments))
             .with(a -> a.setDueDate(TimeConversion.getTimeOrNull("2021-07-09T00:00:00")))
             .with(a -> a.setComments(comments))
@@ -49,9 +46,9 @@ class AssertionTests {
             .with(d -> d.setId(1L))
             .with(d -> d.setText("First"))
             .with(d -> d.setType(AssertionType.OBJECTIVE))
-            .with(d -> d.setStatus(AssertionStatus.NOT_STARTED))
+            .with(d -> d.setStatus(ProgressionStatus.NOT_STARTED))
             .with(d -> d.setProductId(product.getId()))
-            .with(d -> d.setCreationDate(CREATION_DATE))
+            .with(d -> d.setCreationDate(assertion.getCreationDate()))
             .with(d -> d.setCommentIds(Set.of(2L)))
             .with(d -> d.setChildren(List.of()))
             .with(d -> d.setIsArchived(false))
@@ -74,7 +71,6 @@ class AssertionTests {
         assertThat(assertion.getCreatedBy()).isEqualTo(createdBy);
         assertThat(assertion.getText()).isEqualTo("First");
         assertThat(assertion.getComments()).isEqualTo(comments);
-        assertThat(assertion.getCreationDate()).isEqualTo(CREATION_DATE);
     }
 
     @Test

@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.lang.reflect.Field;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,9 +26,7 @@ import mil.af.abms.midas.enums.ProductType;
 
 class ProductTests {
 
-    private static final LocalDateTime TEST_TIME = LocalDateTime.now();
-
-    private final User lead = Builder.build(User.class).with(u -> u.setId(3L)).get();
+    private final User lead = Builder.build(User.class).with(u -> u.setId(2L)).get();
     private final Team team = Builder.build(Team.class).with(t -> t.setId(4L)).get();
     private final Set<Project> projects = Set.of(Builder.build(Project.class).with(p -> p.setId(3L)).get());
     private final Product portfolio = Builder.build(Product.class).with(p -> p.setId(3L)).get();
@@ -37,9 +34,8 @@ class ProductTests {
             .with(p -> p.setId(1L))
             .with(p -> p.setName("Midas"))
             .with(p -> p.setDescription("test product"))
-            .with(p -> p.setCreationDate(TEST_TIME))
             .with(p -> p.setIsArchived(false))
-            .with(p -> p.setProductManager(lead))
+            .with(p -> p.setOwner(lead))
             .with(p -> p.setParent(portfolio))
             .with(p -> p.setChildren(Set.of()))
             .with(p -> p.setProjects(projects))
@@ -50,9 +46,9 @@ class ProductTests {
             .with(d -> d.setId(1L))
             .with(d -> d.setName("Midas"))
             .with(d -> d.setDescription("test product"))
-            .with(d -> d.setCreationDate(TEST_TIME))
+            .with(d -> d.setCreationDate(product.getCreationDate()))
             .with(d -> d.setIsArchived(false))
-            .with(d -> d.setProductManagerId(lead.getId()))
+            .with(d -> d.setOwnerId(lead.getId()))
             .with(d -> d.setParentId(portfolio.getId()))
             .with(d -> d.setTags(new HashSet<>()))
             .with(d -> d.setProjectIds(Set.of(3L)))
@@ -86,9 +82,8 @@ class ProductTests {
         assertThat(product.getId()).isEqualTo(1L);
         assertThat(product.getName()).isEqualTo("Midas");
         assertThat(product.getDescription()).isEqualTo("test product");
-        assertThat(product.getCreationDate()).isEqualTo(TEST_TIME);
         assertFalse(product.getIsArchived());
-        assertThat(product.getProductManager()).isEqualTo(lead);
+        assertThat(product.getOwner()).isEqualTo(lead);
         assertThat(product.getParent()).isEqualTo(portfolio);
         assertThat(product.getProjects()).isEqualTo(projects);
     }
@@ -102,10 +97,10 @@ class ProductTests {
     void should_return_dto_with_null_fields() {
         Product nullAppAndProduct = new Product();
         BeanUtils.copyProperties(product, nullAppAndProduct);
-        nullAppAndProduct.setProductManager(null);
+        nullAppAndProduct.setOwner(null);
         nullAppAndProduct.setParent(null);
 
-        assertNull(nullAppAndProduct.toDto().getProductManagerId());
+        assertNull(nullAppAndProduct.toDto().getOwnerId());
         assertNull(nullAppAndProduct.toDto().getParentId());
     }
 }

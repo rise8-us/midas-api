@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.lang.reflect.Field;
-import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -21,19 +20,16 @@ import mil.af.abms.midas.api.user.dto.UserDTO;
 
 public class UserTests {
 
-    private final LocalDateTime CREATION_DATE = LocalDateTime.now();
-
     private final Team team = Builder.build(Team.class)
             .with(t -> t.setId(1L))
             .with(t -> t.setName("midas")).get();
 
-    private final User expectedUser = Builder.build(User.class)
+    private final User user = Builder.build(User.class)
             .with(u -> u.setId(1L))
             .with(u -> u.setKeycloakUid("abc-123"))
             .with(u -> u.setUsername("grogu"))
             .with(u -> u.setEmail("a.b@c"))
             .with(u -> u.setDisplayName("baby yoda"))
-            .with(u -> u.setCreationDate(CREATION_DATE))
             .with(u -> u.setDodId(1L))
             .with(u -> u.setTeams(Set.of(team)))
             .with(u -> u.setRoles(0L))
@@ -44,7 +40,7 @@ public class UserTests {
             .with(d -> d.setUsername("grogu"))
             .with(d -> d.setEmail("a.b@c"))
             .with(d -> d.setDisplayName("baby yoda"))
-            .with(d -> d.setCreationDate(CREATION_DATE))
+            .with(d -> d.setCreationDate(user.getCreationDate()))
             .with(d -> d.setDodId(1L))
             .with(d -> d.setTeamIds(Set.of(1L)))
             .with(d -> d.setRoles(0L))
@@ -61,32 +57,31 @@ public class UserTests {
     @Test
     public void should_set_and_get_properties() {
 
-        assertThat(expectedUser.getId()).isEqualTo(1L);
-        assertThat(expectedUser.getKeycloakUid()).isEqualTo("abc-123");
-        assertThat(expectedUser.getUsername()).isEqualTo("grogu");
-        assertThat(expectedUser.getEmail()).isEqualTo("a.b@c");
-        assertThat(expectedUser.getDisplayName()).isEqualTo("baby yoda");
-        assertThat(expectedUser.getCreationDate()).isEqualTo(CREATION_DATE);
-        assertThat(expectedUser.getDodId()).isEqualTo(1);
-        assertThat(expectedUser.getRoles()).isEqualTo(0L);
-        assertThat(expectedUser.getIsDisabled()).isEqualTo(false);
+        assertThat(user.getId()).isEqualTo(1L);
+        assertThat(user.getKeycloakUid()).isEqualTo("abc-123");
+        assertThat(user.getUsername()).isEqualTo("grogu");
+        assertThat(user.getEmail()).isEqualTo("a.b@c");
+        assertThat(user.getDisplayName()).isEqualTo("baby yoda");
+        assertThat(user.getDodId()).isEqualTo(1);
+        assertThat(user.getRoles()).isEqualTo(0L);
+        assertThat(user.getIsDisabled()).isEqualTo(false);
     }
 
     @Test
     public void should_return_dto() {
-        assertThat(expectedUser.toDto()).isEqualTo(userDTO);
+        assertThat(user.toDto()).isEqualTo(userDTO);
     }
 
     @Test
     public void should_be_equal() {
         User user2 = new User();
-        BeanUtils.copyProperties(expectedUser, user2);
+        BeanUtils.copyProperties(user, user2);
 
-        assertEquals(expectedUser, expectedUser);
-        assertNotEquals(null, expectedUser);
-        assertNotEquals(expectedUser, new Team());
-        assertEquals(expectedUser, user2);
-        assertNotEquals(expectedUser, new User());
+        assertEquals(user, user);
+        assertNotEquals(null, user);
+        assertNotEquals(user, new Team());
+        assertEquals(user, user2);
+        assertNotEquals(user, new User());
     }
 
 }

@@ -111,7 +111,15 @@ is also provided.
 - Midas is configured to use PlatformOne SSO, Keycloak, and JWT.  P1 provides an Istio Envoy sidecar that provides AuthN and logging.
 - Other considerations.  midas-api uses an AttributeEncryptor for storing and retrieving encrypted strings from the DB.  Midas encrypts with NIST approved AES 256 GCM with random Initialization Vector.  
 A `key` and a `salt` must be provided in the container environment.  The key and salt provide a seed for the java key generator.  
-- 
+
+# Gradle commands
+* ```bash
+  ./gradlew checkstyleMain # Checkstyle analysis on src/main
+  ./gradlew checkstyleTest # Checkstyle analysis on src/test
+  ./gradlew jacocoTestReport # Generates a JACOCO test report
+  ```
+
+
 # Reference Documentation
 
 For further reference, please consider the following sections:

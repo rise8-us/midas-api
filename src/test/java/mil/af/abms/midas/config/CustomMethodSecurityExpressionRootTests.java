@@ -5,11 +5,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -23,7 +25,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import mil.af.abms.midas.api.assertion.Assertion;
 import mil.af.abms.midas.api.assertion.AssertionService;
+import mil.af.abms.midas.api.comment.Comment;
+import mil.af.abms.midas.api.comment.CommentService;
+import mil.af.abms.midas.api.feature.Feature;
+import mil.af.abms.midas.api.feature.FeatureService;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.persona.Persona;
+import mil.af.abms.midas.api.persona.PersonaService;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.project.Project;
@@ -55,28 +63,53 @@ class CustomMethodSecurityExpressionRootTests {
     ProjectService projectService;
     @MockBean
     ProductService productService;
+    @MockBean
+    CommentService commentService;
+    @MockBean
+    PersonaService personaService;
+    @MockBean
+    FeatureService featureService;
 
     Assertion assertion = Builder.build(Assertion.class)
-            .with(a -> a.setId(7L)).get();
+            .with(a -> a.setId(7L))
+            .get();
     Team team = Builder.build(Team.class)
-            .with(t -> t.setId(3L)).get();
+            .with(t -> t.setId(3L))
+            .get();
     User user = Builder.build(User.class)
             .with(u -> u.setId(2L))
             .with(u -> u.setKeycloakUid("abc"))
             .with(u -> u.setTeams(Set.of(team)))
             .get();
+    User user2 = Builder.build(User.class)
+            .with(u -> u.setId(20L))
+            .with(u -> u.setKeycloakUid("def"))
+            .get();
     Project project = Builder.build(Project.class)
-            .with(p -> p.setId(1L)).get();
+            .with(p -> p.setId(1L))
+            .get();
     Product product = Builder.build(Product.class)
-            .with(p -> p.setId(4L)).get();
+            .with(p -> p.setId(4L))
+            .get();
     Product portfolio = Builder.build(Product.class)
-            .with(p -> p.setId(5L)).get();
+            .with(p -> p.setId(5L))
+            .get();
+    Comment comment = Builder.build(Comment.class)
+            .with(p -> p.setId(8L))
+            .with(c -> c.setCreatedBy(user))
+            .get();
+    Persona persona = Builder.build(Persona.class)
+            .with(p -> p.setId(9L))
+            .get();
+    Feature feature = Builder.build(Feature.class)
+            .with(f -> f.setId(10L))
+            .get();
 
     @BeforeEach
     public void init() {
         project.setProduct(product);
         project.setTeam(team);
-        product.setProductManager(user);
+        product.setOwner(user);
         product.setParent(portfolio);
         assertion.setProduct(product);
         doReturn(user).when(userService).getUserBySecContext();
@@ -155,7 +188,7 @@ class CustomMethodSecurityExpressionRootTests {
 
     @Test
     void hasProductAccess_should_call_with_productManager_false_and_product_true() {
-        product.setProductManager(null);
+        product.setOwner(null);
         when(productService.findById(product.getId())).thenReturn(product);
         doReturn(true).when(security).hasProductAccess(5L);
 
@@ -164,13 +197,12 @@ class CustomMethodSecurityExpressionRootTests {
 
     @Test
     void hasProductAccess_should_call_with_productManager_false_and_product_false() {
-        product.setProductManager(null);
+        product.setOwner(null);
         when(productService.findById(product.getId())).thenReturn(product);
         doReturn(false).when(security).hasProductAccess(5L);
 
         assertFalse(security.hasProductAccess(4L));
     }
-
 
     @Test
     void hasProductAccess_should_create_new_product_for_parent() {
@@ -227,6 +259,66 @@ class CustomMethodSecurityExpressionRootTests {
     void should_increase_test_coverage__for_P1_CtF__otherwise_pointless_setReturnObject() {
         security.setReturnObject(new Object());
         assertNull(security.getReturnObject());
+    }
+
+    @Test
+    void isCommentCreator_false_when_commentId_null() {
+        assertFalse(security.isCommentCreator(null));
+    }
+
+    @Test
+    void isCommentCreator_should_return_false() {
+        doReturn(user2).when(userService).getUserBySecContext();
+        when(commentService.findById(anyLong())).thenReturn(comment);
+
+        assertFalse(security.isCommentCreator(8L));
+    }
+
+    @Test
+    void isCommentCreator_should_return_true() {
+        when(commentService.findById(anyLong())).thenReturn(comment);
+
+        assertTrue(security.isCommentCreator(8L));
+    }
+
+    @Test
+    void hasPersonaAccess_false_when_personaId_null_or_no_product() {
+        when(personaService.findById(anyLong())).thenReturn(persona);
+
+        assertFalse(security.hasPersonaAccess(null));
+        assertFalse(security.hasPersonaAccess(9L));
+    }
+
+    @Test
+    void hasPersonaAccess_true_when_hasProductAccess(){
+        var persona2 = new Persona();
+        BeanUtils.copyProperties(persona, persona2);
+        persona2.setProduct(product);
+
+        when(personaService.findById(anyLong())).thenReturn(persona2);
+        doReturn(true).when(security).hasProductAccess(anyLong());
+
+        assertTrue(security.hasPersonaAccess(9L));
+    }
+
+    @Test
+    void hasFeatureAccess_false_when_featureId_null_or_no_product() {
+        when(featureService.findById(anyLong())).thenReturn(feature);
+
+        assertFalse(security.hasFeatureAccess(null));
+        assertFalse(security.hasFeatureAccess(10L));
+    }
+
+    @Test
+    void hasFeatureAccess_true_when_hasProductAccess(){
+        var feature2 = new Feature();
+        BeanUtils.copyProperties(feature, feature2);
+        feature2.setProduct(product);
+
+        when(featureService.findById(anyLong())).thenReturn(feature2);
+        doReturn(true).when(security).hasProductAccess(anyLong());
+
+        assertTrue(security.hasFeatureAccess(10L));
     }
 
 }

@@ -26,7 +26,7 @@ public class RoadmapService extends AbstractCRUDService<Roadmap, RoadmapDTO, Roa
     }
 
     @Autowired
-    public void setUserService(ProductService productService) { this.productService = productService; }
+    public void setProductService(ProductService productService) { this.productService = productService; }
 
     @Transactional
     public List<Roadmap> bulkUpdate(List<UpdateRoadmapDTO> dtos) {

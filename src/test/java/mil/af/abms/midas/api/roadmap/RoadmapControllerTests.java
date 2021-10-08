@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,8 +29,6 @@ class RoadmapControllerTests extends ControllerTestHarness {
 
     @MockBean
     private RoadmapService roadmapService;
-
-    private final static LocalDateTime CREATION_DATE = LocalDateTime.now();
 
     private final UpdateRoadmapDTO updateRoadmapDTO = new UpdateRoadmapDTO(
             "Do cool things", "awesome stuff", RoadmapStatus.COMPLETE, 0, 1L, "2021-10-10"

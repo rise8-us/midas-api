@@ -24,32 +24,43 @@ import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.team.TeamService;
+import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @Service
 public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, ProjectRepository> {
 
-    private final TeamService teamService;
-    private final TagService tagService;
-    private final SourceControlService sourceControlService;
-    private final SimpMessageSendingOperations websocket;
-
+    private TeamService teamService;
+    private UserService userService;
+    private TagService tagService;
+    private SourceControlService sourceControlService;
     private ProductService productService;
     private CoverageService coverageService;
+    private final SimpMessageSendingOperations websocket;
+
+    public ProjectService(ProjectRepository repository, SimpMessageSendingOperations websocket) {
+        super(repository, Project.class, ProjectDTO.class);
+        this.websocket = websocket;
+    }
 
     @Autowired
-    public ProjectService(
-            SourceControlService sourceControlService,
-            ProjectRepository repository,
-            TeamService teamService,
-            TagService tagService,
-            SimpMessageSendingOperations websocket
-    ) {
-        super(repository, Project.class, ProjectDTO.class);
-        this.sourceControlService = sourceControlService;
+    public void setTeamService(TeamService teamService) {
         this.teamService = teamService;
+    }
+
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Autowired
+    public void setTagService(TagService tagService) {
         this.tagService = tagService;
-        this.websocket = websocket;
+    }
+
+    @Autowired
+    public void setSourceControlService(SourceControlService sourceControlService) {
+        this.sourceControlService = sourceControlService;
     }
 
     @Autowired
@@ -73,6 +84,7 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
                 .with(p -> p.setTeam(teamService.findByIdOrNull(dto.getTeamId())))
                 .with(p -> p.setGitlabProjectId(dto.getGitlabProjectId()))
                 .with(p -> p.setSourceControl(sourceControlService.findByIdOrNull(dto.getSourceControlId())))
+                .with(p -> p.setOwner(userService.getUserBySecContext()))
                 .get();
 
         var createdProject = repository.save(newProject);

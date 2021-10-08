@@ -24,7 +24,7 @@ import mil.af.abms.midas.api.helper.TimeConversion;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.user.UserService;
-import mil.af.abms.midas.enums.AssertionStatus;
+import mil.af.abms.midas.enums.ProgressionStatus;
 
 @Service
 public class AssertionService extends AbstractCRUDService<Assertion, AssertionDTO, AssertionRepository> {
@@ -59,7 +59,7 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
         Assertion newAssertion = Builder.build(Assertion.class)
                 .with(a -> a.setText(dto.getText()))
                 .with(a -> a.setType(dto.getType()))
-                .with(a -> a.setStatus(AssertionStatus.NOT_STARTED))
+                .with(a -> a.setStatus(ProgressionStatus.NOT_STARTED))
                 .with(a -> a.setProduct(productService.findById(dto.getProductId())))
                 .with(a -> a.setParent(findByIdOrNull(dto.getParentId())))
                 .with(a -> a.setCreatedBy(userService.getUserBySecContext()))
@@ -108,23 +108,9 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
         repository.deleteById(id);
     }
 
-    public List<BlockerAssertionDTO> getBlockerAssertionsByProductId(Long productId) {
-        var product = productService.findById(productId);
-        List<Assertion> assertions = repository.findAll(AssertionSpecifications.hasProductId(productId)
-                .and(AssertionSpecifications.hasStatus(AssertionStatus.BLOCKED)
-                        .or(AssertionSpecifications.hasStatus(AssertionStatus.AT_RISK))));
-
-        var blockers = convertAssertionsToBlockerAssertionDTOs(assertions);
-        blockers.addAll(product.getChildren().stream().map(p ->
-                getBlockerAssertionsByProductId(p.getId())).flatMap(List::stream).collect(Collectors.toList())
-        );
-
-        return blockers;
-    }
-
     public List<BlockerAssertionDTO> getAllBlockerAssertions() {
-        List<Assertion> assertions = repository.findAll(AssertionSpecifications.hasStatus(AssertionStatus.BLOCKED)
-                .or(AssertionSpecifications.hasStatus(AssertionStatus.AT_RISK)));
+        List<Assertion> assertions = repository.findAll(AssertionSpecifications.hasStatus(ProgressionStatus.BLOCKED)
+                .or(AssertionSpecifications.hasStatus(ProgressionStatus.AT_RISK)));
 
         return this.convertAssertionsToBlockerAssertionDTOs(assertions);
     }
@@ -153,21 +139,21 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
     }
 
     protected void updateParentIfAllSiblingsComplete(Assertion assertion) {
-        if (assertion.getParent() == null ) return;
+        if (assertion.getParent() == null) return;
         var parent =  assertion.getParent();
         var isComplete = parent.getChildren().stream().filter(
-                c -> c.getStatus().equals(AssertionStatus.COMPLETED)).count() == parent.getChildren().size();
+                c -> c.getStatus().equals(ProgressionStatus.COMPLETED)).count() == parent.getChildren().size();
        if (isComplete) {
-           parent.setStatus(AssertionStatus.COMPLETED);
+           parent.setStatus(ProgressionStatus.COMPLETED);
            updateParentIfAllSiblingsComplete(parent);
            repository.save(parent);
        }
     }
 
     protected void updateChildrenToCompletedIfParentComplete(Assertion assertion) {
-        if (AssertionStatus.COMPLETED.equals(assertion.getStatus())) {
+        if (ProgressionStatus.COMPLETED.equals(assertion.getStatus())) {
             assertion.getChildren().forEach(childAssertion -> {
-            	childAssertion.setStatus(AssertionStatus.COMPLETED);
+                childAssertion.setStatus(ProgressionStatus.COMPLETED);
                 updateChildrenToCompletedIfParentComplete(childAssertion);
                 repository.save(childAssertion);
             });

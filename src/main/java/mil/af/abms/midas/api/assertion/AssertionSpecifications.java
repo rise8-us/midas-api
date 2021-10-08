@@ -2,7 +2,7 @@ package mil.af.abms.midas.api.assertion;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import mil.af.abms.midas.enums.AssertionStatus;
+import mil.af.abms.midas.enums.ProgressionStatus;
 
 public class AssertionSpecifications {
 
@@ -14,7 +14,7 @@ public class AssertionSpecifications {
         return (root, query, cb) -> cb.equal(root.get("product").get("id"), id);
     }
 
-    public static Specification<Assertion> hasStatus(AssertionStatus status) {
+    public static Specification<Assertion> hasStatus(ProgressionStatus status) {
         return (root, query, cb) -> cb.equal(root.get("status"), status);
     }
 }

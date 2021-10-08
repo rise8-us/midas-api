@@ -32,6 +32,7 @@ public class PersonaService extends AbstractCRUDService<Persona, PersonaDTO, Per
     public List<Persona> bulkUpdate(List<UpdatePersonaDTO> dtos) {
         return dtos.stream().map(r -> updateById(r.getId(), r)).collect(Collectors.toList());
     }
+
     @Transactional
     public Persona create(CreatePersonaDTO dto) {
         Persona newPersona = Builder.build(Persona.class)

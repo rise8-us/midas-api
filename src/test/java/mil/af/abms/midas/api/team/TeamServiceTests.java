@@ -14,6 +14,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +22,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.team.dto.CreateTeamDTO;
 import mil.af.abms.midas.api.team.dto.UpdateTeamDTO;
@@ -38,12 +40,17 @@ class TeamServiceTests {
     @MockBean
     UserService userService;
     @MockBean
+    SimpMessageSendingOperations websocket;
+    @MockBean
     ProductService productService;
     @MockBean
     TeamRepository teamRepository;
     @Captor
     ArgumentCaptor<Team> teamCaptor;
 
+    Product product = Builder.build(Product.class)
+            .with(p -> p.setId(42L))
+            .get();
     User user = Builder.build(User.class)
             .with(u -> u.setUsername("foo"))
             .with(u -> u.setKeycloakUid("abc-123"))
@@ -58,24 +65,27 @@ class TeamServiceTests {
 
     @Test
     void should_create_team() {
-        CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 2L, "dev team", Set.of(3L), 3L, 3L, 3L, Set.of());
+        CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 2L, "dev team", Set.of(3L), 3L, 3L, 3L, Set.of(42L));
 
         when(userService.findById(3L)).thenReturn(user);
         when(userService.findByIdOrNull(3L)).thenReturn(user);
         when(teamRepository.save(team)).thenReturn(new Team());
+        when(productService.findById(42L)).thenReturn(product);
 
         teamService.create(createTeamDTO);
 
         verify(teamRepository, times(1)).save(teamCaptor.capture());
-        Team teamSaved = teamCaptor.getValue();
+        verify(websocket, times(1)).convertAndSend("/topic/update_product", product.toDto());
 
-        assertThat(teamSaved.getName()).isEqualTo(createTeamDTO.getName());
-        assertThat(teamSaved.getGitlabGroupId()).isEqualTo(createTeamDTO.getGitlabGroupId());
-        assertThat(teamSaved.getDescription()).isEqualTo(createTeamDTO.getDescription());
-        assertThat(teamSaved.getMembers()).isEqualTo(users);
-        assertThat(teamSaved.getProductManager()).isEqualTo(user);
-        assertThat(teamSaved.getDesigner()).isEqualTo(user);
-        assertThat(teamSaved.getTechLead()).isEqualTo(user);
+        assertThat(teamCaptor.getValue().getName()).isEqualTo(createTeamDTO.getName());
+        assertThat(teamCaptor.getValue().getGitlabGroupId()).isEqualTo(createTeamDTO.getGitlabGroupId());
+        assertThat(teamCaptor.getValue().getDescription()).isEqualTo(createTeamDTO.getDescription());
+        assertThat(teamCaptor.getValue().getMembers()).isEqualTo(users);
+        assertThat(teamCaptor.getValue().getProductManager()).isEqualTo(user);
+        assertThat(teamCaptor.getValue().getDesigner()).isEqualTo(user);
+        assertThat(teamCaptor.getValue().getTechLead()).isEqualTo(user);
+        assertThat(teamCaptor.getValue().getProducts()).isEqualTo(Set.of(product));
+
     }
 
     @Test

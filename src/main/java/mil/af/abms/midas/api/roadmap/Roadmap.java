@@ -27,7 +27,7 @@ import mil.af.abms.midas.enums.RoadmapStatus;
 @Table(name = "roadmap")
 public class Roadmap extends AbstractEntity<RoadmapDTO> {
 
-    @Column(nullable = false, columnDefinition = "VARCHAR(70)")
+    @Column(nullable = false, columnDefinition = "VARCHAR(255)")
     private String title;
 
     @Enumerated(EnumType.STRING)

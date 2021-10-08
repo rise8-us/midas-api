@@ -36,11 +36,6 @@ public class AssertionController extends AbstractCRUDController<Assertion, Asser
         return service.getAllBlockerAssertions();
     }
 
-    @GetMapping("/blockers/{productId}")
-    public List<BlockerAssertionDTO> getBlockerAssertionsByProductId(@PathVariable Long productId) {
-        return service.getBlockerAssertionsByProductId(productId);
-    }
-
     @PostMapping
     @HasOGSMCreateAccess
     public AssertionDTO create(@Valid @RequestBody CreateAssertionDTO createAssertionDTO) {

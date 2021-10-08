@@ -12,6 +12,7 @@ custom:
   key: ${KEY:${MYSQL_DB_ADMIN_PASSWORD}}
   salt: ${SALT:${MYSQL_HOST}}
   allowedOrigin: ${ALLOWED_ORIGIN:*dso.mil}
+  dbName: ${MYSQL_DB_NAME}
 
 
 server:

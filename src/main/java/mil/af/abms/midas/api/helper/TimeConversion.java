@@ -1,5 +1,6 @@
 package mil.af.abms.midas.api.helper;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -23,15 +24,15 @@ public final class TimeConversion {
     public static final DateTimeFormatter  YEAR_MONTH_DAY_TIME_FORMAT = DateTimeFormatter.ofPattern(YEAR_MONTH_DAY_TIME_PATTERN);
     public static final DateTimeFormatter  YEAR_MONTH_DAY_FORMAT = new DateTimeFormatterBuilder()
             .appendPattern(YEAR_MONTH_DAY_PATTERN)
-            .parseDefaulting(ChronoField.HOUR_OF_DAY,0)
+            .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
             .toFormatter();
     public static final DateTimeFormatter YEAR_MONTH_FORMAT = new DateTimeFormatterBuilder()
             .appendPattern(YEAR_MONTH_PATTERN)
             .parseDefaulting(ChronoField.DAY_OF_MONTH, 1)
-            .parseDefaulting(ChronoField.HOUR_OF_DAY,0)
+            .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
             .toFormatter();
 
-    private static final Map<Integer,DateTimeFormatter> formatters = Map.ofEntries(
+    private static final Map<Integer, DateTimeFormatter> formatters = Map.ofEntries(
             Map.entry(7, YEAR_MONTH_FORMAT),
             Map.entry(10, YEAR_MONTH_DAY_FORMAT),
             Map.entry(19, YEAR_MONTH_DAY_TIME_FORMAT)
@@ -50,7 +51,7 @@ public final class TimeConversion {
     private static LocalDateTime timeFromString(String value) {
 
         try {
-            return LocalDateTime.parse(value, formatters.getOrDefault(value.length(),YEAR_MONTH_DAY_TIME_FORMAT));
+            return LocalDateTime.parse(value, formatters.getOrDefault(value.length(), YEAR_MONTH_DAY_TIME_FORMAT));
         } catch (DateTimeParseException e) {
             throw new InvalidInputParameterException(
                     String.format("Improperly formatted LocalDateTime String, must be %s, %s, %s", YEAR_MONTH_PATTERN, YEAR_MONTH_DAY_PATTERN, YEAR_MONTH_DAY_TIME_PATTERN)
@@ -58,5 +59,18 @@ public final class TimeConversion {
         }
     }
 
+    public static LocalDate getLocalDateOrNullFromObject(Object data) {
+        return Optional.ofNullable(data)
+                .map(String::valueOf)
+                .map(LocalDate::parse)
+                .orElse(null);
+    }
+
+    public static LocalDateTime getLocalDateTimeOrNullFromObject(Object data) {
+        return Optional.ofNullable(data)
+                .map(String::valueOf)
+                .map(LocalDateTime::parse)
+                .orElse(null);
+    }
 
 }

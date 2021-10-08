@@ -19,6 +19,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,9 @@ import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
+import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.tag.TagService;
+import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
@@ -49,6 +52,8 @@ class ProductServiceTests {
     ProductService productService;
     @MockBean
     SourceControlService sourceControlService;
+    @MockBean
+    SimpMessageSendingOperations websocket;
     @MockBean
     UserService userService;
     @MockBean
@@ -103,7 +108,7 @@ class ProductServiceTests {
         Product productSaved = productCaptor.getValue();
 
         assertThat(productSaved.getName()).isEqualTo(createProductDTO.getName());
-        assertThat(productSaved.getProductManager().getId()).isEqualTo(createProductDTO.getProductManagerId());
+        assertThat(productSaved.getOwner().getId()).isEqualTo(createProductDTO.getOwnerId());
         assertThat(productSaved.getDescription()).isEqualTo(createProductDTO.getDescription());
         assertThat(productSaved.getChildren()).isEqualTo(Set.of(child));
         assertThat(productSaved.getType()).isEqualTo(ProductType.PRODUCT);
@@ -147,7 +152,7 @@ class ProductServiceTests {
         Product productSaved = productCaptor.getValue();
 
         assertThat(productSaved.getName()).isEqualTo(updateProductDTO.getName());
-        assertThat(productSaved.getProductManager().getId()).isEqualTo(updateProductDTO.getProductManagerId());
+        assertThat(productSaved.getOwner().getId()).isEqualTo(updateProductDTO.getOwnerId());
         assertThat(productSaved.getDescription()).isEqualTo(updateProductDTO.getDescription());
         assertThat(productSaved.getProjects()).isEqualTo(Set.of(project));
         assertThat(productSaved.getGitlabGroupId()).isEqualTo(updateProductDTO.getGitlabGroupId());
@@ -155,6 +160,35 @@ class ProductServiceTests {
         assertThat(productSaved.getMission()).isEqualTo(updateProductDTO.getMission());
         assertThat(productSaved.getProblemStatement()).isEqualTo(updateProductDTO.getProblemStatement());
         assertThat(productSaved.getSourceControl()).isEqualTo(sourceControl);
+    }
+
+    @Test
+    void should_send_websocket_when_team_or_tag_is_updated() {
+        var team = Builder.build(Team.class)
+                .with(t -> t.setId(4L))
+                .get();
+        var tag = Builder.build(Tag.class)
+                .with(t -> t.setId(6L))
+                .get();
+        var updateProductDTO = Builder.build(UpdateProductDTO.class)
+                .with(d -> d.setTagIds(Set.of(6L)))
+                .with(d -> d.setTeamIds(Set.of(4L)))
+                .with(d -> d.setProjectIds(Set.of()))
+                .with(d -> d.setChildIds(Set.of()))
+                .get();
+
+        when(tagService.findById(tag.getId())).thenReturn(tag);
+        when(teamService.findById(team.getId())).thenReturn(team);
+        when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
+        when(productRepository.save(product)).thenReturn(product);
+
+        productService.updateById(5L, updateProductDTO);
+
+        verify(productRepository, times(1)).save(productCaptor.capture());
+        verify(websocket, times(1)).convertAndSend("/topic/update_team", team.toDto());
+
+        assertThat(productCaptor.getValue().getTeams()).isEqualTo(Set.of(team));
+        assertThat(productCaptor.getValue().getTags()).isEqualTo(Set.of(tag));
     }
 
     @Test
@@ -190,7 +224,7 @@ class ProductServiceTests {
 
         verify(productRepository, times(1)).save(productCaptor.capture());
         Product productSaved = productCaptor.getValue();
-        assertThat(productSaved.getProductManager()).isNull();
+        assertThat(productSaved.getOwner()).isNull();
         assertThat(productSaved.getParent()).isNull();
     }
 
@@ -207,7 +241,7 @@ class ProductServiceTests {
         verify(productRepository, times(1)).save(productCaptor.capture());
         Product productSaved = productCaptor.getValue();
 
-        assertThat(productSaved.getProductManager()).isNull();
+        assertThat(productSaved.getOwner()).isNull();
         assertThat(productSaved.getParent()).isNull();
     }
 
@@ -218,6 +252,21 @@ class ProductServiceTests {
 
         verify(productService, times(2)).addParentToChild(any(), any());
         verify(productRepository, times(2)).save(any());
+    }
+
+    @Test
+    void should_remove_inverse_relationship(){
+        var team = new Team();
+        team.setId(42L);
+        var originalProduct = new Product();
+        originalProduct.setId(1L);
+        originalProduct.getTeams().add(team);
+        var updatedProduct = new Product();
+        updatedProduct.setTeams(Set.of());
+
+        productService.updateTeamRemovedFromProduct(originalProduct, updatedProduct);
+
+        verify(websocket, times(1)).convertAndSend("/topic/update_team", team.toDto());
     }
 
 }

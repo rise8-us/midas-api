@@ -43,6 +43,8 @@ import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.team.TeamService;
+import mil.af.abms.midas.api.user.User;
+import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.config.CustomProperty;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
@@ -68,6 +70,8 @@ class ProjectServiceTests {
     ProjectRepository projectRepository;
     @MockBean
     SimpMessageSendingOperations websocket;
+    @MockBean
+    UserService userService;
 
     @Captor
     ArgumentCaptor<Project> projectCaptor;
@@ -99,6 +103,9 @@ class ProjectServiceTests {
             .get();
     private final Coverage coverage = Builder.build(Coverage.class)
             .with(c -> c.setId(4L))
+            .get();
+    private final User user = Builder.build(User.class)
+            .with(u -> u.setId(5L))
             .get();
 
     @Test

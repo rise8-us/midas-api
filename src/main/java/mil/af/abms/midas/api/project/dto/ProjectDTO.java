@@ -28,5 +28,6 @@ public class ProjectDTO implements AbstractDTO {
     private Long productId;
     private CoverageDTO coverage;
     private Long sourceControlId;
+    private Long ownerId;
 
 }

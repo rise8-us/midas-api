@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
@@ -32,15 +31,12 @@ public class SourceControlControllerTests extends ControllerTestHarness {
     @MockBean
     private SourceControlService sourceControlService;
     
-    private static final LocalDateTime CREATION_DATE = LocalDateTime.now();
-    
     private final SourceControl sourceControl = Builder.build(SourceControl.class)
             .with(g -> g.setId(1L))
             .with(g -> g.setToken("foobarbaz"))
             .with(g -> g.setName("bar"))
             .with(g -> g.setDescription("foo"))
             .with(g -> g.setBaseUrl("http://foo.bar"))
-            .with(g -> g.setCreationDate(CREATION_DATE))
             .get();
     private final CreateUpdateSourceControlDTO cDto = Builder.build(CreateUpdateSourceControlDTO.class)
             .with(d -> d.setToken("foobarbaz"))

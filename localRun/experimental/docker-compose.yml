@@ -1,0 +1,36 @@
+version: '3.7'
+
+services:
+  db:
+    platform: linux/x86_64
+    image: mysql:8.0.21
+    restart: unless-stopped
+    container_name: app-db
+    ports:
+      - ${MYSQL_PORT:-3306}:3306
+    volumes:
+      - ./mysql/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+      - MYSQL_ROOT_PASSWORD=password
+
+  sso:
+    image: jboss/keycloak:10.0.2
+    restart: always
+    ports:
+      - 10000:8080
+    volumes:
+      - ./keycloak/p1.json:/tmp/p1.json
+    command: -Dkeycloak.profile.feature.upload_scripts=enabled
+    environment:
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=password
+      - KEYCLOAK_IMPORT=/tmp/p1.json
+      - DB_VENDOR=h2
+
+  adminer:
+    image: adminer
+    restart: always
+    container_name: app-db-adminer
+    ports:
+      - 8181:8080

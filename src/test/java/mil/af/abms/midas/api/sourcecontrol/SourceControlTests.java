@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.lang.reflect.Field;
-import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,22 +20,19 @@ import mil.af.abms.midas.api.user.User;
 
 class SourceControlTests {
 
-    private static final LocalDateTime CREATION_DATE = LocalDateTime.now();
-
     private final SourceControl sourceControl = Builder.build(SourceControl.class)
             .with(g -> g.setId(1L))
             .with(g -> g.setToken("foobarbaz"))
             .with(g -> g.setName("bar"))
             .with(g -> g.setDescription("foo"))
             .with(g -> g.setBaseUrl("http://foo.bar"))
-            .with(g -> g.setCreationDate(CREATION_DATE))
             .get();
     private final SourceControlDTO sourceControlDTO = Builder.build(SourceControlDTO.class)
             .with(d -> d.setId(1L))
             .with(d -> d.setName("bar"))
             .with(d -> d.setDescription("foo"))
             .with(d -> d.setBaseUrl("http://foo.bar"))
-            .with(d -> d.setCreationDate(CREATION_DATE))
+            .with(d -> d.setCreationDate(sourceControl.getCreationDate()))
             .get();
 
     @Test
@@ -54,7 +50,6 @@ class SourceControlTests {
         assertThat(sourceControl.getName()).isEqualTo("bar");
         assertThat(sourceControl.getBaseUrl()).isEqualTo("http://foo.bar");
         assertThat(sourceControl.getDescription()).isEqualTo("foo");
-        assertThat(sourceControl.getCreationDate()).isEqualTo(CREATION_DATE);
     }
 
     @Test

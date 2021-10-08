@@ -29,9 +29,9 @@ import mil.af.abms.midas.api.assertion.dto.AssertionDTO;
 import mil.af.abms.midas.api.comment.Comment;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.user.User;
-import mil.af.abms.midas.enums.AssertionStatus;
 import mil.af.abms.midas.enums.AssertionType;
 import mil.af.abms.midas.enums.CompletionType;
+import mil.af.abms.midas.enums.ProgressionStatus;
 
 @Entity @Setter @Getter
 @Table(name = "assertion")
@@ -49,7 +49,7 @@ public class Assertion extends AbstractEntity<AssertionDTO> {
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(70) DEFAULT 'NOT_STARTED'", nullable = false)
-    private AssertionStatus status = AssertionStatus.NOT_STARTED;
+    private ProgressionStatus status = ProgressionStatus.NOT_STARTED;
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(70) DEFAULT 'STRING'", nullable = false)

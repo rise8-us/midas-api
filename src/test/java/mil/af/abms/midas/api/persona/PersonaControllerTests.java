@@ -9,7 +9,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,8 +29,6 @@ class PersonaControllerTests extends ControllerTestHarness {
 
     @MockBean
     private PersonaService personaService;
-
-    private final static LocalDateTime CREATION_DATE = LocalDateTime.now();
 
     private final UpdatePersonaDTO updatePersonaDTO = new UpdatePersonaDTO("JICO", "warfighter", true, 0, 1L);
     private final CreatePersonaDTO createPersonaDTO = new CreatePersonaDTO("JICO", "warfighter", 2L, true, 1);

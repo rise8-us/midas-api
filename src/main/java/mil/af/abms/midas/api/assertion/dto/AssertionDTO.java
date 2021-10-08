@@ -9,9 +9,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.AbstractDTO;
-import mil.af.abms.midas.enums.AssertionStatus;
 import mil.af.abms.midas.enums.AssertionType;
 import mil.af.abms.midas.enums.CompletionType;
+import mil.af.abms.midas.enums.ProgressionStatus;
 
 @Data
 @NoArgsConstructor
@@ -26,7 +26,7 @@ public class AssertionDTO implements AbstractDTO {
     private String text;
 
     private AssertionType type;
-    private AssertionStatus status;
+    private ProgressionStatus status;
 
     private Set<Long> commentIds;
     private List<AssertionDTO> children;
