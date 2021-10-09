@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import mil.af.abms.midas.api.helper.JsonMapper;
 import mil.af.abms.midas.clients.gitlab.models.EpicConversion;
 
-class GitlabEpicTests {
+class EpicConversionTests {
 
     @Test
     void can_map_from_JSON() throws IOException {

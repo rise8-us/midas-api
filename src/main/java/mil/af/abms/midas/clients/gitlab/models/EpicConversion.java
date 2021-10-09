@@ -30,9 +30,6 @@ public class EpicConversion {
 
     @JsonCreator
     public EpicConversion(
-            @JsonProperty("iid") Integer epicId,
-            @JsonProperty("title") String title,
-            @JsonProperty("description") String description,
             @JsonProperty("state") String state,
             @JsonProperty("web_url") String webUrl,
             @JsonProperty("start_date") LocalDate startDate,
@@ -41,9 +38,7 @@ public class EpicConversion {
             @JsonProperty("due_date_from_inherited_source") LocalDate dueDateFromInheritedSource,
             @JsonProperty("closed_at") LocalDateTime closedAt
     ) {
-        this.epicIid = epicId;
-        this.title = title;
-        this.description = description;
+
         this.state = state;
         this.webUrl = webUrl;
         this.startDate = startDate;
@@ -57,6 +52,20 @@ public class EpicConversion {
     private void unpackNestedLinks(Map<String,Object> links) {
         this.selfApi = (String)links.get("self");
         this.epicIssuesApi = (String)links.get("epic_issues");
+    }
+
+    @JsonProperty("iid")
+    private void unPackIid(Integer iid) {
+        this.epicIid = iid;
+    }
+
+    @JsonProperty("title")
+    private void unPackTitle(String title) {
+        this.title = title;
+    }
+    @JsonProperty("description")
+    private void unPackDescription(String description) {
+        this.description = description;
     }
 
 }
