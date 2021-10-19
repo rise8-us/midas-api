@@ -40,6 +40,9 @@ public final class AuthExpression {
     // Feature
     public static final String HAS_FEATURE_ACCESS = "hasFeatureAccess(#id)" + OR + IS_ADMIN;
 
+    // Epic
+    public static final String HAS_EPIC_HIDE_ACCESS = "hasEpicHideAccess(#id)" + OR + IS_ADMIN;
+
     private AuthExpression() {
         throw new IllegalStateException("Utility Class");
     }

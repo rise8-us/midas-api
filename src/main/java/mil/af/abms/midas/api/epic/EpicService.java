@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.dtos.AddGitLabEpicDTO;
+import mil.af.abms.midas.api.dtos.IsHiddenDTO;
 import mil.af.abms.midas.api.epic.dto.EpicDTO;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
@@ -51,6 +52,14 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
         return syncEpic(epicConversion, foundEpic);
     }
 
+    public Epic updateIsHidden(Long id, IsHiddenDTO dto) {
+        Epic epic = findById(id);
+
+        epic.setIsHidden(dto.getIsHidden());
+
+        return repository.save(epic);
+    }
+
     public Set<Epic> getAllGitlabEpicsForProduct(Long productId) {
         var product = productService.findById(productId);
         var epicConversions = getGitlabClient(product)
@@ -77,7 +86,7 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
     protected Long generateUniqueId(Product product, Integer epicIId) {
         var sourceControlId = product.getSourceControl().getId();
         var groupId = product.getGitlabGroupId();
-        return Long.parseLong(String.format("%d%d%d", sourceControlId , groupId, epicIId));
+        return Long.parseLong(String.format("%d%d%d", sourceControlId, groupId, epicIId));
     }
 
     protected EpicConversion getEpicFromClient(Product product, Integer epicIid) {
@@ -105,4 +114,5 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
         epic.setSyncedAt(LocalDateTime.now());
         return repository.save(epic);
     }
+
 }

@@ -27,6 +27,8 @@ import mil.af.abms.midas.api.assertion.Assertion;
 import mil.af.abms.midas.api.assertion.AssertionService;
 import mil.af.abms.midas.api.comment.Comment;
 import mil.af.abms.midas.api.comment.CommentService;
+import mil.af.abms.midas.api.epic.Epic;
+import mil.af.abms.midas.api.epic.EpicService;
 import mil.af.abms.midas.api.feature.Feature;
 import mil.af.abms.midas.api.feature.FeatureService;
 import mil.af.abms.midas.api.helper.Builder;
@@ -69,6 +71,8 @@ class CustomMethodSecurityExpressionRootTests {
     PersonaService personaService;
     @MockBean
     FeatureService featureService;
+    @MockBean
+    EpicService epicService;
 
     Assertion assertion = Builder.build(Assertion.class)
             .with(a -> a.setId(7L))
@@ -103,6 +107,9 @@ class CustomMethodSecurityExpressionRootTests {
             .get();
     Feature feature = Builder.build(Feature.class)
             .with(f -> f.setId(10L))
+            .get();
+    Epic epic = Builder.build(Epic.class)
+            .with(e -> e.setId(11L))
             .get();
 
     @BeforeEach
@@ -290,7 +297,7 @@ class CustomMethodSecurityExpressionRootTests {
     }
 
     @Test
-    void hasPersonaAccess_true_when_hasProductAccess(){
+    void hasPersonaAccess_true_when_hasProductAccess() {
         var persona2 = new Persona();
         BeanUtils.copyProperties(persona, persona2);
         persona2.setProduct(product);
@@ -310,7 +317,7 @@ class CustomMethodSecurityExpressionRootTests {
     }
 
     @Test
-    void hasFeatureAccess_true_when_hasProductAccess(){
+    void hasFeatureAccess_true_when_hasProductAccess() {
         var feature2 = new Feature();
         BeanUtils.copyProperties(feature, feature2);
         feature2.setProduct(product);
@@ -319,6 +326,26 @@ class CustomMethodSecurityExpressionRootTests {
         doReturn(true).when(security).hasProductAccess(anyLong());
 
         assertTrue(security.hasFeatureAccess(10L));
+    }
+
+    @Test
+    void hasEpicHideAccess_false_when_epicId_null_or_no_product() {
+        when(epicService.findById(anyLong())).thenReturn(epic);
+
+        assertFalse(security.hasEpicHideAccess(null));
+        assertFalse(security.hasEpicHideAccess(11L));
+    }
+
+    @Test
+    void hasEpicHideAccess_true_when_hasProductAccess() {
+        var epic2 = new Epic();
+        BeanUtils.copyProperties(epic, epic2);
+        epic2.setProduct(product);
+
+        when(epicService.findById(anyLong())).thenReturn(epic2);
+        doReturn(true).when(security).hasProductAccess(anyLong());
+
+        assertTrue(security.hasEpicHideAccess(11L));
     }
 
 }

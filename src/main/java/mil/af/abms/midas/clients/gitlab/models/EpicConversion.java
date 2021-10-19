@@ -36,9 +36,9 @@ public class EpicConversion {
     private String epicIssuesApi;
 
     @JsonProperty("_links")
-    private void unpackNestedLinks(Map<String,Object> links) {
-        this.selfApi = (String)links.get("self");
-        this.epicIssuesApi = (String)links.get("epic_issues");
+    private void unpackNestedLinks(Map<String, Object> links) {
+        this.selfApi = (String) links.get("self");
+        this.epicIssuesApi = (String) links.get("epic_issues");
     }
 
 }

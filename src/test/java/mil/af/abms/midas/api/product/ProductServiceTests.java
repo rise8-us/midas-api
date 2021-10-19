@@ -255,7 +255,7 @@ class ProductServiceTests {
     }
 
     @Test
-    void should_remove_inverse_relationship(){
+    void should_remove_inverse_relationship() {
         var team = new Team();
         team.setId(42L);
         var originalProduct = new Product();
