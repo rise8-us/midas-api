@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import mil.af.abms.midas.api.assertion.Assertion;
 import mil.af.abms.midas.api.assertion.AssertionService;
 import mil.af.abms.midas.api.comment.CommentService;
+import mil.af.abms.midas.api.epic.EpicService;
 import mil.af.abms.midas.api.feature.FeatureService;
 import mil.af.abms.midas.api.persona.PersonaService;
 import mil.af.abms.midas.api.product.Product;
@@ -27,6 +28,7 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
     private static CommentService commentService() { return SpringContext.getBean(CommentService.class); }
     private static PersonaService personaService() { return SpringContext.getBean(PersonaService.class); }
     private static FeatureService featureService() { return SpringContext.getBean(FeatureService.class); }
+    private static EpicService epicService() { return SpringContext.getBean(EpicService.class); }
 
     public CustomMethodSecurityExpressionRoot(Authentication authentication) {
         super(authentication);
@@ -86,8 +88,15 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
     public boolean hasFeatureAccess(Long featureId) {
         if (featureId == null) { return false; }
         var featureBeingAccessed = featureService().findById(featureId);
-        if(featureBeingAccessed.getProduct() == null) { return false; }
+        if (featureBeingAccessed.getProduct() == null) { return false; }
         return hasProductAccess(featureBeingAccessed.getProduct().getId());
+    }
+
+    public boolean hasEpicHideAccess(Long epicId) {
+        if (epicId == null) { return false; }
+        var epicBeingAccessed = epicService().findById(epicId);
+        if (epicBeingAccessed.getProduct() == null) { return false; }
+        return hasProductAccess(epicBeingAccessed.getProduct().getId());
     }
 
     @Override

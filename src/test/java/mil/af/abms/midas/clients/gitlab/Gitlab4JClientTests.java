@@ -167,7 +167,7 @@ class Gitlab4JClientTests {
 
         doReturn(testResponse).when(client).requestGet(anyString(), anyString());
 
-        if(isOk) {
+        if (isOk) {
             assertThat(client.getEpicFromGroup(sourceControl, 1, 2).getEpicIid()).isEqualTo(42);
         } else {
             assertThrows(HttpClientErrorException.class, () -> client.getEpicFromGroup(sourceControl, 1, 2));
@@ -180,9 +180,9 @@ class Gitlab4JClientTests {
         ResponseEntity<String> testResponse = new ResponseEntity<>(response, HttpStatus.valueOf(status));
         doReturn(testResponse).when(client).requestGet(anyString(), anyString());
 
-        if(response.equals("[{\"iid\":42}]")) {
+        if (response.equals("[{\"iid\":42}]")) {
             assertThat(client.getEpicsFromGroup(sourceControl, 1).get(0).getEpicIid()).isEqualTo(42);
-        } else if (response.equals("---")){
+        } else if (response.equals("---")) {
             assertThrows(GitApiException.class, () ->  client.getEpicsFromGroup(sourceControl, 1));
         } else {
             assertThrows(HttpClientErrorException.class, () -> client.getEpicsFromGroup(sourceControl, 1));

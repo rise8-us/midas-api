@@ -17,6 +17,7 @@ public class EpicDTO implements AbstractDTO {
     private Long id;
     private String title;
     private String description;
+    private Boolean isHidden;
     private LocalDateTime creationDate;
     private LocalDate startDate;
     private LocalDate startDateFromInheritedSource;

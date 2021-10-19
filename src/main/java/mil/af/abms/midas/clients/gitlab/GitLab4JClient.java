@@ -120,7 +120,7 @@ public class GitLab4JClient {
         if (response.getStatusCode().equals(HttpStatus.OK))
             try {
                 var epicArray = JsonMapper.dateMapper().readTree(response.getBody());
-                for(var epic : epicArray) {
+                for (var epic : epicArray) {
                     epics.add(mapEpicFromJson(epic.toString()));
                 }
                return epics;

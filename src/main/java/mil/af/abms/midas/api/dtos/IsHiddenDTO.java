@@ -11,9 +11,9 @@ import mil.af.abms.midas.api.AbstractDTO;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class IsArchivedDTO implements AbstractDTO {
+public class IsHiddenDTO implements AbstractDTO {
 
     @NotNull
-    private Boolean isArchived;
+    private Boolean isHidden;
 
 }

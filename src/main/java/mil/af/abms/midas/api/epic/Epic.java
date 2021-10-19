@@ -38,6 +38,9 @@ public class Epic extends AbstractEntity<EpicDTO> {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(columnDefinition = "BIT(1) DEFAULT 0")
+    private Boolean isHidden;
+
     @Column(columnDefinition = "DATE")
     @JsonFormat(pattern = "yyyy-MM-dd")
     @JsonDeserialize(using = LocalDateDeserializer.class)
@@ -101,6 +104,7 @@ public class Epic extends AbstractEntity<EpicDTO> {
             id,
             title,
             description,
+            isHidden,
             creationDate,
             startDate,
             startDateFromInheritedSource,

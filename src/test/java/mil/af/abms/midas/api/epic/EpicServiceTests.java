@@ -26,6 +26,7 @@ import org.mockito.Captor;
 import org.mockito.Mockito;
 
 import mil.af.abms.midas.api.dtos.AddGitLabEpicDTO;
+import mil.af.abms.midas.api.dtos.IsHiddenDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
@@ -140,6 +141,21 @@ class EpicServiceTests {
     @Test
     void can_add_Epic_returns_false() {
         assertFalse(epicService.canAddEpic(foundEpic.getEpicIid(), foundProduct));
+    }
+
+    @Test
+    void should_update_isHidden() {
+        IsHiddenDTO isHiddenDTO = new IsHiddenDTO(true);
+
+        when(repository.findById(6L)).thenReturn(Optional.of(foundEpic));
+        when(repository.save(foundEpic)).thenReturn(foundEpic);
+
+        epicService.updateIsHidden(6L, isHiddenDTO);
+
+        verify(repository, times(1)).save(captor.capture());
+        Epic epicSaved = captor.getValue();
+
+        assertThat(epicSaved.getIsHidden()).isEqualTo(isHiddenDTO.getIsHidden());
     }
 
 }
