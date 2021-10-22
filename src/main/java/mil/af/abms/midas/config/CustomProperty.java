@@ -25,7 +25,7 @@ public class CustomProperty {
             @DefaultValue("midas-IL2-admin") String jwtAdminGroup,
             String key,
             String salt
-    ) {
+) {
 
         this.classification = classification;
         this.caveat = caveat;
@@ -33,7 +33,6 @@ public class CustomProperty {
         this.jwtAdminGroup = jwtAdminGroup;
         this.key = key;
         this.salt = salt;
-
     }
 
 }

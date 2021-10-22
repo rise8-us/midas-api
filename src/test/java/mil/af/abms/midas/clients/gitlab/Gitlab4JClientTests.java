@@ -41,7 +41,7 @@ import mil.af.abms.midas.exception.GitApiException;
 class Gitlab4JClientTests {
 
     @Spy
-    GitLab4JClient client = new GitLab4JClient("url", "token");
+    GitLab4JClient gitClient = new GitLab4JClient("url", "token");
 
     User user = Builder.build(User.class)
             .with(u -> u.setUsername("fizzBang"))
@@ -68,48 +68,48 @@ class Gitlab4JClientTests {
 
     @Test
     void should_return_false_on_projectExistsById() {
-        doReturn(Optional.empty()).when(client).makeRequest(any());
-        assertFalse(client.projectExistsById(123));
+        doReturn(Optional.empty()).when(gitClient).makeRequest(any());
+        assertFalse(gitClient.projectExistsById(123));
     }
 
     @Test
     void should_return_false_on_epicExistsByIdAndGroupId() {
-        doReturn(Optional.empty()).when(client).makeRequest(any());
-        assertFalse(client.epicExistsByIdAndGroupId(123, 321));
+        doReturn(Optional.empty()).when(gitClient).makeRequest(any());
+        assertFalse(gitClient.epicExistsByIdAndGroupId(123, 321));
     }
 
     @Test
     void should_getLatestSonarQubeJob() {
-        doReturn(List.of(job)).when(client).makeRequest(any());
+        doReturn(List.of(job)).when(gitClient).makeRequest(any());
 
-        Job jobLatest = client.getLatestSonarQubeJob(3209);
+        Job jobLatest = gitClient.getLatestSonarQubeJob(3209);
 
         assertThat(jobLatest).isEqualTo(job);
     }
 
     @Test
     void should_throw_on_getLatestSonarQubeJob() {
-        doReturn(List.of()).when(client).makeRequest(any());
+        doReturn(List.of()).when(gitClient).makeRequest(any());
 
-        assertThrows(GitApiException.class, () -> client.getLatestSonarQubeJob(1));
+        assertThrows(GitApiException.class, () -> gitClient.getLatestSonarQubeJob(1));
     }
 
     @Test
     void should_return_jobId_negative_1_when_artifact_as_optional_stream_empty() {
-        doReturn(job).when(client).getLatestSonarQubeJob(any());
-        doReturn(Optional.empty()).when(client).makeRequestReturnOptional(any());
+        doReturn(job).when(gitClient).getLatestSonarQubeJob(any());
+        doReturn(Optional.empty()).when(gitClient).makeRequestReturnOptional(any());
 
-        Map<String, String> jobInfo = client.getLatestCodeCoverage(3209, 3209);
+        Map<String, String> jobInfo = gitClient.getLatestCodeCoverage(3209, 3209);
 
         assertThat(jobInfo).containsEntry("jobId", "-1");
     }
 
     @Test
     void should_return_jobId_negative_1_when_new_jobId_not_gt_current_jobId() {
-        doReturn(job).when(client).getLatestSonarQubeJob(any());
-        doReturn(Optional.empty()).when(client).makeRequestReturnOptional(any());
+        doReturn(job).when(gitClient).getLatestSonarQubeJob(any());
+        doReturn(Optional.empty()).when(gitClient).makeRequestReturnOptional(any());
 
-        Map<String, String> jobInfo = client.getLatestCodeCoverage(3209, 333209);
+        Map<String, String> jobInfo = gitClient.getLatestCodeCoverage(3209, 333209);
 
         assertThat(jobInfo).containsEntry("jobId", "-1");
     }
@@ -120,10 +120,10 @@ class Gitlab4JClientTests {
         String conditionStr = Files.readString(Path.of(resourceName));
         InputStream stream = new ByteArrayInputStream(conditionStr.getBytes(StandardCharsets.UTF_8));
 
-        doReturn(job).when(client).getLatestSonarQubeJob(any());
-        doReturn(Optional.of(stream)).when(client).makeRequestReturnOptional(any());
+        doReturn(job).when(gitClient).getLatestSonarQubeJob(any());
+        doReturn(Optional.of(stream)).when(gitClient).makeRequestReturnOptional(any());
 
-        Map<String, String> jobInfo = client.getLatestCodeCoverage(3209, 0);
+        Map<String, String> jobInfo = gitClient.getLatestCodeCoverage(3209, 0);
 
         assertThat(jobInfo)
                 .containsEntry("ref", job.getRef())
@@ -136,28 +136,28 @@ class Gitlab4JClientTests {
     @Test
     void should_getSonarqubeProjectUrl() {
         doReturn(Optional.of(new ByteArrayInputStream(SONAR_URL.getBytes(StandardCharsets.UTF_8))))
-                .when(client).makeRequestReturnOptional(any());
-        assertThat(client.getSonarqubeProjectUrl(1, 2)).isEqualTo("https://sonarqube");
+                .when(gitClient).makeRequestReturnOptional(any());
+        assertThat(gitClient.getSonarqubeProjectUrl(1, 2)).isEqualTo("https://sonarqube");
     }
 
     @Test
     void should_make_request() {
-        assertThat(client.makeRequest(() -> "foo")).isEqualTo("foo");
+        assertThat(gitClient.makeRequest(() -> "foo")).isEqualTo("foo");
     }
 
     @Test
     void should_throw_on_make_request() {
-        assertThrows(GitApiException.class, () -> client.makeRequest(() -> { throw new GitLabApiException("foo"); }));
+        assertThrows(GitApiException.class, () -> gitClient.makeRequest(() -> { throw new GitLabApiException("foo"); }));
     }
 
     @Test
     void should_make_optional_request() {
-        assertThat(client.makeRequestReturnOptional(() -> "foo")).isEqualTo(Optional.of("foo"));
+        assertThat(gitClient.makeRequestReturnOptional(() -> "foo")).isEqualTo(Optional.of("foo"));
     }
 
     @Test
     void should_return_empty_on_make_optional_request() {
-        assertThat(client.makeRequestReturnOptional(() -> { throw new GitLabApiException("foo"); })).isEqualTo(Optional.empty());
+        assertThat(gitClient.makeRequestReturnOptional(() -> { throw new GitLabApiException("foo"); })).isEqualTo(Optional.empty());
     }
 
     @ParameterizedTest
@@ -165,12 +165,12 @@ class Gitlab4JClientTests {
     void should_get_Epic_from_Api(String status, boolean isOk) {
         ResponseEntity<String> testResponse = new ResponseEntity<>("{ \"iid\": 42}", HttpStatus.valueOf(status));
 
-        doReturn(testResponse).when(client).requestGet(anyString(), anyString());
+        doReturn(testResponse).when(gitClient).requestGet(anyString(), anyString());
 
         if (isOk) {
-            assertThat(client.getEpicFromGroup(sourceControl, 1, 2).getEpicIid()).isEqualTo(42);
+            assertThat(gitClient.getEpicFromGroup(sourceControl, 1, 2).getEpicIid()).isEqualTo(42);
         } else {
-            assertThrows(HttpClientErrorException.class, () -> client.getEpicFromGroup(sourceControl, 1, 2));
+            assertThrows(HttpClientErrorException.class, () -> gitClient.getEpicFromGroup(sourceControl, 1, 2));
         }
     }
 
@@ -178,25 +178,25 @@ class Gitlab4JClientTests {
     @CsvSource(value = { "OK; [{\"iid\":42}]", "BAD_REQUEST; [{}]", "OK; ---" }, delimiter = ';')
     void should_get_Epics_from_Api(String status, String response) {
         ResponseEntity<String> testResponse = new ResponseEntity<>(response, HttpStatus.valueOf(status));
-        doReturn(testResponse).when(client).requestGet(anyString(), anyString());
+        doReturn(testResponse).when(gitClient).requestGet(anyString(), anyString());
 
         if (response.equals("[{\"iid\":42}]")) {
-            assertThat(client.getEpicsFromGroup(sourceControl, 1).get(0).getEpicIid()).isEqualTo(42);
+            assertThat(gitClient.getEpicsFromGroup(sourceControl, 1).get(0).getEpicIid()).isEqualTo(42);
         } else if (response.equals("---")) {
-            assertThrows(GitApiException.class, () ->  client.getEpicsFromGroup(sourceControl, 1));
+            assertThrows(GitApiException.class, () ->  gitClient.getEpicsFromGroup(sourceControl, 1));
         } else {
-            assertThrows(HttpClientErrorException.class, () -> client.getEpicsFromGroup(sourceControl, 1));
+            assertThrows(HttpClientErrorException.class, () -> gitClient.getEpicsFromGroup(sourceControl, 1));
         }
     }
 
     @Test
     void should_throw_request_get() {
-        assertThat(client.requestGet("fake_token", "fake_url").getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(gitClient.requestGet("fake_token", "fake_url").getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
     void should_request_get() {
-        assertThat(client.requestGet("fake_token", "https://www.google.com/").getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(gitClient.requestGet("fake_token", "https://www.google.com/").getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
 }
