@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import mil.af.abms.midas.api.backupandrestore.dto.BackupDTO;
 import mil.af.abms.midas.clients.MySQLClient;
+import mil.af.abms.midas.clients.S3Client;
 import mil.af.abms.midas.config.security.annotations.IsAdmin;
 
 @RestController
@@ -17,9 +18,11 @@ import mil.af.abms.midas.config.security.annotations.IsAdmin;
 public class BackupAndRestoreController {
 
     private final MySQLClient mySQLClient;
+    private final S3Client s3Client;
 
-    public BackupAndRestoreController(MySQLClient mySQLClient) {
+    public BackupAndRestoreController(MySQLClient mySQLClient, S3Client s3Client) {
         this.mySQLClient = mySQLClient;
+        this.s3Client = s3Client;
     }
 
     @IsAdmin
@@ -51,5 +54,8 @@ public class BackupAndRestoreController {
     public boolean doRestoreString(@RequestBody String mysqldump) {
         return mySQLClient.restore(mysqldump);
     }
+
+    @GetMapping("backupGzip")
+    public void backupToS3() { s3Client.compressStringAndSendToBucket("backup/10-22backup.sql.gz", mySQLClient.exportToSql()); }
 
 }

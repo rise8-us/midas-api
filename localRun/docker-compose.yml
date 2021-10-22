@@ -13,11 +13,47 @@ services:
       MYSQL_PASSWORD: localDBPassword
       MYSQL_ROOT_PASSWORD: password
     ports:
-      - 3306:3306
+      - "3306:3306"
 
   adminer:
     image: adminer
     restart: always
     container_name: app-db-adminer
     ports:
-      - 8181:8080
+      - "8181:8080"
+
+  minio:
+    container_name: minio
+    image: minio/minio
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_REGION_NAME: us-gov-west-1
+      MINIO_ROOT_USER: minio123
+      MINIO_ROOT_PASSWORD: minio123
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - "minio_data:/data"
+
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc config host add myminio http://minio:9000 minio123 minio123;
+      /usr/bin/mc rm -r --force myminio/midas;
+      /usr/bin/mc mb myminio/midas;
+      /usr/bin/mc policy download myminio/midas;
+      exit 0;
+      "
+
+volumes:
+  minio_data:

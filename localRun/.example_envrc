@@ -13,6 +13,14 @@ export ENVIRONMENT=local # require for local dev
 export ADMIN_GROUP=midas-IL2-admin
 export ALLOWED_ORIGIN=*localhost*
 
+# MINIO / S3
+export MINIO_ACCESS_KEY=minio123
+export MINIO_SECRET_KEY=minio123
+export MINIO_HOST=http://localhost:9000
+export MINIO_BUCKET_NAME=midas
+export AWS_DEFAULT_REGION=us-gov-west-1
+
+
 # OPTIONAL
 # export CLASSIFICATION=  # Options: UNCLASS,CUI,SECRET,SCI.  defaults to UNCLASS when null
 # export CAVEAT=
