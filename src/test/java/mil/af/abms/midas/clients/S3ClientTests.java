@@ -3,8 +3,10 @@ package mil.af.abms.midas.clients;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
 import java.util.List;
@@ -24,7 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.helper.GzipHelper;
 import mil.af.abms.midas.config.S3Properties;
-import mil.af.abms.midas.exception.S3ClientException;
+import mil.af.abms.midas.exception.S3IOException;
 
 @ExtendWith(SpringExtension.class)
 @EnableConfigurationProperties(S3Properties.class)
@@ -56,6 +58,9 @@ public class S3ClientTests {
             .with(o -> o.setObjectContent(GzipHelper.compressStringToInputStream("string")))
             .get();
 
+    private static final String FILE_NAME = "Test File";
+    private static final String DATA = "Test Data";
+
     @Test
     void should_return_list_of_file_names_from_bucket() {
         result.getObjectSummaries().addAll(List.of(summary1, summary2, summary3));
@@ -66,21 +71,25 @@ public class S3ClientTests {
     }
 
     @Test
-    void should_put_compressed_string_in_bucket() {
-        doReturn(true).when(s3Client).makeRequestReturnSuccess(any());
-        assertThat(s3Client.compressStringAndSendToBucket(anyString(), anyString())).isTrue();
+    void should_send_gzip_to_bucket() {
+        doReturn("foo").when(s3Client).makeRequest(any());
+
+        s3Client.sendToBucketAsGzip(FILE_NAME, DATA);
+
+        verify(s3Client, times(1)).makeRequest(any());
     }
 
     @Test
-    void should_fail_put_compressed_string_in_bucket() {
-        doReturn(false).when(s3Client).makeRequestReturnSuccess(any());
-        assertThat(s3Client.compressStringAndSendToBucket(anyString(), anyString())).isFalse();
+    void should_fail_send_gzip_to_bucket_with_S3IOException() {
+        doThrow(new S3IOException("fail")).when(s3Client).makeRequest(any());
+
+        assertThrows(S3IOException.class, () -> s3Client.sendToBucketAsGzip(FILE_NAME, DATA));
     }
 
     @Test
-    void should_get_file_content_from_bucket() {
+    void should_get_file_from_bucket() {
         doReturn(object).when(s3Client).makeRequest(any());
-        s3Client.getFileContentFromBucket(object.getKey());
+        s3Client.getFileFromBucket(object.getKey());
     }
 
     @Test
@@ -90,17 +99,7 @@ public class S3ClientTests {
 
     @Test
     void should_throw_on_make_request() {
-        assertThrows(S3ClientException.class, () -> s3Client.makeRequest(() -> { throw new IOException("foo"); }));
-    }
-
-    @Test
-    void should_make_request_return_true() {
-        assertThat(s3Client.makeRequestReturnSuccess(() -> "foo")).isTrue();
-    }
-
-    @Test
-    void should_make_request_return_false() {
-        assertThat(s3Client.makeRequestReturnSuccess(() -> { throw new IOException("foo"); })).isFalse();
+        assertThrows(S3IOException.class, () -> s3Client.makeRequest(() -> { throw new IOException("foo"); }));
     }
 
 }

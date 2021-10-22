@@ -12,8 +12,6 @@ import org.springframework.util.StreamUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
-import mil.af.abms.midas.exception.S3ClientException;
-
 @Slf4j
 public class GzipHelper {
 
@@ -37,14 +35,12 @@ public class GzipHelper {
         return new ByteArrayInputStream(outByteStream.toByteArray());
     }
 
-    public static String decompressInputStreamToString(InputStream gzipInputStream) {
-        try {
-            var inputStream = new GZIPInputStream(gzipInputStream);
-
+    public static String decompressInputStreamToString(InputStream gzipInputStream) throws IOException {
+        try (var inputStream = new GZIPInputStream(gzipInputStream)) {
             return StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
         } catch (IOException e) {
             log.error(e.getMessage());
-            throw new S3ClientException("Failed to read file");
+            throw new IOException("Failed to read file");
         }
     }
 }

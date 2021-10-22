@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.backupandrestore.dto.BackupDTO;
 import mil.af.abms.midas.clients.MySQLClient;
-import mil.af.abms.midas.clients.S3Client;
 
 @WebMvcTest({BackupAndRestoreController.class})
 class BackupAndRestoreControllerTests extends ControllerTestHarness {
@@ -30,7 +29,7 @@ class BackupAndRestoreControllerTests extends ControllerTestHarness {
     MySQLClient mySQLClient;
 
     @MockBean
-    S3Client s3Client;
+    BackupAndRestoreService service;
 
     private final Set<String> tableNames = Set.of("foo");
 
@@ -104,6 +103,5 @@ class BackupAndRestoreControllerTests extends ControllerTestHarness {
                 .andExpect(content().contentType((MediaType.APPLICATION_JSON_VALUE)))
                 .andExpect(content().string("true"));
     }
-
 
 }

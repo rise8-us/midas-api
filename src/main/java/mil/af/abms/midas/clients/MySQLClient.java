@@ -36,7 +36,7 @@ public class MySQLClient {
     @Value("${custom.dbName}")
     private String dbName;
 
-    public Set<String> getTableNames()  {
+    public Set<String> getTableNames() {
         var query = String.format("SELECT table_name FROM information_schema.tables WHERE table_schema = \"%s\";", dbName);
         var tableNames = new HashSet<String>();
 
@@ -52,6 +52,21 @@ public class MySQLClient {
             log.error(e.getMessage());
         }
         return Set.of();
+    }
+
+    public String getLatestFlywayVersion() {
+        var query = "SELECT version FROM flyway_schema_history ORDER BY version DESC LIMIT 1;";
+
+        try  (var connection = DBUtils.connect(dbUrl, dbUser, dbPassword, dbDriver);
+              var statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+              var results =  statement.executeQuery(query);
+        ) {
+            results.next();
+            return results.getString("version");
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
+        return "";
     }
 
     public boolean restore(String mysqlDump) {
@@ -72,8 +87,9 @@ public class MySQLClient {
 
         StringBuilder sql = new StringBuilder();
         sql.append("--");
-        sql.append("\n-- Generated midas-api-mysqlclient");
+        sql.append("\n-- Flyway Version: ").append(getLatestFlywayVersion());
         sql.append("\n-- Date: ").append(new SimpleDateFormat("d-M-y H:m:s").format(new Date()));
+        sql.append("\n-- Generated midas-api-mysqlclient");
         sql.append("\n--\n");
 
         sql.append("SET NAMES utf8;\n")
