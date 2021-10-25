@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '2.5.5'
+    id 'org.springframework.boot' version '2.5.6'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
     id 'org.flywaydb.flyway' version '8.0.0'
@@ -114,9 +114,6 @@ jacocoTestReport {
 configurations.all {
     resolutionStrategy.dependencySubstitution {
         substitute module("com.ibm.icu:icu4j") with module("com.ibm.icu:icu4j:69.1")
-        substitute module("org.apache.tomcat.embed:tomcat-embed-core") with module("org.apache.tomcat.embed:tomcat-embed-core:9.0.54")
-        substitute module("org.apache.tomcat.embed:tomcat-embed-core") with module("org.apache.tomcat.embed:tomcat-embed-el:9.0.54")
-        substitute module("org.apache.tomcat.embed:tomcat-embed-core") with module("org.apache.tomcat.embed:tomcat-embed-websocket:9.0.54")
     }
 }
 
