@@ -105,15 +105,15 @@ jacocoTestReport {
         }))
     }
     reports {
-        xml.enabled = true
-        html.enabled = true
+        xml.required = true
+        html.required = true
     }
     dependsOn test
 }
 
 configurations.all {
     resolutionStrategy.dependencySubstitution {
-        substitute module("com.ibm.icu:icu4j") with module("com.ibm.icu:icu4j:69.1")
+        substitute(module("com.ibm.icu:icu4j")).using(module("com.ibm.icu:icu4j:69.1"))
     }
 }
 

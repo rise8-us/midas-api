@@ -1,5 +1,6 @@
 package mil.af.abms.midas.api.backupandrestore;
 
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import mil.af.abms.midas.api.backupandrestore.dto.BackupDTO;
+import mil.af.abms.midas.api.backupandrestore.dto.RestoreDTO;
 import mil.af.abms.midas.clients.MySQLClient;
-import mil.af.abms.midas.clients.S3Client;
 import mil.af.abms.midas.config.security.annotations.IsAdmin;
 
 @RestController
@@ -18,11 +19,11 @@ import mil.af.abms.midas.config.security.annotations.IsAdmin;
 public class BackupAndRestoreController {
 
     private final MySQLClient mySQLClient;
-    private final S3Client s3Client;
+    private final BackupAndRestoreService service;
 
-    public BackupAndRestoreController(MySQLClient mySQLClient, S3Client s3Client) {
+    public BackupAndRestoreController(MySQLClient mySQLClient, BackupAndRestoreService service) {
         this.mySQLClient = mySQLClient;
-        this.s3Client = s3Client;
+        this.service = service;
     }
 
     @IsAdmin
@@ -55,7 +56,13 @@ public class BackupAndRestoreController {
         return mySQLClient.restore(mysqldump);
     }
 
-    @GetMapping("backupGzip")
-    public void backupToS3() { s3Client.compressStringAndSendToBucket("backup/10-22backup.sql.gz", mySQLClient.exportToSql()); }
+    @GetMapping("backup")
+    public void backupToS3() { service.backupToS3(); }
+
+    @GetMapping("fileNames")
+    public List<String> getFileNames() { return service.getBackupFileNames(); }
+
+    @PostMapping("restore")
+    public void restoreFromS3(@RequestBody RestoreDTO dto) { service.restore(dto.getFileName()); }
 
 }

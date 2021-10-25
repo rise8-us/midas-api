@@ -1,5 +1,7 @@
 package mil.af.abms.midas.clients;
 
+import javax.ws.rs.core.MediaType;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,12 +17,14 @@ import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.entity.ContentType;
 
 import mil.af.abms.midas.api.helper.GzipHelper;
+import mil.af.abms.midas.api.helper.IOHelper;
 import mil.af.abms.midas.config.S3Properties;
-import mil.af.abms.midas.exception.S3ClientException;
+import mil.af.abms.midas.exception.S3IOException;
 
 @Slf4j
 @Component
@@ -44,29 +48,34 @@ public class S3Client {
                 .build();
     }
 
-    public boolean compressStringAndSendToBucket(String fileName, String data) {
-        var compressedStream = GzipHelper.compressStringToInputStream(data);
+    public void sendToBucketAsGzip(String fileName, String data) {
+        try (var compressedStream = GzipHelper.compressStringToInputStream(data)) {
+            var length = IOHelper.getInputStreamSize(compressedStream);
 
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentType(ContentType.TEXT_PLAIN.toString());
-        metadata.addUserMetadata("title", fileName);
-        metadata.setContentEncoding("gzip");
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            metadata.addUserMetadata("title", fileName);
+            metadata.setContentEncoding("gzip");
+            metadata.setContentLength(length);
 
-        var request = new PutObjectRequest(this.bucketName, fileName, compressedStream, metadata);
+            var request = new PutObjectRequest(this.bucketName, fileName, compressedStream, metadata);
 
-        return makeRequestReturnSuccess(() -> s3.putObject(request));
+            makeRequest(() -> s3.putObject(request));
+        } catch (IOException | S3IOException e) {
+            log.error(e.getMessage());
+            throw new S3IOException("Unable to send gzip to bucket.");
+        }
     }
 
     public List<String> getFileNamesFromBucket() {
         var result = (ListObjectsV2Result) makeRequest(() -> s3.listObjectsV2(this.bucketName));
         var objects = result.getObjectSummaries();
-        return objects.stream().map(o -> o.getKey()).collect(Collectors.toList());
+        return objects.stream().map(S3ObjectSummary::getKey).collect(Collectors.toList());
     }
 
-    public String getFileContentFromBucket(String key) {
-        var s3Object = (S3Object) makeRequest(() -> s3.getObject(this.bucketName, key));
-        var s3ObjectStream = s3Object.getObjectContent();
-        return GzipHelper.decompressInputStreamToString(s3ObjectStream);
+    public S3ObjectInputStream getFileFromBucket(String fileName) {
+        var s3Object = (S3Object) makeRequest(() -> s3.getObject(this.bucketName, fileName));
+        return s3Object.getObjectContent();
     }
 
     @FunctionalInterface
@@ -79,17 +88,8 @@ public class S3Client {
             return request.call();
         } catch (IOException e) {
             log.error(e.getMessage());
-            throw new S3ClientException(e.getLocalizedMessage());
+            throw new S3IOException("Failed to make request to S3. Contact an admin.");
         }
     }
 
-    protected boolean makeRequestReturnSuccess(S3Client.S3ClientThunk<?> request) {
-        try {
-            request.call();
-            return true;
-        } catch (IOException e) {
-            log.error(e.getMessage());
-            return false;
-        }
-    }
 }
