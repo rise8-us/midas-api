@@ -1,6 +1,7 @@
 package mil.af.abms.midas.api.backupandrestore;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
@@ -11,15 +12,19 @@ import java.util.List;
 
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.util.IOUtils;
 import org.apache.http.client.methods.HttpGet;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
+import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.helper.GzipHelper;
 import mil.af.abms.midas.clients.MySQLClient;
 import mil.af.abms.midas.clients.S3Client;
@@ -42,6 +47,12 @@ class BackupAndRestoreServiceTests {
     private static final String DATA = "backup data";
     private static final String VERSION = "1.0.0";
     private static final String FILE_NAME = "Test File";
+
+    S3Object object = Builder.build(S3Object.class)
+            .with(o -> o.setBucketName("test bucket"))
+            .with(o -> o.setKey("test key"))
+            .with(o -> o.setObjectContent(GzipHelper.compressStringToInputStream("string")))
+            .get();
 
     @Test
     void should_backup_to_s3() {
@@ -87,5 +98,17 @@ class BackupAndRestoreServiceTests {
         verify(mySQLClient, times(1)).restore(stringCaptor.capture());
 
         assertThat(stringCaptor.getValue()).isEqualTo(DATA);
+    }
+
+    @Test
+    void should_get_file() throws Exception {
+
+        var expectedStream = new ByteArrayResource(IOUtils.toByteArray(object.getObjectContent()));
+        object.getObjectContent().reset();
+        when(s3Client.getFileFromBucket(object.getKey())).thenReturn(object.getObjectContent());
+
+        var stream = service.getFile(object.getKey());
+
+        assertEquals(expectedStream, stream);
     }
 }
