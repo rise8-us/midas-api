@@ -22,6 +22,7 @@ public class ProjectDTO implements AbstractDTO {
     private Boolean isArchived;
     private LocalDateTime creationDate;
     private Integer gitlabProjectId;
+    private String webUrl;
     private Set<Long> tagIds =  new HashSet<>();
     private Long teamId;
     private Long projectJourneyMap;

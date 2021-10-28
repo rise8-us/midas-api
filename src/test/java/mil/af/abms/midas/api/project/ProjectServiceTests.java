@@ -43,8 +43,8 @@ import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.team.TeamService;
-import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
+import mil.af.abms.midas.clients.gitlab.models.GitLabProject;
 import mil.af.abms.midas.config.CustomProperty;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
@@ -67,36 +67,43 @@ class ProjectServiceTests {
     @MockBean
     TagService tagService;
     @MockBean
-    ProjectRepository projectRepository;
+    ProjectRepository repository;
     @MockBean
     SimpMessageSendingOperations websocket;
     @MockBean
     UserService userService;
 
     @Captor
-    ArgumentCaptor<Project> projectCaptor;
+    ArgumentCaptor<Project> captor;
 
     private final Tag tagInProject = Builder.build(Tag.class)
             .with(t -> t.setId(22L))
-            .with(t -> t.setLabel("TagInProject")).get();
+            .with(t -> t.setLabel("TagInProject"))
+            .get();
     private final Tag tagTwoInProject = Builder.build(Tag.class)
             .with(t -> t.setId(21L))
-            .with(t -> t.setLabel("TagTwoInProject")).get();
+            .with(t -> t.setLabel("TagTwoInProject"))
+            .get();
     private final Team team = Builder.build(Team.class)
             .with(t -> t.setId(2L))
-            .with(t -> t.setName("Team")).get();
+            .with(t -> t.setName("Team"))
+            .get();
     private final Project project = Builder.build(Project.class)
             .with(p -> p.setName("MIDAS"))
             .with(p -> p.setTeam(team))
             .with(p -> p.setTags(Set.of(tagInProject, tagTwoInProject)))
-            .with(p -> p.setId(1L)).get();
+            .with(p -> p.setId(1L))
+            .with(p -> p.setGitlabProjectId(2))
+            .get();
     private final Tag tag = Builder.build(Tag.class)
             .with(t -> t.setId(3L))
             .with(t -> t.setLabel("Tag"))
-            .with(t -> t.setProjects(Set.of(project))).get();
+            .with(t -> t.setProjects(Set.of(project)))
+            .get();
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(1L))
-            .with(p -> p.setProjects(Set.of(project))).get();
+            .with(p -> p.setProjects(Set.of(project)))
+            .get();
     private final SourceControl sourceControl = Builder.build(SourceControl.class)
             .with(g -> g.setId(42L))
             .with(g -> g.setName("Mock IL2"))
@@ -104,8 +111,9 @@ class ProjectServiceTests {
     private final Coverage coverage = Builder.build(Coverage.class)
             .with(c -> c.setId(4L))
             .get();
-    private final User user = Builder.build(User.class)
-            .with(u -> u.setId(5L))
+    private final GitLabProject gitLabProject = Builder.build(GitLabProject.class)
+            .with(p -> p.setName("title"))
+            .with(p -> p.setGitlabProjectId(2))
             .get();
 
     @Test
@@ -114,12 +122,12 @@ class ProjectServiceTests {
                 "Project Description", null, 42L);
 
         when(sourceControlService.findByIdOrNull(42L)).thenReturn(sourceControl);
-        when(projectRepository.save(project)).thenReturn(new Project());
+        when(repository.save(project)).thenReturn(new Project());
 
         projectService.create(createProjectDTO);
 
-        verify(projectRepository, times(1)).save(projectCaptor.capture());
-        Project projectSaved = projectCaptor.getValue();
+        verify(repository, times(1)).save(captor.capture());
+        Project projectSaved = captor.getValue();
 
         assertThat(projectSaved.getName()).isEqualTo(createProjectDTO.getName());
         assertThat(projectSaved.getDescription()).isEqualTo(createProjectDTO.getDescription());
@@ -128,8 +136,30 @@ class ProjectServiceTests {
     }
 
     @Test
+    void should_create_project_from_gitlab() {
+        projectService.createFromGitlab(gitLabProject);
+        verify(repository, times(1)).save(captor.capture());
+        var projectSaved = captor.getValue();
+
+        assertThat(projectSaved.getName()).isEqualTo("title");
+        assertThat(projectSaved.getGitlabProjectId()).isEqualTo(2);
+    }
+
+    @Test
+    void should_sync_project_from_gitlab() {
+        when(repository.findByGitlabProjectId(gitLabProject.getGitlabProjectId())).thenReturn(Optional.of(project));
+
+        projectService.createFromGitlab(gitLabProject);
+        verify(repository, times(2)).save(captor.capture());
+        var projectSaved = captor.getValue();
+
+        assertThat(projectSaved.getName()).isEqualTo("title");
+        assertThat(projectSaved.getGitlabProjectId()).isEqualTo(2);
+    }
+
+    @Test
     void should_find_by_name() throws EntityNotFoundException {
-        when(projectRepository.findByName("MIDAS")).thenReturn(Optional.of(project));
+        when(repository.findByName("MIDAS")).thenReturn(Optional.of(project));
 
         assertThat(projectService.findByName("MIDAS")).isEqualTo(project);
     }
@@ -152,16 +182,16 @@ class ProjectServiceTests {
         BeanUtils.copyProperties(sourceControl, config2);
         config2.setId(43L);
 
-        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
-        when(projectRepository.save(project)).thenReturn(project);
+        when(repository.findById(1L)).thenReturn(Optional.of(project));
+        when(repository.save(project)).thenReturn(project);
         when(teamService.findByIdOrNull(updateProjectDTO.getTeamId())).thenReturn(newTeam);
         when(sourceControlService.findByIdOrNull(43L)).thenReturn(config2);
         doNothing().when(projectService).addCoverageOnCreateOrUpdate(any());
 
         projectService.updateById(1L, updateProjectDTO);
 
-        verify(projectRepository, times(1)).save(projectCaptor.capture());
-        Project projectSaved = projectCaptor.getValue();
+        verify(repository, times(1)).save(captor.capture());
+        Project projectSaved = captor.getValue();
 
         assertThat(projectSaved.getName()).isEqualTo(updateProjectDTO.getName());
         assertThat(projectSaved.getDescription()).isEqualTo(updateProjectDTO.getDescription());
@@ -175,14 +205,14 @@ class ProjectServiceTests {
         UpdateProjectDTO updateDTO = Builder.build(UpdateProjectDTO.class)
                 .with(d -> d.setTagIds(Set.of())).get();
 
-        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        when(repository.findById(1L)).thenReturn(Optional.of(project));
         when(tagService.findById(1L)).thenReturn(tag);
         doNothing().when(projectService).addCoverageOnCreateOrUpdate(any());
 
         projectService.updateById(1L, updateDTO);
 
-        verify(projectRepository, times(1)).save(projectCaptor.capture());
-        Project projectSaved = projectCaptor.getValue();
+        verify(repository, times(1)).save(captor.capture());
+        Project projectSaved = captor.getValue();
 
        assertThat(projectSaved.getTags()).isEqualTo(Set.of());
     }
@@ -191,8 +221,8 @@ class ProjectServiceTests {
     void should_remove_tag_from_projects() {
         projectService.removeTagFromProjects(tagInProject.getId(), Set.of(project));
 
-        verify(projectRepository, times(1)).save(projectCaptor.capture());
-        Project projectSaved = projectCaptor.getValue();
+        verify(repository, times(1)).save(captor.capture());
+        Project projectSaved = captor.getValue();
         assertThat(projectSaved.getTags()).isEqualTo(Set.of(tagTwoInProject));
     }
 
@@ -202,8 +232,8 @@ class ProjectServiceTests {
 
        Set<Tag> tagsToKeep = Set.of(tagTwoInProject);
 
-       verify(projectRepository, times(1)).save(projectCaptor.capture());
-       Project projectSaved = projectCaptor.getValue();
+       verify(repository, times(1)).save(captor.capture());
+       Project projectSaved = captor.getValue();
         assertThat(projectSaved.getTags()).isEqualTo(tagsToKeep);
     }
 
@@ -212,13 +242,13 @@ class ProjectServiceTests {
         UpdateProjectJourneyMapDTO updateJourneyMapDTO = Builder.build(UpdateProjectJourneyMapDTO.class)
                 .with(p -> p.setProjectJourneyMap(0L)).get();
 
-        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
-        when(projectRepository.save(project)).thenReturn(project);
+        when(repository.findById(1L)).thenReturn(Optional.of(project));
+        when(repository.save(project)).thenReturn(project);
 
         projectService.updateJourneyMapById(1L, updateJourneyMapDTO);
 
-        verify(projectRepository, times(1)).save(projectCaptor.capture());
-        Project projectSaved = projectCaptor.getValue();
+        verify(repository, times(1)).save(captor.capture());
+        Project projectSaved = captor.getValue();
 
         assertThat(projectSaved.getProjectJourneyMap()).isEqualTo(updateJourneyMapDTO.getProjectJourneyMap());
     }
@@ -228,12 +258,12 @@ class ProjectServiceTests {
         ArchiveProjectDTO archiveProjectDTO = Builder.build(ArchiveProjectDTO.class)
                 .with(d -> d.setIsArchived(true)).get();
 
-        when(projectRepository.findById(1L)).thenReturn(Optional.of(this.project));
+        when(repository.findById(1L)).thenReturn(Optional.of(this.project));
 
         Project project = projectService.archive(1L, archiveProjectDTO);
 
-        verify(projectRepository).save(projectCaptor.capture());
-        Project projectCaptured = projectCaptor.getValue();
+        verify(repository).save(captor.capture());
+        Project projectCaptured = captor.getValue();
         assertTrue(projectCaptured.getIsArchived());
         assertThat(projectCaptured.getTeam()).isEqualTo(null);
     }
@@ -243,12 +273,12 @@ class ProjectServiceTests {
         ArchiveProjectDTO archiveProjectDTO = Builder.build(ArchiveProjectDTO.class)
                 .with(d -> d.setIsArchived(false)).get();
 
-        when(projectRepository.findById(1L)).thenReturn(Optional.of(this.project));
+        when(repository.findById(1L)).thenReturn(Optional.of(this.project));
 
         Project project = projectService.archive(1L, archiveProjectDTO);
 
-        verify(projectRepository).save(projectCaptor.capture());
-        Project projectCaptured = projectCaptor.getValue();
+        verify(repository).save(captor.capture());
+        Project projectCaptured = captor.getValue();
         assertFalse(projectCaptured.getIsArchived());
         assertThat(projectCaptured.getTeam()).isEqualTo(null);
     }
@@ -261,8 +291,8 @@ class ProjectServiceTests {
 
         projectService.addProductToProjects(product, projects);
 
-        verify(projectRepository).save(projectCaptor.capture());
-        Project projectCaptured = projectCaptor.getValue();
+        verify(repository).save(captor.capture());
+        Project projectCaptured = captor.getValue();
         assertThat(projectCaptured.getProduct()).isEqualTo(product);
     }
 
@@ -273,8 +303,8 @@ class ProjectServiceTests {
 
         projectService.addProductToProject(product, projectWithApp);
 
-        verify(projectRepository).save(projectCaptor.capture());
-        Project projectCaptured = projectCaptor.getValue();
+        verify(repository).save(captor.capture());
+        Project projectCaptured = captor.getValue();
         assertThat(projectCaptured.getProduct()).isEqualTo(product);
     }
 
@@ -283,13 +313,13 @@ class ProjectServiceTests {
         CreateProjectDTO createDTO = new CreateProjectDTO("No Product", 20, null, Set.of(3L),
                 "Project Description", null, null);
 
-        when(projectRepository.save(project)).thenReturn(new Project());
+        when(repository.save(project)).thenReturn(new Project());
         doNothing().when(projectService).addCoverageOnCreateOrUpdate(any());
 
         projectService.create(createDTO);
 
-        verify(projectRepository, times(1)).save(projectCaptor.capture());
-        Project projectSaved = projectCaptor.getValue();
+        verify(repository, times(1)).save(captor.capture());
+        Project projectSaved = captor.getValue();
 
         assertThat(projectSaved.getProduct()).isNull();
         assertThat(projectSaved.getTeam()).isNull();
@@ -302,13 +332,13 @@ class ProjectServiceTests {
                 "MIDAS_TWO", 5, null, Set.of(tag.getId()), "New Description",
                 null, null);
 
-        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
-        when(projectRepository.save(project)).thenReturn(project);
+        when(repository.findById(1L)).thenReturn(Optional.of(project));
+        when(repository.save(project)).thenReturn(project);
 
         projectService.updateById(1L, updateProjectDTO);
 
-        verify(projectRepository, times(1)).save(projectCaptor.capture());
-        Project projectSaved = projectCaptor.getValue();
+        verify(repository, times(1)).save(captor.capture());
+        Project projectSaved = captor.getValue();
 
         assertThat(projectSaved.getProduct()).isEqualTo(null);
         assertThat(projectSaved.getTeam()).isEqualTo(null);
@@ -327,8 +357,8 @@ class ProjectServiceTests {
 
         projectService.updateProjectsWithProduct(initialProduct.getProjects(), updatedProjects, initialProduct);
 
-        verify(projectRepository, times(2)).save(projectCaptor.capture());
-        Project projectSaved = projectCaptor.getValue();
+        verify(repository, times(2)).save(captor.capture());
+        Project projectSaved = captor.getValue();
 
         assertThat(projectSaved.getId()).isEqualTo(project2.getId());
     }
@@ -342,12 +372,12 @@ class ProjectServiceTests {
         project.setSourceControl(config);
         BeanUtils.copyProperties(project, p2);
 
-        when(projectRepository.findAll(any(Specification.class))).thenReturn(List.of(project, p2));
+        when(repository.findAll(any(Specification.class))).thenReturn(List.of(project, p2));
         when(coverageService.updateCoverageForProject(any())).thenReturn(new Coverage());
 
         projectService.scheduledCoverageUpdates();
 
-        verify(projectRepository, times(1)).findAll(any(Specification.class));
+        verify(repository, times(1)).findAll(any(Specification.class));
         verify(coverageService, times(2)).updateCoverageForProject(any());
     }
 

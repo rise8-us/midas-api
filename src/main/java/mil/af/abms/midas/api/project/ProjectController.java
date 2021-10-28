@@ -16,6 +16,7 @@ import mil.af.abms.midas.api.project.dto.CreateProjectDTO;
 import mil.af.abms.midas.api.project.dto.ProjectDTO;
 import mil.af.abms.midas.api.project.dto.UpdateProjectDTO;
 import mil.af.abms.midas.api.project.dto.UpdateProjectJourneyMapDTO;
+import mil.af.abms.midas.clients.gitlab.models.GitLabProject;
 import mil.af.abms.midas.config.security.annotations.HasProjectAccess;
 
 @RestController
@@ -28,6 +29,11 @@ public class ProjectController extends AbstractCRUDController<Project, ProjectDT
     @PostMapping
     public ProjectDTO create(@Valid @RequestBody CreateProjectDTO createProjectDTO) {
         return service.create(createProjectDTO).toDto();
+    }
+
+    @PostMapping("/from_gitlab")
+    public ProjectDTO createFromGitlab(@Valid @RequestBody GitLabProject gitLabProject) {
+        return service.createFromGitlab(gitLabProject).toDto();
     }
 
     @HasProjectAccess

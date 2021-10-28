@@ -76,6 +76,7 @@ class ProductServiceTests {
             .with(p -> p.setName("backend")).get();
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(5L))
+            .with(p -> p.setGitlabGroupId(123))
             .with(p -> p.setName("Midas")).get();
     private final Product parent = Builder.build(Product.class)
             .with(p -> p.setId(1L))

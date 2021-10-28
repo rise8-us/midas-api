@@ -32,7 +32,7 @@ import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
-import mil.af.abms.midas.clients.gitlab.models.EpicConversion;
+import mil.af.abms.midas.clients.gitlab.models.GitLabEpic;
 
 @ExtendWith(SpringExtension.class)
 @Import(EpicService.class)
@@ -48,34 +48,31 @@ class EpicServiceTests {
     @Captor
     ArgumentCaptor<Epic> captor;
 
-    final private SourceControl sourceControl = Builder.build(SourceControl.class)
+    private final SourceControl sourceControl = Builder.build(SourceControl.class)
             .with(sc -> sc.setId(3L))
             .with(sc -> sc.setToken("fake_token"))
             .with(sc -> sc.setBaseUrl("fake_url"))
             .get();
-
-    final private Product foundProduct = Builder.build(Product.class)
+    private final Product foundProduct = Builder.build(Product.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setGitlabGroupId(42))
             .with(p -> p.setSourceControl(sourceControl))
             .get();
-
-    final private Epic foundEpic = Builder.build(Epic.class)
+    private final Epic foundEpic = Builder.build(Epic.class)
             .with(e -> e.setId(6L))
             .with(e -> e.setTitle("whoa this is epic"))
             .with(e -> e.setEpicUid(3422L))
             .with(e -> e.setEpicIid(2))
             .with(e -> e.setProduct(foundProduct))
             .get();
-
-    final private EpicConversion epicConversion = Builder.build(EpicConversion.class)
+    private final GitLabEpic gitLabEpic = Builder.build(GitLabEpic.class)
             .with(e -> e.setTitle("title"))
             .with(e -> e.setEpicIid(2))
             .get();
 
     @Test
     void can_create_Epic_new() {
-        doReturn(epicConversion).when(epicService).getEpicFromClient(any(Product.class), anyInt());
+        doReturn(gitLabEpic).when(epicService).getEpicFromClient(any(Product.class), anyInt());
         when(productService.findById(any())).thenReturn(foundProduct);
 
         epicService.create(new AddGitLabEpicDTO(2, 1L));
@@ -90,7 +87,7 @@ class EpicServiceTests {
     @Test
     void can_create_Epic_exists() {
 
-        doReturn(epicConversion).when(epicService).getEpicFromClient(any(Product.class), anyInt());
+        doReturn(gitLabEpic).when(epicService).getEpicFromClient(any(Product.class), anyInt());
         when(productService.findById(any())).thenReturn(foundProduct);
         when(repository.findByEpicUid(foundEpic.getEpicUid())).thenReturn(Optional.of(foundEpic));
 
@@ -109,7 +106,7 @@ class EpicServiceTests {
         var epicDuplicate = new Epic();
         BeanUtils.copyProperties(foundEpic, epicDuplicate);
 
-        doReturn(epicConversion).when(epicService).getEpicFromClient(any(Product.class), anyInt());
+        doReturn(gitLabEpic).when(epicService).getEpicFromClient(any(Product.class), anyInt());
         when(productService.findById(any())).thenReturn(foundProduct);
         when(repository.findById(any())).thenReturn(Optional.of(epicDuplicate));
 
@@ -127,13 +124,13 @@ class EpicServiceTests {
         var gitLab4JClient = Mockito.mock(GitLab4JClient.class);
         var expectedEpic = new Epic();
         BeanUtils.copyProperties(foundEpic, expectedEpic);
-        expectedEpic.setTitle(epicConversion.getTitle());
+        expectedEpic.setTitle(gitLabEpic.getTitle());
         expectedEpic.setId(6L);
 
         when(repository.save(any(Epic.class))).thenReturn(expectedEpic);
         when(epicService.getGitlabClient(foundProduct)).thenReturn(gitLab4JClient);
         when(productService.findById(foundProduct.getId())).thenReturn(foundProduct);
-        when(gitLab4JClient.getEpicsFromGroup(sourceControl, foundProduct.getGitlabGroupId())).thenReturn(List.of(epicConversion));
+        when(gitLab4JClient.getEpicsFromGroup(foundProduct.getGitlabGroupId())).thenReturn(List.of(gitLabEpic));
 
         assertThat(epicService.getAllGitlabEpicsForProduct(foundProduct.getId())).isEqualTo(Set.of(expectedEpic));
     }

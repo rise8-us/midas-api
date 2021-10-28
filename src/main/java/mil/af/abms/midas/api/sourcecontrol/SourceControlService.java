@@ -2,6 +2,7 @@ package mil.af.abms.midas.api.sourcecontrol;
 
 import javax.transaction.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Service;
 import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.sourcecontrol.dto.CreateUpdateSourceControlDTO;
 import mil.af.abms.midas.api.sourcecontrol.dto.SourceControlDTO;
+import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
+import mil.af.abms.midas.clients.gitlab.models.GitLabProject;
 
 @Service
 public class SourceControlService extends AbstractCRUDService<SourceControl, SourceControlDTO, SourceControlRepository> {
@@ -45,5 +48,15 @@ public class SourceControlService extends AbstractCRUDService<SourceControl, Sou
 
         return repository.save(configToUpdate);
    }
+
+    public List<GitLabProject> getAllGitlabProjectsForGroup(Long sourceControlId, Integer gitlabGroupId) {
+        var sourceControl = findById(sourceControlId);
+        var client = getGitlabClient(sourceControl);
+        return client.getProjectsFromGroup(gitlabGroupId);
+    }
+
+    protected GitLab4JClient getGitlabClient(SourceControl sourceControl) {
+        return new GitLab4JClient(sourceControl.getBaseUrl(), sourceControl.getToken());
+    }
 
 }

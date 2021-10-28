@@ -46,6 +46,9 @@ public class Project extends AbstractEntity<ProjectDTO> {
     @Column(columnDefinition = "INT", nullable = false)
     private Integer gitlabProjectId;
 
+    @Column(columnDefinition = "TEXT")
+    private String webUrl;
+
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner;
@@ -80,6 +83,7 @@ public class Project extends AbstractEntity<ProjectDTO> {
                 isArchived,
                 creationDate,
                 gitlabProjectId,
+                webUrl,
                 getTagIds(),
                 getIdOrNull(team),
                 projectJourneyMap,
@@ -89,8 +93,6 @@ public class Project extends AbstractEntity<ProjectDTO> {
                 getIdOrNull(owner)
         );
     }
-
-    private Set<Long> getTagIds() { return tags.stream().map(Tag::getId).collect(Collectors.toSet()); }
 
     public Coverage getCurrentCoverage() {
         return coverages.stream().max(Comparator.comparing(Coverage::getId)).orElse(new Coverage());
@@ -108,4 +110,6 @@ public class Project extends AbstractEntity<ProjectDTO> {
         Project that = (Project) o;
         return this.hashCode() == that.hashCode();
     }
+
+    private Set<Long> getTagIds() { return tags.stream().map(Tag::getId).collect(Collectors.toSet()); }
 }

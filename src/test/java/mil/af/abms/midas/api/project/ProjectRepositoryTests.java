@@ -30,14 +30,16 @@ public class ProjectRepositoryTests extends RepositoryTestHarness {
         Team team = Builder.build(Team.class)
                 .with(t -> t.setName("team"))
                 .with(t -> t.setGitlabGroupId(1L))
-                .with(t -> t.setDescription("for testing")).get();
+                .with(t -> t.setDescription("for testing"))
+                .get();
 
         savedTeam = entityManager.persist(team);
 
         testProject = Builder.build(Project.class)
                 .with(p -> p.setGitlabProjectId(1))
                 .with(p -> p.setTeam(savedTeam))
-                .with(p -> p.setName("foo")).get();
+                .with(p -> p.setName("foo"))
+                .get();
 
         entityManager.persist(testProject);
         entityManager.flush();
@@ -69,6 +71,15 @@ public class ProjectRepositoryTests extends RepositoryTestHarness {
             new EntityNotFoundException("Not found"));
 
         assertThat(projectNoTeam.getTeam()).isEqualTo(null);
+    }
+
+    @Test
+    void should_find_by_gitlab_project_id() throws EntityNotFoundException {
+        Project foundProject = projectRepository.findByGitlabProjectId(testProject.getGitlabProjectId()).orElseThrow(() ->
+            new EntityNotFoundException("Not Found"));
+
+        assertThat(foundProject.getTeam()).isEqualTo(savedTeam);
+        assertThat(foundProject).isEqualTo(testProject);
     }
 
     @Test

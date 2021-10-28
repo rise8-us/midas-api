@@ -32,6 +32,13 @@ Platform 1 CtF criteria
 
 - CDS (Cross Domain Solution)
 
+# Setting Up IntelliJ
+- `⌘` + `,` select Editor | Code Style | Java
+- Click the cog
+- Import MidasCodeStyle-IntelliJ.xml from localRun folder
+- select Editor | General | Auto-Import
+- Check `Optimize imports on the fly` 
+
 # Running the API
 
 1. Have [Docker](https://docs.docker.com/get-docker/) installed  
