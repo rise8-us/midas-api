@@ -6,6 +6,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -116,6 +117,17 @@ public class ProjectControllerTests extends ControllerTestHarness {
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(mapper.writeValueAsString(gitLabProject))
         )
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void should_sync_from_gitlab() throws Exception {
+        doReturn(project).when(projectService).syncProjectWithGitlab(any());
+
+        mockMvc.perform(get("/api/projects/sync/42")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapper.writeValueAsString(gitLabProject))
+                )
                 .andExpect(status().isOk());
     }
 

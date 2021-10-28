@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -44,6 +45,7 @@ import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.api.user.UserService;
+import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
 import mil.af.abms.midas.clients.gitlab.models.GitLabProject;
 import mil.af.abms.midas.config.CustomProperty;
 import mil.af.abms.midas.exception.EntityNotFoundException;
@@ -72,10 +74,16 @@ class ProjectServiceTests {
     SimpMessageSendingOperations websocket;
     @MockBean
     UserService userService;
+    @MockBean
+    GitLab4JClient client;
 
     @Captor
     ArgumentCaptor<Project> captor;
 
+    private final SourceControl sourceControl = Builder.build(SourceControl.class)
+            .with(g -> g.setId(42L))
+            .with(g -> g.setName("Mock IL2"))
+            .get();
     private final Tag tagInProject = Builder.build(Tag.class)
             .with(t -> t.setId(22L))
             .with(t -> t.setLabel("TagInProject"))
@@ -94,6 +102,7 @@ class ProjectServiceTests {
             .with(p -> p.setTags(Set.of(tagInProject, tagTwoInProject)))
             .with(p -> p.setId(1L))
             .with(p -> p.setGitlabProjectId(2))
+            .with(p -> p.setSourceControl(sourceControl))
             .get();
     private final Tag tag = Builder.build(Tag.class)
             .with(t -> t.setId(3L))
@@ -103,10 +112,6 @@ class ProjectServiceTests {
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setProjects(Set.of(project)))
-            .get();
-    private final SourceControl sourceControl = Builder.build(SourceControl.class)
-            .with(g -> g.setId(42L))
-            .with(g -> g.setName("Mock IL2"))
             .get();
     private final Coverage coverage = Builder.build(Coverage.class)
             .with(c -> c.setId(4L))
@@ -147,14 +152,16 @@ class ProjectServiceTests {
 
     @Test
     void should_sync_project_from_gitlab() {
-        when(repository.findByGitlabProjectId(gitLabProject.getGitlabProjectId())).thenReturn(Optional.of(project));
+        doReturn(project).when(projectService).findById(project.getId());
+        doReturn(client).when(projectService).getGitlabClient(sourceControl);
+        doReturn(gitLabProject).when(client).getGitLabProject(project.getGitlabProjectId());
 
-        projectService.createFromGitlab(gitLabProject);
-        verify(repository, times(2)).save(captor.capture());
+        projectService.syncProjectWithGitlab(project.getId());
+        verify(repository, times(1)).save(captor.capture());
         var projectSaved = captor.getValue();
 
-        assertThat(projectSaved.getName()).isEqualTo("title");
-        assertThat(projectSaved.getGitlabProjectId()).isEqualTo(2);
+        assertThat(projectSaved.getName()).isEqualTo(gitLabProject.getName());
+        assertThat(projectSaved.getGitlabProjectId()).isEqualTo(gitLabProject.getGitlabProjectId());
     }
 
     @Test

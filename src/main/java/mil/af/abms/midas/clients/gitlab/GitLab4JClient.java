@@ -161,6 +161,16 @@ public class GitLab4JClient {
 
     }
 
+    public GitLabProject getGitLabProject(Integer gitLabProjectId) {
+        String url = String.format("%s/api/v4/projects/%d", this.baseUrl, gitLabProjectId);
+        ResponseEntity<String> response = requestGet(url);
+        if (response.getStatusCode().equals(HttpStatus.OK))
+            return mapProjectFromJson(response.getBody());
+        else {
+            throw new HttpClientErrorException(response.getStatusCode());
+        }
+    }
+
     public List<GitLabProject> getProjectsFromGroup(Integer groupId)
     {
         String url = String.format("%s/api/v4/groups/%d/projects", this.baseUrl, groupId);

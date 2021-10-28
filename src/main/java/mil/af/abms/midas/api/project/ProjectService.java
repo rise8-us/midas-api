@@ -23,11 +23,13 @@ import mil.af.abms.midas.api.project.dto.CreateProjectDTO;
 import mil.af.abms.midas.api.project.dto.ProjectDTO;
 import mil.af.abms.midas.api.project.dto.UpdateProjectDTO;
 import mil.af.abms.midas.api.project.dto.UpdateProjectJourneyMapDTO;
+import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.api.user.UserService;
+import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
 import mil.af.abms.midas.clients.gitlab.models.GitLabProject;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
@@ -130,6 +132,15 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
         return updatedProject;
     }
 
+    public Project syncProjectWithGitlab(Long id) {
+        var foundProject = findById(id);
+        var gitlabProjectId = foundProject.getGitlabProjectId();
+        var sourceControl = foundProject.getSourceControl();
+        var gitlabProject = getGitlabClient(sourceControl).getGitLabProject(gitlabProjectId);
+
+        return syncProject(gitlabProject, foundProject);
+    }
+
     public void removeTagFromProject(Long tagId, Project project) {
         var tagsToKeep = project.getTags().stream().filter(t -> !t.getId().equals(tagId)).collect(Collectors.toSet());
         project.setTags(tagsToKeep);
@@ -202,6 +213,10 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
         BeanUtils.copyProperties(gitLabProject, project);
         project.setCreationDate(gitLabProject.getGitlabCreationDate());
         return repository.save(project);
+    }
+
+    protected GitLab4JClient getGitlabClient(SourceControl sourceControl) {
+        return new GitLab4JClient(sourceControl);
     }
 
 }

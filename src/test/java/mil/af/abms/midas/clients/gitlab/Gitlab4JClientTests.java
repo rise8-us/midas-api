@@ -229,6 +229,19 @@ class Gitlab4JClientTests {
         }
     }
 
+    @ParameterizedTest
+    @CsvSource(value = { "OK: true", "BAD_REQUEST: false" }, delimiter = ':')
+    void should_sync_Project_from_Gitlab(String status, boolean isOk) {
+        ResponseEntity<String> testResponse = new ResponseEntity<>("{ \"id\": 42}", HttpStatus.valueOf(status));
+        doReturn(testResponse).when(gitClient).requestGet(anyString());
+
+        if (isOk) {
+            assertThat(gitClient.getGitLabProject(42).getGitlabProjectId()).isEqualTo(42);
+        } else {
+            assertThrows(HttpClientErrorException.class, () -> gitClient.getGitLabProject(42));
+        }
+    }
+
     @Test
     void should_throw_request_get() {
         assertThat(gitClient.requestGet("fake_url").getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
