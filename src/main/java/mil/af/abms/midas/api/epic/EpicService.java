@@ -1,7 +1,6 @@
 package mil.af.abms.midas.api.epic;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -15,9 +14,8 @@ import mil.af.abms.midas.api.dtos.IsHiddenDTO;
 import mil.af.abms.midas.api.epic.dto.EpicDTO;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
-import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
-import mil.af.abms.midas.clients.gitlab.models.EpicConversion;
+import mil.af.abms.midas.clients.gitlab.models.GitLabEpic;
 
 @Service
 public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicRepository> {
@@ -63,7 +61,7 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
     public Set<Epic> getAllGitlabEpicsForProduct(Long productId) {
         var product = productService.findById(productId);
         var epicConversions = getGitlabClient(product)
-                .getEpicsFromGroup(product.getSourceControl(), product.getGitlabGroupId());
+                .getEpicsFromGroup(product.getGitlabGroupId());
 
         return epicConversions.stream()
                 .map(e ->
@@ -89,28 +87,27 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
         return Long.parseLong(String.format("%d%d%d", sourceControlId, groupId, epicIId));
     }
 
-    protected EpicConversion getEpicFromClient(Product product, Integer epicIid) {
-        return getGitlabClient(product).getEpicFromGroup(product.getSourceControl(), product.getGitlabGroupId(), epicIid);
+    protected GitLabEpic getEpicFromClient(Product product, Integer epicIid) {
+        var client = getGitlabClient(product);
+        return client.getEpicFromGroup(product.getGitlabGroupId(), epicIid);
     }
 
     protected GitLab4JClient getGitlabClient(Product product) {
-        var url = Optional.ofNullable(product.getSourceControl()).map(SourceControl::getBaseUrl).orElse(null);
-        var token = Optional.ofNullable(product.getSourceControl()).map(SourceControl::getToken).orElse(null);
-        return new GitLab4JClient(url, token);
+        return new GitLab4JClient(product.getSourceControl());
     }
 
-    protected Epic convertToEpic(EpicConversion epicConversion, Product product) {
-        var uId = generateUniqueId(product.getSourceControl().getId(), product.getGitlabGroupId(), epicConversion.getEpicIid());
+    protected Epic convertToEpic(GitLabEpic gitLabEpic, Product product) {
+        var uId = generateUniqueId(product.getSourceControl().getId(), product.getGitlabGroupId(), gitLabEpic.getEpicIid());
         var newEpic = new Epic();
-        BeanUtils.copyProperties(epicConversion, newEpic);
+        BeanUtils.copyProperties(gitLabEpic, newEpic);
         newEpic.setSyncedAt(LocalDateTime.now());
         newEpic.setEpicUid(uId);
         newEpic.setProduct(product);
         return repository.save(newEpic);
     }
 
-    protected Epic syncEpic(EpicConversion epicConversion, Epic epic) {
-        BeanUtils.copyProperties(epicConversion, epic);
+    protected Epic syncEpic(GitLabEpic gitLabEpic, Epic epic) {
+        BeanUtils.copyProperties(gitLabEpic, epic);
         epic.setSyncedAt(LocalDateTime.now());
         return repository.save(epic);
     }

@@ -10,7 +10,7 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class EpicConversion {
+public class GitLabEpic {
 
     @JsonProperty("iid")
     private Integer epicIid;
@@ -32,6 +32,7 @@ public class EpicConversion {
     private String state;
     @JsonProperty("web_url")
     private String webUrl;
+    
     private String selfApi;
     private String epicIssuesApi;
 

@@ -41,7 +41,7 @@ import mil.af.abms.midas.exception.GitApiException;
 class Gitlab4JClientTests {
 
     @Spy
-    GitLab4JClient gitClient = new GitLab4JClient("url", "token");
+    GitLab4JClient gitClient = new GitLab4JClient("http://localhost", "token");
 
     User user = Builder.build(User.class)
             .with(u -> u.setUsername("fizzBang"))
@@ -61,10 +61,35 @@ class Gitlab4JClientTests {
     SourceControl sourceControl = Builder.build(SourceControl.class)
             .with(sc -> sc.setId(3L))
             .with(sc -> sc.setToken("fake_token"))
-            .with(sc -> sc.setBaseUrl("fake_url"))
+            .with(sc -> sc.setBaseUrl("http://localhost:80"))
             .get();
 
     private static final String SONAR_URL = "foo\nyou can browse https://sonarqube";
+
+    @Test
+    void should_throw_on_empty_source_control_url() {
+        var sc = new SourceControl();
+        sc.setToken("fake token");
+
+        assertThrows(IllegalArgumentException.class, () -> new GitLab4JClient(sc));
+        assertThrows(IllegalArgumentException.class, () -> new GitLab4JClient(sc.getBaseUrl(), sc.getToken()));
+    }
+
+    @Test
+    void should_throw_on_empty_source_control_token() {
+        var sc = new SourceControl();
+        sc.setBaseUrl("fake url");
+
+        assertThrows(IllegalArgumentException.class, () -> new GitLab4JClient(sc));
+        assertThrows(IllegalArgumentException.class, () -> new GitLab4JClient(sc.getBaseUrl(), sc.getToken()));
+    }
+
+    @Test
+    void should_create_with_source_control() {
+        var testClient = new GitLab4JClient(sourceControl);
+
+        assertThat(testClient).hasFieldOrProperty("client");
+    }
 
     @Test
     void should_return_false_on_projectExistsById() {
@@ -165,12 +190,12 @@ class Gitlab4JClientTests {
     void should_get_Epic_from_Api(String status, boolean isOk) {
         ResponseEntity<String> testResponse = new ResponseEntity<>("{ \"iid\": 42}", HttpStatus.valueOf(status));
 
-        doReturn(testResponse).when(gitClient).requestGet(anyString(), anyString());
+        doReturn(testResponse).when(gitClient).requestGet(anyString());
 
         if (isOk) {
-            assertThat(gitClient.getEpicFromGroup(sourceControl, 1, 2).getEpicIid()).isEqualTo(42);
+            assertThat(gitClient.getEpicFromGroup(1, 2).getEpicIid()).isEqualTo(42);
         } else {
-            assertThrows(HttpClientErrorException.class, () -> gitClient.getEpicFromGroup(sourceControl, 1, 2));
+            assertThrows(HttpClientErrorException.class, () -> gitClient.getEpicFromGroup(1, 2));
         }
     }
 
@@ -178,25 +203,40 @@ class Gitlab4JClientTests {
     @CsvSource(value = { "OK; [{\"iid\":42}]", "BAD_REQUEST; [{}]", "OK; ---" }, delimiter = ';')
     void should_get_Epics_from_Api(String status, String response) {
         ResponseEntity<String> testResponse = new ResponseEntity<>(response, HttpStatus.valueOf(status));
-        doReturn(testResponse).when(gitClient).requestGet(anyString(), anyString());
+        doReturn(testResponse).when(gitClient).requestGet(anyString());
 
         if (response.equals("[{\"iid\":42}]")) {
-            assertThat(gitClient.getEpicsFromGroup(sourceControl, 1).get(0).getEpicIid()).isEqualTo(42);
+            assertThat(gitClient.getEpicsFromGroup(1).get(0).getEpicIid()).isEqualTo(42);
         } else if (response.equals("---")) {
-            assertThrows(GitApiException.class, () ->  gitClient.getEpicsFromGroup(sourceControl, 1));
+            assertThrows(GitApiException.class, () ->  gitClient.getEpicsFromGroup(1));
         } else {
-            assertThrows(HttpClientErrorException.class, () -> gitClient.getEpicsFromGroup(sourceControl, 1));
+            assertThrows(HttpClientErrorException.class, () -> gitClient.getEpicsFromGroup(1));
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = { "OK; [{\"id\":42}]", "BAD_REQUEST; [{}]", "OK; ---" }, delimiter = ';')
+    void should_get_Projects_from_Group(String status, String response) {
+        ResponseEntity<String> testResponse = new ResponseEntity<>(response, HttpStatus.valueOf(status));
+        doReturn(testResponse).when(gitClient).requestGet(anyString());
+
+        if (response.equals("[{\"id\":42}]")) {
+            assertThat(gitClient.getProjectsFromGroup(1).get(0).getGitlabProjectId()).isEqualTo(42);
+        } else if (response.equals("---")) {
+            assertThrows(GitApiException.class, () ->  gitClient.getProjectsFromGroup(1));
+        } else {
+            assertThrows(HttpClientErrorException.class, () -> gitClient.getProjectsFromGroup(1));
         }
     }
 
     @Test
     void should_throw_request_get() {
-        assertThat(gitClient.requestGet("fake_token", "fake_url").getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(gitClient.requestGet("fake_url").getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
     void should_request_get() {
-        assertThat(gitClient.requestGet("fake_token", "https://www.google.com/").getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(gitClient.requestGet("https://www.google.com/").getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
 }

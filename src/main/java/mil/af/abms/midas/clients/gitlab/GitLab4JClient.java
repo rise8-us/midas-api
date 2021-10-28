@@ -21,7 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.GitLabApiException;
@@ -31,21 +30,31 @@ import org.gitlab4j.api.models.Project;
 
 import mil.af.abms.midas.api.helper.JsonMapper;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
-import mil.af.abms.midas.clients.gitlab.models.EpicConversion;
+import mil.af.abms.midas.clients.gitlab.models.GitLabEpic;
+import mil.af.abms.midas.clients.gitlab.models.GitLabProject;
 import mil.af.abms.midas.exception.GitApiException;
 
 @Slf4j
-@NoArgsConstructor
 @SuppressWarnings("unchecked")
 public class GitLab4JClient {
 
     private static final String QUALITY_GATE_PATH = ".ci_artifacts/sonarqube/report_qualitygate_status.json";
     private static final String SONAR_LOG_PATH = ".ci_artifacts/sonarqube/sonar-scanner.log";
-    private GitLabApi client;
+    private final String baseUrl;
+    private final String token;
+    private final GitLabApi client;
 
     public GitLab4JClient(String url, String token) {
         url = Optional.ofNullable(url).orElseThrow(() -> new IllegalArgumentException("A gitlab url must be provided"));
-        token = Optional.ofNullable(token).orElseThrow(() -> new IllegalArgumentException("a gitlab token must be provided"));
+        this.token = Optional.ofNullable(token).orElseThrow(() -> new IllegalArgumentException("a gitlab token must be provided"));
+        this.baseUrl = url;
+        this.client = new GitLabApi(url, token);
+    }
+
+    public GitLab4JClient(SourceControl sourceControl) {
+        var url = Optional.ofNullable(sourceControl.getBaseUrl()).orElseThrow(() -> new IllegalArgumentException("A gitlab url must be provided"));
+        this.token = Optional.ofNullable(sourceControl.getToken()).orElseThrow(() -> new IllegalArgumentException("A gitlab token must be provided"));
+        this.baseUrl = url;
         this.client = new GitLabApi(url, token);
     }
 
@@ -112,10 +121,10 @@ public class GitLab4JClient {
                 .orElse("url unknown");
     }
 
-    public List<EpicConversion> getEpicsFromGroup(SourceControl sourceControl, Integer groupId) {
-        String url = String.format("%s/api/v4/groups/%d/epics", sourceControl.getBaseUrl(), groupId);
-        ResponseEntity<String> response = requestGet(sourceControl.getToken(), url);
-        var epics = new ArrayList<EpicConversion>();
+    public List<GitLabEpic> getEpicsFromGroup(Integer groupId) {
+        String url = String.format("%s/api/v4/groups/%d/epics", this.baseUrl, groupId);
+        ResponseEntity<String> response = requestGet(url);
+        var epics = new ArrayList<GitLabEpic>();
 
         if (response.getStatusCode().equals(HttpStatus.OK))
             try {
@@ -132,9 +141,9 @@ public class GitLab4JClient {
         }
     }
 
-    public EpicConversion getEpicFromGroup(SourceControl sourceControl, Integer groupId, Integer iid) {
-        String url = String.format("%s/api/v4/groups/%d/epics/%d", sourceControl.getBaseUrl(), groupId, iid);
-        ResponseEntity<String> response = requestGet(sourceControl.getToken(), url);
+    public GitLabEpic getEpicFromGroup(Integer groupId, Integer iid) {
+        String url = String.format("%s/api/v4/groups/%d/epics/%d", this.baseUrl, groupId, iid);
+        ResponseEntity<String> response = requestGet(url);
 
         if (response.getStatusCode().equals(HttpStatus.OK))
             return mapEpicFromJson(response.getBody());
@@ -143,10 +152,10 @@ public class GitLab4JClient {
         }
     }
 
-    protected EpicConversion mapEpicFromJson(String body) {
+    protected GitLabEpic mapEpicFromJson(String body) {
         try {
              return JsonMapper.dateMapper()
-                    .readerFor(EpicConversion.class)
+                    .readerFor(GitLabEpic.class)
                     .readValue(body);
         } catch (IOException e) {
             throw new GitApiException("Unable to map Gitlab Epic Json to Midas Epic");
@@ -154,10 +163,41 @@ public class GitLab4JClient {
 
     }
 
-    protected ResponseEntity<String> requestGet(String token, String endpoint) {
+    public List<GitLabProject> getProjectsFromGroup(Integer groupId)
+    {
+        String url = String.format("%s/api/v4/groups/%d/projects", this.baseUrl, groupId);
+        ResponseEntity<String> response = requestGet(url);
+        var projects = new ArrayList<GitLabProject>();
+
+        if (response.getStatusCode().equals(HttpStatus.OK))
+            try {
+                var projectArray = JsonMapper.dateMapper().readTree(response.getBody());
+                for (var project : projectArray) {
+                    projects.add(mapProjectFromJson(project.toString()));
+                }
+                return projects;
+            } catch (IOException e) {
+                throw new GitApiException("Unable to map Gitlab Project Json to Midas Project");
+            }
+        else {
+            throw new HttpClientErrorException(response.getStatusCode());
+        }
+    }
+
+    protected GitLabProject mapProjectFromJson(String body) {
+        try {
+            return JsonMapper.dateMapper()
+                    .readerFor(GitLabProject.class)
+                    .readValue(body);
+        } catch (IOException e) {
+            throw new GitApiException("Unable to map Gitlab Project Json to Midas Project");
+        }
+    }
+
+    protected ResponseEntity<String> requestGet(String endpoint) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
-        headers.add("PRIVATE-TOKEN", token);
+        headers.add("PRIVATE-TOKEN", this.token);
         HttpEntity<String> request = new HttpEntity<>(null, headers);
 
         try {

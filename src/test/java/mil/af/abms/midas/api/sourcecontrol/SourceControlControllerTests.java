@@ -1,13 +1,16 @@
 package mil.af.abms.midas.api.sourcecontrol;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
@@ -22,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.sourcecontrol.dto.CreateUpdateSourceControlDTO;
+import mil.af.abms.midas.clients.gitlab.models.GitLabProject;
 
 @WebMvcTest({SourceControlController.class})
 public class SourceControlControllerTests extends ControllerTestHarness {
@@ -44,7 +48,10 @@ public class SourceControlControllerTests extends ControllerTestHarness {
             .with(d -> d.setDescription("foo"))
             .with(d -> d.setBaseUrl("http://foo.bar"))
             .get();
-
+    final private GitLabProject gitLabProject = Builder.build(GitLabProject.class)
+            .with(p -> p.setGitlabProjectId(7))
+            .with(p -> p.setName("Midas UI"))
+            .get();
 
     @BeforeEach
     public void init() throws Exception {
@@ -80,4 +87,11 @@ public class SourceControlControllerTests extends ControllerTestHarness {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.name").value(uDto.getName()));
     }
+
+    @Test
+    void should_get_all_projects_from_gitlab_group() throws Exception {
+        doReturn(List.of(gitLabProject)).when(sourceControlService).getAllGitlabProjectsForGroup(sourceControl.getId(), 123);
+        mockMvc.perform(get("/api/sourceControls/1/group/123/projects")).andExpect(status().isOk());
+    }
+
 }

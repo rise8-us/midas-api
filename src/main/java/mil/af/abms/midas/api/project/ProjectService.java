@@ -5,10 +5,13 @@ import javax.transaction.Transactional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import lombok.extern.slf4j.Slf4j;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.coverage.CoverageService;
@@ -25,8 +28,10 @@ import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.api.user.UserService;
+import mil.af.abms.midas.clients.gitlab.models.GitLabProject;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
+@Slf4j
 @Service
 public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, ProjectRepository> {
 
@@ -94,6 +99,13 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
     }
 
     @Transactional
+    public Project createFromGitlab(GitLabProject gitlabProject) {
+        return repository.findByGitlabProjectId(gitlabProject.getGitlabProjectId())
+                .map(project -> syncProject(gitlabProject, project))
+                .orElseGet(() -> convertToProject(gitlabProject));
+    }
+
+    @Transactional
     public Project findByName(String name) {
         return repository.findByName(name).orElseThrow(
                 () -> new EntityNotFoundException(Project.class.getSimpleName(), "name", name));
@@ -116,7 +128,6 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
         addCoverageOnCreateOrUpdate(updatedProject);
 
         return updatedProject;
-
     }
 
     public void removeTagFromProject(Long tagId, Project project) {
@@ -177,6 +188,20 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
             project.getCoverages().add(coverage);
             websocket.convertAndSend("/topic/update_project", project.toDto());
         }
+    }
+
+    protected Project convertToProject(GitLabProject gitLabProject) {
+        var newProject = new Project();
+        BeanUtils.copyProperties(gitLabProject, newProject);
+        newProject.setCreationDate(gitLabProject.getGitlabCreationDate());
+        //TODO: Save Avatar to S3
+        return repository.save(newProject);
+    }
+
+    protected Project syncProject(GitLabProject gitLabProject, Project project) {
+        BeanUtils.copyProperties(gitLabProject, project);
+        project.setCreationDate(gitLabProject.getGitlabCreationDate());
+        return repository.save(project);
     }
 
 }

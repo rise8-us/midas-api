@@ -13,9 +13,9 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.helper.JsonMapper;
-import mil.af.abms.midas.clients.gitlab.models.EpicConversion;
+import mil.af.abms.midas.clients.gitlab.models.GitLabEpic;
 
-class EpicConversionTests {
+class GitLabEpicTests {
 
     @Test
     void can_map_from_JSON() throws IOException {
@@ -23,8 +23,8 @@ class EpicConversionTests {
         String conditionStr = Files.readString(Path.of(resourceName));
         InputStream stream = new ByteArrayInputStream(conditionStr.getBytes(StandardCharsets.UTF_8));
 
-        EpicConversion epic = JsonMapper.dateMapper()
-                .readerFor(EpicConversion.class)
+        GitLabEpic epic = JsonMapper.dateMapper()
+                .readerFor(GitLabEpic.class)
                 .readValue(stream);
 
        assertThat(epic.getEpicIid()).isEqualTo(4);

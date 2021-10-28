@@ -2,6 +2,7 @@ package mil.af.abms.midas.api.project;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -33,6 +34,7 @@ import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
+import mil.af.abms.midas.clients.gitlab.models.GitLabProject;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @WebMvcTest({ProjectController.class})
@@ -60,7 +62,8 @@ public class ProjectControllerTests extends ControllerTestHarness {
             .with(t -> t.setId(TEAM_ID))
             .with(t -> t.setName("MIDAS_TEAM"))
             .with(t -> t.setCreationDate(CREATION_DATE))
-            .with(t -> t.setGitlabGroupId(GITLAB_GROUP_ID)).get();
+            .with(t -> t.setGitlabGroupId(GITLAB_GROUP_ID))
+            .get();
     private final Project project = Builder.build(Project.class)
             .with(p -> p.setId(ID))
             .with(p -> p.setName(NAME))
@@ -69,11 +72,17 @@ public class ProjectControllerTests extends ControllerTestHarness {
             .with(p -> p.setDescription(DESCRIPTION))
             .with(p -> p.setCreationDate(CREATION_DATE))
             .with(p -> p.setProjectJourneyMap(0L))
-            .with(p -> p.setIsArchived(IS_ARCHIVED)).get();
+            .with(p -> p.setIsArchived(IS_ARCHIVED))
+            .get();
     private final Tag tag = Builder.build(Tag.class)
             .with(t -> t.setId(3L))
             .with(t -> t.setLabel("Tag"))
-            .with(t -> t.setProjects(Set.of(project))).get();
+            .with(t -> t.setProjects(Set.of(project)))
+            .get();
+    private final GitLabProject gitLabProject = Builder.build(GitLabProject.class)
+            .with(p -> p.setName("title"))
+            .with(p -> p.setGitlabProjectId(2))
+            .get();
 
     @BeforeEach
     public void init() throws Exception {
@@ -97,6 +106,17 @@ public class ProjectControllerTests extends ControllerTestHarness {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.name").value(NAME));
+    }
+
+    @Test
+    public void should_create_from_gitlab() throws Exception {
+        doReturn(project).when(projectService).createFromGitlab(any());
+
+        mockMvc.perform(post("/api/projects/from_gitlab")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsString(gitLabProject))
+        )
+                .andExpect(status().isOk());
     }
 
     @Test

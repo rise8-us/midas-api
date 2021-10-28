@@ -9,4 +9,6 @@ public interface ProjectRepository extends RepositoryInterface<Project, ProjectD
 
     Optional<Project> findByName(String name);
 
+    Optional<Project> findByGitlabProjectId(Integer gitlabProjectId);
+
 }

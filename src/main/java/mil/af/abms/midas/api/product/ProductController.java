@@ -43,4 +43,5 @@ public class ProductController extends AbstractCRUDController<Product, ProductDT
                                            @PathVariable Long id) {
         return service.updateIsArchivedById(id, updateProductIsArchivedDTO).toDto();
     }
+
 }

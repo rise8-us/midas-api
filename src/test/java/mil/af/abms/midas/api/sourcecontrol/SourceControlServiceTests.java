@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -17,9 +18,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.Mock;
 
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.sourcecontrol.dto.CreateUpdateSourceControlDTO;
+import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
+import mil.af.abms.midas.clients.gitlab.models.GitLabProject;
 
 @ExtendWith(SpringExtension.class)
 @Import(SourceControlService.class)
@@ -29,6 +33,8 @@ class SourceControlServiceTests {
     SourceControlService sourceControlService;
     @MockBean
     SourceControlRepository sourceControlRepository;
+    @Mock
+    GitLab4JClient gitLab4JClient;
     @Captor
     ArgumentCaptor<SourceControl> sourceControlCaptor;
 
@@ -41,6 +47,10 @@ class SourceControlServiceTests {
             .with(g -> g.setDescription("foo"))
             .with(g -> g.setBaseUrl("http://foo.bar"))
             .with(g -> g.setCreationDate(CREATION_DATE))
+            .get();
+    final private GitLabProject gitLabProject = Builder.build(GitLabProject.class)
+            .with(p -> p.setGitlabProjectId(7))
+            .with(p -> p.setName("Midas UI"))
             .get();
     
     @Test
@@ -134,7 +144,16 @@ class SourceControlServiceTests {
         assertThat(capturedConfig.getName()).isEqualTo(uDto.getName());
         assertThat(capturedConfig.getBaseUrl()).isEqualTo(uDto.getBaseUrl());
         assertThat(capturedConfig.getToken()).isEqualTo(sourceControl.getToken());
+    }
 
+    @Test
+    void should_get_all_projects_for_group() {
+        doReturn(sourceControl).when(sourceControlService).findById(sourceControl.getId());
+        doReturn(gitLab4JClient).when(sourceControlService).getGitlabClient(sourceControl);
+        doReturn(List.of(gitLabProject)).when(gitLab4JClient).getProjectsFromGroup(123);
+
+        assertThat(sourceControlService.getAllGitlabProjectsForGroup(sourceControl.getId(), 123))
+                .isEqualTo(List.of(gitLabProject));
     }
 
 }

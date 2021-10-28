@@ -85,9 +85,11 @@ class ProductControllerTests extends ControllerTestHarness {
             .with(p -> p.setName("Midas"))
             .with(p -> p.setOwner(new User()))
             .with(p -> p.setDescription("stack full"))
+            .with(p -> p.setGitlabGroupId(123))
             .with(p -> p.setCreationDate(CREATION_DATE))
             .with(p -> p.setIsArchived(false))
-            .with(p -> p.setProjects(Set.of(new Project()))).get();
+            .with(p -> p.setProjects(Set.of(new Project())))
+            .get();
 
     @BeforeEach
     void init() throws Exception {
