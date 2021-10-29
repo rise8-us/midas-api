@@ -3,6 +3,7 @@ package mil.af.abms.midas.api.project;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -34,6 +35,11 @@ public class ProjectController extends AbstractCRUDController<Project, ProjectDT
     @PostMapping("/from_gitlab")
     public ProjectDTO createFromGitlab(@Valid @RequestBody GitLabProject gitLabProject) {
         return service.createFromGitlab(gitLabProject).toDto();
+    }
+
+    @GetMapping("/sync/{id}")
+    public ProjectDTO syncById(@PathVariable Long id) {
+        return service.syncProjectWithGitlab(id).toDto();
     }
 
     @HasProjectAccess
