@@ -3,15 +3,18 @@ package mil.af.abms.midas.enums;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+
+import mil.af.abms.midas.api.init.dto.RoleDTO;
 
 public class RolesTest {
 
     @Test
     public void can_Stream_Enum() {
-        assertThat((int) Roles.stream().count()).isEqualTo(5);
+        assertThat((int) Roles.stream().count()).isEqualTo(6);
     }
 
     @Test
@@ -22,6 +25,7 @@ public class RolesTest {
         rolesMap.put(Roles.PRODUCT_MANAGER, false);
         rolesMap.put(Roles.TECH_LEAD, false);
         rolesMap.put(Roles.DESIGNER, false);
+        rolesMap.put(Roles.PLATFORM_OPERATOR, false);
 
         assertThat(Roles.getRoles(1L)).isEqualTo(rolesMap);
     }
@@ -49,5 +53,14 @@ public class RolesTest {
         assertThat(Roles.PORTFOLIO_LEAD.getName()).isEqualTo("PORTFOLIO_LEAD");
         assertThat(Roles.PORTFOLIO_LEAD.getDescription()).isEqualTo("Manages portfolio");
         assertThat(Roles.PORTFOLIO_LEAD.getBitValue()).isEqualTo(2);
+    }
+
+    @Test
+    public void should_convert_to_dto() {
+        var rolesDTO = List.of(new RoleDTO(0, "ADMIN", "Can update or add anything"));
+
+        assertThat(Roles.toDTO().get(0).getOffset()).isEqualTo(rolesDTO.get(0).getOffset());
+        assertThat(Roles.toDTO().get(0).getName()).isEqualTo(rolesDTO.get(0).getName());
+        assertThat(Roles.toDTO().get(0).getDescription()).isEqualTo(rolesDTO.get(0).getDescription());
     }
 }

@@ -15,7 +15,7 @@ class InitDTOTests {
     void should_get_fields() {
         InitDTO dto = new InitDTO("unclass", "cui", new UserDTO(), List.of(), Set.of());
         
-        assertThat(dto.getRoles().size()).isEqualTo(5);
+        assertThat(dto.getRoles().size()).isEqualTo(6);
         assertThat(dto.getProjectJourneyMap().size()).isEqualTo(4);
         assertThat(dto.getAssertionStatus().size()).isEqualTo(5);
         assertThat(dto.getSonarqubeMaintainability().size()).isEqualTo(6);

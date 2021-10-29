@@ -17,7 +17,7 @@ import mil.af.abms.midas.api.AbstractCRUDController;
 import mil.af.abms.midas.api.sourcecontrol.dto.CreateUpdateSourceControlDTO;
 import mil.af.abms.midas.api.sourcecontrol.dto.SourceControlDTO;
 import mil.af.abms.midas.clients.gitlab.models.GitLabProject;
-import mil.af.abms.midas.config.security.annotations.IsAdmin;
+import mil.af.abms.midas.config.security.annotations.IsPlatformOperatorOrAdmin;
 
 @RestController
 @RequestMapping("/api/sourceControls")
@@ -28,13 +28,13 @@ public class SourceControlController extends AbstractCRUDController<SourceContro
         super(service);
     }
 
-    @IsAdmin
+    @IsPlatformOperatorOrAdmin
     @PostMapping
     public SourceControlDTO create(@Valid @RequestBody CreateUpdateSourceControlDTO cDto) {
         return service.create(cDto).toDto();
     }
 
-    @IsAdmin
+    @IsPlatformOperatorOrAdmin
     @PutMapping("/{id}")
     public SourceControlDTO update(@PathVariable Long id, @Valid @RequestBody CreateUpdateSourceControlDTO uDto) {
         return service.updateById(id, uDto).toDto();
