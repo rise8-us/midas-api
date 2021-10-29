@@ -45,17 +45,15 @@ public class GitLab4JClient {
     private final GitLabApi client;
 
     public GitLab4JClient(String url, String token) {
-        url = Optional.ofNullable(url).orElseThrow(() -> new IllegalArgumentException("A gitlab url must be provided"));
+        this.baseUrl = Optional.ofNullable(url).orElseThrow(() -> new IllegalArgumentException("A gitlab url must be provided"));
         this.token = Optional.ofNullable(token).orElseThrow(() -> new IllegalArgumentException("a gitlab token must be provided"));
-        this.baseUrl = url;
-        this.client = new GitLabApi(url, token);
+        this.client = new GitLabApi(this.baseUrl, this.token);
     }
 
     public GitLab4JClient(SourceControl sourceControl) {
-        var url = Optional.ofNullable(sourceControl.getBaseUrl()).orElseThrow(() -> new IllegalArgumentException("A gitlab url must be provided"));
-        this.token = Optional.ofNullable(sourceControl.getToken()).orElseThrow(() -> new IllegalArgumentException("A gitlab token must be provided"));
-        this.baseUrl = url;
-        this.client = new GitLabApi(url, token);
+        this.baseUrl = Optional.ofNullable(sourceControl.getBaseUrl()).orElseThrow(() -> new IllegalArgumentException("A gitlab url must be provided"));
+        this.token = Optional.ofNullable(sourceControl.getToken()).orElseThrow(() -> new IllegalArgumentException("a gitlab token must be provided"));
+        this.client = new GitLabApi(this.baseUrl, this.token);
     }
 
     public Optional<Project> findProjectById(Integer id) {

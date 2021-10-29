@@ -6,7 +6,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import lombok.extern.slf4j.Slf4j;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.dtos.AddGitLabEpicDTO;
@@ -17,6 +20,7 @@ import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
 import mil.af.abms.midas.clients.gitlab.models.GitLabEpic;
 
+@Slf4j
 @Service
 public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicRepository> {
 
@@ -45,9 +49,9 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
     public Epic updateById(Long id) {
         var foundEpic = findById(id);
         var product = foundEpic.getProduct();
-        var epicConversion = getEpicFromClient(product, foundEpic.getEpicIid());
+        var gitLabEpic = getEpicFromClient(product, foundEpic.getEpicIid());
 
-        return syncEpic(epicConversion, foundEpic);
+        return syncEpic(gitLabEpic, foundEpic);
     }
 
     public Epic updateIsHidden(Long id, IsHiddenDTO dto) {
@@ -60,21 +64,39 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
 
     public Set<Epic> getAllGitlabEpicsForProduct(Long productId) {
         var product = productService.findById(productId);
+
+        if (product.getIsArchived() ||
+            product.getGitlabGroupId() == null ||
+            product.getSourceControl() == null ||
+            product.getSourceControl().getToken() == null ||
+            product.getSourceControl().getBaseUrl() == null
+        ) {
+            return Set.of();
+        }
+
         var epicConversions = getGitlabClient(product)
                 .getEpicsFromGroup(product.getGitlabGroupId());
 
         return epicConversions.stream()
-                .map(e ->
-                     repository.findByEpicUid(generateUniqueId(product, e.getEpicIid()))
-                             .map(epic -> syncEpic(e, epic))
-                             .orElseGet(() ->  convertToEpic(e, product))
-                ).collect(Collectors.toSet()
-        );
+            .map(e ->
+                repository.findByEpicUid(generateUniqueId(product, e.getEpicIid()))
+                    .map(epic -> syncEpic(e, epic))
+                    .orElseGet(() -> convertToEpic(e, product))
+                ).collect(Collectors.toSet());
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void runScheduledEpicSync() {
+        for (Long productId : productService.getAllProductIds()) {
+            if (productId != null) {
+                getAllGitlabEpicsForProduct(productId);
+            }
+        }
     }
 
     public boolean canAddEpic(Integer iid, Product product) {
-        var gitLab4JClient = getGitlabClient(product);
-        return gitLab4JClient.epicExistsByIdAndGroupId(iid, product.getGitlabGroupId());
+        var client = getGitlabClient(product);
+        return client.epicExistsByIdAndGroupId(iid, product.getGitlabGroupId());
     }
 
     protected Long generateUniqueId(Long sourceControlId, Integer gitlabGroupId, Integer epicIId) {

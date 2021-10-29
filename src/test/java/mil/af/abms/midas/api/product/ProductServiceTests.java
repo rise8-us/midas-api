@@ -12,6 +12,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -270,4 +271,10 @@ class ProductServiceTests {
         verify(websocket, times(1)).convertAndSend("/topic/update_team", team.toDto());
     }
 
+    @Test
+    void should_get_all_product_ids() {
+        when(productRepository.findAll()).thenReturn(List.of(product));
+
+        assertThat(productService.getAllProductIds()).isEqualTo(List.of(product.getId()));
+    }
 }
