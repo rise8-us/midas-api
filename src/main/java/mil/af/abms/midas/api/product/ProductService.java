@@ -2,6 +2,7 @@ package mil.af.abms.midas.api.product;
 
 import javax.transaction.Transactional;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -137,6 +138,10 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         product.setProjects(projects);
         product.setIsArchived(updateProductIsArchivedDTO.getIsArchived());
         return repository.save(product);
+    }
+
+    public List<Long> getAllProductIds() {
+        return repository.findAll().stream().map(Product::getId).collect(Collectors.toList());
     }
 
     public void addParentToChildren(Product parent, Set<Product> children) {

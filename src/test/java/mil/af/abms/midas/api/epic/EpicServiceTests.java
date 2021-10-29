@@ -136,6 +136,25 @@ class EpicServiceTests {
     }
 
     @Test
+    void should_run_scheduled_epic_sync() {
+        var gitLab4JClient = Mockito.mock(GitLab4JClient.class);
+        var expectedEpic = new Epic();
+        BeanUtils.copyProperties(gitLabEpic, expectedEpic);
+
+        doReturn(List.of(foundProduct.getId())).when(productService).getAllProductIds();
+        when(productService.findById(foundProduct.getId())).thenReturn(foundProduct);
+        doReturn(gitLab4JClient).when(epicService).getGitlabClient(any());
+        when(gitLab4JClient.getEpicsFromGroup(foundProduct.getGitlabGroupId())).thenReturn(List.of(gitLabEpic));
+
+        epicService.runScheduledEpicSync();
+
+        verify(repository, times(1)).save(captor.capture());
+        Epic epicSaved = captor.getValue();
+
+        assertThat(epicSaved.getEpicIid()).isEqualTo(expectedEpic.getEpicIid());
+    }
+
+    @Test
     void can_add_Epic_returns_false() {
         assertFalse(epicService.canAddEpic(foundEpic.getEpicIid(), foundProduct));
     }
