@@ -190,9 +190,9 @@ public class MySQLClient {
     }
 
     private ResultSet queryDB(String query) {
-        try {
-            var connection = DBUtils.connect(dbUrl, dbUser, dbPassword, dbDriver);
-            var statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        try (var connection = DBUtils.connect(dbUrl, dbUser, dbPassword, dbDriver);
+             var statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+         ) {
             return statement.executeQuery(query);
         } catch (SQLException e) {
             log.error(e.getMessage());
