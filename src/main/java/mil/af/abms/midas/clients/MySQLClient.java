@@ -40,7 +40,10 @@ public class MySQLClient {
         var query = String.format("SELECT table_name FROM information_schema.tables WHERE table_schema = \"%s\";", dbName);
         var tableNames = new HashSet<String>();
 
-        try (var results = queryDB(query);) {
+        try (var connection = DBUtils.connect(dbUrl, dbUser, dbPassword, dbDriver);
+             var statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+             var results =  statement.executeQuery(query);
+        ) {
             while (results.next()) {
                 tableNames.add(results.getString("table_name"));
             }
@@ -54,7 +57,10 @@ public class MySQLClient {
     public String getLatestFlywayVersion() {
         var query = "SELECT version FROM flyway_schema_history ORDER BY version DESC LIMIT 1;";
 
-        try  (var results = queryDB(query);) {
+        try (var connection = DBUtils.connect(dbUrl, dbUser, dbPassword, dbDriver);
+             var statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+             var results =  statement.executeQuery(query);
+        ) {
             results.next();
             return results.getString("version");
         } catch (SQLException e) {
@@ -63,11 +69,10 @@ public class MySQLClient {
         return "";
     }
 
-    public boolean restore(String mysqlDump) {
+    public void restore(String mysqlDump) {
         try (var connection = DBUtils.connect(dbUrl, dbUser, dbPassword, dbDriver);) {
             var sqlAsResource = new ByteArrayResource(mysqlDump.getBytes(StandardCharsets.UTF_8));
             ScriptUtils.executeSqlScript(connection, sqlAsResource);
-            return true;
         } catch (SQLException e) {
             log.error(e.getMessage());
             throw new AbstractRuntimeException("Unable to restore DB");
@@ -104,7 +109,10 @@ public class MySQLClient {
         StringBuilder sql = new StringBuilder();
         var query = String.format("SHOW CREATE TABLE `%s`;", table);
 
-        try (var results = queryDB(query);) {
+        try (var connection = DBUtils.connect(dbUrl, dbUser, dbPassword, dbDriver);
+             var statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+             var results =  statement.executeQuery(query);
+        ) {
             if (!table.isEmpty()) {
                 while (results.next()) {
                     String tableName = results.getString(1);
@@ -124,7 +132,10 @@ public class MySQLClient {
     private String getDataInsertStatement(String table) {
         var sql = new StringBuilder();
         var query = String.format("SELECT * FROM `%s`;", table);
-        try (var results = queryDB(query);) {
+        try (var connection = DBUtils.connect(dbUrl, dbUser, dbPassword, dbDriver);
+             var statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+             var results =  statement.executeQuery(query);
+        ) {
             if (!results.last()) {
                 return sql.toString();
             }
@@ -187,16 +198,5 @@ public class MySQLClient {
         sql.append(";");
 
         return sql.toString();
-    }
-
-    private ResultSet queryDB(String query) {
-        try (var connection = DBUtils.connect(dbUrl, dbUser, dbPassword, dbDriver);
-             var statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-         ) {
-            return statement.executeQuery(query);
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            throw new AbstractRuntimeException("Failed to query database.");
-        }
     }
 }
