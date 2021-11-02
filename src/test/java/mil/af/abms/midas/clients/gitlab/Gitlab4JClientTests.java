@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -98,9 +99,23 @@ class Gitlab4JClientTests {
     }
 
     @Test
+    void findProjectById_should_return_empty_on_exception() {
+        doThrow(new GitApiException("F")).when(gitClient).makeRequest(any());
+
+        assertThat(gitClient.findProjectById(1)).isEqualTo(Optional.empty());
+    }
+
+    @Test
     void should_return_false_on_epicExistsByIdAndGroupId() {
         doReturn(Optional.empty()).when(gitClient).makeRequest(any());
         assertFalse(gitClient.epicExistsByIdAndGroupId(123, 321));
+    }
+
+    @Test
+    void findEpicByIdAndGroup_should_return_empty_on_exception() {
+        doThrow(new GitApiException("F")).when(gitClient).makeRequest(any());
+
+        assertThat(gitClient.findEpicByIdAndGroupId(1, 1)).isEqualTo(Optional.empty());
     }
 
     @Test
@@ -113,10 +128,19 @@ class Gitlab4JClientTests {
     }
 
     @Test
-    void should_throw_on_getLatestSonarQubeJob() {
+    void should_return_null_getLatestSonarQubeJob() {
         doReturn(List.of()).when(gitClient).makeRequest(any());
 
-        assertThrows(GitApiException.class, () -> gitClient.getLatestSonarQubeJob(1));
+        assertThat(gitClient.getLatestSonarQubeJob(1)).isEqualTo(null);
+    }
+
+    @Test
+    void getLatestCodeCoverage_should_return_new_on_null_job() {
+        var coverage = Map.ofEntries(Map.entry("jobId", "-1"));
+
+        doReturn(null).when(gitClient).getLatestSonarQubeJob(any());
+
+        assertThat(gitClient.getLatestCodeCoverage(1, 1)).isEqualTo(coverage);
     }
 
     @Test
