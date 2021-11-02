@@ -57,11 +57,21 @@ public class GitLab4JClient {
     }
 
     public Optional<Project> findProjectById(Integer id) {
-        return (Optional<Project>) makeRequest(() -> client.getProjectApi().getOptionalProject(id));
+        try {
+            return (Optional<Project>) makeRequest(() -> client.getProjectApi().getOptionalProject(id));
+        } catch (GitApiException e) {
+            log.error(String.format("GitLab4JClient could not find gitlab project with id: %d", id));
+            return Optional.empty();
+        }
     }
 
     public Optional<Epic> findEpicByIdAndGroupId(Integer id, Integer groupId) {
-        return (Optional<Epic>) makeRequest(() -> client.getEpicsApi().getOptionalEpic(groupId, id));
+        try {
+            return (Optional<Epic>) makeRequest(() -> client.getEpicsApi().getOptionalEpic(groupId, id));
+        } catch (GitApiException e) {
+            log.error(String.format("GitLab4JClient could not find epic with id: %d in group: %d", id, groupId));
+            return Optional.empty();
+        }
     }
 
     public Boolean projectExistsById(Integer id) {
@@ -75,6 +85,10 @@ public class GitLab4JClient {
     public Map<String, String> getLatestCodeCoverage(Integer projectId, Integer currentJobId) {
         var coverage = Map.ofEntries(Map.entry("jobId", "-1"));
         var job = getLatestSonarQubeJob(projectId);
+        if (job == null) {
+            return coverage;
+        }
+
         Integer jobId = job.getId();
 
         if (jobId > currentJobId) {
@@ -98,11 +112,16 @@ public class GitLab4JClient {
     }
 
     public Job getLatestSonarQubeJob(Integer projectId) {
-        List<Job> jobs = (List<Job>) makeRequest(() -> client.getJobApi().getJobs(projectId, 1, 200));
-        return jobs.stream()
-                .filter(j -> j.getName().equals("sonarqube") && j.getRef().equals("master"))
-                .max(Comparator.comparing(Job::getId))
-                .orElseThrow(() -> new GitApiException("Job", "sonarqube"));
+        try {
+            List<Job> jobs = (List<Job>) makeRequest(() -> client.getJobApi().getJobs(projectId, 1, 200));
+            return jobs.stream()
+                    .filter(j -> j.getName().equals("sonarqube") && j.getRef().equals("master"))
+                    .max(Comparator.comparing(Job::getId))
+                    .orElseThrow(() -> new GitApiException("Job", "sonarqube"));
+        } catch (GitApiException e) {
+            log.error(String.format("GitLab4JClient could not get latest sonarqube job for gitlab project with id: %d", projectId));
+            return null;
+        }
     }
 
     public String getSonarqubeProjectUrl(Integer projectId, Integer jobId) {
@@ -235,7 +254,7 @@ public class GitLab4JClient {
         try {
             return request.call();
         } catch (GitLabApiException e) {
-            log.error(e.getMessage());
+            log.error(String.format("GitLab4JClient makeRequest failed with error: %s", e.getMessage()));
             throw new GitApiException(e.getLocalizedMessage());
         }
     }
