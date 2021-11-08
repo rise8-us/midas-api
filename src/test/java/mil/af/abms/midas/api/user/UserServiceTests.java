@@ -18,8 +18,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -51,7 +51,7 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 @Import(UserService.class)
 class UserServiceTests {
 
-    @Autowired
+    @SpyBean
     UserService userService;
     @MockBean
     UserRepository userRepository;
@@ -107,6 +107,7 @@ class UserServiceTests {
         assertThat(userCaptured.getKeycloakUid()).isEqualTo(token.getKeycloakUid());
         assertThat(userCaptured.getDodId()).isEqualTo(token.getDodId());
         assertThat(userCaptured.getDisplayName()).isEqualTo(token.getDisplayName());
+        assertThat(userCaptured.getUsername()).isEqualTo(token.getDisplayName());
         assertThat(userCaptured.getEmail()).isEqualTo(token.getEmail());
         assertThat(userCaptured.getRoles()).isEqualTo(1L);
     }

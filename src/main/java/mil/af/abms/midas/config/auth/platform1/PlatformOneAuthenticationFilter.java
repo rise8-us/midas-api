@@ -62,8 +62,12 @@ public class PlatformOneAuthenticationFilter extends OncePerRequestFilter {
 
                 keycloakUid = getClaimsKeyAsString(claims, "sub");
                 cert = getClaimsKeyAsString(claims, "usercertificate");
-                displayName = getClaimsKeyAsString(claims, "name");
-                email = getClaimsKeyAsString(claims, "email");
+                email = Optional.ofNullable(claims.get("email"))
+                        .map(Claim::asString)
+                        .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("no email provided"));
+                displayName = Optional.ofNullable(claims.get("name"))
+                        .map(Claim::asString)
+                        .orElse(email.split("@")[0]);
                 List<String> allGroups = getClaimsKeyAsList(claims, "group-simple");
                 groups = allGroups.stream().filter(g -> g.matches("^midas.*")).collect(Collectors.toList());
 
