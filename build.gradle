@@ -49,7 +49,6 @@ dependencies {
     implementation 'org.springframework.security:spring-security-messaging'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.hibernate:hibernate-validator:7.0.1.Final'
-    implementation 'io.springfox:springfox-boot-starter:3.0.0'
     implementation 'org.flywaydb:flyway-core:8.0.0'
     implementation 'com.auth0:java-jwt:3.18.2'
     implementation 'org.gitlab4j:gitlab4j-api:4.18.0'
