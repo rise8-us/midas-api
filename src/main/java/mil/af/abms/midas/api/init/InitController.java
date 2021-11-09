@@ -8,9 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-
 import mil.af.abms.midas.api.announcement.Announcement;
 import mil.af.abms.midas.api.announcement.AnnouncementService;
 import mil.af.abms.midas.api.init.dto.InitDTO;
@@ -21,7 +18,6 @@ import mil.af.abms.midas.config.CustomProperty;
 
 @RestController
 @RequestMapping("/init")
-@Api(tags = "FrontEnd initialization")
 public class InitController {
 
     private final CustomProperty property;
@@ -39,8 +35,6 @@ public class InitController {
         this.teamService = teamService;
     }
 
-    @ApiOperation(value = "context info",
-            notes = "Returns classification context, available roles a user may have, user login, and unseen announcements")
     @GetMapping
     public InitDTO getInfo(Authentication auth) {
         var loggedInUser = userService.getUserBySecContext();

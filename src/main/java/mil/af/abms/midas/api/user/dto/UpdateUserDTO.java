@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +16,6 @@ import mil.af.abms.midas.api.validation.TeamsExist;
 @NoArgsConstructor
 public class UpdateUserDTO implements Serializable {
 
-    @ApiModelProperty(notes = "username must be unique")
     @UniqueUsername(isNew = false)
     private String username;
 
