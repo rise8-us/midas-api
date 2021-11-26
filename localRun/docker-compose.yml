@@ -49,9 +49,7 @@ services:
     entrypoint: >
       /bin/sh -c "
       /usr/bin/mc config host add myminio http://minio:9000 minio123 minio123;
-      /usr/bin/mc rm -r --force myminio/midas;
-      /usr/bin/mc mb myminio/midas;
-      /usr/bin/mc policy download myminio/midas;
+      /usr/bin/mc mb -p myminio/midas;
       exit 0;
       "
 
