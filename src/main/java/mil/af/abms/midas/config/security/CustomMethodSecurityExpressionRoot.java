@@ -11,6 +11,9 @@ import mil.af.abms.midas.api.assertion.AssertionService;
 import mil.af.abms.midas.api.comment.CommentService;
 import mil.af.abms.midas.api.epic.EpicService;
 import mil.af.abms.midas.api.feature.FeatureService;
+import mil.af.abms.midas.api.feedback.FeedbackService;
+import mil.af.abms.midas.api.measure.Measure;
+import mil.af.abms.midas.api.measure.MeasureService;
 import mil.af.abms.midas.api.persona.PersonaService;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
@@ -22,6 +25,7 @@ import mil.af.abms.midas.config.SpringContext;
 public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot implements MethodSecurityExpressionOperations {
 
     private static AssertionService assertionService() { return SpringContext.getBean(AssertionService.class); }
+    private static MeasureService measureService() { return SpringContext.getBean(MeasureService.class); }
     private static ProductService productService() { return SpringContext.getBean(ProductService.class); }
     private static UserService userService() { return SpringContext.getBean(UserService.class); }
     private static ProjectService projectService() { return SpringContext.getBean(ProjectService.class); }
@@ -29,6 +33,7 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
     private static PersonaService personaService() { return SpringContext.getBean(PersonaService.class); }
     private static FeatureService featureService() { return SpringContext.getBean(FeatureService.class); }
     private static EpicService epicService() { return SpringContext.getBean(EpicService.class); }
+    private static FeedbackService feedbackService() { return SpringContext.getBean(FeedbackService.class); }
 
     public CustomMethodSecurityExpressionRoot(Authentication authentication) {
         super(authentication);
@@ -64,11 +69,18 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
         return userMakingRequest.equals(productManager) || hasProductAccess(parent.getId()) || hasTeamAccess(teamId);
     }
 
-    public boolean hasOGSMWriteAccess(Long ogsmId) {
-        if (ogsmId == null) { return false; }
-        Assertion assertionBeingAccessed = assertionService().findById(ogsmId);
+    public boolean hasAssertionWriteAccess(Long assertionId) {
+        if (assertionId == null) { return false; }
+        Assertion assertionBeingAccessed = assertionService().findById(assertionId);
         Long productId = Optional.ofNullable(assertionBeingAccessed.getProduct()).map(Product::getId).orElse(null);
         return hasProductAccess(productId);
+    }
+
+    public boolean hasMeasureWriteAccess(Long measureId) {
+        if (measureId == null) { return false; }
+        Measure measureBeingAccessed = measureService().findById(measureId);
+        Long assertionId = Optional.ofNullable(measureBeingAccessed.getAssertion()).map(Assertion::getId).orElse(null);
+        return hasAssertionWriteAccess(assertionId);
     }
 
     public boolean isCommentCreator(Long commentId) {
@@ -76,6 +88,13 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
         var commentToModify = commentService().findById(commentId);
         var userMakingRequest = userService().getUserBySecContext();
         return userMakingRequest.getId().equals(commentToModify.getCreatedBy().getId());
+    }
+
+    public boolean isFeedbackCreator(Long feedbackId) {
+        if (feedbackId == null) { return false; }
+        var feedbackToModify = feedbackService().findById(feedbackId);
+        var userMakingRequest = userService().getUserBySecContext();
+        return userMakingRequest.getId().equals(feedbackToModify.getCreatedBy().getId());
     }
 
     public boolean hasPersonaAccess(Long personaId) {

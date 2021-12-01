@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RestoreDTO implements Serializable {
+public class BackupRestoreDTO implements Serializable {
 
     String fileName;
 

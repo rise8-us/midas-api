@@ -1,5 +1,6 @@
 package mil.af.abms.midas.api.roadmap.dto;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
@@ -19,8 +20,10 @@ public class RoadmapDTO implements AbstractDTO {
     private RoadmapStatus status;
     private LocalDateTime creationDate;
     private String description;
+    private Boolean isHidden;
     private Long productId;
-    private Integer index;
-    private LocalDateTime targetDate;
+    private LocalDate startDate;
+    private LocalDate dueDate;
+    private LocalDateTime completedAt;
 
 }

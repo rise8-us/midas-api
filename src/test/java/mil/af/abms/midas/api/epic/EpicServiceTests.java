@@ -9,6 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -48,6 +49,9 @@ class EpicServiceTests {
     @Captor
     ArgumentCaptor<Epic> captor;
 
+    private static final LocalDateTime CREATED_AT = LocalDateTime.now().minusDays(1L);
+    private static final LocalDateTime CLOSED_AT = LocalDateTime.now();
+
     private final SourceControl sourceControl = Builder.build(SourceControl.class)
             .with(sc -> sc.setId(3L))
             .with(sc -> sc.setToken("fake_token"))
@@ -68,6 +72,7 @@ class EpicServiceTests {
     private final GitLabEpic gitLabEpic = Builder.build(GitLabEpic.class)
             .with(e -> e.setTitle("title"))
             .with(e -> e.setEpicIid(2))
+            .with(e -> e.setCompletedAt(CLOSED_AT))
             .get();
 
     @Test
@@ -140,6 +145,7 @@ class EpicServiceTests {
         var gitLab4JClient = Mockito.mock(GitLab4JClient.class);
         var expectedEpic = new Epic();
         BeanUtils.copyProperties(gitLabEpic, expectedEpic);
+        expectedEpic.setCreationDate(CREATED_AT);
 
         doReturn(List.of(foundProduct.getId())).when(productService).getAllProductIds();
         when(productService.findById(foundProduct.getId())).thenReturn(foundProduct);
@@ -150,8 +156,10 @@ class EpicServiceTests {
 
         verify(repository, times(1)).save(captor.capture());
         Epic epicSaved = captor.getValue();
+        epicSaved.setCreationDate(CREATED_AT);
 
-        assertThat(epicSaved.getEpicIid()).isEqualTo(expectedEpic.getEpicIid());
+        assertThat(epicSaved).isEqualTo(expectedEpic);
+        assertThat(gitLabEpic.getCompletedAt()).isEqualTo(epicSaved.getCompletedAt());
     }
 
     @Test

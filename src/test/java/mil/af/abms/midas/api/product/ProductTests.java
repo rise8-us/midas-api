@@ -23,6 +23,7 @@ import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.enums.ProductType;
+import mil.af.abms.midas.enums.RoadmapType;
 
 class ProductTests {
 
@@ -41,6 +42,7 @@ class ProductTests {
             .with(p -> p.setProjects(projects))
             .with(p -> p.setType(ProductType.PRODUCT))
             .with(p -> p.setTeams(Set.of(team)))
+            .with(p -> p.setRoadmapType(RoadmapType.GITLAB))
             .get();
     private final ProductDTO productDTO = Builder.build(ProductDTO.class)
             .with(d -> d.setId(1L))
@@ -55,6 +57,7 @@ class ProductTests {
             .with(d -> d.setChildren(Set.of()))
             .with(d -> d.setType(ProductType.PRODUCT))
             .with(d -> d.setTeamIds(Set.of(4L)))
+            .with(p -> p.setRoadmapType(RoadmapType.GITLAB))
             .get();
 
     @Test

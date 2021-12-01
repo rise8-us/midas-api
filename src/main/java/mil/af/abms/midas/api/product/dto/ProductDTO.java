@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import mil.af.abms.midas.api.AbstractDTO;
 import mil.af.abms.midas.api.tag.dto.TagDTO;
 import mil.af.abms.midas.enums.ProductType;
+import mil.af.abms.midas.enums.RoadmapType;
 
 @Data
 @AllArgsConstructor
@@ -33,5 +34,6 @@ public class ProductDTO implements AbstractDTO {
     private String vision;
     private String mission;
     private String problemStatement;
+    private RoadmapType roadmapType;
 
 }

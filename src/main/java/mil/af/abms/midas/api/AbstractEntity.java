@@ -64,7 +64,7 @@ public abstract class AbstractEntity<D extends AbstractDTO> implements Serializa
 
     public abstract D toDto();
 
-    private String getLowercaseClassName() {
+    public String getLowercaseClassName() {
         return this.getClass().getSimpleName().toLowerCase();
     }
 

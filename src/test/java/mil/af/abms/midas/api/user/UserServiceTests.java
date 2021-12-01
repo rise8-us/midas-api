@@ -137,7 +137,7 @@ class UserServiceTests {
     void should_throw_error_when_id_null() throws EntityNotFoundException {
         EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () ->
                 userService.findById(null));
-        assertThat(e).hasMessage("Failed to find User");
+        assertThat(e).hasMessage("Failed to find User with id null");
     }
 
     @Test

@@ -23,10 +23,12 @@ public class AnnouncementRepositoryTests extends RepositoryTestHarness {
     public void should_find_unseen_announcements_for_user() {
         Announcement announcement1 = Builder.build(Announcement.class)
                 .with(a -> a.setMessage("foo"))
-                .with(a -> a.setCreationDate(NOW)).get();
+                .with(a -> a.setCreationDate(NOW))
+                .get();
         Announcement announcement2 = Builder.build(Announcement.class)
                 .with(a -> a.setMessage("foo"))
-                .with(a -> a.setCreationDate(NOW.minusDays(304L))).get();
+                .with(a -> a.setCreationDate(NOW.minusDays(304L)))
+                .get();
 
         entityManager.persist(announcement1);
         entityManager.persist(announcement2);

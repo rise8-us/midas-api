@@ -124,6 +124,7 @@ A `key` and a `salt` must be provided in the container environment.  The key and
   ./gradlew checkstyleMain # Checkstyle analysis on src/main
   ./gradlew checkstyleTest # Checkstyle analysis on src/test
   ./gradlew jacocoTestReport # Generates a JACOCO test report
+  ./gradlew lintGradle # Wraps checkstyle main and test to lint your code
   ```
 
 

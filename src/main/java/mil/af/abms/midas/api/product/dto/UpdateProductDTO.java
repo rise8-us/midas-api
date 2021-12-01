@@ -16,6 +16,7 @@ import mil.af.abms.midas.api.validation.ProjectsExist;
 import mil.af.abms.midas.api.validation.TagsExist;
 import mil.af.abms.midas.api.validation.UserExists;
 import mil.af.abms.midas.enums.ProductType;
+import mil.af.abms.midas.enums.RoadmapType;
 
 @Data
 @AllArgsConstructor
@@ -53,5 +54,6 @@ public class UpdateProductDTO implements Serializable {
     private String vision;
     private String mission;
     private String problemStatement;
+    private RoadmapType roadmapType;
 
 }

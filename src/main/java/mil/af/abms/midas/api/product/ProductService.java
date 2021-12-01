@@ -76,6 +76,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
                         .map(this::findById).collect(Collectors.toSet())))
                 .with(p -> p.setProjects(dto.getProjectIds().stream()
                         .map(projectService::findById).collect(Collectors.toSet())))
+                .with(p -> p.setRoadmapType(dto.getRoadmapType()))
                 .get();
 
         newProduct = repository.save(newProduct);
@@ -108,6 +109,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         product.setParent(findByIdOrNull(dto.getParentId()));
         product.setGitlabGroupId(dto.getGitlabGroupId());
         product.setSourceControl(sourceControlService.findByIdOrNull(dto.getSourceControlId()));
+        product.setRoadmapType(dto.getRoadmapType());
         product.setTeams(dto.getTeamIds().stream().map(teamService::findById)
                 .collect(Collectors.toSet()));
         product.setTags(dto.getTagIds().stream()

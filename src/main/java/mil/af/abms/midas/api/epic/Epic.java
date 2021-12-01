@@ -22,7 +22,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import mil.af.abms.midas.api.AbstractEntity;
+import mil.af.abms.midas.api.AbstractTimeConstrainedEntity;
 import mil.af.abms.midas.api.epic.dto.EpicDTO;
 import mil.af.abms.midas.api.product.Product;
 
@@ -30,7 +30,7 @@ import mil.af.abms.midas.api.product.Product;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Table(name = "epic")
-public class Epic extends AbstractEntity<EpicDTO> {
+public class Epic extends AbstractTimeConstrainedEntity<EpicDTO> {
 
     @Column(columnDefinition = "TEXT")
     private String title;
@@ -45,31 +45,13 @@ public class Epic extends AbstractEntity<EpicDTO> {
     @JsonFormat(pattern = "yyyy-MM-dd")
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
-    private LocalDate startDate;
-
-    @Column(columnDefinition = "DATE")
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @JsonDeserialize(using = LocalDateDeserializer.class)
-    @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate startDateFromInheritedSource;
 
     @Column(columnDefinition = "DATE")
     @JsonFormat(pattern = "yyyy-MM-dd")
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
-    private LocalDate dueDate;
-
-    @Column(columnDefinition = "DATE")
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @JsonDeserialize(using = LocalDateDeserializer.class)
-    @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate dueDateFromInheritedSource;
-
-    @Column(columnDefinition = "DATETIME")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime closedAt;
 
     @Column(columnDefinition = "DATETIME")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
@@ -110,7 +92,7 @@ public class Epic extends AbstractEntity<EpicDTO> {
             startDateFromInheritedSource,
             dueDate,
             dueDateFromInheritedSource,
-            closedAt,
+            completedAt,
             syncedAt,
             epicIid,
             state,
@@ -118,7 +100,7 @@ public class Epic extends AbstractEntity<EpicDTO> {
             selfApi,
             epicIssuesApi,
             epicUid,
-            product.getId()
+            getIdOrNull(product)
         );
     }
 

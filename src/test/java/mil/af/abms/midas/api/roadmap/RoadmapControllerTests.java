@@ -1,6 +1,7 @@
 package mil.af.abms.midas.api.roadmap;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -11,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -19,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
+import mil.af.abms.midas.api.dtos.IsHiddenDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.roadmap.dto.CreateRoadmapDTO;
 import mil.af.abms.midas.api.roadmap.dto.UpdateRoadmapDTO;
@@ -31,10 +34,10 @@ class RoadmapControllerTests extends ControllerTestHarness {
     private RoadmapService roadmapService;
 
     private final UpdateRoadmapDTO updateRoadmapDTO = new UpdateRoadmapDTO(
-            "Do cool things", "awesome stuff", RoadmapStatus.COMPLETE, 0, 1L, "2021-10-10"
+            "Do cool things", "awesome stuff", RoadmapStatus.COMPLETE, 1L, "2021-10-10", "2021-11-10"
     );
     private final CreateRoadmapDTO createRoadmapDTO = new CreateRoadmapDTO(
-            "Do things", "stuff", 2L, RoadmapStatus.IN_PROGRESS, 1, "2021-11-10"
+            "Do things", "stuff", 2L, RoadmapStatus.IN_PROGRESS, "2021-11-10", "2021-11-10"
     );
     private final Roadmap roadmap = Builder.build(Roadmap.class)
             .with(t -> t.setId(2L))
@@ -61,6 +64,19 @@ class RoadmapControllerTests extends ControllerTestHarness {
     }
 
     @Test
+    void should_update_roadmap_by_id() throws Exception {
+        when(roadmapService.updateById(anyLong(), any())).thenReturn(roadmap);
+
+        mockMvc.perform(put("/api/roadmaps/1")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsString(updateRoadmapDTO))
+            )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.title").value(roadmap.getTitle()));
+    }
+
+    @Test
     void should_bulk_update_roadmap() throws Exception {
         when(roadmapService.bulkUpdate(any())).thenReturn(List.of(roadmap));
 
@@ -71,6 +87,25 @@ class RoadmapControllerTests extends ControllerTestHarness {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$[0].title").value(roadmap.getTitle()));
+    }
+
+    @Test
+    public void should_update_roadmap_is_hidden_true() throws Exception {
+        var hidden = new Roadmap();
+        BeanUtils.copyProperties(roadmap, hidden);
+        hidden.setIsHidden(true);
+
+        var hiddenDTO = new IsHiddenDTO(true);
+
+        when(roadmapService.updateIsHidden(2L, hiddenDTO)).thenReturn(hidden);
+
+        mockMvc.perform(put("/api/roadmaps/2/hide")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapper.writeValueAsString(hiddenDTO))
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.isHidden").value(true));
     }
 
 }

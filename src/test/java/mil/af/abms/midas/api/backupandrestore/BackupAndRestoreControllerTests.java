@@ -1,6 +1,7 @@
 package mil.af.abms.midas.api.backupandrestore;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -24,7 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
-import mil.af.abms.midas.api.backupandrestore.dto.RestoreDTO;
+import mil.af.abms.midas.api.backupandrestore.dto.BackupRestoreDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.helper.GzipHelper;
 
@@ -34,7 +35,7 @@ class BackupAndRestoreControllerTests extends ControllerTestHarness {
     @MockBean
     BackupAndRestoreService service;
 
-    private final RestoreDTO restoreDTO = new RestoreDTO("FileName");
+    private final BackupRestoreDTO backupRestoreDTO = new BackupRestoreDTO("FileName");
     private final List<String> s3Files = List.of("foo", "bar", "fooBar");
     private final Set<String> tableNames = Set.of("foo");
 
@@ -73,20 +74,23 @@ class BackupAndRestoreControllerTests extends ControllerTestHarness {
     @Test
     void should_create_backup() throws Exception {
 
-        doNothing().when(service).backupToS3();
+        doNothing().when(service).backupToS3(anyString());
 
-        mockMvc.perform(get("/api/dbActions/backup"))
+        mockMvc.perform(get("/api/dbActions/backup")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsString(backupRestoreDTO))
+                )
                 .andExpect(status().isOk());
     }
 
     @Test
     void should_restore_when_given_s3_file_name() throws Exception {
 
-        doNothing().when(service).restore(restoreDTO.getFileName());
+        doNothing().when(service).restore(backupRestoreDTO.getFileName());
 
         mockMvc.perform(post("/api/dbActions/restore")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(mapper.writeValueAsString(restoreDTO))
+                .content(mapper.writeValueAsString(backupRestoreDTO))
                 )
                 .andExpect(status().isOk());
     }
@@ -95,11 +99,11 @@ class BackupAndRestoreControllerTests extends ControllerTestHarness {
     void should_download_file() throws Exception {
         var stream = new ByteArrayResource(IOUtils.toByteArray(object.getObjectContent()));
 
-        when(service.getFile(restoreDTO.getFileName())).thenReturn(stream);
+        when(service.getFile(backupRestoreDTO.getFileName())).thenReturn(stream);
 
         mockMvc.perform(post("/api/dbActions/download")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(mapper.writeValueAsString(restoreDTO))
+                .content(mapper.writeValueAsString(backupRestoreDTO))
                 )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM));

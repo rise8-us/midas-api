@@ -5,9 +5,9 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 
 import mil.af.abms.midas.api.search.SearchOperation;
-import mil.af.abms.midas.enums.AssertionType;
+import mil.af.abms.midas.enums.FeedbackRating;
 
-public class AssertionTypeParsingStrategy implements ParsingStrategy {
+public class FeedbackRatingParsingStrategy implements ParsingStrategy {
 
     @Override
     public Predicate makePredicate(
@@ -19,9 +19,9 @@ public class AssertionTypeParsingStrategy implements ParsingStrategy {
 
         switch (operation) {
             case EQUALS:
-                return builder.equal(nestedRoot.get(criteriaKey), AssertionType.valueOf(value));
+                return builder.equal(nestedRoot.get(criteriaKey), FeedbackRating.valueOf(value));
             case NOT_EQUALS:
-                return builder.notEqual(nestedRoot.get(criteriaKey), AssertionType.valueOf(value));
+                return builder.notEqual(nestedRoot.get(criteriaKey), FeedbackRating.valueOf(value));
             default:
                 return null;
         }

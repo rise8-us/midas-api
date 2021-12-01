@@ -38,7 +38,7 @@ class GitLabEpicTests {
        assertThat(epic.getDueDate()).isEqualTo(LocalDate.parse("2018-07-31"));
        assertThat(epic.getStartDateFromInheritedSource()).isEqualTo(LocalDate.parse("2018-07-01"));
        assertThat(epic.getDueDateFromInheritedSource()).isEqualTo(LocalDate.parse("2018-07-31"));
-       assertThat(epic.getClosedAt().toString()).isEqualTo("2018-08-18T12:22:05.239");
+       assertThat(epic.getCompletedAt().toString()).isEqualTo("2018-08-18T12:22:05.239");
 
     }
 }

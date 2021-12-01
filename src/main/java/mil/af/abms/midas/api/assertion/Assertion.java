@@ -10,32 +10,26 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.Getter;
 import lombok.Setter;
 
-import mil.af.abms.midas.api.AbstractEntity;
+import mil.af.abms.midas.api.AbstractTimeConstrainedEntity;
+import mil.af.abms.midas.api.Commentable;
 import mil.af.abms.midas.api.assertion.dto.AssertionDTO;
 import mil.af.abms.midas.api.comment.Comment;
+import mil.af.abms.midas.api.measure.Measure;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.user.User;
-import mil.af.abms.midas.enums.AssertionType;
-import mil.af.abms.midas.enums.CompletionType;
 import mil.af.abms.midas.enums.ProgressionStatus;
 
 @Entity @Setter @Getter
 @Table(name = "assertion")
-public class Assertion extends AbstractEntity<AssertionDTO> {
+public class Assertion extends AbstractTimeConstrainedEntity<AssertionDTO> implements Commentable {
 
     @Column(columnDefinition = "TEXT")
     private String text;
@@ -44,16 +38,8 @@ public class Assertion extends AbstractEntity<AssertionDTO> {
     private Boolean isArchived = false;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "VARCHAR(70)")
-    private AssertionType type;
-
-    @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(70) DEFAULT 'NOT_STARTED'", nullable = false)
     private ProgressionStatus status = ProgressionStatus.NOT_STARTED;
-
-    @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "VARCHAR(70) DEFAULT 'STRING'", nullable = false)
-    private CompletionType completionType = CompletionType.STRING;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
@@ -71,29 +57,21 @@ public class Assertion extends AbstractEntity<AssertionDTO> {
     @JoinColumn(name = "parent_id")
     private Assertion parent;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "inherited_from")
+    private Assertion inheritedFrom;
+
+    @OneToMany(mappedBy = "assertion", orphanRemoval = true)
+    private Set<Measure> measures = new HashSet<>();
+
     @OneToMany(mappedBy = "parent")
     private Set<Assertion> children = new HashSet<>();
 
+    @OneToMany(mappedBy = "inheritedFrom")
+    private Set<Assertion> passedTo = new HashSet<>();
+
     @OneToMany(mappedBy = "assertion", orphanRemoval = true)
     private Set<Comment> comments = new HashSet<>();
-
-    @Column(columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP", nullable = true)
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    protected LocalDateTime completedDate;
-
-    @Column(columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP", nullable = true)
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    protected LocalDateTime startDate;
-
-    @Column(columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP", nullable = true)
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    protected LocalDateTime dueDate;
 
     public AssertionDTO toDto() {
         return new AssertionDTO(
@@ -101,19 +79,19 @@ public class Assertion extends AbstractEntity<AssertionDTO> {
                 getIdOrNull(product),
                 getIdOrNull(createdBy),
                 getIdOrNull(parent),
+                getIdOrNull(inheritedFrom),
                 text,
-                type,
                 status,
                 getIds(comments),
+                measures.stream().map(Measure::getId).collect(Collectors.toList()),
                 children.stream().map(Assertion::toDto).collect(Collectors.toList()),
+                passedTo.stream().map(Assertion::getId).collect(Collectors.toList()),
                 creationDate,
-                completedDate,
                 startDate,
                 dueDate,
+                completedAt,
                 isArchived,
-                completionType,
                 getIdOrNull(assignedPerson)
-
         );
     }
 

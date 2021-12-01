@@ -27,7 +27,7 @@ public class GitLabEpic {
     @JsonProperty("due_date_from_inherited_source")
     private LocalDate dueDateFromInheritedSource;
     @JsonProperty("closed_at")
-    private LocalDateTime closedAt;
+    private LocalDateTime completedAt;
     @JsonProperty("state")
     private String state;
     @JsonProperty("web_url")

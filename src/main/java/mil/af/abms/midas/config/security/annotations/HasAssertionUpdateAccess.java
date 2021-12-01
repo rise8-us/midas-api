@@ -11,6 +11,6 @@ import mil.af.abms.midas.config.security.AuthExpression;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-@PreAuthorize(AuthExpression.HAS_OGSM_CREATE_ACCESS)
-public @interface HasOGSMCreateAccess {
+@PreAuthorize(AuthExpression.HAS_ASSERTION_UPDATE_ACCESS)
+public @interface HasAssertionUpdateAccess {
 }

@@ -17,9 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 
-import mil.af.abms.midas.api.assertion.Assertion;
 import mil.af.abms.midas.api.assertion.AssertionService;
-import mil.af.abms.midas.api.helper.Builder;
 
 @ExtendWith(SpringExtension.class)
 @Import({AssertionExistsValidator.class})
@@ -33,10 +31,6 @@ public class AssertionExistsValidatorTests {
     private ConstraintValidatorContext context;
     @Mock
     private ConstraintValidatorContext.ConstraintViolationBuilder builder;
-
-    private final Assertion assertion = Builder.build(Assertion.class)
-            .with(t -> t.setId(1L))
-            .with(t -> t.setText("assertion test")).get();
 
     @BeforeEach
     public void init() {

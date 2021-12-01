@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -24,6 +25,7 @@ import lombok.Setter;
 import mil.af.abms.midas.api.AbstractEntity;
 import mil.af.abms.midas.api.assertion.Assertion;
 import mil.af.abms.midas.api.comment.dto.CommentDTO;
+import mil.af.abms.midas.api.measure.Measure;
 import mil.af.abms.midas.api.user.User;
 
 @Entity @Getter @Setter
@@ -38,8 +40,18 @@ public class Comment extends AbstractEntity<CommentDTO> {
     private User createdBy;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assertion_id")
+    @JoinTable(
+            name = "assertion_comment",
+            joinColumns = @JoinColumn(name = "comment_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "assertion_id", referencedColumnName = "id"))
     private Assertion assertion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "measure_comment",
+            joinColumns = @JoinColumn(name = "comment_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "measure_id", referencedColumnName = "id"))
+    private Measure measure;
 
     @ManyToOne
     @JoinColumn(name = "parent_id", nullable = true)
@@ -63,7 +75,6 @@ public class Comment extends AbstractEntity<CommentDTO> {
                 id,
                 createdBy.toDto(),
                 getIdOrNull(parent),
-                getIdOrNull(assertion),
                 text,
                 getIds(children),
                 creationDate,

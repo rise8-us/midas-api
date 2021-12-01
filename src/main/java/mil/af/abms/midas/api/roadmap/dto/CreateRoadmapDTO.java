@@ -20,7 +20,6 @@ public class CreateRoadmapDTO implements Serializable {
     private String description;
     private Long productId;
     private RoadmapStatus status;
-    private Integer index;
-    @NotBlank(message = "Please enter a targeted completion date")
-    private String targetDate;
+    private String startDate;
+    private String dueDate;
 }
