@@ -27,6 +27,7 @@ import mil.af.abms.midas.api.tag.dto.TagDTO;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.enums.ProductType;
+import mil.af.abms.midas.enums.RoadmapType;
 
 @Entity @Getter @Setter
 @Table(name = "product")
@@ -56,6 +57,10 @@ public class Product extends AbstractEntity<ProductDTO> {
     @Column(columnDefinition = "VARCHAR(255)", nullable = false)
     @Enumerated(EnumType.STRING)
     private ProductType type = ProductType.PRODUCT;
+
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "VARCHAR(70) DEFAULT 'MANUAL'", nullable = false)
+    private RoadmapType roadmapType = RoadmapType.MANUAL;
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
@@ -93,7 +98,8 @@ public class Product extends AbstractEntity<ProductDTO> {
     public ProductDTO toDto() {
         Set<TagDTO> tagDTOs = tags.stream().map(Tag::toDto).collect(Collectors.toSet());
         return new ProductDTO(
-                id, getIdOrNull(owner),
+                id,
+                getIdOrNull(owner),
                 getIdOrNull(parent),
                 name,
                 description,
@@ -108,7 +114,8 @@ public class Product extends AbstractEntity<ProductDTO> {
                 getIds(teams),
                 vision,
                 mission,
-                problemStatement
+                problemStatement,
+                roadmapType
         );
     }
 

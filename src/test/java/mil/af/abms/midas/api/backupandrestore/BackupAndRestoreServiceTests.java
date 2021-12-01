@@ -60,7 +60,7 @@ class BackupAndRestoreServiceTests {
         when(mySQLClient.getLatestFlywayVersion()).thenReturn(VERSION);
         doNothing().when(s3Client).sendToBucketAsGzip(anyString(), anyString());
 
-        service.backupToS3();
+        service.backupToS3(null);
 
         verify(s3Client, times(1)).sendToBucketAsGzip(stringCaptor.capture(), stringCaptor.capture());
         var arg1 = stringCaptor.getAllValues().get(0);
@@ -80,11 +80,20 @@ class BackupAndRestoreServiceTests {
 
     @Test
     void should_run_scheduled_backup() {
-        doNothing().when(service).backupToS3();
+        doNothing().when(service).backupToS3(anyString());
 
         service.runScheduledBackup();
 
-        verify(service, times(1)).backupToS3();
+        verify(service, times(1)).backupToS3(null);
+    }
+
+    @Test
+    void should_backup_with_given_name() {
+        doNothing().when(service).backupToS3(anyString());
+
+        service.backupToS3("foo");
+
+        verify(service, times(1)).backupToS3("foo");
     }
 
     @Test

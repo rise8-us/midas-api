@@ -21,8 +21,6 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.helper.TimeConversion;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.user.User;
-import mil.af.abms.midas.enums.AssertionType;
-import mil.af.abms.midas.enums.CompletionType;
 import mil.af.abms.midas.enums.ProgressionStatus;
 
 class AssertionTests {
@@ -34,26 +32,23 @@ class AssertionTests {
     private final Assertion assertion = Builder.build(Assertion.class)
             .with(a -> a.setId(1L))
             .with(a -> a.setText("First"))
-            .with(a -> a.setType(AssertionType.OBJECTIVE))
             .with(a -> a.setProduct(product))
             .with(a -> a.setComments(comments))
-            .with(a -> a.setDueDate(TimeConversion.getTimeOrNull("2021-07-09T00:00:00")))
-            .with(a -> a.setComments(comments))
-            .with(a -> a.setComments(comments))
+            .with(a -> a.setDueDate(TimeConversion.getLocalDateOrNullFromObject("2021-07-09")))
             .with(a -> a.setComments(comments))
             .with(a -> a.setCreatedBy(createdBy)).get();
     private final AssertionDTO assertionDTO = Builder.build(AssertionDTO.class)
             .with(d -> d.setId(1L))
             .with(d -> d.setText("First"))
-            .with(d -> d.setType(AssertionType.OBJECTIVE))
             .with(d -> d.setStatus(ProgressionStatus.NOT_STARTED))
             .with(d -> d.setProductId(product.getId()))
             .with(d -> d.setCreationDate(assertion.getCreationDate()))
             .with(d -> d.setCommentIds(Set.of(2L)))
+            .with(d -> d.setMeasureIds(List.of()))
             .with(d -> d.setChildren(List.of()))
+            .with(d -> d.setPassedToIds(List.of()))
             .with(d -> d.setIsArchived(false))
-            .with(d -> d.setCompletionType(CompletionType.STRING))
-            .with(d -> d.setDueDate(TimeConversion.getTimeOrNull("2021-07-09T00:00:00")))
+            .with(d -> d.setDueDate(TimeConversion.getLocalDateOrNullFromObject("2021-07-09")))
             .with(d -> d.setCreatedById(createdBy.getId())).get();
 
     @Test
@@ -67,7 +62,6 @@ class AssertionTests {
     @Test
     void should_set_and_get_properties() {
         assertThat(assertion.getId()).isEqualTo(1L);
-        assertThat(assertion.getType()).isEqualTo(AssertionType.OBJECTIVE);
         assertThat(assertion.getCreatedBy()).isEqualTo(createdBy);
         assertThat(assertion.getText()).isEqualTo("First");
         assertThat(assertion.getComments()).isEqualTo(comments);

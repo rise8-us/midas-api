@@ -18,9 +18,13 @@ class InitDTOTests {
         assertThat(dto.getRoles().size()).isEqualTo(6);
         assertThat(dto.getProjectJourneyMap().size()).isEqualTo(4);
         assertThat(dto.getAssertionStatus().size()).isEqualTo(5);
-        assertThat(dto.getSonarqubeMaintainability().size()).isEqualTo(6);
         assertThat(dto.getSonarqubeReliability().size()).isEqualTo(6);
+        assertThat(dto.getSonarqubeMaintainability().size()).isEqualTo(6);
         assertThat(dto.getSonarqubeSecurity().size()).isEqualTo(6);
+        assertThat(dto.getRoadmapType().size()).isEqualTo(2);
+        assertThat(dto.getRoadmapStatus().size()).isEqualTo(3);
+        assertThat(dto.getCompletionType().size()).isEqualTo(5);
+        assertThat(dto.getFeedbackRating().size()).isEqualTo(5);
 
     }
 

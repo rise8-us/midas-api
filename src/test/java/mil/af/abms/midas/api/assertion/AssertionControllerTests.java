@@ -29,20 +29,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
+import mil.af.abms.midas.api.assertion.dto.ArchiveAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.BlockerAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.CreateAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.UpdateAssertionDTO;
 import mil.af.abms.midas.api.comment.Comment;
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.user.User;
-import mil.af.abms.midas.enums.AssertionType;
 import mil.af.abms.midas.enums.ProgressionStatus;
 
 @WebMvcTest({AssertionController.class})
 public class AssertionControllerTests extends ControllerTestHarness {
-    
+
     @MockBean
     private AssertionService assertionService;
     @MockBean
@@ -51,17 +50,14 @@ public class AssertionControllerTests extends ControllerTestHarness {
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
     private final Set<Comment> comments = Set.of(Builder.build(Comment.class).with(c -> c.setId(2L)).get());
     private final User createdBy = Builder.build(User.class).with(u -> u.setId(3L)).get();
-    private final Product product = Builder.build(Product.class)
-            .with(p -> p.setId(3L)).get();
     private final Assertion assertion = Builder.build(Assertion.class)
             .with(a -> a.setId(1L))
             .with(a -> a.setText("First"))
-            .with(a -> a.setType(AssertionType.OBJECTIVE))
             .with(a -> a.setCreationDate(CREATION_DATE))
             .with(a -> a.setComments(comments))
             .with(a -> a.setCreatedBy(createdBy)).get();
-    CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", AssertionType.GOAL, 1L, null, null, new ArrayList<>(), null, null, null, null, null);
-    UpdateAssertionDTO updateAssertionDTO = new UpdateAssertionDTO("updated", ProgressionStatus.NOT_STARTED, List.of(), null, null, null, null, null, false);
+    CreateAssertionDTO createAssertionDTO = new CreateAssertionDTO("First", 1L, null, null, new ArrayList<>(), null, new ArrayList<>(), null, null, null, null);
+    UpdateAssertionDTO updateAssertionDTO = new UpdateAssertionDTO("updated", ProgressionStatus.NOT_STARTED, List.of(), null, false, null, null);
 
     @BeforeEach
     void init() throws Exception {
@@ -96,27 +92,10 @@ public class AssertionControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    void should_throw_type_must_not_be_null_message_on_create() throws Exception {
-        CreateAssertionDTO createDTONullType = new CreateAssertionDTO("First", null,
-                1L, null, null, new ArrayList<>(), null, null, null, null, null);
-
-        when(productService.existsById(anyLong())).thenReturn(true);
-
-        mockMvc.perform(post("/api/assertions")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(mapper.writeValueAsString(createDTONullType))
-        )
-                .andExpect(status().is4xxClientError())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.errors[0]").value("type must not be blank"));
-    }
-
-    @Test
     void should_throw_text_must_not_be_null_message_on_update() throws Exception {
-        UpdateAssertionDTO updateDTONullType = new UpdateAssertionDTO("", ProgressionStatus.NOT_STARTED, List.of(), null, null, null, null, null, false);
+        UpdateAssertionDTO updateDTONullType = new UpdateAssertionDTO("", ProgressionStatus.NOT_STARTED, List.of(), null, false, null, null);
         Assertion assertionNullType = new Assertion();
         BeanUtils.copyProperties(assertion, assertionNullType);
-        assertionNullType.setType(null);
 
         when(assertionService.updateById(any(), any(UpdateAssertionDTO.class))).thenReturn(assertion);
 
@@ -135,6 +114,44 @@ public class AssertionControllerTests extends ControllerTestHarness {
                 .andExpect(status().isOk());
 
         verify(assertionService, times(1)).deleteById(1L);
+    }
+
+    @Test
+    public void should_update_assertion_is_archived_true() throws Exception {
+        var assertionArchived = new Assertion();
+        BeanUtils.copyProperties(assertion, assertionArchived);
+        assertionArchived.setIsArchived(true);
+        ArchiveAssertionDTO archiveAssertionDTO = Builder.build(ArchiveAssertionDTO.class)
+                .with(d -> d.setIsArchived(true)).get();
+
+        when(assertionService.archive(any(), any())).thenReturn(assertionArchived);
+
+        mockMvc.perform(put("/api/assertions/1/archive")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapper.writeValueAsString(archiveAssertionDTO))
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.isArchived").value(true));
+    }
+
+    @Test
+    public void should_update_assertion_is_archived_false() throws Exception {
+        var assertionArchived = new Assertion();
+        BeanUtils.copyProperties(assertion, assertionArchived);
+        assertionArchived.setIsArchived(false);
+        ArchiveAssertionDTO archiveAssertionDTO = Builder.build(ArchiveAssertionDTO.class)
+                .with(d -> d.setIsArchived(false)).get();
+
+        when(assertionService.archive(any(), any())).thenReturn(assertionArchived);
+
+        mockMvc.perform(put("/api/assertions/1/archive")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapper.writeValueAsString(archiveAssertionDTO))
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.isArchived").value(false));
     }
 
     @Test

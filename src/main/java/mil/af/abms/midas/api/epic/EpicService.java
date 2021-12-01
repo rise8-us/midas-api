@@ -65,24 +65,19 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
     public Set<Epic> getAllGitlabEpicsForProduct(Long productId) {
         var product = productService.findById(productId);
 
-        if (product.getIsArchived() ||
-            product.getGitlabGroupId() == null ||
-            product.getSourceControl() == null ||
-            product.getSourceControl().getToken() == null ||
-            product.getSourceControl().getBaseUrl() == null
-        ) {
-            return Set.of();
+        if (hasGitlabDetails(product)) {
+            var epicConversions = getGitlabClient(product)
+                    .getEpicsFromGroup(product.getGitlabGroupId());
+
+            return epicConversions.stream()
+                    .map(e ->
+                            repository.findByEpicUid(generateUniqueId(product, e.getEpicIid()))
+                                    .map(epic -> syncEpic(e, epic))
+                                    .orElseGet(() -> convertToEpic(e, product))
+                    ).collect(Collectors.toSet());
         }
 
-        var epicConversions = getGitlabClient(product)
-                .getEpicsFromGroup(product.getGitlabGroupId());
-
-        return epicConversions.stream()
-            .map(e ->
-                repository.findByEpicUid(generateUniqueId(product, e.getEpicIid()))
-                    .map(epic -> syncEpic(e, epic))
-                    .orElseGet(() -> convertToEpic(e, product))
-                ).collect(Collectors.toSet());
+        return Set.of();
     }
 
     @Scheduled(cron = "0 0 0 * * *")
@@ -132,6 +127,14 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
         BeanUtils.copyProperties(gitLabEpic, epic);
         epic.setSyncedAt(LocalDateTime.now());
         return repository.save(epic);
+    }
+
+    private boolean hasGitlabDetails(Product product) {
+        return !product.getIsArchived() &&
+                product.getGitlabGroupId() != null &&
+                product.getSourceControl() != null &&
+                product.getSourceControl().getToken() != null &&
+                product.getSourceControl().getBaseUrl() != null;
     }
 
 }

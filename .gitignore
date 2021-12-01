@@ -13,3 +13,7 @@ out/*
 # config file
 *.envrc
 
+# Crash dumps
+javacore.*
+jitdump.*
+Snap.*

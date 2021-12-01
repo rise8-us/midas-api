@@ -31,7 +31,11 @@ import mil.af.abms.midas.api.epic.Epic;
 import mil.af.abms.midas.api.epic.EpicService;
 import mil.af.abms.midas.api.feature.Feature;
 import mil.af.abms.midas.api.feature.FeatureService;
+import mil.af.abms.midas.api.feedback.Feedback;
+import mil.af.abms.midas.api.feedback.FeedbackService;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.measure.Measure;
+import mil.af.abms.midas.api.measure.MeasureService;
 import mil.af.abms.midas.api.persona.Persona;
 import mil.af.abms.midas.api.persona.PersonaService;
 import mil.af.abms.midas.api.product.Product;
@@ -62,6 +66,8 @@ class CustomMethodSecurityExpressionRootTests {
     @MockBean
     AssertionService assertionService;
     @MockBean
+    MeasureService measureService;
+    @MockBean
     ProjectService projectService;
     @MockBean
     ProductService productService;
@@ -73,9 +79,14 @@ class CustomMethodSecurityExpressionRootTests {
     FeatureService featureService;
     @MockBean
     EpicService epicService;
+    @MockBean
+    FeedbackService feedbackService;
 
     Assertion assertion = Builder.build(Assertion.class)
             .with(a -> a.setId(7L))
+            .get();
+    Measure measure = Builder.build(Measure.class)
+            .with(m -> m.setId(42L))
             .get();
     Team team = Builder.build(Team.class)
             .with(t -> t.setId(3L))
@@ -99,7 +110,7 @@ class CustomMethodSecurityExpressionRootTests {
             .with(p -> p.setId(5L))
             .get();
     Comment comment = Builder.build(Comment.class)
-            .with(p -> p.setId(8L))
+            .with(c -> c.setId(8L))
             .with(c -> c.setCreatedBy(user))
             .get();
     Persona persona = Builder.build(Persona.class)
@@ -111,6 +122,10 @@ class CustomMethodSecurityExpressionRootTests {
     Epic epic = Builder.build(Epic.class)
             .with(e -> e.setId(11L))
             .get();
+    Feedback feedback = Builder.build(Feedback.class)
+            .with(f -> f.setId(12L))
+            .with(f -> f.setCreatedBy(user))
+            .get();
 
     @BeforeEach
     public void init() {
@@ -119,6 +134,7 @@ class CustomMethodSecurityExpressionRootTests {
         product.setOwner(user);
         product.setParent(portfolio);
         assertion.setProduct(product);
+        measure.setAssertion(assertion);
         doReturn(user).when(userService).getUserBySecContext();
     }
 
@@ -221,26 +237,48 @@ class CustomMethodSecurityExpressionRootTests {
     }
 
     @Test
-    void hasOGSMWriteAccess_ogsmId_null() {
-        assertFalse(security.hasOGSMWriteAccess(null));
+    void hasAssertionWriteAccess_assertionId_null() {
+        assertFalse(security.hasAssertionWriteAccess(null));
     }
 
     @Test
-    void hasOGSMWriteAccess_true() {
+    void hasAssertionWriteAccess_true() {
         when(assertionService.findById(assertion.getId())).thenReturn(assertion);
         doReturn(true).when(security).hasProductAccess(product.getId());
 
-        assertTrue(security.hasOGSMWriteAccess(assertion.getId()));
+        assertTrue(security.hasAssertionWriteAccess(assertion.getId()));
     }
 
     @Test
-    void hasOGSMWriteAccess_false_when_productId_null() {
+    void hasAssertionWriteAccess_false_when_productId_null() {
         assertion.setProduct(null);
         when(assertionService.findById(assertion.getId())).thenReturn(assertion);
 
-        assertFalse(security.hasOGSMWriteAccess(assertion.getId()));
+        assertFalse(security.hasAssertionWriteAccess(assertion.getId()));
     }
 
+    @Test
+    void hasMeasureWriteAccess_measureId_null() {
+        assertFalse(security.hasMeasureWriteAccess(null));
+    }
+
+    @Test
+    void hasMeasureWriteAccess_true() {
+        when(measureService.findById(measure.getId())).thenReturn(measure);
+        doReturn(true).when(security).hasAssertionWriteAccess(assertion.getId());
+        doReturn(true).when(security).hasProductAccess(product.getId());
+
+        assertTrue(security.hasMeasureWriteAccess(measure.getId()));
+    }
+
+    @Test
+    void hasMeasureWriteAccess_false_when_assertionId_null() {
+        measure.setAssertion(null);
+        when(measureService.findById(measure.getId())).thenReturn(measure);
+
+        assertFalse(security.hasMeasureWriteAccess(measure.getId()));
+    }
+    
     @Test
     void should_getThis() {
         assertThat(security.getThis()).isEqualTo(security);
@@ -286,6 +324,26 @@ class CustomMethodSecurityExpressionRootTests {
         when(commentService.findById(anyLong())).thenReturn(comment);
 
         assertTrue(security.isCommentCreator(8L));
+    }
+
+    @Test
+    void isFeedbackCreator_false_when_commentId_null() {
+        assertFalse(security.isFeedbackCreator(null));
+    }
+
+    @Test
+    void isFeedbackCreator_should_return_false() {
+        doReturn(user2).when(userService).getUserBySecContext();
+        when(feedbackService.findById(anyLong())).thenReturn(feedback);
+
+        assertFalse(security.isFeedbackCreator(12L));
+    }
+
+    @Test
+    void isFeedbackCreator_should_return_true() {
+        when(feedbackService.findById(anyLong())).thenReturn(feedback);
+
+        assertTrue(security.isFeedbackCreator(12L));
     }
 
     @Test

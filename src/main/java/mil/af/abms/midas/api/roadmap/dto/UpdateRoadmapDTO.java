@@ -19,9 +19,8 @@ public class UpdateRoadmapDTO implements Serializable {
     private String title;
     private String description;
     private RoadmapStatus status;
-    private Integer index;
     private Long id;
-    @NotBlank(message = "Please enter a targeted completion date")
-    private String targetDate;
+    private String startDate;
+    private String dueDate;
 
 }

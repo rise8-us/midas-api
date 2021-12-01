@@ -49,7 +49,6 @@ public class EpicTests {
         Epic epic2 = new Epic();
         BeanUtils.copyProperties(epic, epic2);
 
-        assertTrue(epic.equals(epic));
         assertFalse(epic.equals(null));
         assertFalse(epic.equals(new User()));
         assertFalse(epic.equals(new Epic()));

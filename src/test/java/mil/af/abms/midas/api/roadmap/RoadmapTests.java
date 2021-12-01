@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Field;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,21 +22,26 @@ import mil.af.abms.midas.enums.RoadmapStatus;
 
 class RoadmapTests {
 
+    private static final LocalDate TEST_DATE = LocalDate.now();
     private static final LocalDateTime TEST_TIME = LocalDateTime.now();
 
     private final Roadmap roadmap = Builder.build(Roadmap.class)
             .with(t -> t.setId(1L))
             .with(t -> t.setTitle("roadmap title"))
-            .with(t -> t.setTargetDate(TEST_TIME))
-            .with(t -> t.setStatus(RoadmapStatus.FUTURE))
+            .with(t -> t.setStartDate(TEST_DATE))
+            .with(t -> t.setDueDate(TEST_DATE))
+            .with(t -> t.setCompletedAt(TEST_TIME))
+            .with(t -> t.setStatus(RoadmapStatus.COMPLETE))
             .with(t -> t.setDescription("roadmap description"))
             .get();
     private final RoadmapDTO roadmapDTOExpected = Builder.build(RoadmapDTO.class)
             .with(t -> t.setId(1L))
             .with(t -> t.setTitle("roadmap title"))
-            .with(t -> t.setTargetDate(TEST_TIME))
+            .with(t -> t.setStartDate(TEST_DATE))
+            .with(t -> t.setDueDate(TEST_DATE))
+            .with(t -> t.setCompletedAt(TEST_TIME))
             .with(t -> t.setCreationDate(roadmap.getCreationDate()))
-            .with(t -> t.setStatus(RoadmapStatus.FUTURE))
+            .with(t -> t.setStatus(RoadmapStatus.COMPLETE))
             .with(t -> t.setDescription("roadmap description"))
             .get();
 
@@ -63,8 +69,10 @@ class RoadmapTests {
     void should_get_properties() {
         assertThat(roadmap.getId()).isEqualTo(1L);
         assertThat(roadmap.getTitle()).isEqualTo("roadmap title");
-        assertThat(roadmap.getTargetDate()).isEqualTo(TEST_TIME);
-        assertThat(roadmap.getStatus()).isEqualTo(RoadmapStatus.FUTURE);
+        assertThat(roadmap.getStartDate()).isEqualTo(TEST_DATE);
+        assertThat(roadmap.getDueDate()).isEqualTo(TEST_DATE);
+        assertThat(roadmap.getCompletedAt()).isEqualTo(TEST_TIME);
+        assertThat(roadmap.getStatus()).isEqualTo(RoadmapStatus.COMPLETE);
         assertThat(roadmap.getDescription()).isEqualTo("roadmap description");
     }
 

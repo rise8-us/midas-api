@@ -18,15 +18,15 @@ import mil.af.abms.midas.api.assertion.Assertion;
 import mil.af.abms.midas.api.comment.dto.CommentDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.user.User;
-import mil.af.abms.midas.enums.AssertionType;
 
-public class CommentTests {
+class CommentTests {
+
+    private static final int ENTITY_DTO_FIELD_OFFSET = 2;
 
     private final User createdBy = Builder.build(User.class).with(u -> u.setId(1L)).get();
     private final Assertion assertion = Builder.build(Assertion.class)
             .with(a -> a.setId(1L))
             .with(a -> a.setText("First"))
-            .with(a -> a.setType(AssertionType.OBJECTIVE))
             .with(a -> a.setCreatedBy(createdBy)).get();
     private final Comment parentComment = Builder.build(Comment.class).with(c -> c.setId(55L)).get();
     private final Comment comment = Builder.build(Comment.class)
@@ -40,22 +40,21 @@ public class CommentTests {
             .with(c -> c.setId(1L))
             .with(c -> c.setText("New Idea"))
             .with(c -> c.setParentId(parentComment.getId()))
-            .with(c -> c.setAssertionId(assertion.getId()))
             .with(c -> c.setAuthor(createdBy.toDto()))
             .with(d -> d.setCreationDate(comment.getCreationDate()))
             .with(d -> d.setChildren(Set.of()))
             .get();
 
     @Test
-    public void should_have_all_dto_fields() {
+    void should_have_all_dto_fields() {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Comment.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(CommentDTO.class.getDeclaredFields().length);
+        assertThat(fields.size()).isEqualTo(CommentDTO.class.getDeclaredFields().length + ENTITY_DTO_FIELD_OFFSET);
     }
 
     @Test
-    public void should_be_equal() {
+    void should_be_equal() {
         Comment comment2 = new Comment();
         BeanUtils.copyProperties(comment, comment2);
 
@@ -67,7 +66,7 @@ public class CommentTests {
     }
 
     @Test
-    public void should_get_properties() {
+    void should_get_properties() {
         assertThat(comment.getId()).isEqualTo(1L);
         assertThat(comment.getText()).isEqualTo("New Idea");
         assertThat(comment.getParent()).isEqualTo(parentComment);
@@ -76,6 +75,6 @@ public class CommentTests {
     }
 
     @Test
-    public void can_return_dto() { assertThat(comment.toDto()).isEqualTo(commentDTO); }
+    void can_return_dto() { assertThat(comment.toDto()).isEqualTo(commentDTO); }
 
 }

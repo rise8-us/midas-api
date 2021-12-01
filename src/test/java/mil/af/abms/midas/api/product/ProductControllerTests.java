@@ -32,6 +32,7 @@ import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.enums.ProductType;
+import mil.af.abms.midas.enums.RoadmapType;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @WebMvcTest({ProductController.class})
@@ -62,7 +63,8 @@ class ProductControllerTests extends ControllerTestHarness {
             Set.of(),
             null,
             null,
-            null
+            null,
+            RoadmapType.GITLAB
     );
     private final CreateProductDTO createProductDTO = new CreateProductDTO(
             "Midas",
@@ -78,7 +80,8 @@ class ProductControllerTests extends ControllerTestHarness {
             Set.of(),
             null,
             null,
-            null
+            null,
+            RoadmapType.GITLAB
     );
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(5L))
@@ -89,6 +92,7 @@ class ProductControllerTests extends ControllerTestHarness {
             .with(p -> p.setCreationDate(CREATION_DATE))
             .with(p -> p.setIsArchived(false))
             .with(p -> p.setProjects(Set.of(new Project())))
+            .with(p -> p.setRoadmapType(RoadmapType.GITLAB))
             .get();
 
     @BeforeEach

@@ -1,14 +1,16 @@
 package mil.af.abms.midas.api.assertion;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,21 +33,22 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
-import mil.af.abms.midas.api.assertion.dto.AssertionDTO;
+import mil.af.abms.midas.api.assertion.dto.ArchiveAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.BlockerAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.CreateAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.UpdateAssertionDTO;
 import mil.af.abms.midas.api.comment.Comment;
 import mil.af.abms.midas.api.comment.CommentService;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.helper.TimeConversion;
+import mil.af.abms.midas.api.measure.Measure;
+import mil.af.abms.midas.api.measure.MeasureService;
+import mil.af.abms.midas.api.measure.dto.CreateMeasureDTO;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
-import mil.af.abms.midas.enums.AssertionType;
 import mil.af.abms.midas.enums.CompletionType;
 import mil.af.abms.midas.enums.ProgressionStatus;
 
@@ -59,6 +62,8 @@ class AssertionServiceTests {
     private UserService userService;
     @MockBean
     private AssertionRepository assertionRepository;
+    @MockBean
+    private MeasureService measureService;
     @MockBean
     private ProductService productService;
     @MockBean
@@ -79,10 +84,13 @@ class AssertionServiceTests {
 
     private Product product;
     private Comment comment;
+    private Measure measure;
+    private Assertion assertion;
     private Assertion assertionChild;
     private Assertion assertionParent;
-    private CreateAssertionDTO createAssertionDTOChild;
     private CreateAssertionDTO createAssertionDTO;
+    private UpdateAssertionDTO updateAssertionDTO;
+    private final LocalDate DUE_DATE = TimeConversion.getLocalDateOrNullFromObject("2021-07-09");
 
     @BeforeEach
     void beforeEach() {
@@ -97,81 +105,97 @@ class AssertionServiceTests {
         product = Builder.build(Product.class)
                 .with(p -> p.setId(3L))
                 .with(p -> p.setName("Halo"))
-                .with(p -> p.setChildren(Set.of(childProduct))).get();
+                .with(p -> p.setChildren(Set.of(childProduct)))
+                .get();
 
         childProduct.setParent(product);
 
         comment = Builder.build(Comment.class).with(c -> c.setId(404L)).with(c -> c.setCreatedBy(createdBy)).get();
+        assertion = Builder.build(Assertion.class)
+                .with(a -> a.setId(3L))
+                .get();
+        measure = Builder.build(Measure.class)
+                .with(m -> m.setId(1L))
+                .with(m -> m.setValue(1F))
+                .with(m -> m.setTarget(5F))
+                .with(m -> m.setStartDate(DUE_DATE))
+                .with(m -> m.setDueDate(DUE_DATE))
+                .with(m -> m.setCompletionType(CompletionType.NUMBER))
+                .with(m -> m.setAssertion(assertion))
+                .with(m -> m.setText("First"))
+                .with(m -> m.setComments(Set.of()))
+                .get();
         assertionParent = Builder.build(Assertion.class)
                 .with(a -> a.setId(1L))
                 .with(a -> a.setProduct(product))
                 .with(a -> a.setStatus(ProgressionStatus.ON_TRACK))
                 .with(a -> a.setText("First"))
-                .with(a -> a.setType(AssertionType.GOAL))
+                .with(a -> a.setMeasures(Set.of(measure)))
                 .with(a -> a.setComments(Set.of(comment)))
                 .with(a -> a.setCreationDate(CREATION_DATE))
-                .with(a -> a.setCreatedBy(createdBy)).get();
+                .with(a -> a.setCreatedBy(createdBy))
+                .get();
         assertionChild = Builder.build(Assertion.class)
                 .with(a -> a.setId(2L))
                 .with(a -> a.setParent(assertionParent))
                 .with(a -> a.setProduct(product))
                 .with(a -> a.setText("Strat"))
+                .with(a -> a.setComments(Set.of(comment)))
                 .with(a -> a.setStatus(ProgressionStatus.BLOCKED))
-                .with(a -> a.setType(AssertionType.STRATEGY))
                 .with(a -> a.setCreationDate(CREATION_DATE))
-                .with(a -> a.setCreatedBy(createdBy)).get();
+                .with(a -> a.setCreatedBy(createdBy))
+                .get();
         assertionSibling = Builder.build(Assertion.class)
                 .with(a -> a.setId(9L))
                 .with(a -> a.setProduct(childProduct))
                 .with(a -> a.setParent(assertionParent))
                 .with(a -> a.setText("First"))
-                .with(a -> a.setType(AssertionType.GOAL))
+                .with(a -> a.setComments(Set.of(comment)))
                 .with(a -> a.setStatus(ProgressionStatus.BLOCKED))
                 .with(a -> a.setComments(Set.of(childComment)))
                 .with(a -> a.setCreationDate(CREATION_DATE))
-                .with(a -> a.setCreatedBy(createdBy)).get();
+                .with(a -> a.setCreatedBy(createdBy))
+                .get();
 
-        createAssertionDTOChild = new CreateAssertionDTO("Strat", AssertionType.STRATEGY,
-                3L, null, null, new ArrayList<>(), null, null, null, null, null);
-        createAssertionDTO = new CreateAssertionDTO("First", AssertionType.GOAL,
-                3L, null, null, List.of(createAssertionDTOChild), null, null, CompletionType.STRING, null, null);
+        createAssertionDTO = new CreateAssertionDTO("First",
+                3L, null, null, new ArrayList<>(), null, new ArrayList<>(), null, null, "2020-01-01", "2020-02-02");
+        updateAssertionDTO = new UpdateAssertionDTO("updated", ProgressionStatus.COMPLETED, List.of(createAssertionDTO), null, false, "2020-03-03", "2020-04-04");
     }
 
     @Test
     void should_create_assertion() {
-        doReturn(assertionParent).when(assertionService).findByIdOrNull(1L);
-        when(assertionRepository.save(any())).thenAnswer((new Answer<Assertion>() {
-            private int count = 0;
+        var createMeasureDTO = new CreateMeasureDTO();
+        BeanUtils.copyProperties(measure, createMeasureDTO);
+        var createChildAssertionDTO = new CreateAssertionDTO();
+        BeanUtils.copyProperties(createAssertionDTO, createChildAssertionDTO);
 
-            public Assertion answer(InvocationOnMock invocation) {
-                count++;
-                if (count == 1) {
-                    return assertionParent;
-                }
-                return assertionChild;
+        createAssertionDTO.setMeasures(List.of(createMeasureDTO));
+        createAssertionDTO.setChildren(List.of(createChildAssertionDTO));
 
-            }
-        }));
+        when(productService.findById(3L)).thenReturn(product);
         when(userService.getUserBySecContext()).thenReturn(createdBy);
+        when(assertionRepository.save(any())).thenReturn(assertionParent);
+        when(measureService.create(any())).thenReturn(measure);
+        when(assertionService.findByIdOrNull(any())).thenReturn(assertionParent);
 
         assertionService.create(createAssertionDTO);
 
         verify(assertionRepository, times(2)).save(assertionCaptor.capture());
-        Assertion assertionSaved = assertionCaptor.getAllValues().get(0);
+        var assertionSaved = assertionCaptor.getValue();
 
         assertThat(assertionSaved.getText()).isEqualTo(createAssertionDTO.getText());
-        assertThat(assertionSaved.getType()).isEqualTo(createAssertionDTO.getType());
         assertThat(assertionSaved.getCreatedBy()).isEqualTo(createdBy);
+        assertThat(assertionSaved.getStartDate()).isEqualTo(createAssertionDTO.getStartDate());
+        assertThat(assertionSaved.getDueDate()).isEqualTo(createAssertionDTO.getDueDate());
     }
 
     @Test
     void should_update_assertion_by_id() {
-        var updateAssertionDTO = new UpdateAssertionDTO("updated", ProgressionStatus.COMPLETED, List.of(createAssertionDTO), null, null, null, null, null, false);
         assertionParent.setChildren(Set.of(assertionChild));
         assertionChild.setStatus(ProgressionStatus.BLOCKED);
+
         var newAssertion = new Assertion();
         BeanUtils.copyProperties(assertionParent, newAssertion);
-        newAssertion.setType(AssertionType.MEASURE);
         newAssertion.setText("additional update");
         newAssertion.setId(10L);
 
@@ -190,14 +214,12 @@ class AssertionServiceTests {
 
         assertThat(assertionSaved.getText()).isEqualTo(updateAssertionDTO.getText());
         assertThat(assertionSaved.getStatus()).isEqualTo(updateAssertionDTO.getStatus());
-
+        assertThat(assertionSaved.getStartDate()).isEqualTo(updateAssertionDTO.getStartDate());
+        assertThat(assertionSaved.getDueDate()).isEqualTo(updateAssertionDTO.getDueDate());
     }
 
     @Test
     void should_delete_tree() {
-        Assertion assertionParent = new Assertion();
-        BeanUtils.copyProperties(this.assertionParent, assertionParent);
-        Assertion assertionChild = Builder.build(Assertion.class).with(a -> a.setId(2L)).get();
         assertionParent.setChildren(Set.of(assertionChild));
 
         doReturn(assertionParent).when(assertionService).findById(1L);
@@ -218,28 +240,51 @@ class AssertionServiceTests {
 
     @Test
     void should_recursively_deleteById() {
-        Assertion parentAssertion = new Assertion();
-        BeanUtils.copyProperties(this.assertionParent, parentAssertion);
-        Assertion childAssertion = Builder.build(Assertion.class)
-                .with(a -> a.setId(4L))
-                .with(a -> a.setParent(parentAssertion))
-                .get();
-        parentAssertion.getChildren().add(childAssertion);
+        assertionParent.getChildren().add(assertionChild);
         Comment comment = Builder.build(Comment.class).with(c -> c.setId(5L)).get();
 
-        doReturn(parentAssertion).when(assertionService).findById(parentAssertion.getId());
-        doReturn(childAssertion).when(assertionService).findById(childAssertion.getId());
+        doReturn(assertionParent).when(assertionService).findById(assertionParent.getId());
+        doReturn(assertionChild).when(assertionService).findById(assertionChild.getId());
         doNothing().when(commentService).deleteComment(comment);
         doNothing().when(assertionRepository).deleteById(any());
 
         assertionService.deleteById(this.assertionParent.getId());
 
         verify(assertionRepository, times(2)).deleteById(longCaptor.capture());
-        verify(commentService, times(1)).deleteComment(any());
-        verify(websocket, times(2)).convertAndSend(anyString(), any(AssertionDTO.class));
+        verify(commentService, times(2)).deleteComment(any());
 
-        assertThat(longCaptor.getAllValues().get(0)).isEqualTo(4L);
+        assertThat(longCaptor.getAllValues().get(0)).isEqualTo(2L);
         assertThat(longCaptor.getAllValues().get(1)).isEqualTo(1L);
+    }
+
+    @Test
+    void should_archive_assertion() {
+        ArchiveAssertionDTO archiveAssertionDTO = Builder.build(ArchiveAssertionDTO.class)
+                .with(d -> d.setIsArchived(true)).get();
+
+        when(assertionRepository.findById(1L)).thenReturn(Optional.of(this.assertion));
+
+        assertionService.archive(1L, archiveAssertionDTO);
+
+        verify(assertionRepository).save(assertionCaptor.capture());
+        var assertionCaptured = assertionCaptor.getValue();
+
+        assertTrue(assertionCaptured.getIsArchived());
+    }
+
+    @Test
+    void should_un_archive_project() {
+        ArchiveAssertionDTO archiveAssertionDTO = Builder.build(ArchiveAssertionDTO.class)
+                .with(d -> d.setIsArchived(false)).get();
+
+        when(assertionRepository.findById(1L)).thenReturn(Optional.of(this.assertion));
+
+        assertionService.archive(1L, archiveAssertionDTO);
+
+        verify(assertionRepository).save(assertionCaptor.capture());
+        var assertionCaptured = assertionCaptor.getValue();
+
+        assertFalse(assertionCaptured.getIsArchived());
     }
 
     @Test

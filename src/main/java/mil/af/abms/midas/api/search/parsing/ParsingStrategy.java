@@ -14,9 +14,12 @@ public interface ParsingStrategy {
             Map.entry("String", new StringParsingStrategy()),
             Map.entry("Long", new LongParsingStrategy()),
             Map.entry("LocalDateTime", new LocalDateTimeParsingStrategy()),
+            Map.entry("LocalDate", new LocalDateParsingStrategy()),
             Map.entry("ProgressionStatus", new ProgressionStatusParsingStrategy()),
-            Map.entry("AssertionType", new AssertionTypeParsingStrategy()),
-            Map.entry("ProductType", new ProductTypeParsingStrategy())
+            Map.entry("ProductType", new ProductTypeParsingStrategy()),
+            Map.entry("RoadmapType", new RoadmapTypeParsingStrategy()),
+            Map.entry("CompletionType", new CompletionTypeParsingStrategy()),
+            Map.entry("FeedbackRating", new FeedbackRatingParsingStrategy())
     );
 
     static ParsingStrategy getStrategy(Path<?> node) {

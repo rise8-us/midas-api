@@ -15,12 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import mil.af.abms.midas.api.AbstractCRUDController;
+import mil.af.abms.midas.api.assertion.dto.ArchiveAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.AssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.BlockerAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.CreateAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.UpdateAssertionDTO;
-import mil.af.abms.midas.config.security.annotations.HasOGSMCreateAccess;
-import mil.af.abms.midas.config.security.annotations.HasOGSMUpdateAccess;
+import mil.af.abms.midas.config.security.annotations.HasAssertionCreateAccess;
+import mil.af.abms.midas.config.security.annotations.HasAssertionUpdateAccess;
 
 @RestController
 @RequestMapping("/api/assertions")
@@ -37,22 +38,28 @@ public class AssertionController extends AbstractCRUDController<Assertion, Asser
     }
 
     @PostMapping
-    @HasOGSMCreateAccess
+    @HasAssertionCreateAccess
     public AssertionDTO create(@Valid @RequestBody CreateAssertionDTO createAssertionDTO) {
         return service.create(createAssertionDTO).toDto();
     }
 
     @PutMapping("/{id}")
-    @HasOGSMUpdateAccess
+    @HasAssertionUpdateAccess
     public AssertionDTO updateById(@Valid @RequestBody UpdateAssertionDTO updateAssertionDTO, @PathVariable Long id) {
         return service.updateById(id, updateAssertionDTO).toDto();
     }
 
     @DeleteMapping("/{id}")
     @Override
-    @HasOGSMUpdateAccess
+    @HasAssertionUpdateAccess
     public void deleteById(@PathVariable Long id) {
         service.deleteById(id);
+    }
+
+    @HasAssertionUpdateAccess
+    @PutMapping("/{id}/archive")
+    public AssertionDTO archiveById(@RequestBody ArchiveAssertionDTO archiveAssertionDTO, @PathVariable Long id) {
+        return service.archive(id, archiveAssertionDTO).toDto();
     }
 
 }

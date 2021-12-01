@@ -53,18 +53,18 @@ public class BackupAndRestoreService {
         }
     }
 
-    public void backupToS3() {
+    public void backupToS3(String fileName) {
         var dump = mySQLClient.exportToSql();
         var dumpDate = LocalDateTime.now();
         var flywayVersion = mySQLClient.getLatestFlywayVersion();
 
-        var fileName = String.format("backups/%s/%s.sql.gz", flywayVersion, dumpDate);
-        s3Client.sendToBucketAsGzip(fileName, dump);
+        var actualName = fileName != null ? String.format("%s.sql.gz", fileName) : String.format("backups/%s/%s.sql.gz", flywayVersion, dumpDate);
+        s3Client.sendToBucketAsGzip(actualName, dump);
     }
 
     @Scheduled(cron = "0 0 0 * * *")
     public void runScheduledBackup() {
-        this.backupToS3();
+        this.backupToS3(null);
     }
 
     public void restore(String fileName) throws AbstractRuntimeException {

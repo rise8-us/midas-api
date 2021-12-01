@@ -8,26 +8,19 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import java.time.LocalDateTime;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.Getter;
 import lombok.Setter;
 
-import mil.af.abms.midas.api.AbstractEntity;
+import mil.af.abms.midas.api.AbstractTimeConstrainedEntity;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.roadmap.dto.RoadmapDTO;
 import mil.af.abms.midas.enums.RoadmapStatus;
 
 @Entity @Getter @Setter
 @Table(name = "roadmap")
-public class Roadmap extends AbstractEntity<RoadmapDTO> {
+public class Roadmap extends AbstractTimeConstrainedEntity<RoadmapDTO> {
 
-    @Column(nullable = false, columnDefinition = "VARCHAR(255)")
+    @Column(columnDefinition = "VARCHAR(255)", nullable = false)
     private String title;
 
     @Enumerated(EnumType.STRING)
@@ -37,21 +30,26 @@ public class Roadmap extends AbstractEntity<RoadmapDTO> {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(columnDefinition = "INT")
-    private Integer position;
+    @Column(columnDefinition = "BIT(1) DEFAULT 0", nullable = false)
+    private Boolean isHidden;
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @Column(columnDefinition = "DATETIME", nullable = true)
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    protected LocalDateTime targetDate;
-
     public RoadmapDTO toDto() {
-        return new RoadmapDTO(id, title, status, creationDate, description, getIdOrNull(product), position, targetDate);
+        return new RoadmapDTO(
+                id,
+                title,
+                status,
+                creationDate,
+                description,
+                isHidden,
+                getIdOrNull(product),
+                startDate,
+                dueDate,
+                completedAt
+        );
     }
 
     @Override

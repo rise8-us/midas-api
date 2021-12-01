@@ -18,7 +18,6 @@ public class CommentDTO implements AbstractDTO {
     private Long id;
     private UserDTO author;
     private Long parentId;
-    private Long assertionId;
     private String text;
     private Set<Long> children;
     private LocalDateTime creationDate;

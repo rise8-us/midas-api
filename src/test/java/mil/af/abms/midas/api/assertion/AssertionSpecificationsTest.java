@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -34,11 +34,10 @@ class AssertionSpecificationsTest extends RepositoryTestHarness {
 
         savedProduct = entityManager.persist(product);
 
-        LocalDateTime COMPLETED_DATE = LocalDateTime.now();
         Assertion assertion = Builder.build(Assertion.class)
                 .with(a -> a.setProduct(savedProduct))
                 .with(a -> a.setStatus(ProgressionStatus.COMPLETED))
-                .with(a -> a.setCompletedDate(COMPLETED_DATE))
+                .with(a -> a.setMeasures(Set.of()))
                 .get();
 
         entityManager.persist(assertion);

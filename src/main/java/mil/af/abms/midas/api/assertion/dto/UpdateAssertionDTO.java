@@ -10,7 +10,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import mil.af.abms.midas.enums.CompletionType;
 import mil.af.abms.midas.enums.ProgressionStatus;
 
 @Data
@@ -28,9 +27,8 @@ public class UpdateAssertionDTO implements Serializable {
 
     private Long assignedPersonId;
     private Boolean isArchived = false;
-    private CompletionType completionType;
+
     private String startDate;
     private String dueDate;
-    private Boolean completed;
 
 }

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import mil.af.abms.midas.api.backupandrestore.dto.RestoreDTO;
+import mil.af.abms.midas.api.backupandrestore.dto.BackupRestoreDTO;
 import mil.af.abms.midas.config.security.annotations.IsAdmin;
 
 @RestController
@@ -37,15 +37,15 @@ public class BackupAndRestoreController {
 
     @IsAdmin
     @GetMapping("backup")
-    public void backupToS3() { service.backupToS3(); }
+    public void backupToS3(@RequestBody BackupRestoreDTO dto) { service.backupToS3(dto.getFileName()); }
 
     @IsAdmin
     @PostMapping("restore")
-    public void restoreFromS3(@RequestBody RestoreDTO dto) { service.restore(dto.getFileName()); }
+    public void restoreFromS3(@RequestBody BackupRestoreDTO dto) { service.restore(dto.getFileName()); }
 
     @IsAdmin
     @PostMapping("download")
-    public ResponseEntity<ByteArrayResource> downloadFromS3(@RequestBody RestoreDTO dto) {
+    public ResponseEntity<ByteArrayResource> downloadFromS3(@RequestBody BackupRestoreDTO dto) {
         var data = service.getFile(dto.getFileName());
 
         return ResponseEntity

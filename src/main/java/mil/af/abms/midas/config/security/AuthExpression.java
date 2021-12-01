@@ -36,8 +36,15 @@ public final class AuthExpression {
     public static final String HAS_PRODUCT_CREATE_ACCESS = IS_PORTFOLIO_LEAD + OR + IS_PRODUCT_MANAGER + OR + IS_ADMIN;
 
     // Assertion
-    public static final String HAS_OGSM_UPDATE_ACCESS = "hasOGSMWriteAccess(#id)" + OR + IS_ADMIN;
-    public static final String HAS_OGSM_CREATE_ACCESS = "hasProductAccess(#createAssertionDTO.getProductId())" + OR + IS_ADMIN;
+    public static final String HAS_ASSERTION_CREATE_ACCESS = "hasProductAccess(#createAssertionDTO.getProductId())" + OR + IS_ADMIN;
+    public static final String HAS_ASSERTION_UPDATE_ACCESS = "hasAssertionWriteAccess(#id)" + OR + IS_ADMIN;
+
+    // Measure
+    public static final String HAS_MEASURE_CREATE_ACCESS = "hasAssertionWriteAccess(#createMeasureDTO.getAssertionId())" + OR + IS_ADMIN;
+    public static final String HAS_MEASURE_UPDATE_ACCESS = "hasMeasureWriteAccess(#id)" + OR + IS_ADMIN;
+
+    // Feedback
+    public static final String HAS_FEEDBACK_EDIT_ACCESS = "isFeedbackCreator(#id)" + OR + IS_ADMIN;
 
     // Persona
     public static final String HAS_PERSONA_ACCESS = "hasPersonaAccess(#id)" + OR + IS_ADMIN;

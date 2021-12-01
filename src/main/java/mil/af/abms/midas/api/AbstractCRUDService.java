@@ -39,13 +39,17 @@ public abstract class AbstractCRUDService<E extends AbstractEntity<D>, D extends
     @Override
     @Transactional
     public E findById(Long id) {
-        Long eId = Optional.ofNullable(id).orElseThrow(() -> new EntityNotFoundException(entityClass.getSimpleName()));
-        return repository.findById(id).orElseThrow(() -> new EntityNotFoundException(entityClass.getSimpleName(), eId));
+        return getById(id).orElseThrow(() -> new EntityNotFoundException(entityClass.getSimpleName(), id));
+    }
+
+    public Optional<E> getById(Long id) {
+        if (id == null) return Optional.empty();
+        return repository.findById(id);
     }
 
     @Override
     @Transactional
-    public E findByIdOrNull(Long id) { return id != null ? findById(id) : null; }
+    public E findByIdOrNull(Long id) { return getById(id).orElse(null); }
 
     @Override
     @Transactional
