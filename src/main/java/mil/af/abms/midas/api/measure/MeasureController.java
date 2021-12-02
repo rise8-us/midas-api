@@ -28,14 +28,14 @@ public class MeasureController extends AbstractCRUDController<Measure, MeasureDT
 
     @HasMeasureCreateAccess
     @PostMapping
-    public MeasureDTO create(@Valid @RequestBody CreateMeasureDTO createMeasuresDTO) {
-        return service.create(createMeasuresDTO).toDto();
+    public MeasureDTO create(@Valid @RequestBody CreateMeasureDTO createMeasureDTO) {
+        return service.create(createMeasureDTO).toDto();
     }
 
     @HasMeasureUpdateAccess
     @PutMapping("/{id}")
-    public MeasureDTO updateById(@Valid @RequestBody UpdateMeasureDTO updateMeasuresDTO, @PathVariable Long id) {
-        return service.updateById(id, updateMeasuresDTO).toDto();
+    public MeasureDTO updateById(@Valid @RequestBody UpdateMeasureDTO updateMeasureDTO, @PathVariable Long id) {
+        return service.updateById(id, updateMeasureDTO).toDto();
     }
 
     @Override
