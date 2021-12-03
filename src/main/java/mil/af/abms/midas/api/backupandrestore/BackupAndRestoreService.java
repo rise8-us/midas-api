@@ -58,7 +58,7 @@ public class BackupAndRestoreService {
         var dumpDate = LocalDateTime.now();
         var flywayVersion = mySQLClient.getLatestFlywayVersion();
 
-        var actualName = fileName != null ? String.format("%s.sql.gz", fileName) : String.format("backups/%s/%s.sql.gz", flywayVersion, dumpDate);
+        var actualName = fileName != null ? String.format("backups/%s/%s.sql.gz", flywayVersion, fileName) : String.format("backups/%s/%s.sql.gz", flywayVersion, dumpDate);
         s3Client.sendToBucketAsGzip(actualName, dump);
     }
 
