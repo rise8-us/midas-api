@@ -36,7 +36,7 @@ public class BackupAndRestoreController {
     public List<String> getFileNames() { return service.getBackupFileNames(); }
 
     @IsAdmin
-    @GetMapping("backup")
+    @PostMapping("backup")
     public void backupToS3(@RequestBody BackupRestoreDTO dto) { service.backupToS3(dto.getFileName()); }
 
     @IsAdmin

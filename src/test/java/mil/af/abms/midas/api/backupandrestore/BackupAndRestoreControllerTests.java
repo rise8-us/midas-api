@@ -76,7 +76,7 @@ class BackupAndRestoreControllerTests extends ControllerTestHarness {
 
         doNothing().when(service).backupToS3(anyString());
 
-        mockMvc.perform(get("/api/dbActions/backup")
+        mockMvc.perform(post("/api/dbActions/backup")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(mapper.writeValueAsString(backupRestoreDTO))
                 )
