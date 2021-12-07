@@ -165,3 +165,9 @@ The following guides illustrate how to use some features concretely:
 These additional references should also help you:
 
 - [Gradle Build Scans – insights for your project's build](https://scans.gradle.com#gradle)
+
+### Code Coverage
+
+To access the code coverage report go to:
+
+build -> jacoco -> test -> html -> index.html

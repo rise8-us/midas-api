@@ -8,6 +8,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -21,12 +22,15 @@ import mil.af.abms.midas.api.assertion.AssertionService;
 import mil.af.abms.midas.api.comment.CommentService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.measure.dto.CreateMeasureDTO;
+import mil.af.abms.midas.api.measure.dto.MeasurableDTO;
 import mil.af.abms.midas.api.measure.dto.MeasureDTO;
 import mil.af.abms.midas.api.measure.dto.UpdateMeasureDTO;
 
 @Slf4j
 @Service
 public class MeasureService extends AbstractCRUDService<Measure, MeasureDTO, MeasureRepository> {
+
+    private static final UnaryOperator<String> UPDATE_TOPIC = topic -> "/topic/update_" + topic.toLowerCase();
 
     private AssertionService assertionService;
     private CommentService commentService;
@@ -48,7 +52,7 @@ public class MeasureService extends AbstractCRUDService<Measure, MeasureDTO, Mea
         Measure newMeasure = Builder.build(Measure.class)
                 .with(m -> m.setStartDate(getLocalDateOrNullFromObject(dto.getStartDate())))
                 .with(m -> m.setDueDate(getLocalDateOrNullFromObject(dto.getDueDate())))
-                .with(m -> m.setCompletedAt(getDateTimeIfComplete(dto.getValue(), dto.getTarget(), m.getCompletedAt())))
+                .with(m -> m.setCompletedAt(calculateCompletedAt(dto, m)))
                 .with(m -> m.setCompletionType(dto.getCompletionType()))
                 .with(m -> m.setValue(dto.getValue()))
                 .with(m -> m.setTarget(dto.getTarget()))
@@ -66,15 +70,9 @@ public class MeasureService extends AbstractCRUDService<Measure, MeasureDTO, Mea
     public Measure updateById(Long id, UpdateMeasureDTO dto) {
         var foundMeasure = findById(id);
 
-        var currentTarget = Optional.ofNullable(foundMeasure.getTarget());
-        var currentCompletedAt = Optional.ofNullable(foundMeasure.getCompletedAt());
-        if (currentTarget.isPresent() && !currentTarget.get().equals(dto.getTarget()) && currentCompletedAt.isPresent()) {
-            foundMeasure.setCompletedAt(null);
-        }
-
         foundMeasure.setStartDate(getLocalDateOrNullFromObject(dto.getStartDate()));
         foundMeasure.setDueDate(getLocalDateOrNullFromObject(dto.getDueDate()));
-        foundMeasure.setCompletedAt(getDateTimeIfComplete(dto.getValue(), dto.getTarget(), foundMeasure.getCompletedAt()));
+        foundMeasure.setCompletedAt(calculateCompletedAt(dto, foundMeasure));
         foundMeasure.setCompletionType(dto.getCompletionType());
         foundMeasure.setValue(dto.getValue());
         foundMeasure.setTarget(dto.getTarget());
@@ -92,37 +90,39 @@ public class MeasureService extends AbstractCRUDService<Measure, MeasureDTO, Mea
         repository.deleteById(id);
     }
 
+    @Transactional
     public void deleteMeasure(Measure measure) {
         deleteById(measure.getId());
     }
 
-    protected void removeRelatedComments(Measure measure) {
+    private void removeRelatedComments(Measure measure) {
         measure.getComments().forEach(commentService::deleteComment);
         measure.setComments(Set.of());
     }
 
-    protected void removeRelationIfExists(Assertion assertion, Measure measure) {
+    private void removeRelationIfExists(Assertion assertion, Measure measure) {
         Optional.ofNullable(assertion).map(a -> {
             a.getMeasures().remove(measure);
             return a;
-        }).ifPresent(a -> websocket.convertAndSend(String.format("/topic/update_%s", a.getClass().getSimpleName()), a.toDto()));
+        }).ifPresent(a -> websocket.convertAndSend(UPDATE_TOPIC.apply(a.getLowercaseClassName()), a.toDto()));
     }
 
-    protected void updateRelation(Assertion assertion, Measure measure) {
+    private void updateRelation(Assertion assertion, Measure measure) {
         Optional.ofNullable(assertion).map(a -> {
             a.getMeasures().add(measure);
             return a;
-        }).ifPresent(a -> websocket.convertAndSend(String.format("/topic/update_%s", a.getClass().getSimpleName()), a.toDto()));
+        }).ifPresent(a -> websocket.convertAndSend(UPDATE_TOPIC.apply(a.getLowercaseClassName()), a.toDto()));
     }
 
-    private LocalDateTime getDateTimeIfComplete(Float value, Float target, LocalDateTime completedAt) {
-        if (completedAt != null) {
-            return completedAt;
-        } else if (value >= target) {
-            return LocalDateTime.now();
-        } else {
-            return null;
-        }
-    }
+    private LocalDateTime calculateCompletedAt(MeasurableDTO dto, Measure measure) {
+        var target = dto.getTarget() != null ? dto.getTarget() : 0F;
+        var value = dto.getValue() != null ? dto.getValue() : 0F;
+        var isNewlyCompleted = value >= target && measure.getCompletedAt() == null;
 
+        if (target == 0F) return null;
+        if (isNewlyCompleted) return LocalDateTime.now();
+        if (target > value) return null;
+
+        return measure.getCompletedAt();
+    }
 }

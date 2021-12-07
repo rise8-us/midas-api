@@ -12,7 +12,7 @@ import mil.af.abms.midas.enums.CompletionType;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateMeasureDTO {
+public class UpdateMeasureDTO implements MeasurableDTO {
 
     @NotNull(message = "Value must not be blank")
     private Float value;

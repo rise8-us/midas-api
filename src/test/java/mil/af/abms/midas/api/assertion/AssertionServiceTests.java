@@ -1,8 +1,6 @@
 package mil.af.abms.midas.api.assertion;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -257,34 +255,18 @@ class AssertionServiceTests {
         assertThat(longCaptor.getAllValues().get(1)).isEqualTo(1L);
     }
 
-    @Test
-    void should_archive_assertion() {
-        ArchiveAssertionDTO archiveAssertionDTO = Builder.build(ArchiveAssertionDTO.class)
-                .with(d -> d.setIsArchived(true)).get();
+    @ParameterizedTest
+    @CsvSource(value = {"true", "false"})
+    void should_archive_assertion(boolean isArchived) {
+        var archiveAssertionDTO = Builder.build(ArchiveAssertionDTO.class)
+                .with(d -> d.setIsArchived(isArchived)).get();
 
         when(assertionRepository.findById(1L)).thenReturn(Optional.of(this.assertion));
 
         assertionService.archive(1L, archiveAssertionDTO);
-
         verify(assertionRepository).save(assertionCaptor.capture());
-        var assertionCaptured = assertionCaptor.getValue();
 
-        assertTrue(assertionCaptured.getIsArchived());
-    }
-
-    @Test
-    void should_un_archive_project() {
-        ArchiveAssertionDTO archiveAssertionDTO = Builder.build(ArchiveAssertionDTO.class)
-                .with(d -> d.setIsArchived(false)).get();
-
-        when(assertionRepository.findById(1L)).thenReturn(Optional.of(this.assertion));
-
-        assertionService.archive(1L, archiveAssertionDTO);
-
-        verify(assertionRepository).save(assertionCaptor.capture());
-        var assertionCaptured = assertionCaptor.getValue();
-
-        assertFalse(assertionCaptured.getIsArchived());
+        assertThat(assertionCaptor.getValue().getIsArchived()).isEqualTo(isArchived);
     }
 
     @Test
