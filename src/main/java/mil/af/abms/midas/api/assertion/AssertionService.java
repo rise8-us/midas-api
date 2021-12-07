@@ -40,7 +40,6 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
     private ProductService productService;
     private CommentService commentService;
     private MeasureService measureService;
-    private Assertion assertion;
 
     public AssertionService(AssertionRepository repository, SimpMessageSendingOperations websocket) {
         super(repository, Assertion.class, AssertionDTO.class);
@@ -77,40 +76,41 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
                 .with(a -> a.setStartDate(getLocalDateOrNullFromObject(dto.getStartDate())))
                 .with(a -> a.setDueDate(getLocalDateOrNullFromObject(dto.getDueDate())))
                 .get();
-        assertion = repository.save(newAssertion);
+        var assertionCreated = repository.save(newAssertion);
 
-        createChildAssertions(assertion.getId(), dto.getChildren());
-        createMeasures(assertion.getId(), dto.getMeasures());
-        sendParentUpdatedWebsocketMessage(assertion, true);
+        createChildAssertions(assertionCreated, dto.getChildren());
+        createMeasures(assertionCreated, dto.getMeasures());
+        sendParentUpdatedWebsocketMessage(assertionCreated, true);
 
-        return assertion;
+        return assertionCreated;
     }
 
     @Transactional
     public Assertion updateById(Long id, UpdateAssertionDTO dto) {
-        this.assertion = findById(id);
-        this.assertion.setStatus(dto.getStatus());
-        this.assertion.setText(dto.getText());
-        this.assertion.setAssignedPerson(userService.findByIdOrNull(dto.getAssignedPersonId()));
-        this.assertion.setStartDate(getLocalDateOrNullFromObject(dto.getStartDate()));
-        this.assertion.setDueDate(getLocalDateOrNullFromObject(dto.getDueDate()));
+        var assertionToUpdate = findById(id);
 
-        addNewChildren(dto);
-        calculateCompleted(dto);
-        updateChildrenToCompletedIfParentComplete(this.assertion);
-        updateParentIfAllSiblingsComplete(this.assertion);
+        assertionToUpdate.setStatus(dto.getStatus());
+        assertionToUpdate.setText(dto.getText());
+        assertionToUpdate.setAssignedPerson(userService.findByIdOrNull(dto.getAssignedPersonId()));
+        assertionToUpdate.setStartDate(getLocalDateOrNullFromObject(dto.getStartDate()));
+        assertionToUpdate.setDueDate(getLocalDateOrNullFromObject(dto.getDueDate()));
 
-        return repository.save(this.assertion);
+        addNewChildren(assertionToUpdate, dto);
+        calculateCompleted(assertionToUpdate, dto);
+        updateChildrenToCompletedIfParentComplete(assertionToUpdate);
+        updateParentIfAllSiblingsComplete(assertionToUpdate);
+
+        return repository.save(assertionToUpdate);
     }
 
     @Transactional
     @Override
     public void deleteById(Long id) {
-        this.assertion = findById(id);
-        sendParentUpdatedWebsocketMessage(this.assertion, false);
-        removeRelatedMeasures(this.assertion);
-        removeRelatedComments(this.assertion);
-        this.assertion.getChildren().forEach(a -> deleteById(a.getId()));
+        var assertionToDelete = findById(id);
+        sendParentUpdatedWebsocketMessage(assertionToDelete, false);
+        removeRelatedMeasures(assertionToDelete);
+        removeRelatedComments(assertionToDelete);
+        assertionToDelete.getChildren().forEach(a -> deleteById(a.getId()));
         repository.deleteById(id);
     }
 
@@ -150,11 +150,12 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
         }
     }
 
-    private void createChildAssertions(Long parentId, List<CreateAssertionDTO> dtos) {
-      assertion.setChildren(dtos.stream().map(d -> {
-            d.setParentId(parentId);
-            return this.create(d);
-        }).collect(Collectors.toSet()));
+    private void createChildAssertions(Assertion parentAssertion, List<CreateAssertionDTO> dtos) {
+        var children = dtos.stream().map(d -> {
+                d.setParentId(parentAssertion.getId());
+                return this.create(d);
+            }).collect(Collectors.toSet());
+        parentAssertion.setChildren(children);
     }
 
 
@@ -185,12 +186,12 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
         assertion.setComments(Set.of());
     }
 
-
-    private void createMeasures(Long parentId, List<CreateMeasureDTO> dtos) {
-        assertion.setMeasures(dtos.stream().map(d -> {
-            d.setAssertionId(parentId);
+    private void createMeasures(Assertion owningAssertion, List<CreateMeasureDTO> dtos) {
+       var measures = dtos.stream().map(d -> {
+            d.setAssertionId(owningAssertion.getId());
             return measureService.create(d);
-        }).collect(Collectors.toSet()));
+        }).collect(Collectors.toSet());
+       owningAssertion.setMeasures(measures);
     }
 
     private void sendParentUpdatedWebsocketMessage(Assertion assertion, boolean isAdded) {
@@ -206,13 +207,13 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
         });
     }
 
-    private void calculateCompleted(UpdateAssertionDTO dto) {
+    private void calculateCompleted(Assertion assertion, UpdateAssertionDTO dto) {
         if (assertion.getCompletedAt() == null && dto.getStatus() == ProgressionStatus.COMPLETED) {
             assertion.setCompletedAt(LocalDateTime.now());
         }
     }
 
-    private void addNewChildren(UpdateAssertionDTO dto) {
+    private void addNewChildren(Assertion assertion, UpdateAssertionDTO dto) {
         var newChildren = dto.getChildren().stream().map(d -> {
             d.setParentId(assertion.getId());
             return this.create(d);
