@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -102,7 +103,8 @@ public class MeasureService extends AbstractCRUDService<Measure, MeasureDTO, Mea
 
     private void removeRelationIfExists(Assertion assertion, Measure measure) {
         Optional.ofNullable(assertion).map(a -> {
-            a.getMeasures().remove(measure);
+            var measures = a.getMeasures().stream().filter(m -> !m.equals(measure)).collect(Collectors.toSet());
+            a.setMeasures(measures);
             return a;
         }).ifPresent(a -> websocket.convertAndSend(UPDATE_TOPIC.apply(a.getLowercaseClassName()), a.toDto()));
     }

@@ -95,6 +95,10 @@ public class Assertion extends AbstractTimeConstrainedEntity<AssertionDTO> imple
         );
     }
 
+    public void setComments(Set<Comment> comments) {
+        this.comments = comments;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
