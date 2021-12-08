@@ -5,6 +5,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -92,9 +93,10 @@ public class CommentService extends AbstractCRUDService<Comment, CommentDTO, Com
     }
 
     protected void removeRelationIfExists(Commentable commentable, Comment comment) {
-        Optional.ofNullable(commentable).map(a -> {
-            a.getComments().remove(comment);
-            return a;
+        Optional.ofNullable(commentable).map(c -> {
+            var comments = c.getComments().stream().filter(m -> !m.equals(comment)).collect(Collectors.toSet());
+            c.setComments(comments);
+            return c;
         }).ifPresent(a -> websocket.convertAndSend(TOPIC.apply(a.getLowercaseClassName()), a.toDto()));
     }
 
