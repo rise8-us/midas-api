@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '2.5.6'
+    id 'org.springframework.boot' version '2.6.1'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
     id 'org.flywaydb.flyway' version '8.0.0'
@@ -64,6 +64,14 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
 }
 
+configurations.all {
+    resolutionStrategy.dependencySubstitution {
+        substitute(module("com.ibm.icu:icu4j")).using(module("com.ibm.icu:icu4j:69.1"))
+        substitute(module("org.apache.logging.log4j:log4j-api")).using(module("org.apache.logging.log4j:log4j-api:2.15.0"))
+        substitute(module("org.apache.logging.log4j:log4j-to-slf4j")).using(module("org.apache.logging.log4j:log4j-to-slf4j:2.15.0"))
+    }
+}
+
 generateGrammarSource {
     arguments += ['-visitor', '-no-listener','-package', 'mil.af.abms.midas.api.search']
 
@@ -107,12 +115,6 @@ jacocoTestReport {
         html.required = true
     }
     dependsOn test
-}
-
-configurations.all {
-    resolutionStrategy.dependencySubstitution {
-        substitute(module("com.ibm.icu:icu4j")).using(module("com.ibm.icu:icu4j:69.1"))
-    }
 }
 
 checkstyleMain.source = 'src/main/java'
