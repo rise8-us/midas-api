@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import mil.af.abms.midas.enums.ProgressionStatus;
 import org.springframework.util.ReflectionUtils;
 
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,7 @@ public class MeasureTests {
             .with(m -> m.setText("First"))
             .with(m -> m.setAssertion(assertion))
             .with(m -> m.setComments(Set.of()))
+            .with(m -> m.setStatus(ProgressionStatus.ON_TRACK))
             .get();
     private final MeasureDTO measureDTO = Builder.build(MeasureDTO.class)
             .with(m -> m.setId(measure.getId()))
@@ -47,6 +49,7 @@ public class MeasureTests {
             .with(m -> m.setText(measure.getText()))
             .with(m -> m.setAssertionId(assertion.getId()))
             .with(m -> m.setCommentIds(Set.of()))
+            .with(m -> m.setStatus(ProgressionStatus.ON_TRACK))
             .get();
 
     @Test

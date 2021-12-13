@@ -26,6 +26,7 @@ import mil.af.abms.midas.api.measure.dto.CreateMeasureDTO;
 import mil.af.abms.midas.api.measure.dto.MeasurableDTO;
 import mil.af.abms.midas.api.measure.dto.MeasureDTO;
 import mil.af.abms.midas.api.measure.dto.UpdateMeasureDTO;
+import mil.af.abms.midas.enums.ProgressionStatus;
 
 @Slf4j
 @Service
@@ -54,6 +55,7 @@ public class MeasureService extends AbstractCRUDService<Measure, MeasureDTO, Mea
                 .with(m -> m.setStartDate(getLocalDateOrNullFromObject(dto.getStartDate())))
                 .with(m -> m.setDueDate(getLocalDateOrNullFromObject(dto.getDueDate())))
                 .with(m -> m.setCompletedAt(calculateCompletedAt(dto, m)))
+                .with(m -> m.setStatus(ProgressionStatus.NOT_STARTED))
                 .with(m -> m.setCompletionType(dto.getCompletionType()))
                 .with(m -> m.setValue(dto.getValue()))
                 .with(m -> m.setTarget(dto.getTarget()))
@@ -71,6 +73,7 @@ public class MeasureService extends AbstractCRUDService<Measure, MeasureDTO, Mea
     public Measure updateById(Long id, UpdateMeasureDTO dto) {
         var foundMeasure = findById(id);
 
+        foundMeasure.setStatus(dto.getStatus());
         foundMeasure.setStartDate(getLocalDateOrNullFromObject(dto.getStartDate()));
         foundMeasure.setDueDate(getLocalDateOrNullFromObject(dto.getDueDate()));
         foundMeasure.setCompletedAt(calculateCompletedAt(dto, foundMeasure));

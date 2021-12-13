@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.enums.CompletionType;
+import mil.af.abms.midas.enums.ProgressionStatus;
 
 @Data
 @NoArgsConstructor
@@ -22,6 +23,9 @@ public class UpdateMeasureDTO implements MeasurableDTO {
 
     @NotBlank(message = "Text must not be blank")
     private String text;
+
+    @NotNull(message = "A status must be provided")
+    private ProgressionStatus status;
 
     private String startDate;
     private String dueDate;
