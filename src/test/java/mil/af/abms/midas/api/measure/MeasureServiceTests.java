@@ -34,6 +34,7 @@ import mil.af.abms.midas.api.helper.TimeConversion;
 import mil.af.abms.midas.api.measure.dto.CreateMeasureDTO;
 import mil.af.abms.midas.api.measure.dto.UpdateMeasureDTO;
 import mil.af.abms.midas.enums.CompletionType;
+import mil.af.abms.midas.enums.ProgressionStatus;
 
 @ExtendWith(SpringExtension.class)
 @Import(MeasureService.class)
@@ -81,12 +82,14 @@ class MeasureServiceTests {
                 .with(m -> m.setTarget(5F))
                 .with(m -> m.setText("First"))
                 .with(m -> m.setAssertion(assertion))
+                .with(m -> m.setStatus(ProgressionStatus.NOT_STARTED))
                 .get();
        this.createMeasureDTO = new CreateMeasureDTO(
                 0F,
                 5F,
                 measure.getText(),
                 assertion.getId(),
+                measure.getStatus(),
                 measure.getStartDate().toString(),
                 measure.getDueDate().toString(),
                 measure.getCompletionType()
@@ -95,6 +98,7 @@ class MeasureServiceTests {
                 measure.getTarget(),
                 5F,
                 "Updated",
+                measure.getStatus(),
                 measure.getStartDate().toString(),
                 measure.getDueDate().toString(),
                 measure.getCompletionType()
@@ -122,6 +126,7 @@ class MeasureServiceTests {
         assertThat(measureSaved.getValue()).isEqualTo(createMeasureDTO.getValue());
         assertThat(measureSaved.getTarget()).isEqualTo(createMeasureDTO.getTarget());
         assertThat(measureSaved.getText()).isEqualTo(createMeasureDTO.getText());
+        assertThat(measureSaved.getStatus()).isEqualTo(createMeasureDTO.getStatus());
         assertThat(assertion.toDto()).isEqualTo(assertionCaptor.getValue());
         assertThat("/topic/update_assertion").isEqualTo(stringCaptor.getValue());
     }

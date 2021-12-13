@@ -22,6 +22,7 @@ import mil.af.abms.midas.api.assertion.Assertion;
 import mil.af.abms.midas.api.comment.Comment;
 import mil.af.abms.midas.api.measure.dto.MeasureDTO;
 import mil.af.abms.midas.enums.CompletionType;
+import mil.af.abms.midas.enums.ProgressionStatus;
 
 @Entity @Setter @Getter
 @Table(name = "measure")
@@ -30,6 +31,10 @@ public class Measure extends AbstractTimeConstrainedEntity<MeasureDTO> implement
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(70) DEFAULT 'BINARY'", nullable = false)
     private CompletionType completionType = CompletionType.BINARY;
+
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "VARCHAR(70) DEFAULT 'NOT_STARTED'", nullable = false)
+    private ProgressionStatus status = ProgressionStatus.NOT_STARTED;
 
     @Column(columnDefinition = "FLOAT DEFAULT 0", nullable = false)
     private Float value;
@@ -59,7 +64,8 @@ public class Measure extends AbstractTimeConstrainedEntity<MeasureDTO> implement
                 target,
                 text,
                 getIdOrNull(assertion),
-                getIds(comments)
+                getIds(comments),
+                status
         );
     }
 

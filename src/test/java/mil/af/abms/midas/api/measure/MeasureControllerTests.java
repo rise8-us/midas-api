@@ -31,6 +31,7 @@ import mil.af.abms.midas.api.helper.TimeConversion;
 import mil.af.abms.midas.api.measure.dto.CreateMeasureDTO;
 import mil.af.abms.midas.api.measure.dto.UpdateMeasureDTO;
 import mil.af.abms.midas.enums.CompletionType;
+import mil.af.abms.midas.enums.ProgressionStatus;
 
 @WebMvcTest({MeasureController.class})
 public class MeasureControllerTests extends ControllerTestHarness {
@@ -54,12 +55,14 @@ public class MeasureControllerTests extends ControllerTestHarness {
             .with(m -> m.setText("First"))
             .with(m -> m.setAssertion(assertion))
             .with(m -> m.setCompletionType(CompletionType.NUMBER))
+            .with(m -> m.setStatus(ProgressionStatus.NOT_STARTED))
             .get();
     CreateMeasureDTO createMeasureDTO = new CreateMeasureDTO(
             measure.getValue(),
             measure.getTarget(),
             measure.getText(),
             assertion.getId(),
+            measure.getStatus(),
             measure.getStartDate().toString(),
             measure.getDueDate().toString(),
             measure.getCompletionType()
@@ -68,6 +71,7 @@ public class MeasureControllerTests extends ControllerTestHarness {
             measure.getValue(),
             measure.getTarget(),
             "Updated",
+            measure.getStatus(),
             measure.getStartDate().toString(),
             measure.getDueDate().toString(),
             measure.getCompletionType()

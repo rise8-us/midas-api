@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.AbstractDTO;
 import mil.af.abms.midas.enums.CompletionType;
+import mil.af.abms.midas.enums.ProgressionStatus;
 
 @Data
 @NoArgsConstructor
@@ -27,5 +28,6 @@ public class MeasureDTO implements AbstractDTO {
     private String text;
     private Long assertionId;
     private Set<Long> commentIds;
+    private ProgressionStatus status;
 
 }
