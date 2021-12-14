@@ -62,7 +62,6 @@ class MeasureServiceTests {
 
 
     private final LocalDate DUE_DATE = TimeConversion.getLocalDateOrNullFromObject("2021-07-09");
-    private final LocalDateTime COMPLETED_DATE = LocalDateTime.now();
     private final Assertion assertion = Builder.build(Assertion.class)
             .with(a -> a.setId(3L))
             .get();
@@ -142,7 +141,7 @@ class MeasureServiceTests {
 
         measureService.deleteMeasure(measure);
         verify(repository, times(1)).deleteById(longCaptor.capture());
-        verify(commentService, times(1)).deleteComment(any());
+        verify(commentService, times(1)).deleteAllRelatedComments(any());
 
         assertThat(longCaptor.getAllValues().get(0)).isEqualTo(1L);
     }

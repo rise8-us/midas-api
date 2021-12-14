@@ -3,11 +3,14 @@ package mil.af.abms.midas.api.comment;
 import javax.transaction.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +25,7 @@ import mil.af.abms.midas.api.comment.dto.UpdateCommentDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.measure.MeasureService;
 import mil.af.abms.midas.api.user.UserService;
+import mil.af.abms.midas.enums.ProgressionStatus;
 
 @Slf4j
 @Service
@@ -80,16 +84,23 @@ public class CommentService extends AbstractCRUDService<Comment, CommentDTO, Com
     @Override
     public void deleteById(Long id) {
         var comment = findById(id);
-        removeRelationIfExists(comment.getAssertion(), comment);
-        removeRelationIfExists(comment.getMeasure(), comment);
-        comment.getChildren().forEach(c -> deleteById(c.getId()));
+        var ogsm = Optional.ofNullable((Commentable) comment.getAssertion()).orElse(comment.getMeasure());
+        comment.getChildren().forEach(c -> {
+            ogsm.getComments().remove(c);
+            repository.deleteById(c.getId());
+        });
+        ogsm.getComments().remove(comment);
         repository.deleteById(id);
+        updateOGSMStatus(ogsm);
+        websocket.convertAndSend(TOPIC.apply(ogsm.getLowercaseClassName()), ogsm.toDto());
     }
 
     @Transactional
-    public void deleteComment(Comment comment) {
-        comment.getChildren().forEach(this::deleteComment);
-        deleteById(comment.getId());
+    public void deleteAllRelatedComments(Comment comment) {
+        comment.getChildren().forEach(this::deleteAllRelatedComments);
+        removeRelationIfExists(comment.getAssertion(), comment);
+        removeRelationIfExists(comment.getMeasure(), comment);
+        repository.deleteById(comment.getId());
     }
 
     protected void removeRelationIfExists(Commentable commentable, Comment comment) {
@@ -107,4 +118,25 @@ public class CommentService extends AbstractCRUDService<Comment, CommentDTO, Com
         }).ifPresent(a -> websocket.convertAndSend(TOPIC.apply(a.getLowercaseClassName()), a.toDto()));
     }
 
- }
+    private void updateOGSMStatus(Commentable commentable) {
+        var statuses = getCommentIdsWithStatus(commentable);
+        var newStatus = statuses.stream().max(Comparator.comparing(Pair::getFirst))
+                .map(Pair::getSecond)
+                .orElse(ProgressionStatus.NOT_STARTED);
+
+        if (!commentable.getStatus().equals(newStatus)) {
+            commentable.setStatus(newStatus);
+        }
+    }
+
+    private List<Pair<Long, ProgressionStatus>> getCommentIdsWithStatus(Commentable commentable) {
+        return commentable.getComments().stream()
+                .filter(comment -> comment.getText().contains("###"))
+                .map(c -> {
+                    var status = ProgressionStatus.valueOf(c.getText().split("###")[1]);
+                    return Pair.of(c.getId(), status);
+                })
+                .collect(Collectors.toList());
+    }
+
+}

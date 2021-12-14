@@ -35,6 +35,7 @@ import mil.af.abms.midas.api.measure.Measure;
 import mil.af.abms.midas.api.measure.MeasureService;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
+import mil.af.abms.midas.enums.ProgressionStatus;
 
 @ExtendWith(SpringExtension.class)
 @Import(CommentService.class)
@@ -70,6 +71,7 @@ class CommentServiceTests {
             .with(c -> c.setText("New Idea"))
             .with(c -> c.setParent(parentComment))
             .with(c -> c.setCreatedBy(createdBy))
+            .with(c -> c.setMeasure(measure))
             .get();
 
     @ParameterizedTest
@@ -110,9 +112,9 @@ class CommentServiceTests {
         assertThat(commentSaved.getEditedBy()).isEqualTo(createdBy);
     }
 
-    @Test
-    void should_recursively_deleteById() {
-
+    @ParameterizedTest
+    @CsvSource(value = { "true", "false" })
+    void should_recursively_delete_comments(boolean deleteAll) {
         var parentComment = new Comment();
         BeanUtils.copyProperties(comment, parentComment);
         var childComment =  Builder.build(Comment.class)
@@ -127,7 +129,11 @@ class CommentServiceTests {
         doNothing().when(commentRepository).deleteById(1L);
         doNothing().when(commentRepository).deleteById(5L);
 
-        commentService.deleteById(1L);
+        if (deleteAll) {
+            commentService.deleteAllRelatedComments(parentComment);
+        } else {
+            commentService.deleteById(1L);
+        }
 
         verify(commentRepository, times(2)).deleteById(longCaptor.capture());
 
@@ -136,14 +142,41 @@ class CommentServiceTests {
     }
 
     @Test
-    void should_deleteComment() {
+    void should_deleteSingleComment() {
         var commentToDelete = new Comment();
         commentToDelete.setId(42L);
+        commentToDelete.setAssertion(assertion);
 
         doReturn(commentToDelete).when(commentService).findById(42L);
 
-        commentService.deleteComment(commentToDelete);
-        verify(commentRepository, times(1)).deleteById(anyLong());
+        commentService.deleteById(42L);
+        verify(commentRepository, times(1)).deleteById(42L);
+    }
+
+    @Test
+    void should_update_ogsm_to_previous_status() {
+        var testAssertion = new Assertion();
+        BeanUtils.copyProperties(assertion, testAssertion);
+        testAssertion.setStatus(ProgressionStatus.NOT_STARTED);
+        var comment1 = new Comment();
+        comment1.setId(1L);
+        comment1.setText("foo###ON_TRACK");
+        comment1.setAssertion(testAssertion);
+        var comment2 = new Comment();
+        comment2.setId(2L);
+        comment2.setText("foo###COMPLETED");
+        comment2.setAssertion(testAssertion);
+        testAssertion.getComments().add(comment1);
+        testAssertion.getComments().add(comment2);
+
+        doReturn(comment1).when(commentService).findById(1L);
+        doReturn(comment2).when(commentService).findById(2L);
+
+        commentService.deleteById(2L);
+        assertThat(testAssertion.getStatus()).isEqualTo(ProgressionStatus.ON_TRACK);
+
+        commentService.deleteById(1L);
+        assertThat(testAssertion.getStatus()).isEqualTo(ProgressionStatus.NOT_STARTED);
     }
 
     @Test
