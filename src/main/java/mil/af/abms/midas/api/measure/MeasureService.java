@@ -100,7 +100,7 @@ public class MeasureService extends AbstractCRUDService<Measure, MeasureDTO, Mea
     }
 
     private void removeRelatedComments(Measure measure) {
-        measure.getComments().forEach(commentService::deleteComment);
+        measure.getComments().forEach(commentService::deleteAllRelatedComments);
         measure.setComments(Set.of());
     }
 

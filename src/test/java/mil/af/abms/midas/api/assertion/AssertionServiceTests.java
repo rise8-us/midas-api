@@ -243,13 +243,13 @@ class AssertionServiceTests {
 
         doReturn(assertionParent).when(assertionService).findById(assertionParent.getId());
         doReturn(assertionChild).when(assertionService).findById(assertionChild.getId());
-        doNothing().when(commentService).deleteComment(comment);
+        doNothing().when(commentService).deleteAllRelatedComments(comment);
         doNothing().when(assertionRepository).deleteById(any());
 
         assertionService.deleteById(this.assertionParent.getId());
 
         verify(assertionRepository, times(2)).deleteById(longCaptor.capture());
-        verify(commentService, times(2)).deleteComment(any());
+        verify(commentService, times(2)).deleteAllRelatedComments(any());
 
         assertThat(longCaptor.getAllValues().get(0)).isEqualTo(2L);
         assertThat(longCaptor.getAllValues().get(1)).isEqualTo(1L);

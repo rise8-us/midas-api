@@ -182,7 +182,7 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
     }
 
     private void removeRelatedComments(Assertion assertion) {
-        assertion.getComments().forEach(commentService::deleteComment);
+        assertion.getComments().forEach(commentService::deleteAllRelatedComments);
         assertion.setComments(Set.of());
     }
 
