@@ -25,6 +25,7 @@ class InitDTOTests {
         assertThat(dto.getRoadmapStatus().size()).isEqualTo(3);
         assertThat(dto.getCompletionType().size()).isEqualTo(5);
         assertThat(dto.getFeedbackRating().size()).isEqualTo(5);
+        assertThat(dto.getUserType().size()).isEqualTo(4);
 
     }
 

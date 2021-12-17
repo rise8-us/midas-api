@@ -5,6 +5,7 @@ import static mil.af.abms.midas.api.helper.TimeConversion.getLocalDateOrNullFrom
 
 import javax.transaction.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
@@ -21,11 +22,13 @@ import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.assertion.Assertion;
 import mil.af.abms.midas.api.assertion.AssertionService;
 import mil.af.abms.midas.api.comment.CommentService;
+import mil.af.abms.midas.api.comment.dto.CreateCommentDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.measure.dto.CreateMeasureDTO;
 import mil.af.abms.midas.api.measure.dto.MeasurableDTO;
 import mil.af.abms.midas.api.measure.dto.MeasureDTO;
 import mil.af.abms.midas.api.measure.dto.UpdateMeasureDTO;
+import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.enums.ProgressionStatus;
 
 @Slf4j
@@ -36,6 +39,7 @@ public class MeasureService extends AbstractCRUDService<Measure, MeasureDTO, Mea
 
     private AssertionService assertionService;
     private CommentService commentService;
+    private UserService userService;
     private final SimpMessageSendingOperations websocket;
 
     public MeasureService(MeasureRepository repository, SimpMessageSendingOperations websocket) {
@@ -45,16 +49,17 @@ public class MeasureService extends AbstractCRUDService<Measure, MeasureDTO, Mea
 
     @Autowired
     public void setAssertionService(AssertionService assertionService) { this.assertionService = assertionService; }
-
     @Autowired
     public void setCommentService(CommentService commentService) { this.commentService = commentService; }
+    @Autowired
+    public void setUserService(UserService userService) { this.userService = userService; }
 
     @Transactional
     public Measure create(CreateMeasureDTO dto) {
         Measure newMeasure = Builder.build(Measure.class)
                 .with(m -> m.setStartDate(getLocalDateOrNullFromObject(dto.getStartDate())))
                 .with(m -> m.setDueDate(getLocalDateOrNullFromObject(dto.getDueDate())))
-                .with(m -> m.setCompletedAt(calculateCompletedAt(dto, m)))
+                .with(m -> m.setCompletedAt(null))
                 .with(m -> m.setStatus(ProgressionStatus.NOT_STARTED))
                 .with(m -> m.setCompletionType(dto.getCompletionType()))
                 .with(m -> m.setValue(dto.getValue()))
@@ -73,14 +78,14 @@ public class MeasureService extends AbstractCRUDService<Measure, MeasureDTO, Mea
     public Measure updateById(Long id, UpdateMeasureDTO dto) {
         var foundMeasure = findById(id);
 
-        foundMeasure.setStatus(dto.getStatus());
         foundMeasure.setStartDate(getLocalDateOrNullFromObject(dto.getStartDate()));
         foundMeasure.setDueDate(getLocalDateOrNullFromObject(dto.getDueDate()));
-        foundMeasure.setCompletedAt(calculateCompletedAt(dto, foundMeasure));
         foundMeasure.setCompletionType(dto.getCompletionType());
-        foundMeasure.setValue(dto.getValue());
-        foundMeasure.setTarget(dto.getTarget());
         foundMeasure.setText(dto.getText());
+
+        calculateValueAndStatus(dto, foundMeasure, dto.getStatus());
+
+        assertionService.updateAssertionIfAllChildrenAndMeasuresComplete(foundMeasure.getAssertion());
 
         return repository.save(foundMeasure);
     }
@@ -97,6 +102,24 @@ public class MeasureService extends AbstractCRUDService<Measure, MeasureDTO, Mea
     @Transactional
     public void deleteMeasure(Measure measure) {
         deleteById(measure.getId());
+    }
+
+    public void updateMeasureIfAssertionComplete(Measure measure, ProgressionStatus status, String assertionTitle) {
+        if (ProgressionStatus.COMPLETED.equals(status)) {
+            if (measure.getStatus() != ProgressionStatus.COMPLETED) {
+                measure.setValue(measure.getTarget());
+                measure.setStatus(ProgressionStatus.COMPLETED);
+                measure.setCompletedAt(LocalDateTime.now());
+                var userName = userService.getUserDisplayNameOrUsername();
+                commentService.create(new CreateCommentDTO(
+                        null,
+                        null,
+                        measure.getId(),
+                        String.format("%s marked \"%s\" as completed, marking \"%s\" as complete!###COMPLETED", userName, assertionTitle, measure.getText())
+                ), true);
+                repository.save(measure);
+            }
+        }
     }
 
     private void removeRelatedComments(Measure measure) {
@@ -119,15 +142,67 @@ public class MeasureService extends AbstractCRUDService<Measure, MeasureDTO, Mea
         }).ifPresent(a -> websocket.convertAndSend(UPDATE_TOPIC.apply(a.getLowercaseClassName()), a.toDto()));
     }
 
-    private LocalDateTime calculateCompletedAt(MeasurableDTO dto, Measure measure) {
-        var target = dto.getTarget() != null ? dto.getTarget() : 0F;
-        var value = dto.getValue() != null ? dto.getValue() : 0F;
-        var isNewlyCompleted = value >= target && measure.getCompletedAt() == null;
+    private void calculateValueAndStatus(MeasurableDTO dto, Measure measure, ProgressionStatus dtoStatus) {
+        var target = dto.getTarget();
+        var value = dto.getValue();
 
-        if (target == 0F) return null;
-        if (isNewlyCompleted) return LocalDateTime.now();
-        if (target > value) return null;
+        if (target == 0F) return;
+        measure.setTarget(target);
 
-        return measure.getCompletedAt();
+        var comment = "";
+        var userName = userService.getUserDisplayNameOrUsername();
+        var isNewlyCompleted = ((value >= target || dtoStatus.equals(ProgressionStatus.COMPLETED)) && measure.getCompletedAt() == null);
+        var isNotComplete = (value < target || !dtoStatus.equals(ProgressionStatus.COMPLETED));
+
+        if (isNewlyCompleted) {
+            measure.setStatus(ProgressionStatus.COMPLETED);
+            measure.setValue(target);
+            measure.setCompletedAt(LocalDateTime.now());
+
+            if (value.equals(target)) {
+                comment = String.format("%s set the value of \"%s\" equal to the given target, marking as complete.###COMPLETED", userName, measure.getText());
+            } else if (dtoStatus.equals(ProgressionStatus.COMPLETED)) {
+                comment = String.format("%s set the status of \"%s\" to complete, value has been set equal to the given target.###COMPLETED", userName, measure.getText());
+            }
+        } else if (isNotComplete) {
+            ProgressionStatus newStatus;
+
+            if (!dtoStatus.equals(ProgressionStatus.COMPLETED) && !dtoStatus.equals(measure.getStatus())) {
+                newStatus = dtoStatus;
+            } else if (measure.getDueDate() != null && measure.getDueDate().compareTo(LocalDate.now()) < 0) {
+                newStatus = ProgressionStatus.BLOCKED;
+                if (!measure.getStatus().equals(ProgressionStatus.BLOCKED)) {
+                    comment = String.format("%s updated \"%s\" past the given due date without it being completed, marking as blocked.###BLOCKED", userName, measure.getText());
+                }
+            } else if (value.equals(0F)) {
+                newStatus = ProgressionStatus.NOT_STARTED;
+                if (!measure.getStatus().equals(ProgressionStatus.NOT_STARTED)) {
+                    comment = String.format("%s set the value of \"%s\" to zero, marking as not started.###NOT_STARTED", userName, measure.getText());
+                }
+            } else {
+                newStatus = ProgressionStatus.ON_TRACK;
+                if (!measure.getStatus().equals(ProgressionStatus.ON_TRACK)) {
+                    if (measure.getStartDate() == null) {
+                        measure.setStartDate(LocalDate.now());
+                        comment = String.format("%s updated the progress of \"%s\" within the given time range, marking as on track and setting start date to %s.###ON_TRACK", userName, measure.getText(), LocalDate.now());
+                    } else {
+                        comment = String.format("%s updated the progress of \"%s\" within the given time range, marking as on track.###ON_TRACK", userName, measure.getText());
+                    }
+                }
+            }
+
+            measure.setStatus(newStatus);
+            measure.setValue(value);
+            measure.setCompletedAt(null);
+        }
+
+        if (!comment.equals("")) {
+            commentService.create(new CreateCommentDTO(
+                    null,
+                    null,
+                    measure.getId(),
+                    comment
+            ), true);
+        }
     }
 }

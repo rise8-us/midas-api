@@ -2,6 +2,8 @@ package mil.af.abms.midas.api.user;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -24,6 +26,7 @@ import org.hibernate.annotations.NaturalId;
 import mil.af.abms.midas.api.AbstractEntity;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.user.dto.UserDTO;
+import mil.af.abms.midas.enums.UserType;
 
 @Entity @Getter @Setter
 @Table(name = "user")
@@ -51,6 +54,11 @@ public class User extends AbstractEntity<UserDTO> {
     @Column(columnDefinition = "BIGINT")
     private Long dodId;
 
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "VARCHAR(70) DEFAULT 'ACTIVE'", nullable = false)
+    private UserType userType = UserType.ACTIVE;
+
+    @Deprecated
     @Column(columnDefinition = "BIT(1) DEFAULT 0", nullable = false)
     private Boolean isDisabled = false;
 
@@ -73,7 +81,7 @@ public class User extends AbstractEntity<UserDTO> {
 
     public UserDTO toDto() {
         return new UserDTO(id, keycloakUid, username, email, displayName,
-            creationDate, dodId, isDisabled, roles, lastLogin, getTeamIds(), phone, company);
+            creationDate, dodId, userType, isDisabled, roles, lastLogin, getTeamIds(), phone, company);
     }
 
     public Set<Long> getTeamIds() {

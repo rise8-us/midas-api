@@ -111,4 +111,9 @@ public class UserService extends AbstractCRUDService<User, UserDTO, UserReposito
         );
     }
 
+    @Transactional
+    public String getUserDisplayNameOrUsername() {
+        return getUserBySecContext().getDisplayName() != null ? getUserBySecContext().getDisplayName() : getUserBySecContext().getUsername();
+    }
+
 }

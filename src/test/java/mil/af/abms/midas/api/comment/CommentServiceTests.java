@@ -86,7 +86,7 @@ class CommentServiceTests {
         when(measureService.findByIdOrNull(measure.getId())).thenReturn(measure);
         when(commentRepository.save(any())).thenReturn(new Comment());
 
-        commentService.create(isAssertion ? createDTOA : createDTOM);
+        commentService.create((isAssertion ? createDTOA : createDTOM), false);
 
         verify(commentRepository, times(1)).save(commentCaptor.capture());
         Comment commentSaved = commentCaptor.getValue();

@@ -32,6 +32,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
@@ -312,7 +314,17 @@ class UserServiceTests {
 
         assertThat(userService.findByIdOrNull(expectedUser.getId())).isEqualTo(expectedUser);
         assertThat(userService.findByIdOrNull(null)).isEqualTo(null);
+    }
 
+    @ParameterizedTest
+    @CsvSource(value = {"true, false"})
+    void should_return_user_displayName_or_username(boolean hasDisplayName) {
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        when(userRepository.findByKeycloakUid("abc-123")).thenReturn(Optional.of(expectedUser));
+
+        expectedUser.setDisplayName(hasDisplayName ? expectedUser.getDisplayName() : null);
+
+        assertThat(userService.getUserDisplayNameOrUsername()).isEqualTo(hasDisplayName ? expectedUser.getDisplayName() : expectedUser.getUsername());
     }
 
 }

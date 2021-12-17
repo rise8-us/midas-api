@@ -33,6 +33,7 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.helper.TimeConversion;
 import mil.af.abms.midas.api.measure.dto.CreateMeasureDTO;
 import mil.af.abms.midas.api.measure.dto.UpdateMeasureDTO;
+import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.enums.CompletionType;
 import mil.af.abms.midas.enums.ProgressionStatus;
 
@@ -48,6 +49,8 @@ class MeasureServiceTests {
     private AssertionService assertionService;
     @MockBean
     CommentService commentService;
+    @MockBean
+    UserService userService;
     @MockBean
     SimpMessageSendingOperations websocket;
 
@@ -68,7 +71,11 @@ class MeasureServiceTests {
     private Measure measure = new Measure();
     private CreateMeasureDTO createMeasureDTO = new CreateMeasureDTO();
     private UpdateMeasureDTO updateMeasureDTO = new UpdateMeasureDTO();
-
+    private final Comment comment = Builder.build(Comment.class)
+            .with(c -> c.setId(1L))
+            .with(c -> c.setText("comment text"))
+            .with(c -> c.setMeasure(measure))
+            .get();
 
     @BeforeEach
     void init() {
@@ -131,7 +138,7 @@ class MeasureServiceTests {
     }
 
     @Test
-    void should_delete() {
+    void should_deleteMeasure() {
         Comment comment = Builder.build(Comment.class).with(c -> c.setId(5L)).get();
         measure.getComments().add(comment);
         assertion.getMeasures().add(measure);
@@ -146,13 +153,42 @@ class MeasureServiceTests {
         assertThat(longCaptor.getAllValues().get(0)).isEqualTo(1L);
     }
 
+    @Test
+    void should_updateMeasureIfAssertionComplete() {
+        when(userService.getUserDisplayNameOrUsername()).thenReturn("User");
+        when(commentService.create(any(), any())).thenReturn(comment);
+
+        measureService.updateMeasureIfAssertionComplete(measure, ProgressionStatus.COMPLETED, "foo");
+        verify(repository, times(1)).save(measureCaptor.capture());
+
+        var measureSaved = measureCaptor.getValue();
+
+        assertThat(measureSaved.getStatus()).isEqualTo(ProgressionStatus.COMPLETED);
+    }
+
     @ParameterizedTest
-    @CsvSource(value = {"5, 2021-10-01T00:00:00", "1, 2021-10-01T00:00:00", "3, 2021-10-01T00:00:00"})
-    void should_update_measure_and_set_complete_if_value_matches_target(Float value, String date) {
-        var dateTime = TimeConversion.getTime(date);
-        var expectedDateTime = value >= 2 ? dateTime : null;
-        updateMeasureDTO.setValue(value);
-        measure.setCompletedAt(!value.equals(3F) ? dateTime : null);
+    @CsvSource(value = {
+            "1: 5: 5: ON_TRACK: ON_TRACK: COMPLETED",
+            "1: 1: 5: ON_TRACK: COMPLETED: COMPLETED",
+            "1: 1: 1: NOT_STARTED: ON_TRACK: ON_TRACK",
+            "2: 3: 3: ON_TRACK: ON_TRACK: BLOCKED",
+            "5: 0: 0: COMPLETED: COMPLETED: NOT_STARTED",
+            "0: 1: 1: NOT_STARTED: NOT_STARTED: ON_TRACK",
+            "0: 2: 2: NOT_STARTED: NOT_STARTED: ON_TRACK"
+    }, delimiter = ':')
+    void should_updateById_and_calculateValueAndStatus(
+            Float initialValue, Float updatedValue, Float expectedValue,
+            String initialStatus, String updatedStatus, String expectedStatus) {
+
+        var date = LocalDate.now();
+
+        measure.setValue(initialValue);
+        measure.setStatus(ProgressionStatus.valueOf(initialStatus));
+        if (initialStatus.equals("COMPLETED")) measure.setCompletedAt(LocalDateTime.now());
+        updateMeasureDTO.setValue(updatedValue);
+        updateMeasureDTO.setStatus(ProgressionStatus.valueOf(updatedStatus));
+        updateMeasureDTO.setStartDate(updatedValue.equals(2F) ? null : date.toString());
+        updateMeasureDTO.setDueDate(initialValue.equals(2F) ? date.minusDays(1).toString() : date.plusDays(1).toString());
 
         doReturn(measure).when(measureService).findById(measure.getId());
         when(repository.save(any(Measure.class))).thenReturn(new Measure());
@@ -162,18 +198,13 @@ class MeasureServiceTests {
 
         var measureSaved = measureCaptor.getValue();
 
-        assertThat(measureSaved.getStartDate()).isEqualTo(updateMeasureDTO.getStartDate());
+        assertThat(measureSaved.getStartDate()).isNotNull();
         assertThat(measureSaved.getDueDate()).isEqualTo(updateMeasureDTO.getDueDate());
         assertThat(measureSaved.getCompletionType()).isEqualTo(updateMeasureDTO.getCompletionType());
-        assertThat(measureSaved.getValue()).isEqualTo(updateMeasureDTO.getValue());
+        assertThat(measureSaved.getValue()).isEqualTo(expectedValue);
         assertThat(measureSaved.getTarget()).isEqualTo(updateMeasureDTO.getTarget());
         assertThat(measureSaved.getText()).isEqualTo(updateMeasureDTO.getText());
-
-        if (value.equals(5F)) {
-            assertThat(measureSaved.getCompletedAt()).isAfterOrEqualTo(expectedDateTime);
-        } else {
-            assertThat(measureSaved.getCompletedAt()).isNull();
-        }
+        assertThat(measureSaved.getStatus()).isEqualTo(ProgressionStatus.valueOf(expectedStatus));
     }
 
 }

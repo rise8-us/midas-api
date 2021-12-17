@@ -26,5 +26,4 @@ public class CreateCommentDTO implements Serializable {
 
     @NotBlank(message = "text must not be blank")
     private String text;
-
 }
