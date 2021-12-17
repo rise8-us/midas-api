@@ -19,6 +19,7 @@ import mil.af.abms.midas.enums.SonarqubeMaintainability;
 import mil.af.abms.midas.enums.SonarqubeReliability;
 import mil.af.abms.midas.enums.SonarqubeSecurity;
 import mil.af.abms.midas.enums.TagType;
+import mil.af.abms.midas.enums.UserType;
 
 @Getter
 public class InitDTO implements Serializable {
@@ -36,13 +37,14 @@ public class InitDTO implements Serializable {
     private final List<RoleDTO> roles = Roles.toDTO();
     private final List<ProjectJourneyMapDTO> projectJourneyMap = ProjectJourneyMap.toDTO();
     private final List<ProgressionStatusDTO> assertionStatus = ProgressionStatus.toDTO();
-    private final List<SonarqubeDTO> sonarqubeReliability = SonarqubeReliability.toDTO();
-    private final List<SonarqubeDTO> sonarqubeMaintainability = SonarqubeMaintainability.toDTO();
-    private final List<SonarqubeDTO> sonarqubeSecurity = SonarqubeSecurity.toDTO();
+    private final List<EnumDTO> sonarqubeReliability = SonarqubeReliability.toDTO();
+    private final List<EnumDTO> sonarqubeMaintainability = SonarqubeMaintainability.toDTO();
+    private final List<EnumDTO> sonarqubeSecurity = SonarqubeSecurity.toDTO();
     private final TagType[] tagTypes = TagType.values();
-    private final List<RoadmapTypeDTO> roadmapType = RoadmapType.toDTO();
+    private final List<EnumDTO> roadmapType = RoadmapType.toDTO();
     private final List<RoadmapStatusDTO> roadmapStatus = RoadmapStatus.toDTO();
-    private final List<CompletionTypeDTO> completionType = CompletionType.toDTO();
+    private final List<EnumDTO> completionType = CompletionType.toDTO();
     private final List<FeedbackRatingDTO> feedbackRating = FeedbackRating.toDTO();
+    private final List<EnumDTO> userType = UserType.toDTO();
 
 }

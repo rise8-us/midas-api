@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import mil.af.abms.midas.api.init.dto.SonarqubeDTO;
+import mil.af.abms.midas.api.init.dto.EnumDTO;
 
 @AllArgsConstructor
 @Getter
@@ -27,7 +27,7 @@ public enum SonarqubeMaintainability {
         return Stream.of(SonarqubeMaintainability.values());
     }
 
-    public static List<SonarqubeDTO> toDTO() {
-        return stream().map(s -> new SonarqubeDTO(s.name, s.description)).collect(Collectors.toList());
+    public static List<EnumDTO> toDTO() {
+        return stream().map(s -> new EnumDTO(s.name, null, s.description)).collect(Collectors.toList());
     }
 }

@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class RoadmapTypeDTO implements Serializable {
+public class EnumDTO implements Serializable {
     private final String name;
     private final String displayName;
     private final String description;

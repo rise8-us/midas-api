@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.user.dto.UserDTO;
+import mil.af.abms.midas.enums.UserType;
 
 public class UserTests {
 
@@ -33,6 +34,7 @@ public class UserTests {
             .with(u -> u.setDodId(1L))
             .with(u -> u.setTeams(Set.of(team)))
             .with(u -> u.setRoles(0L))
+            .with(u -> u.setUserType(UserType.ACTIVE))
             .with(u -> u.setIsDisabled(false)).get();
     private final UserDTO userDTO = Builder.build(UserDTO.class)
             .with(d -> d.setId(1L))
@@ -44,6 +46,7 @@ public class UserTests {
             .with(d -> d.setDodId(1L))
             .with(d -> d.setTeamIds(Set.of(1L)))
             .with(d -> d.setRoles(0L))
+            .with(d -> d.setUserType(UserType.ACTIVE))
             .with(d -> d.setIsDisabled(false)).get();
 
     @Test
@@ -65,6 +68,7 @@ public class UserTests {
         assertThat(user.getDodId()).isEqualTo(1);
         assertThat(user.getRoles()).isEqualTo(0L);
         assertThat(user.getIsDisabled()).isEqualTo(false);
+        assertThat(user.getUserType()).isEqualTo(UserType.ACTIVE);
     }
 
     @Test

@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import mil.af.abms.midas.api.init.dto.RoadmapTypeDTO;
+import mil.af.abms.midas.api.init.dto.EnumDTO;
 
 @AllArgsConstructor
 @Getter
@@ -31,7 +31,7 @@ public enum RoadmapType {
         return Stream.of(RoadmapType.values());
     }
 
-    public static List<RoadmapTypeDTO> toDTO() {
-        return stream().map(r -> new RoadmapTypeDTO(r.name, r.displayName, r.description)).collect(Collectors.toList());
+    public static List<EnumDTO> toDTO() {
+        return stream().map(r -> new EnumDTO(r.name, r.displayName, r.description)).collect(Collectors.toList());
     }
 }

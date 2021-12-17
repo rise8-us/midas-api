@@ -28,7 +28,7 @@ public class CommentController extends AbstractCRUDController<Comment, CommentDT
 
     @PostMapping
     public CommentDTO create(@Valid @RequestBody CreateCommentDTO createCommentDTO) {
-        return service.create(createCommentDTO).toDto();
+        return service.create(createCommentDTO, false).toDto();
     }
 
     @PutMapping("/{id}")

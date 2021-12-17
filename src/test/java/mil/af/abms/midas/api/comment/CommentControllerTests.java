@@ -1,7 +1,9 @@
 package mil.af.abms.midas.api.comment;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -62,7 +64,7 @@ public class CommentControllerTests extends ControllerTestHarness {
     @ParameterizedTest
     @CsvSource(value = { "true", "false" })
     public void should_create_comment(boolean isAssertion) throws Exception {
-        when(commentService.create(any(CreateCommentDTO.class))).thenReturn(comment);
+        when(commentService.create(any(CreateCommentDTO.class), any())).thenReturn(comment);
         when(assertionService.getById(assertion.getId())).thenReturn(Optional.of(assertion));
         when(measureService.getById(measure.getId())).thenReturn(Optional.of(measure));
         when(commentService.existsById(parentComment.getId())).thenReturn(true);
@@ -79,7 +81,7 @@ public class CommentControllerTests extends ControllerTestHarness {
     @ParameterizedTest
     @CsvSource(value = { "true , Comment must have only an assertion or measure ", "false , No measure or assertion exists" })
     public void should_not_create_comment(boolean isBoth, String errorMessage) throws Exception {
-        when(commentService.create(any(CreateCommentDTO.class))).thenReturn(comment);
+        when(commentService.create(any(CreateCommentDTO.class), any())).thenReturn(comment);
         when(assertionService.getById(assertion.getId())).thenReturn(Optional.of(assertion));
         when(measureService.getById(measure.getId())).thenReturn(Optional.of(measure));
         when(commentService.existsById(parentComment.getId())).thenReturn(true);
@@ -104,6 +106,15 @@ public class CommentControllerTests extends ControllerTestHarness {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.text").value(comment.getText()));
+    }
+
+    @Test
+    public void should_delete_comment_by_id() throws Exception {
+        doNothing().when(commentService).deleteById(any());
+        when(commentService.existsById(55L)).thenReturn(true);
+
+        mockMvc.perform(delete("/api/comments/1"))
+                .andExpect(status().isOk());
     }
 
 }

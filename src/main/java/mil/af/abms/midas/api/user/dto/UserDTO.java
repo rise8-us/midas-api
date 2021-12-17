@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.AbstractDTO;
+import mil.af.abms.midas.enums.UserType;
 
 @Data
 @AllArgsConstructor
@@ -20,6 +21,7 @@ public class UserDTO implements AbstractDTO {
     private String displayName;
     private LocalDateTime creationDate;
     private Long dodId;
+    private UserType userType;
     private Boolean isDisabled;
     private Long roles;
     private LocalDateTime lastLogin;

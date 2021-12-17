@@ -187,8 +187,9 @@ class AssertionServiceTests {
         assertThat(assertionSaved.getDueDate()).isEqualTo(createAssertionDTO.getDueDate());
     }
 
-    @Test
-    void should_update_assertion_by_id() {
+    @ParameterizedTest
+    @CsvSource(value = {"COMPLETED: BLOCKED", "BLOCKED: COMPLETED"}, delimiter = ':')
+    void should_update_assertion_by_id(String initialStatus, String updatedStatus) {
         assertionParent.setChildren(Set.of(assertionChild));
         assertionChild.setStatus(ProgressionStatus.BLOCKED);
 
@@ -196,11 +197,15 @@ class AssertionServiceTests {
         BeanUtils.copyProperties(assertionParent, newAssertion);
         newAssertion.setText("additional update");
         newAssertion.setId(10L);
+        newAssertion.setStatus(ProgressionStatus.valueOf(initialStatus));
+        newAssertion.setCompletedAt(initialStatus.equals("COMPLETED") ? LocalDateTime.of(2020, 2, 2, 2, 2) : null);
+
+        updateAssertionDTO.setStatus(ProgressionStatus.valueOf(updatedStatus));
 
         when(assertionRepository.findById(1L)).thenReturn(Optional.of(newAssertion));
         when(assertionRepository.save(newAssertion)).thenReturn(newAssertion);
         when(assertionRepository.save(assertionChild)).thenReturn(assertionChild);
-        doNothing().when(assertionService).updateParentIfAllSiblingsComplete(any());
+        doNothing().when(assertionService).updateAssertionIfAllChildrenAndMeasuresComplete(any());
         doNothing().when(assertionService).updateChildrenToCompletedIfParentComplete(any());
 
         doReturn(newAssertion).when(assertionService).create(any());
@@ -311,10 +316,11 @@ class AssertionServiceTests {
     void should_return_boolean_when_self_and_Siblings_are_completed(String status, boolean expected) {
         assertionChild.setStatus(ProgressionStatus.COMPLETED);
         assertionSibling.setStatus(ProgressionStatus.valueOf(status));
+        measure.setStatus(ProgressionStatus.COMPLETED);
         assertionParent.setStatus(ProgressionStatus.ON_TRACK);
         assertionParent.setChildren(Set.of(assertionChild, assertionSibling));
 
-        assertionService.updateParentIfAllSiblingsComplete(assertionSibling);
+        assertionService.updateAssertionIfAllChildrenAndMeasuresComplete(assertionParent);
 
         assertThat(assertionParent.getStatus().equals(ProgressionStatus.COMPLETED)).isEqualTo(expected);
     }
@@ -324,6 +330,7 @@ class AssertionServiceTests {
     void should_return_boolean_when_parent_is_completed(String status, boolean expected) {
         assertionParent.setStatus(ProgressionStatus.valueOf(status));
         assertionParent.setChildren(Set.of(assertionChild));
+        assertionChild.setMeasures(Set.of(measure));
         assertionService.updateChildrenToCompletedIfParentComplete(assertionParent);
         assertThat(assertionChild.getStatus().equals(ProgressionStatus.COMPLETED)).isEqualTo(expected);
     }

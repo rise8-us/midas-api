@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import mil.af.abms.midas.api.init.dto.CompletionTypeDTO;
+import mil.af.abms.midas.api.init.dto.EnumDTO;
 
 @AllArgsConstructor
 @Getter
@@ -47,7 +47,7 @@ public enum CompletionType {
         return Stream.of(CompletionType.values());
     }
 
-    public static List<CompletionTypeDTO> toDTO() {
-        return stream().map(c -> new CompletionTypeDTO(c.name, c.displayName, c.description)).collect(Collectors.toList());
+    public static List<EnumDTO> toDTO() {
+        return stream().map(c -> new EnumDTO(c.name, c.displayName, c.description)).collect(Collectors.toList());
     }
 }

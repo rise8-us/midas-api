@@ -23,6 +23,7 @@ import mil.af.abms.midas.api.assertion.dto.CreateAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.UpdateAssertionDTO;
 import mil.af.abms.midas.api.comment.Comment;
 import mil.af.abms.midas.api.comment.CommentService;
+import mil.af.abms.midas.api.comment.dto.CreateCommentDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.measure.MeasureService;
 import mil.af.abms.midas.api.measure.dto.CreateMeasureDTO;
@@ -47,21 +48,13 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
     }
 
     @Autowired
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
+    public void setUserService(UserService userService) { this.userService = userService; }
     @Autowired
-    public void setProductService(ProductService productService) {
-        this.productService = productService;
-    }
+    public void setProductService(ProductService productService) { this.productService = productService; }
     @Autowired
-    public void setCommentService(CommentService commentService) {
-        this.commentService = commentService;
-    }
+    public void setCommentService(CommentService commentService) { this.commentService = commentService; }
     @Autowired
-    public void setMeasureService(MeasureService measureService) {
-        this.measureService = measureService;
-    }
+    public void setMeasureService(MeasureService measureService) { this.measureService = measureService; }
 
     @Transactional
     public Assertion create(CreateAssertionDTO dto) {
@@ -97,8 +90,11 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
 
         addNewChildren(assertionToUpdate, dto);
         calculateCompleted(assertionToUpdate, dto);
+        assertionToUpdate.getMeasures().forEach((measure) -> {
+            measureService.updateMeasureIfAssertionComplete(measure, assertionToUpdate.getStatus(), assertionToUpdate.getText());
+        });
         updateChildrenToCompletedIfParentComplete(assertionToUpdate);
-        updateParentIfAllSiblingsComplete(assertionToUpdate);
+        updateAssertionIfAllChildrenAndMeasuresComplete(assertionToUpdate.getParent());
 
         return repository.save(assertionToUpdate);
     }
@@ -128,24 +124,46 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
         return this.convertAssertionsToBlockerAssertionDTOs(assertions);
     }
 
-    protected void updateParentIfAllSiblingsComplete(Assertion assertion) {
-        if (assertion.getParent() == null) return;
-        var parent =  assertion.getParent();
-        var isComplete = parent.getChildren().stream().filter(
-                c -> c.getStatus().equals(ProgressionStatus.COMPLETED)).count() == parent.getChildren().size();
-       if (isComplete) {
-           parent.setStatus(ProgressionStatus.COMPLETED);
-           updateParentIfAllSiblingsComplete(parent);
-           repository.save(parent);
-       }
+    public void updateAssertionIfAllChildrenAndMeasuresComplete(Assertion assertion) {
+        if (assertion == null) return;
+        var isComplete = (assertion.getChildren().stream().filter(
+                c -> c.getStatus().equals(ProgressionStatus.COMPLETED)).count() == assertion.getChildren().size() &&
+                    assertion.getMeasures().stream().filter(
+                m -> m.getStatus().equals(ProgressionStatus.COMPLETED)).count() == assertion.getMeasures().size());
+        if (assertion.getStatus() != ProgressionStatus.COMPLETED && isComplete) {
+            assertion.setStatus(ProgressionStatus.COMPLETED);
+            assertion.setCompletedAt(LocalDateTime.now());
+            var userName = userService.getUserDisplayNameOrUsername();
+            commentService.create(new CreateCommentDTO(
+                    null,
+                    assertion.getId(),
+                    null,
+                    String.format("%s marked all requirements as completed, marking \"%s\" as complete!###COMPLETED", userName, assertion.getText())
+            ), true);
+            repository.save(assertion);
+        }
+        updateAssertionIfAllChildrenAndMeasuresComplete(assertion.getParent());
     }
 
     protected void updateChildrenToCompletedIfParentComplete(Assertion assertion) {
         if (ProgressionStatus.COMPLETED.equals(assertion.getStatus())) {
             assertion.getChildren().forEach(childAssertion -> {
-                childAssertion.setStatus(ProgressionStatus.COMPLETED);
+                if (childAssertion.getStatus() != ProgressionStatus.COMPLETED) {
+                    childAssertion.setStatus(ProgressionStatus.COMPLETED);
+                    childAssertion.setCompletedAt(LocalDateTime.now());
+                    var userName = userService.getUserDisplayNameOrUsername();
+                    commentService.create(new CreateCommentDTO(
+                            null,
+                            childAssertion.getId(),
+                            null,
+                            String.format("%s marked \"%s\" as completed, marking \"%s\" as complete!###COMPLETED", userName, assertion.getText(), childAssertion.getText())
+                    ), true);
+                    repository.save(childAssertion);
+                    childAssertion.getMeasures().forEach((measure) -> {
+                        measureService.updateMeasureIfAssertionComplete(measure, childAssertion.getStatus(), childAssertion.getText());
+                    });
+                }
                 updateChildrenToCompletedIfParentComplete(childAssertion);
-                repository.save(childAssertion);
             });
         }
     }
@@ -210,6 +228,8 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
     private void calculateCompleted(Assertion assertion, UpdateAssertionDTO dto) {
         if (assertion.getCompletedAt() == null && dto.getStatus() == ProgressionStatus.COMPLETED) {
             assertion.setCompletedAt(LocalDateTime.now());
+        } else if (assertion.getCompletedAt() != null && dto.getStatus() != ProgressionStatus.COMPLETED) {
+            assertion.setCompletedAt(null);
         }
     }
 
