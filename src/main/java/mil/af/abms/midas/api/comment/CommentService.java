@@ -70,6 +70,16 @@ public class CommentService extends AbstractCRUDService<Comment, CommentDTO, Com
         return savedComment;
     }
 
+    public void createSystemComment(Long assertionId, Long measureId, String text) {
+        var userName = userService.getUserDisplayNameOrUsername();
+        create(new CreateCommentDTO(
+                null,
+                assertionId,
+                measureId,
+                String.format("%s - %s", userName, text)
+        ), true);
+    }
+
     @Transactional
     public Comment updateById(Long id, UpdateCommentDTO dto) {
         var comment = findById(id);

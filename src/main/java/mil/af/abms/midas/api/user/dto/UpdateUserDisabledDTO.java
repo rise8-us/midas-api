@@ -4,6 +4,9 @@ import java.io.Serializable;
 
 import lombok.Data;
 
+/**
+ * @deprecated (superseded by userType, will be removed in future version)
+ */
 @Deprecated
 @Data
 public class UpdateUserDisabledDTO implements Serializable {

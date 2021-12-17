@@ -58,6 +58,9 @@ public class User extends AbstractEntity<UserDTO> {
     @Column(columnDefinition = "VARCHAR(70) DEFAULT 'ACTIVE'", nullable = false)
     private UserType userType = UserType.ACTIVE;
 
+    /**
+     * @deprecated (superseded by userType, will be removed in future version)
+     */
     @Deprecated
     @Column(columnDefinition = "BIT(1) DEFAULT 0", nullable = false)
     private Boolean isDisabled = false;

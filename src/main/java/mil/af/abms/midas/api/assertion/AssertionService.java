@@ -23,7 +23,7 @@ import mil.af.abms.midas.api.assertion.dto.CreateAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.UpdateAssertionDTO;
 import mil.af.abms.midas.api.comment.Comment;
 import mil.af.abms.midas.api.comment.CommentService;
-import mil.af.abms.midas.api.comment.dto.CreateCommentDTO;
+import mil.af.abms.midas.api.comment.SystemComments;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.measure.MeasureService;
 import mil.af.abms.midas.api.measure.dto.CreateMeasureDTO;
@@ -133,13 +133,10 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
         if (assertion.getStatus() != ProgressionStatus.COMPLETED && isComplete) {
             assertion.setStatus(ProgressionStatus.COMPLETED);
             assertion.setCompletedAt(LocalDateTime.now());
-            var userName = userService.getUserDisplayNameOrUsername();
-            commentService.create(new CreateCommentDTO(
-                    null,
-                    assertion.getId(),
-                    null,
-                    String.format("%s marked all requirements as completed, marking \"%s\" as complete!###COMPLETED", userName, assertion.getText())
-            ), true);
+            var text = SystemComments.ALL_ASSERTION_CHILDREN_COMPLETE.apply(assertion.getText());
+
+            commentService.createSystemComment(assertion.getId(), null, text);
+
             repository.save(assertion);
         }
         updateAssertionIfAllChildrenAndMeasuresComplete(assertion.getParent());
@@ -151,13 +148,10 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
                 if (childAssertion.getStatus() != ProgressionStatus.COMPLETED) {
                     childAssertion.setStatus(ProgressionStatus.COMPLETED);
                     childAssertion.setCompletedAt(LocalDateTime.now());
-                    var userName = userService.getUserDisplayNameOrUsername();
-                    commentService.create(new CreateCommentDTO(
-                            null,
-                            childAssertion.getId(),
-                            null,
-                            String.format("%s marked \"%s\" as completed, marking \"%s\" as complete!###COMPLETED", userName, assertion.getText(), childAssertion.getText())
-                    ), true);
+                    var text = SystemComments.ASSERTION_COMPLETE.apply(assertion.getText(), childAssertion.getText());
+
+                    commentService.createSystemComment(childAssertion.getId(), null, text);
+
                     repository.save(childAssertion);
                     childAssertion.getMeasures().forEach((measure) -> {
                         measureService.updateMeasureIfAssertionComplete(measure, childAssertion.getStatus(), childAssertion.getText());
