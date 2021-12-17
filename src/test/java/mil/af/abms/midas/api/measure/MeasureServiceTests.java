@@ -6,6 +6,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -153,28 +154,46 @@ class MeasureServiceTests {
         assertThat(longCaptor.getAllValues().get(0)).isEqualTo(1L);
     }
 
-    @Test
-    void should_updateMeasureIfAssertionComplete() {
+    @ParameterizedTest
+    @CsvSource(value = {
+            "COMPLETED: COMPLETED",
+            "NOT_STARTED: NOT_STARTED",
+            "COMPLETED: NOT_STARTED",
+            "NOT_STARTED: COMPLETED"
+    }, delimiter = ':')
+    void should_updateMeasureIfAssertionComplete(String assertionStatus, String measureStatus) {
         when(userService.getUserDisplayNameOrUsername()).thenReturn("User");
         when(commentService.create(any(), any())).thenReturn(comment);
 
-        measureService.updateMeasureIfAssertionComplete(measure, ProgressionStatus.COMPLETED, "foo");
-        verify(repository, times(1)).save(measureCaptor.capture());
+        measure.setStatus(ProgressionStatus.valueOf(measureStatus));
 
-        var measureSaved = measureCaptor.getValue();
+        measureService.updateMeasureIfAssertionComplete(measure, ProgressionStatus.valueOf(assertionStatus), "foo");
 
-        assertThat(measureSaved.getStatus()).isEqualTo(ProgressionStatus.COMPLETED);
+        if (assertionStatus.equals("COMPLETED") && measureStatus.equals("NOT_STARTED")) {
+            verify(repository, times(1)).save(measureCaptor.capture());
+
+            var measureSaved = measureCaptor.getValue();
+
+            assertThat(measureSaved.getStatus()).isEqualTo(ProgressionStatus.COMPLETED);
+        } else {
+            verifyNoInteractions(repository);
+        }
     }
 
     @ParameterizedTest
     @CsvSource(value = {
             "1: 5: 5: ON_TRACK: ON_TRACK: COMPLETED",
+            "1: 5: 5: COMPLETED: COMPLETED: COMPLETED",
             "1: 1: 5: ON_TRACK: COMPLETED: COMPLETED",
             "1: 1: 1: NOT_STARTED: ON_TRACK: ON_TRACK",
             "2: 3: 3: ON_TRACK: ON_TRACK: BLOCKED",
+            "3: 4: 4: BLOCKED: BLOCKED: ON_TRACK",
+            "2: 4: 4: BLOCKED: BLOCKED: BLOCKED",
             "5: 0: 0: COMPLETED: COMPLETED: NOT_STARTED",
+            "1: 0: 0: NOT_STARTED: NOT_STARTED: NOT_STARTED",
             "0: 1: 1: NOT_STARTED: NOT_STARTED: ON_TRACK",
-            "0: 2: 2: NOT_STARTED: NOT_STARTED: ON_TRACK"
+            "0: 2: 2: NOT_STARTED: NOT_STARTED: ON_TRACK",
+            "1: 3: 3: ON_TRACK: ON_TRACK: ON_TRACK"
     }, delimiter = ':')
     void should_updateById_and_calculateValueAndStatus(
             Float initialValue, Float updatedValue, Float expectedValue,
@@ -188,7 +207,14 @@ class MeasureServiceTests {
         updateMeasureDTO.setValue(updatedValue);
         updateMeasureDTO.setStatus(ProgressionStatus.valueOf(updatedStatus));
         updateMeasureDTO.setStartDate(updatedValue.equals(2F) ? null : date.toString());
-        updateMeasureDTO.setDueDate(initialValue.equals(2F) ? date.minusDays(1).toString() : date.plusDays(1).toString());
+
+        if (initialValue.equals(2F)) {
+            updateMeasureDTO.setDueDate(date.minusDays(1).toString());
+        } else if (initialValue.equals(3F)) {
+            updateMeasureDTO.setDueDate(null);
+        } else {
+            updateMeasureDTO.setDueDate(date.plusDays(1).toString());
+        }
 
         doReturn(measure).when(measureService).findById(measure.getId());
         when(repository.save(any(Measure.class))).thenReturn(new Measure());
@@ -199,7 +225,11 @@ class MeasureServiceTests {
         var measureSaved = measureCaptor.getValue();
 
         assertThat(measureSaved.getStartDate()).isNotNull();
-        assertThat(measureSaved.getDueDate()).isEqualTo(updateMeasureDTO.getDueDate());
+        if (initialValue.equals(3F)) {
+            assertThat(measureSaved.getDueDate()).isNull();
+        } else {
+            assertThat(measureSaved.getDueDate()).isEqualTo(updateMeasureDTO.getDueDate());
+        }
         assertThat(measureSaved.getCompletionType()).isEqualTo(updateMeasureDTO.getCompletionType());
         assertThat(measureSaved.getValue()).isEqualTo(expectedValue);
         assertThat(measureSaved.getTarget()).isEqualTo(updateMeasureDTO.getTarget());
