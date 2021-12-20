@@ -67,8 +67,8 @@ dependencies {
 configurations.all {
     resolutionStrategy.dependencySubstitution {
         substitute(module("com.ibm.icu:icu4j")).using(module("com.ibm.icu:icu4j:69.1"))
-        substitute(module("org.apache.logging.log4j:log4j-api")).using(module("org.apache.logging.log4j:log4j-api:2.16.0"))
-        substitute(module("org.apache.logging.log4j:log4j-to-slf4j")).using(module("org.apache.logging.log4j:log4j-to-slf4j:2.16.0"))
+        substitute(module("org.apache.logging.log4j:log4j-api")).using(module("org.apache.logging.log4j:log4j-api:2.17.0"))
+        substitute(module("org.apache.logging.log4j:log4j-to-slf4j")).using(module("org.apache.logging.log4j:log4j-to-slf4j:2.17.0"))
     }
 }
 
