@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
@@ -154,6 +155,26 @@ class MeasureServiceTests {
         assertThat(longCaptor.getAllValues().get(0)).isEqualTo(1L);
     }
 
+    @Test
+    void should_deleteMeasure_without_removing_assertion_relationship() {
+        Comment comment = Builder.build(Comment.class).with(c -> c.setId(5L)).get();
+
+        Measure measure2 = new Measure();
+        BeanUtils.copyProperties(measure, measure2);
+        measure2.setId(2L);
+        measure2.getComments().add(comment);
+        assertion.getMeasures().add(measure);
+
+        doReturn(measure2).when(measureService).findById(measure2.getId());
+        doNothing().when(repository).deleteById(any());
+
+        measureService.deleteMeasure(measure2);
+        verify(repository, times(1)).deleteById(longCaptor.capture());
+        verify(commentService, times(1)).deleteAllRelatedComments(any());
+
+        assertThat(longCaptor.getAllValues().get(0)).isEqualTo(2L);
+    }
+
     @ParameterizedTest
     @CsvSource(value = {
             "COMPLETED: COMPLETED",
@@ -189,8 +210,9 @@ class MeasureServiceTests {
             "2: 3: 3: ON_TRACK: ON_TRACK: BLOCKED",
             "3: 4: 4: BLOCKED: BLOCKED: ON_TRACK",
             "2: 4: 4: BLOCKED: BLOCKED: BLOCKED",
-            "5: 0: 0: COMPLETED: COMPLETED: NOT_STARTED",
-            "1: 0: 0: NOT_STARTED: NOT_STARTED: NOT_STARTED",
+            "5: 0: 0: COMPLETED: COMPLETED: ON_TRACK",
+            "4: 0: 0: ON_TRACK: ON_TRACK: NOT_STARTED",
+            "4: 0: 0: NOT_STARTED: NOT_STARTED: NOT_STARTED",
             "0: 1: 1: NOT_STARTED: NOT_STARTED: ON_TRACK",
             "0: 2: 2: NOT_STARTED: NOT_STARTED: ON_TRACK",
             "1: 3: 3: ON_TRACK: ON_TRACK: ON_TRACK"
@@ -206,7 +228,7 @@ class MeasureServiceTests {
         if (initialStatus.equals("COMPLETED")) measure.setCompletedAt(LocalDateTime.now());
         updateMeasureDTO.setValue(updatedValue);
         updateMeasureDTO.setStatus(ProgressionStatus.valueOf(updatedStatus));
-        updateMeasureDTO.setStartDate(updatedValue.equals(2F) ? null : date.toString());
+        updateMeasureDTO.setStartDate((updatedValue.equals(2F) || initialValue.equals(4F)) ? null : date.toString());
 
         if (initialValue.equals(2F)) {
             updateMeasureDTO.setDueDate(date.minusDays(1).toString());
@@ -224,7 +246,12 @@ class MeasureServiceTests {
 
         var measureSaved = measureCaptor.getValue();
 
-        assertThat(measureSaved.getStartDate()).isNotNull();
+        if (!initialValue.equals(4F)) {
+            assertThat(measureSaved.getStartDate()).isNotNull();
+        } else {
+            assertThat(measureSaved.getStartDate()).isNull();
+        }
+
         if (initialValue.equals(3F)) {
             assertThat(measureSaved.getDueDate()).isNull();
         } else {

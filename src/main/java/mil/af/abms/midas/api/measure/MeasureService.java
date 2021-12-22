@@ -166,7 +166,7 @@ public class MeasureService extends AbstractCRUDService<Measure, MeasureDTO, Mea
             return ProgressionStatus.BLOCKED;
         }
 
-        if (measure.getValue().equals(0F)) {
+        if (measure.getValue().equals(0F) && measure.getStartDate() == null) {
             commentWhenNewlyNotStarted(measure);
             return ProgressionStatus.NOT_STARTED;
         }
