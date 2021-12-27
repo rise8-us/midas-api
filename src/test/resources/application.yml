@@ -8,7 +8,7 @@ custom:
   localKeycloakUid: "abc-123-def"
   gitLabUrl: "http://foo"
   gitLabAccessToken: "bar"
-  dbname: appDB
+  dbname: midas_db
 
 server:
   port: 5000

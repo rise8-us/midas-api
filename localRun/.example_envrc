@@ -6,7 +6,7 @@
 # REQUIRED
 export MYSQL_HOST=localhost
 export MYSQL_PORT=3306
-export MYSQL_DB_NAME=appDB
+export MYSQL_DB_NAME=midas_db
 export MYSQL_DB_ADMIN_USER=localDBUser
 export MYSQL_DB_ADMIN_PASSWORD=localDBPassword
 export ENVIRONMENT=local # require for local dev

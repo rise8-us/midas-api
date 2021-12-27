@@ -133,16 +133,17 @@ A `key` and a `salt` must be provided in the container environment.  The key and
 For further reference, please consider the following sections:
 
 - [Official Gradle documentation](https://docs.gradle.org)
-- [Spring Boot Gradle Plugin Reference Guide](https://docs.spring.io/spring-boot/docs/2.4.1/gradle-plugin/reference/html/)
-- [Create an OCI image](https://docs.spring.io/spring-boot/docs/2.4.1/gradle-plugin/reference/html/#build-image)
-- [Spring Boot DevTools](https://docs.spring.io/spring-boot/docs/2.4.1/reference/htmlsingle/#using-boot-devtools)
-- [Spring Configuration Processor](https://docs.spring.io/spring-boot/docs/2.4.1/reference/htmlsingle/#configuration-metadata-annotation-processor)
-- [Rest Repositories](https://docs.spring.io/spring-boot/docs/2.4.1/reference/htmlsingle/#howto-use-exposing-spring-data-repositories-rest-endpoint)
-- [Spring Security](https://docs.spring.io/spring-boot/docs/2.4.1/reference/htmlsingle/#boot-features-security)
-- [Spring Data JPA](https://docs.spring.io/spring-boot/docs/2.4.1/reference/htmlsingle/#boot-features-jpa-and-spring-data)
-- [Flyway Migration](https://docs.spring.io/spring-boot/docs/2.4.1/reference/htmlsingle/#howto-execute-flyway-database-migrations-on-startup)
-- [WebSocket](https://docs.spring.io/spring-boot/docs/2.4.1/reference/htmlsingle/#boot-features-websockets)
-- [Spring Boot Actuator](https://docs.spring.io/spring-boot/docs/2.4.1/reference/htmlsingle/#production-ready)
+- [Spring Boot Gradle Plugin Reference Guide](https://docs.spring.io/spring-boot/docs/2.6.2/gradle-plugin/reference/html/)
+- [Create an OCI image](https://docs.spring.io/spring-boot/docs/2.6.2/gradle-plugin/reference/html/#build-image)
+- [Spring Boot DevTools](https://docs.spring.io/spring-boot/docs/2.6.2/reference/htmlsingle/#using-boot-devtools)
+- [Spring Configuration Processor](https://docs.spring.io/spring-boot/docs/2.6.2/reference/htmlsingle/#configuration-metadata-annotation-processor)
+- [Rest Repositories](https://docs.spring.io/spring-boot/docs/2.6.2/reference/htmlsingle/#howto-use-exposing-spring-data-repositories-rest-endpoint)
+- [Spring Security](https://docs.spring.io/spring-boot/docs/2.6.2/reference/htmlsingle/#boot-features-security)
+- [Spring Data JPA](https://docs.spring.io/spring-boot/docs/2.6.2/reference/htmlsingle/#boot-features-jpa-and-spring-data)
+- [Flyway Migration](https://docs.spring.io/spring-boot/docs/2.6.2/reference/htmlsingle/#howto-execute-flyway-database-migrations-on-startup)
+- [Flyway Documentation](https://flywaydb.org/documentation/)
+- [WebSocket](https://docs.spring.io/spring-boot/docs/2.6.2/reference/htmlsingle/#boot-features-websockets)
+- [Spring Boot Actuator](https://docs.spring.io/spring-boot/docs/2.6.2/reference/htmlsingle/#production-ready)
 - [Gitlab4J](https://github.com/gitlab4j/gitlab4j-api)
 
 ### Guides
