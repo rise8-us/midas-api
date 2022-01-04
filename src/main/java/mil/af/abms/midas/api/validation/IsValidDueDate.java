@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.comment.dto.validation;
+package mil.af.abms.midas.api.validation;
 
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -12,11 +12,11 @@ import java.lang.annotation.Target;
 
 @Target({ TYPE })
 @Retention(RUNTIME)
-@Constraint(validatedBy = IsAssertionOrMeasureCommentValidator.class)
+@Constraint(validatedBy = IsValidDueDateValidator.class)
 @Documented
-public @interface IsAssertionOrMeasureComment {
+public @interface IsValidDueDate {
 
-    String message() default "comment must have only an assertion or measure";
+    String message() default "Due date must be after start date";
 
     Class<?>[] groups() default {};
 

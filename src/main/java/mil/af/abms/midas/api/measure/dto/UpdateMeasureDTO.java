@@ -7,13 +7,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import mil.af.abms.midas.api.dtos.CompletableDTO;
+import mil.af.abms.midas.api.validation.IsValidDueDate;
 import mil.af.abms.midas.enums.CompletionType;
 import mil.af.abms.midas.enums.ProgressionStatus;
 
 @Data
+@IsValidDueDate
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateMeasureDTO implements MeasurableDTO {
+public class UpdateMeasureDTO implements MeasurableDTO, CompletableDTO {
 
     @NotNull(message = "Value must not be blank")
     private Float value;
