@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.comment.dto.validation;
+package mil.af.abms.midas.api.comment.validation;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

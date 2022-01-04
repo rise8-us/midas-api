@@ -48,6 +48,47 @@ Platform 1 CtF criteria
 1. Execute `docker-compose up -d`.
 1. Execute `./run.sh`.
 
+# Downloading MySQL Backup From Staging
+- Navigate to `https://midas.staging.dso.mil/`
+- Log in to MIDAS with Administrative Permissions
+- Click on the Gavel Icon in the top right corner to navigate to the admin portal
+- Click on the `DATABASE BACKUP & RECOVERY` tab
+- To take backup perform one of the following steps:
+    - Enter a specific name of your choosing in the text field and click the back-up icon
+    - Accept the default naming convention and click the back-up icon
+- Once you have taken the back-up, select the back-up from the `DB Backups` dropdown
+- Click `DOWNLOAD` button
+
+# Importing Downloaded MySQL Backup into Adminer
+**Note: You will have to complete [Running the API](#Running the API) prior to running this section**
+- Navigate to `http://localhost:8181`
+- Log in to Adminer with `localDBUser`
+- If your database is currently populated, select all tables and click `Drop`
+- Click on the `Import` hyperlink in the left pane
+- Click on the `Choose Files` button
+- A window will open
+- Navigate to the back-up taken in the previous section and click `Open`
+- Inside Adminer, click on the `Execute` button
+
+# Remove Source Control Tokens from Imported Backup
+**Note: This should be completed after importing a MySQL back-up from staging or prod**
+- Navigate to `http://localhost:8181`
+- Log in to Adminer with `localDBUser`
+- Click on `select` that is next to `source_control` 
+- For each source control listed, click edit and remove the token listed.
+
+# Prod and Staging Restore
+**Note: These procedures are only required in the event you are restoring to a different database version**
+- Navigate to the appropriate environment Kustomization file  
+    - For Staging: [Kustomization Staging Manifest File](https://code.il2.dso.mil/abms/products/rise8/midas/midas-manifests/-/blob/master/il2/overlays/staging/kustomization.yaml)
+    - For Prod: [Kustomization Prod Manifest File](https://code.il2.dso.mil/abms/products/rise8/midas/midas-manifests/-/blob/master/il4/overlays/prod/kustomization.yaml)
+- Copy the tag nested under images -> newTag for the API and save it for future step.
+- Click the history button that is at the top right of the page.
+- Select an older version of the file that has the same database version as your desired restore and copy the tag nested under images -> newTag.
+  - **It should be different from the current tag.**
+- Return to the current file and edit it with the tag that was copied in the previous step.
+- Navigate to the appropriate ARGO application (Staging or Prod) and click refresh.
+
 # Understanding Search with ANTLR
 
 ## Overview
