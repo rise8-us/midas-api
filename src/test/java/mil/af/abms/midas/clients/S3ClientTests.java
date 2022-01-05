@@ -87,7 +87,7 @@ public class S3ClientTests {
     }
 
     @Test
-    void should_get_file_from_bucket() {
+    void should_get_file_from_bucket() throws Exception {
         doReturn(object).when(s3Client).makeRequest(any());
         s3Client.getFileFromBucket(object.getKey());
     }

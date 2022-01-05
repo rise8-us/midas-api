@@ -1,6 +1,5 @@
 package mil.af.abms.midas.config.auth.platform1;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -14,13 +13,16 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @EnableWebSecurity
 public class PlatformOneSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private PlatformOneAuthenticationProvider platformOneAuthenticationProvider;
+    private final PlatformOneAuthenticationProvider platformOneAuthenticationProvider;
 
     @Value("${custom.environment}")
     private String env;
     @Value("${custom.localKeycloakUid}")
     private String localKeycloakUid;
+
+    public PlatformOneSecurityConfigurerAdapter(PlatformOneAuthenticationProvider platformOneAuthenticationProvider) {
+        this.platformOneAuthenticationProvider = platformOneAuthenticationProvider;
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -32,8 +34,10 @@ public class PlatformOneSecurityConfigurerAdapter extends WebSecurityConfigurerA
 
         http.sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and().authorizeRequests()
-                .anyRequest().hasAnyAuthority("IS_AUTHENTICATED").and()
+                .and()
+                .authorizeRequests()
+                .anyRequest().hasAnyAuthority("IS_AUTHENTICATED")
+                .and()
                 .addFilterBefore(platformOneAuthenticationFilter, BasicAuthenticationFilter.class)
                 .csrf()
                 .disable().headers().frameOptions();

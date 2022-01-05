@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import com.amazonaws.util.IOUtils;
 import lombok.extern.slf4j.Slf4j;
 
+import mil.af.abms.midas.MidasApi;
+import mil.af.abms.midas.api.backupandrestore.dto.BackupRestoreDTO;
 import mil.af.abms.midas.api.helper.GzipHelper;
 import mil.af.abms.midas.clients.MySQLClient;
 import mil.af.abms.midas.clients.S3Client;
@@ -41,7 +43,7 @@ public class BackupAndRestoreService {
         return s3Client.getFileNamesFromBucket().stream().filter(f -> f.startsWith(BACKUP_DIR)).collect(Collectors.toList());
     }
     
-    public ByteArrayResource getFile(String fileName) {
+    public ByteArrayResource getFile(String fileName) throws S3IOException {
         try {
             var s3ObjectStream = s3Client.getFileFromBucket(fileName);
             var s3ObjectBytes = new ByteArrayResource(IOUtils.toByteArray(s3ObjectStream));
@@ -67,14 +69,27 @@ public class BackupAndRestoreService {
         this.backupToS3(null);
     }
 
-    public void restore(String fileName) throws AbstractRuntimeException {
-        try (var backupFile = s3Client.getFileFromBucket(fileName)) {
+    public void restore(BackupRestoreDTO dto) throws AbstractRuntimeException {
+        try (var backupFile = s3Client.getFileFromBucket(dto.getFileName())) {
             var backupString = GzipHelper.decompressInputStreamToString(backupFile);
+            backupString = clearTokens(backupString, dto.isClearTokens());
             mySQLClient.restore(backupString);
+            restart(dto.isRestart());
         } catch (IOException e) {
             log.error(e.getMessage());
             throw new AbstractRuntimeException("Unable to restore. See logs for more information.");
         }
     }
+
+    protected void restart(boolean isRestart) {
+        if (isRestart) {
+            MidasApi.restart();
+        }
+    }
+
+    private String clearTokens(String backupString, boolean isClearTokens) {
+        return isClearTokens ? String.format("%s%nUPDATE source_control SET token = NULL", backupString) : backupString;
+    }
+
 
 }

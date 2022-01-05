@@ -73,7 +73,7 @@ public class S3Client {
         return objects.stream().map(S3ObjectSummary::getKey).collect(Collectors.toList());
     }
 
-    public S3ObjectInputStream getFileFromBucket(String fileName) {
+    public S3ObjectInputStream getFileFromBucket(String fileName) throws IOException {
         var s3Object = (S3Object) makeRequest(() -> s3.getObject(this.bucketName, fileName));
         return s3Object.getObjectContent();
     }

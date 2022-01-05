@@ -35,7 +35,7 @@ class BackupAndRestoreControllerTests extends ControllerTestHarness {
     @MockBean
     BackupAndRestoreService service;
 
-    private final BackupRestoreDTO backupRestoreDTO = new BackupRestoreDTO("FileName");
+    private final BackupRestoreDTO backupRestoreDTO = new BackupRestoreDTO("FileName", false, false);
     private final List<String> s3Files = List.of("foo", "bar", "fooBar");
     private final Set<String> tableNames = Set.of("foo");
 
@@ -86,11 +86,23 @@ class BackupAndRestoreControllerTests extends ControllerTestHarness {
     @Test
     void should_restore_when_given_s3_file_name() throws Exception {
 
-        doNothing().when(service).restore(backupRestoreDTO.getFileName());
+        doNothing().when(service).restore(backupRestoreDTO);
 
         mockMvc.perform(post("/api/dbActions/restore")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(mapper.writeValueAsString(backupRestoreDTO))
+                )
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void should_restore_when_clear_tokens_is_true() throws Exception {
+        var restoreDTO = new BackupRestoreDTO("FileName", true, true);
+        doNothing().when(service).restore(restoreDTO);
+
+        mockMvc.perform(post("/api/dbActions/restore")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapper.writeValueAsString(restoreDTO))
                 )
                 .andExpect(status().isOk());
     }
