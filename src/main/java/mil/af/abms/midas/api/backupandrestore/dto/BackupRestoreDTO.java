@@ -12,5 +12,7 @@ import lombok.NoArgsConstructor;
 public class BackupRestoreDTO implements Serializable {
 
     String fileName;
+    boolean restart = false;
+    boolean clearTokens = false;
 
 }

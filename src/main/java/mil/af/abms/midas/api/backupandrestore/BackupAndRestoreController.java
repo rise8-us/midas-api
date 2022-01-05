@@ -41,7 +41,7 @@ public class BackupAndRestoreController {
 
     @IsAdmin
     @PostMapping("restore")
-    public void restoreFromS3(@RequestBody BackupRestoreDTO dto) { service.restore(dto.getFileName()); }
+    public void restoreFromS3(@RequestBody BackupRestoreDTO dto) { service.restore(dto); }
 
     @IsAdmin
     @PostMapping("download")

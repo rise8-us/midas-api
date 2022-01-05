@@ -2,12 +2,14 @@ package mil.af.abms.midas.api.backupandrestore;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -21,13 +23,18 @@ import com.amazonaws.util.IOUtils;
 import org.apache.http.client.methods.HttpGet;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
+import mil.af.abms.midas.api.backupandrestore.dto.BackupRestoreDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.helper.GzipHelper;
 import mil.af.abms.midas.clients.MySQLClient;
 import mil.af.abms.midas.clients.S3Client;
+import mil.af.abms.midas.exception.AbstractRuntimeException;
+import mil.af.abms.midas.exception.S3IOException;
 
 @ExtendWith(SpringExtension.class)
 class BackupAndRestoreServiceTests {
@@ -45,6 +52,7 @@ class BackupAndRestoreServiceTests {
     ArgumentCaptor<String> stringCaptor;
 
     private static final String DATA = "backup data";
+    private static final String CLEAR_TOKEN_DATA = DATA + "\nUPDATE source_control SET token = NULL";
     private static final String VERSION = "1.0.0";
     private static final String FILE_NAME = "Test File";
 
@@ -54,13 +62,14 @@ class BackupAndRestoreServiceTests {
             .with(o -> o.setObjectContent(GzipHelper.compressStringToInputStream("string")))
             .get();
 
-    @Test
-    void should_backup_to_s3() {
+    @ParameterizedTest
+    @CsvSource(value = {"foo.bar", "null" }, nullValues = {"null"})
+    void should_backup_to_s3(String fileName) {
         when(mySQLClient.exportToSql()).thenReturn(DATA);
         when(mySQLClient.getLatestFlywayVersion()).thenReturn(VERSION);
         doNothing().when(s3Client).sendToBucketAsGzip(anyString(), anyString());
 
-        service.backupToS3(null);
+        service.backupToS3(fileName);
 
         verify(s3Client, times(1)).sendToBucketAsGzip(stringCaptor.capture(), stringCaptor.capture());
         var arg1 = stringCaptor.getAllValues().get(0);
@@ -96,17 +105,33 @@ class BackupAndRestoreServiceTests {
         verify(service, times(1)).backupToS3("foo");
     }
 
-    @Test
-    void should_restore_db_from_file() {
+    @ParameterizedTest
+    @CsvSource(value = { "false: false", "true: true" }, delimiter = ':')
+    void should_restore_db_from_file(boolean restart, boolean clearTokens) throws Exception {
         var compress = GzipHelper.compressStringToInputStream(DATA);
         var s3IS = new S3ObjectInputStream(compress, new HttpGet());
+        var dto = new BackupRestoreDTO(FILE_NAME, restart, clearTokens);
+        var finalData = clearTokens ? CLEAR_TOKEN_DATA : DATA;
 
         when(s3Client.getFileFromBucket(FILE_NAME)).thenReturn(s3IS);
+        doNothing().when(service).restart(restart);
 
-        service.restore(FILE_NAME);
+        service.restore(dto);
+
         verify(mySQLClient, times(1)).restore(stringCaptor.capture());
+        verify(service, times(1)).restart(restart);
 
-        assertThat(stringCaptor.getValue()).isEqualTo(DATA);
+        assertThat(stringCaptor.getValue()).isEqualTo(finalData);
+
+    }
+
+    @Test
+    void should_throw_io_exception_on_restore_db_from_file() throws Exception {
+        when(s3Client.getFileFromBucket(FILE_NAME)).thenThrow(new IOException());
+        var dto = new BackupRestoreDTO(FILE_NAME, true, true);
+
+        assertThrows(AbstractRuntimeException.class, () -> service.restore(dto));
+
     }
 
     @Test
@@ -119,5 +144,12 @@ class BackupAndRestoreServiceTests {
         var stream = service.getFile(object.getKey());
 
         assertEquals(expectedStream, stream);
+    }
+
+    @Test
+    void should_throw_when_get_file() throws Exception {
+        when(s3Client.getFileFromBucket(object.getKey())).thenThrow(new IOException());
+
+        assertThrows(S3IOException.class, () -> service.getFile(object.getKey()));
     }
 }
