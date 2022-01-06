@@ -36,10 +36,10 @@ public class Capability extends AbstractEntity<CapabilityDTO> {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @OneToMany(mappedBy = "capability")
+    @OneToMany(mappedBy = "capability", orphanRemoval = true)
     private Set<PerformanceMeasure> performanceMeasures = new HashSet<>();
 
-    @OneToMany(mappedBy = "capability")
+    @OneToMany(mappedBy = "capability", orphanRemoval = true)
     private Set<Deliverable> deliverables = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
