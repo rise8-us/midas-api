@@ -233,6 +233,19 @@ class UserServiceTests {
     }
 
     @Test
+    void should_update_user_last_login() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(expectedUser));
+        when(userRepository.save(expectedUser)).thenReturn(expectedUser);
+
+        userService.updateLastLogin(expectedUser);
+
+        verify(userRepository, times(1)).save(userCaptor.capture());
+        User userSaved = userCaptor.getValue();
+
+        assertThat(userSaved.getLastLogin()).isEqualTo(expectedUser.getLastLogin());
+    }
+
+    @Test
     void should_update_is_disabled_by_id() {
         UpdateUserDisabledDTO updateDTO = Builder.build(UpdateUserDisabledDTO.class)
                 .with(p -> p.setDisabled(true)).get();

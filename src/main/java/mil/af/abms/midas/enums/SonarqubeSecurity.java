@@ -28,6 +28,6 @@ public enum SonarqubeSecurity {
     }
 
     public static List<EnumDTO> toDTO() {
-        return stream().map(s -> new EnumDTO(s.name, null, s.description)).collect(Collectors.toList());
+        return stream().map(s -> new EnumDTO(s.name, "Security", s.description)).collect(Collectors.toList());
     }
 }

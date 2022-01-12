@@ -1,5 +1,6 @@
 package mil.af.abms.midas.config.auth.platform1;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import mil.af.abms.midas.api.appusermetrics.AppUserMetricsService;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.enums.Roles;
@@ -21,18 +23,26 @@ import mil.af.abms.midas.enums.Roles;
 public class PlatformOneAuthenticationProvider implements AuthenticationProvider {
 
     private final UserService userService;
+    private final AppUserMetricsService appUserMetricsService;
 
     @Autowired
-    public PlatformOneAuthenticationProvider(UserService service) {
+    public PlatformOneAuthenticationProvider(UserService service, AppUserMetricsService appUserMetricsService) {
         this.userService = service;
+        this.appUserMetricsService = appUserMetricsService;
     }
 
     @Override
     @Transactional
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+        LocalDate id = LocalDate.now();
 
         PlatformOneAuthenticationToken token = (PlatformOneAuthenticationToken) authentication;
         User user = userService.findByKeycloakUid(token.getKeycloakUid()).orElseGet(() -> userService.create(token));
+
+        if (user.getLastLogin().isBefore(id.atStartOfDay())) {
+            userService.updateLastLogin(user);
+            appUserMetricsService.determineUpdateOrCreate(id);
+        }
 
         List<GrantedAuthority> authorityList = new ArrayList<>(getRoles(user));
         authorityList.add(new SimpleGrantedAuthority("IS_AUTHENTICATED"));
