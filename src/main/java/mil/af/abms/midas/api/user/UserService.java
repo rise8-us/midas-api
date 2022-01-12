@@ -2,6 +2,7 @@ package mil.af.abms.midas.api.user;
 
 import javax.transaction.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -57,6 +58,12 @@ public class UserService extends AbstractCRUDService<User, UserDTO, UserReposito
     public User getUserBySecContext() {
         String keycloakUid = JsonMapper.getKeycloakUidFromAuth(SecurityContextHolder.getContext().getAuthentication());
         return getByKeycloakUid(keycloakUid);
+    }
+
+    @Transactional
+    public void updateLastLogin(User user) {
+        user.setLastLogin(LocalDateTime.now());
+        repository.save(user);
     }
 
     @Transactional
