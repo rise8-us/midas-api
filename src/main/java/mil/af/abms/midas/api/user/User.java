@@ -99,7 +99,7 @@ public class User extends AbstractEntity<UserDTO> {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || !getClass().getName().equals(o.getClass().getName().split("\\$")[0])) return false;
         User that = (User) o;
         return this.hashCode() == that.hashCode();
     }
