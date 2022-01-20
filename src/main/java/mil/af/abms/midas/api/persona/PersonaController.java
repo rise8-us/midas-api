@@ -29,16 +29,19 @@ public class PersonaController extends AbstractCRUDController<Persona, PersonaDT
         super(service);
     }
 
+    @HasPersonaAccess
     @PostMapping
-    public PersonaDTO create(@Valid @RequestBody CreatePersonaDTO teamDTO) {
-        return service.create(teamDTO).toDto();
+    public PersonaDTO create(@Valid @RequestBody CreatePersonaDTO createPersonaDTO) {
+        return service.create(createPersonaDTO).toDto();
     }
 
+    @HasPersonaAccess
     @PutMapping("/{id}")
     public PersonaDTO updateById(@Valid @RequestBody UpdatePersonaDTO updatePersonaDTO, @PathVariable Long id) {
         return service.updateById(id, updatePersonaDTO).toDto();
     }
-    
+
+    @HasPersonaAccess
     @PutMapping("/bulk")
     public List<PersonaDTO> bulkUpdate(@Valid @RequestBody List<UpdatePersonaDTO> updatePersonaDTOs) {
         return service.bulkUpdate(updatePersonaDTOs).stream().map(Persona::toDto).collect(Collectors.toList());

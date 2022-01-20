@@ -2,7 +2,9 @@ package mil.af.abms.midas.api.feature;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -82,6 +84,15 @@ class FeatureControllerTests extends ControllerTestHarness {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$[0].title").value(feature.getTitle()));
+    }
+
+    @Test
+    public void should_delete_feature_by_id() throws Exception {
+        doNothing().when(featureService).deleteById(any());
+        when(featureService.existsById(55L)).thenReturn(true);
+
+        mockMvc.perform(delete("/api/features/1"))
+                .andExpect(status().isOk());
     }
 
 }
