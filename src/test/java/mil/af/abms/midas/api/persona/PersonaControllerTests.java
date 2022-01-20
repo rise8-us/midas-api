@@ -2,7 +2,9 @@ package mil.af.abms.midas.api.persona;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -83,5 +85,13 @@ class PersonaControllerTests extends ControllerTestHarness {
                 .andExpect(jsonPath("$[0].title").value(persona.getTitle()));
     }
 
+    @Test
+    public void should_delete_persona_by_id() throws Exception {
+        doNothing().when(personaService).deleteById(any());
+        when(personaService.existsById(55L)).thenReturn(true);
+
+        mockMvc.perform(delete("/api/personas/1"))
+                .andExpect(status().isOk());
+    }
 
 }
