@@ -2,6 +2,7 @@ package mil.af.abms.midas.api.assertion;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -82,6 +83,7 @@ class AssertionTests {
         assertNotEquals(assertion, new User());
         assertNotEquals(assertion, new Assertion());
         assertEquals(assertion, assertion2);
+        assertFalse(assertion.equals(null));
     }
 
     @Test

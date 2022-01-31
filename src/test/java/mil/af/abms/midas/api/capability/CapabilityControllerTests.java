@@ -2,7 +2,10 @@ package mil.af.abms.midas.api.capability;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -91,5 +94,13 @@ public class CapabilityControllerTests extends ControllerTestHarness {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.isArchived").value(true));
+    }
+
+    @Test
+    void should_delete_by_id() throws Exception {
+        mockMvc.perform(delete("/api/capabilities/1"))
+                .andExpect(status().isOk());
+
+        verify(capabilityService, times(1)).deleteById(1L);
     }
 }

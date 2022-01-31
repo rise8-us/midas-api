@@ -1,8 +1,9 @@
 package mil.af.abms.midas.api.capability;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.lang.reflect.Field;
 import java.util.LinkedList;
@@ -51,10 +52,12 @@ public class CapabilityTests {
         Capability capability2 = new Capability();
         BeanUtils.copyProperties(capability, capability2);
 
-        assertTrue(capability.equals(capability));
+        assertEquals(capability, capability);
+        assertNotEquals(null, capability);
+        assertNotEquals(capability, new User());
+        assertNotEquals(capability, new Capability());
+        assertEquals(capability, capability2);
         assertFalse(capability.equals(null));
-        assertFalse(capability.equals(new User()));
-        assertTrue(capability.equals(capability2));
     }
 
     @Test

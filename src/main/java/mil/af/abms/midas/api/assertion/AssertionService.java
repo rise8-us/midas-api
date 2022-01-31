@@ -104,8 +104,8 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
     public void deleteById(Long id) {
         var assertionToDelete = findById(id);
         sendParentUpdatedWebsocketMessage(assertionToDelete, false);
-        removeRelatedMeasures(assertionToDelete);
         removeRelatedComments(assertionToDelete);
+        removeRelatedMeasures(assertionToDelete);
         assertionToDelete.getChildren().forEach(a -> deleteById(a.getId()));
         repository.deleteById(id);
     }

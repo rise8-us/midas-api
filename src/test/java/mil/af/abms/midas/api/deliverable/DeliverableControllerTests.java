@@ -2,7 +2,10 @@ package mil.af.abms.midas.api.deliverable;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -129,6 +132,14 @@ class DeliverableControllerTests extends ControllerTestHarness {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.isArchived").value(true));
+    }
+
+    @Test
+    void should_delete_by_id() throws Exception {
+        mockMvc.perform(delete("/api/deliverables/1"))
+                .andExpect(status().isOk());
+
+        verify(deliverableService, times(1)).deleteById(1L);
     }
 
 }

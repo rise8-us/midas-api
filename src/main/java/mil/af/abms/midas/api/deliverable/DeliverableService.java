@@ -3,12 +3,16 @@ package mil.af.abms.midas.api.deliverable;
 import javax.transaction.Transactional;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
+import mil.af.abms.midas.api.DeliverableInterface;
 import mil.af.abms.midas.api.capability.CapabilityService;
 import mil.af.abms.midas.api.deliverable.dto.CreateDeliverableDTO;
 import mil.af.abms.midas.api.deliverable.dto.DeliverableDTO;
@@ -31,9 +35,13 @@ public class DeliverableService extends AbstractCRUDService<Deliverable, Deliver
     private PerformanceMeasureService performanceMeasureService;
     private CapabilityService capabilityService;
     private EpicService epicService;
+    private final SimpMessageSendingOperations websocket;
 
-    public DeliverableService(DeliverableRepository repository) {
+    private static final UnaryOperator<String> TOPIC = clazzName -> "/topic/update_" + clazzName;
+
+    public DeliverableService(DeliverableRepository repository, SimpMessageSendingOperations websocket) {
         super(repository, Deliverable.class, DeliverableDTO.class);
+        this.websocket = websocket;
     }
 
     @Autowired
@@ -118,5 +126,32 @@ public class DeliverableService extends AbstractCRUDService<Deliverable, Deliver
         deliverable.setIsArchived(dto.getIsArchived());
 
         return repository.save(deliverable);
+    }
+
+    @Transactional
+    @Override
+    public void deleteById(Long id) {
+        var deliverable = findById(id);
+        deliverable.getChildren().forEach(d -> {
+            repository.deleteById(d.getId());
+        });
+        repository.deleteById(id);
+        websocket.convertAndSend(TOPIC.apply(deliverable.getLowercaseClassName()), deliverable.toDto());
+    }
+
+    @Transactional
+    public void deleteAllRelatedDeliverables(Deliverable deliverable) {
+        deliverable.getChildren().forEach(this::deleteAllRelatedDeliverables);
+        removeRelationIfExists(deliverable.getCapability(), deliverable);
+        removeRelationIfExists(deliverable.getPerformanceMeasure(), deliverable);
+        repository.deleteById(deliverable.getId());
+    }
+
+    protected void removeRelationIfExists(DeliverableInterface deliverable, Deliverable deliverableToDelete) {
+        Optional.ofNullable(deliverable).map(d -> {
+            var deliverables = d.getDeliverables().stream().filter(m -> !m.equals(deliverableToDelete)).collect(Collectors.toSet());
+            d.setDeliverables(deliverables);
+            return d;
+        }).ifPresent(d -> websocket.convertAndSend(TOPIC.apply(d.getLowercaseClassName()), d.toDto()));
     }
 }

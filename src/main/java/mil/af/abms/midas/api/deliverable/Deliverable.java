@@ -26,8 +26,8 @@ import mil.af.abms.midas.api.epic.Epic;
 import mil.af.abms.midas.api.performancemeasure.PerformanceMeasure;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.release.Release;
-import mil.af.abms.midas.enums.ProgressionStatus;
 import mil.af.abms.midas.api.user.User;
+import mil.af.abms.midas.enums.ProgressionStatus;
 
 @Entity @Setter @Getter
 @Table(name = "deliverable")
@@ -76,7 +76,7 @@ public class Deliverable extends AbstractEntity<DeliverableDTO> {
     @JoinColumn(name = "assigned_to_id", nullable = true)
     private User assignedTo;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "capability_id", nullable = true)
     private Capability capability;
 
