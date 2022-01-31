@@ -15,6 +15,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
+import mil.af.abms.midas.api.DeliverableInterface;
 import mil.af.abms.midas.api.capability.dto.CapabilityDTO;
 import mil.af.abms.midas.api.deliverable.Deliverable;
 import mil.af.abms.midas.api.missionthread.MissionThread;
@@ -22,7 +23,7 @@ import mil.af.abms.midas.api.performancemeasure.PerformanceMeasure;
 
 @Entity @Setter @Getter
 @Table(name = "capability")
-public class Capability extends AbstractEntity<CapabilityDTO> {
+public class Capability extends AbstractEntity<CapabilityDTO> implements DeliverableInterface {
 
     @Column(columnDefinition = "BIT(1) DEFAULT 0", nullable = false)
     private Boolean isArchived = false;
@@ -36,10 +37,10 @@ public class Capability extends AbstractEntity<CapabilityDTO> {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @OneToMany(mappedBy = "capability", orphanRemoval = true)
+    @OneToMany(mappedBy = "capability")
     private Set<PerformanceMeasure> performanceMeasures = new HashSet<>();
 
-    @OneToMany(mappedBy = "capability", orphanRemoval = true)
+    @OneToMany(mappedBy = "capability")
     private Set<Deliverable> deliverables = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)

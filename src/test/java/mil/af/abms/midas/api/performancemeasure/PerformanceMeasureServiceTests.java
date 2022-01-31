@@ -12,6 +12,7 @@ import java.util.Optional;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
@@ -38,6 +39,8 @@ class PerformanceMeasureServiceTests {
     PerformanceMeasureRepository performanceMeasureRepository;
     @Captor
     ArgumentCaptor<PerformanceMeasure> performanceMeasureCaptor;
+    @MockBean
+    SimpMessageSendingOperations websocket;
 
     Capability capability = Builder.build(Capability.class).with(c -> c.setId(2L)).get();
 
@@ -108,5 +111,4 @@ class PerformanceMeasureServiceTests {
 
         assertThat(performanceMeasureSaved.getIsArchived()).isEqualTo(isArchivedDTO.getIsArchived());
     }
-
 }

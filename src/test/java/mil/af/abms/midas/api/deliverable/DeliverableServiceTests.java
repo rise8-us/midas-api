@@ -13,6 +13,7 @@ import java.util.Set;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
@@ -60,6 +61,8 @@ class DeliverableServiceTests {
     DeliverableRepository deliverableRepository;
     @Captor
     ArgumentCaptor<Deliverable> deliverableCaptor;
+    @MockBean
+    SimpMessageSendingOperations websocket;
 
     private final User assignedTo = Builder.build(User.class).with(u -> u.setId(2L)).get();
     private final Release release = Builder.build(Release.class).with(p -> p.setId(3L)).get();
@@ -149,6 +152,34 @@ class DeliverableServiceTests {
         Deliverable deliverableSaved = deliverableCaptor.getValue();
 
         assertThat(deliverableSaved.getIsArchived()).isEqualTo(isArchivedDTO.getIsArchived());
+    }
+
+    @Test
+    void should_delete_all_related_deliverables() {
+        var deliverableToDelete = new Deliverable();
+        deliverableToDelete.setId(2L);
+        deliverableToDelete.setCapability(capability);
+        deliverableToDelete.setPerformanceMeasure(performanceMeasure);
+        deliverableToDelete.setChildren(Set.of(deliverable));
+
+        doReturn(deliverableToDelete).when(deliverableService).findById(2L);
+
+        deliverableService.deleteAllRelatedDeliverables(deliverableToDelete);
+        verify(deliverableRepository, times(1)).deleteById(2L);
+    }
+
+    @Test
+    void should_delete_deliverables_by_id() {
+        var deliverableToDelete = new Deliverable();
+        deliverableToDelete.setId(2L);
+        deliverableToDelete.setCapability(capability);
+        deliverableToDelete.setPerformanceMeasure(performanceMeasure);
+        deliverableToDelete.setChildren(Set.of(deliverable));
+
+        doReturn(deliverableToDelete).when(deliverableService).findById(2L);
+
+        deliverableService.deleteById(2L);
+        verify(deliverableRepository, times(1)).deleteById(2L);
     }
 
 }

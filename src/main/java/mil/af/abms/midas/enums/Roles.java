@@ -19,7 +19,9 @@ public enum Roles {
     PRODUCT_MANAGER(2, "PRODUCT_MANAGER", "Manages products", "Product Manager"),
     TECH_LEAD(3, "TECH_LEAD", "Lead SWE in charge of technical functionality", "Tech Lead"),
     DESIGNER(4, "DESIGNER", "Manages product UI/UX designs", "Designer (UI/UX)"),
-    PLATFORM_OPERATOR(5, "PLATFORM_OPERATOR", "Owner/Operator of platform hosting service", "Platform Operator");
+    PLATFORM_OPERATOR(5, "PLATFORM_OPERATOR", "Owner/Operator of platform hosting service", "Platform Operator"),
+    PORTFOLIO_ADMIN(6, "PORTFOLIO_ADMIN", "Admin over a portfolio", "Portfolio Admin"),
+    STAKEHOLDER(7, "STAKEHOLDER", "Stakeholder", "Stakeholder");
 
     private final Integer offset;
     private final String name;

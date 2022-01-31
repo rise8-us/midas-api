@@ -63,5 +63,4 @@ public class PerformanceMeasureService extends AbstractCRUDService<PerformanceMe
 
         return repository.save(performanceMeasure);
     }
-
 }

@@ -15,13 +15,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
+import mil.af.abms.midas.api.DeliverableInterface;
 import mil.af.abms.midas.api.capability.Capability;
 import mil.af.abms.midas.api.deliverable.Deliverable;
 import mil.af.abms.midas.api.performancemeasure.dto.PerformanceMeasureDTO;
 
 @Entity @Setter @Getter
 @Table(name = "performance_measure")
-public class PerformanceMeasure extends AbstractEntity<PerformanceMeasureDTO> {
+public class PerformanceMeasure extends AbstractEntity<PerformanceMeasureDTO> implements DeliverableInterface {
 
     @Column(columnDefinition = "BIT(1) DEFAULT 0", nullable = false)
     private Boolean isArchived = false;
@@ -32,7 +33,7 @@ public class PerformanceMeasure extends AbstractEntity<PerformanceMeasureDTO> {
     @Column(columnDefinition = "INT")
     private Integer referenceId;
 
-    @OneToMany(mappedBy = "performanceMeasure")
+    @OneToMany(mappedBy = "performanceMeasure", orphanRemoval = true)
     private Set<Deliverable> deliverables = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)

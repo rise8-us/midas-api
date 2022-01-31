@@ -14,7 +14,7 @@ public class RolesTest {
 
     @Test
     public void can_Stream_Enum() {
-        assertThat((int) Roles.stream().count()).isEqualTo(6);
+        assertThat((int) Roles.stream().count()).isEqualTo(8);
     }
 
     @Test
@@ -26,6 +26,8 @@ public class RolesTest {
         rolesMap.put(Roles.TECH_LEAD, false);
         rolesMap.put(Roles.DESIGNER, false);
         rolesMap.put(Roles.PLATFORM_OPERATOR, false);
+        rolesMap.put(Roles.PORTFOLIO_ADMIN, false);
+        rolesMap.put(Roles.STAKEHOLDER, false);
 
         assertThat(Roles.getRoles(1L)).isEqualTo(rolesMap);
     }

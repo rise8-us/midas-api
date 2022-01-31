@@ -61,7 +61,7 @@ public class Assertion extends AbstractTimeConstrainedEntity<AssertionDTO> imple
     @JoinColumn(name = "inherited_from")
     private Assertion inheritedFrom;
 
-    @OneToMany(mappedBy = "assertion", orphanRemoval = true)
+    @OneToMany(mappedBy = "assertion")
     private Set<Measure> measures = new HashSet<>();
 
     @OneToMany(mappedBy = "parent")
