@@ -18,6 +18,7 @@ import mil.af.abms.midas.api.deliverable.dto.CreateDeliverableDTO;
 import mil.af.abms.midas.api.deliverable.dto.DeliverableDTO;
 import mil.af.abms.midas.api.deliverable.dto.UpdateDeliverableDTO;
 import mil.af.abms.midas.api.dtos.IsArchivedDTO;
+import mil.af.abms.midas.config.security.annotations.HasPortfolioAdminOrAdmin;
 
 @RestController
 @RequestMapping("/api/deliverables")
@@ -25,28 +26,33 @@ public class DeliverableController extends AbstractCRUDController<Deliverable, D
 
     public DeliverableController(DeliverableService service) { super(service); }
 
+    @HasPortfolioAdminOrAdmin
     @PostMapping
     public DeliverableDTO create(@Valid @RequestBody CreateDeliverableDTO createDeliverableDTO) {
         return service.create(createDeliverableDTO).toDto();
     }
 
+    @HasPortfolioAdminOrAdmin
     @PutMapping("/{id}")
     public DeliverableDTO updateById(@Valid @RequestBody UpdateDeliverableDTO updateDeliverableDTO, @PathVariable Long id) {
         return service.updateById(id, updateDeliverableDTO).toDto();
     }
 
+    @HasPortfolioAdminOrAdmin
     @PutMapping("/bulk")
     public List<DeliverableDTO> bulkUpdate(@Valid @RequestBody List<UpdateDeliverableDTO> updateDeliverableDTOs) {
         return service.bulkUpdate(updateDeliverableDTOs).stream().map(Deliverable::toDto).collect(Collectors.toList());
     }
 
+    @HasPortfolioAdminOrAdmin
     @PutMapping("/{id}/archive")
     public DeliverableDTO updateIsArchived(@Valid @RequestBody IsArchivedDTO isArchivedDTO, @PathVariable Long id) {
         return service.updateIsArchived(id, isArchivedDTO).toDto();
     }
 
-    @DeleteMapping("/{id}")
+    @HasPortfolioAdminOrAdmin
     @Override
+    @DeleteMapping("/{id}")
     public void deleteById(@PathVariable Long id) {
         service.deleteById(id);
     }

@@ -11,15 +11,18 @@ public final class AuthExpression {
     public static final String PORTFOLIO_LEAD = "PORTFOLIO_LEAD";
     public static final String PRODUCT_MANAGER = "PRODUCT_MANAGER";
     public static final String PLATFORM_OPERATOR = "PLATFORM_OPERATOR";
+    public static final String PORTFOLIO_ADMIN = "PORTFOLIO_ADMIN";
 
     // Roles Enum
     public static final String IS_ADMIN = HAS_AUTHORITY + ADMIN + END_EXP;
     public static final String IS_PORTFOLIO_LEAD = HAS_AUTHORITY + PORTFOLIO_LEAD + END_EXP;
     public static final String IS_PRODUCT_MANAGER = HAS_AUTHORITY + PRODUCT_MANAGER + END_EXP;
     public static final String IS_PLATFORM_OPERATOR = HAS_AUTHORITY + PLATFORM_OPERATOR + END_EXP;
+    public static final String IS_PORTFOLIO_ADMIN = HAS_AUTHORITY + PORTFOLIO_ADMIN + END_EXP;
 
-    // Platform Operator
+    // Roles and Admin
     public static final String IS_PLATFORM_OPERATOR_OR_ADMIN = IS_PLATFORM_OPERATOR + OR + IS_ADMIN;
+    public static final String IS_PORTFOLIO_ADMIN_OR_ADMIN = IS_PORTFOLIO_ADMIN + OR + IS_ADMIN;
 
     // User
     public static final String SELF = "isSelf(#id)";
