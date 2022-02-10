@@ -74,8 +74,14 @@ public class Epic extends AbstractTimeConstrainedEntity<EpicDTO> {
     @Column(columnDefinition = "TEXT")
     private String epicIssuesApi;
 
-    @Column(columnDefinition = "BIGINT")
-    private Long epicUid;
+    @Column(columnDefinition = "VARCHAR(255)")
+    private String epicUid;
+
+    @Column(columnDefinition = "BIGINT DEFAULT 0")
+    private Long totalWeight = 0L;
+
+    @Column(columnDefinition = "BIGINT DEFAULT 0")
+    private Long completedWeight = 0L;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
@@ -100,6 +106,8 @@ public class Epic extends AbstractTimeConstrainedEntity<EpicDTO> {
             selfApi,
             epicIssuesApi,
             epicUid,
+            totalWeight,
+            completedWeight,
             getIdOrNull(product)
         );
     }

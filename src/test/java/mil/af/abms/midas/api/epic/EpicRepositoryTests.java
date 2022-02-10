@@ -24,7 +24,7 @@ public class EpicRepositoryTests extends RepositoryTestHarness {
         entityManager.flush();
 
         Epic epic = Builder.build(Epic.class)
-                .with(e -> e.setEpicUid(2L))
+                .with(e -> e.setEpicUid("2"))
                 .with(e -> e.setProduct(mock))
                 .get();
 
@@ -34,7 +34,7 @@ public class EpicRepositoryTests extends RepositoryTestHarness {
         Epic foundEpic = epicRepository.findByEpicUid(savedEpic.getEpicUid()).orElseThrow(() ->
                 new EntityNotFoundException("Not Found"));
 
-        assertThat(foundEpic.getEpicUid()).isEqualTo(2L);
+        assertThat(foundEpic.getEpicUid()).isEqualTo("2");
     }
 
 }

@@ -112,10 +112,23 @@ class Gitlab4JClientTests {
     }
 
     @Test
+    void should_return_false_on_issueExistsByIdAndProjectId() {
+        doReturn(Optional.empty()).when(gitClient).makeRequest(any());
+        assertFalse(gitClient.issueExistsByIdAndProjectId(123, 321));
+    }
+
+    @Test
     void findEpicByIdAndGroup_should_return_empty_on_exception() {
         doThrow(new GitApiException("F")).when(gitClient).makeRequest(any());
 
         assertThat(gitClient.findEpicByIdAndGroupId(1, 1)).isEqualTo(Optional.empty());
+    }
+
+    @Test
+    void findIssueByIdAndProjectId_should_return_empty_on_exception() {
+        doThrow(new GitApiException("F")).when(gitClient).makeRequest(any());
+
+        assertThat(gitClient.findIssueByIdAndProjectId(1, 1)).isEqualTo(Optional.empty());
     }
 
     @Test
@@ -235,6 +248,65 @@ class Gitlab4JClientTests {
             assertThrows(GitApiException.class, () ->  gitClient.getEpicsFromGroup(1));
         } else {
             assertThrows(HttpClientErrorException.class, () -> gitClient.getEpicsFromGroup(1));
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = { "OK; [{\"iid\":42}]", "BAD_REQUEST; [{}]", "OK; ---" }, delimiter = ';')
+    void should_get_sub_epics_from_Api(String status, String response) {
+        ResponseEntity<String> testResponse = new ResponseEntity<>(response, HttpStatus.valueOf(status));
+        doReturn(testResponse).when(gitClient).requestGet(anyString());
+
+        if (response.equals("[{\"iid\":42}]")) {
+            assertThat(gitClient.getSubEpicsFromEpicAndGroup(1, 42).get(0).getEpicIid()).isEqualTo(42);
+        } else if (response.equals("---")) {
+            assertThrows(GitApiException.class, () ->  gitClient.getSubEpicsFromEpicAndGroup(1, 42));
+        } else {
+            assertThrows(HttpClientErrorException.class, () -> gitClient.getSubEpicsFromEpicAndGroup(1, 42));
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = { "OK: true", "BAD_REQUEST: false" }, delimiter = ':')
+    void should_get_Issue_from_Api(String status, boolean isOk) {
+        ResponseEntity<String> testResponse = new ResponseEntity<>("{ \"iid\": 42}", HttpStatus.valueOf(status));
+
+        doReturn(testResponse).when(gitClient).requestGet(anyString());
+
+        if (isOk) {
+            assertThat(gitClient.getIssueFromProject(1, 2).getIssueIid()).isEqualTo(42);
+        } else {
+            assertThrows(HttpClientErrorException.class, () -> gitClient.getIssueFromProject(1, 2));
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = { "OK; [{\"iid\":42}]", "BAD_REQUEST; [{}]", "OK; ---" }, delimiter = ';')
+    void should_get_Issues_from_Api(String status, String response) {
+        ResponseEntity<String> testResponse = new ResponseEntity<>(response, HttpStatus.valueOf(status));
+        doReturn(testResponse).when(gitClient).requestGet(anyString());
+
+        if (response.equals("[{\"iid\":42}]")) {
+            assertThat(gitClient.getIssuesFromProject(1).get(0).getIssueIid()).isEqualTo(42);
+        } else if (response.equals("---")) {
+            assertThrows(GitApiException.class, () ->  gitClient.getIssuesFromProject(1));
+        } else {
+            assertThrows(HttpClientErrorException.class, () -> gitClient.getIssuesFromProject(1));
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = { "OK; [{\"iid\":42}]", "BAD_REQUEST; [{}]", "OK; ---" }, delimiter = ';')
+    void should_get_Issues_from_Epic_Api(String status, String response) {
+        ResponseEntity<String> testResponse = new ResponseEntity<>(response, HttpStatus.valueOf(status));
+        doReturn(testResponse).when(gitClient).requestGet(anyString());
+
+        if (response.equals("[{\"iid\":42}]")) {
+            assertThat(gitClient.getIssuesFromEpic(1, 42).get(0).getIssueIid()).isEqualTo(42);
+        } else if (response.equals("---")) {
+            assertThrows(GitApiException.class, () ->  gitClient.getIssuesFromEpic(1, 42));
+        } else {
+            assertThrows(HttpClientErrorException.class, () -> gitClient.getIssuesFromEpic(1, 42));
         }
     }
 

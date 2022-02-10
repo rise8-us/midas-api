@@ -23,7 +23,7 @@ class InitDTOTests {
         assertThat(dto.getSonarqubeSecurity().size()).isEqualTo(6);
         assertThat(dto.getRoadmapType().size()).isEqualTo(2);
         assertThat(dto.getRoadmapStatus().size()).isEqualTo(3);
-        assertThat(dto.getCompletionType().size()).isEqualTo(5);
+        assertThat(dto.getCompletionType().size()).isEqualTo(6);
         assertThat(dto.getFeedbackRating().size()).isEqualTo(5);
         assertThat(dto.getUserType().size()).isEqualTo(4);
 

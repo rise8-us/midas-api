@@ -35,6 +35,8 @@ public class EpicTests {
             .with(e -> e.setId(1L))
             .with(e -> e.setCreationDate(epic.getCreationDate()))
             .with(e -> e.setProductId(product.getId()))
+            .with(e -> e.setCompletedWeight(0L))
+            .with(e -> e.setTotalWeight(0L))
             .get();
 
     @Test
