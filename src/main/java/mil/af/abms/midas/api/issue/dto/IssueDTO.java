@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.epic.dto;
+package mil.af.abms.midas.api.issue.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,27 +12,20 @@ import mil.af.abms.midas.api.AbstractDTO;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class EpicDTO implements AbstractDTO {
-
+public class IssueDTO implements AbstractDTO {
     private Long id;
     private String title;
     private String description;
-    private Boolean isHidden;
     private LocalDateTime creationDate;
     private LocalDate startDate;
-    private LocalDate startDateFromInheritedSource;
     private LocalDate dueDate;
-    private LocalDate dueDateFromInheritedSource;
-    private LocalDateTime closedAt;
+    private LocalDateTime completedAt;
+    private LocalDateTime updatedAt;
     private LocalDateTime syncedAt;
-    private Integer epicIid;
+    private Integer issueIid;
+    private String issueUid;
     private String state;
     private String webUrl;
-    private String selfApi;
-    private String epicIssuesApi;
-    private String epicUid;
-    private Long totalWeight;
-    private Long completedWeight;
-    private Long productId;
-
+    private Long weight;
+    private Long projectId;
 }

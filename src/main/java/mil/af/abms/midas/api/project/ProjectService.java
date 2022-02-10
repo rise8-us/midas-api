@@ -2,6 +2,7 @@ package mil.af.abms.midas.api.project;
 
 import javax.transaction.Transactional;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -111,6 +112,10 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
     public Project findByName(String name) {
         return repository.findByName(name).orElseThrow(
                 () -> new EntityNotFoundException(Project.class.getSimpleName(), "name", name));
+    }
+
+    public List<Project> getAll() {
+        return repository.findAll();
     }
 
     @Transactional

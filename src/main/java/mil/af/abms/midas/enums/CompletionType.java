@@ -13,11 +13,6 @@ import mil.af.abms.midas.api.init.dto.EnumDTO;
 @Getter
 public enum CompletionType {
 
-    STRING(
-            "STRING",
-            "String",
-            "manual text entry"
-    ),
     BINARY(
             "BINARY",
             "Binary",
@@ -37,6 +32,16 @@ public enum CompletionType {
             "MONEY",
             "Money",
             "Monetary representation of completeness"
+    ),
+    GITLAB_EPIC(
+            "GITLAB_EPIC",
+            "GitLab Epic",
+            "Progress synced to a GitLab epic"
+    ),
+    GITLAB_ISSUE(
+            "GITLAB_ISSUE",
+            "GitLab Issue",
+            "Progress synced to a GitLab issue"
     );
 
     private final String name;

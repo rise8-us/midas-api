@@ -10,38 +10,36 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GitLabEpic {
+public class GitLabIssue {
 
-    @JsonProperty("iid")
-    private Integer epicIid;
     @JsonProperty("title")
     private String title;
     @JsonProperty("description")
     private String description;
-    @JsonProperty("start_date")
-    private LocalDate startDate;
-    @JsonProperty("start_date_from_inherited_source")
-    private LocalDate startDateFromInheritedSource;
+    @JsonProperty("created_at")
+    private LocalDateTime creationDate;
     @JsonProperty("due_date")
     private LocalDate dueDate;
-    @JsonProperty("due_date_from_inherited_source")
-    private LocalDate dueDateFromInheritedSource;
     @JsonProperty("closed_at")
     private LocalDateTime completedAt;
+    @JsonProperty("updated_at")
+    private LocalDateTime updatedAt;
+    @JsonProperty("iid")
+    private Integer issueIid;
     @JsonProperty("state")
     private String state;
     @JsonProperty("web_url")
     private String webUrl;
-    @JsonProperty("group_id")
-    private Integer groupId;
-    
-    private String selfApi;
-    private String epicIssuesApi;
+    @JsonProperty("weight")
+    private Long weight;
+    @JsonProperty("project_id")
+    private Long projectId;
 
-    @JsonProperty("_links")
-    private void unpackNestedLinks(Map<String, Object> links) {
-        this.selfApi = (String) links.get("self");
-        this.epicIssuesApi = (String) links.get("epic_issues");
+    private Integer epicIid;
+
+    @JsonProperty("epic")
+    private void unpackNestedEpic(Map<String, Object> epic) {
+        this.epicIid = (Integer) epic.get("iid");
     }
 
 }

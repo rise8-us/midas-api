@@ -1,5 +1,6 @@
 package mil.af.abms.midas.api.epic;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -12,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -20,7 +22,6 @@ import org.springframework.http.MediaType;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.dtos.AddGitLabEpicDTO;
@@ -30,7 +31,6 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
-import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
 
 @WebMvcTest({EpicController.class})
 public class EpicControllerTests extends ControllerTestHarness {
@@ -40,9 +40,6 @@ public class EpicControllerTests extends ControllerTestHarness {
 
     @MockBean
     private ProductService productService;
-
-    @Mock
-    private GitLab4JClient gitLab4JClient;
 
     SourceControl sourceControl = Builder.build(SourceControl.class)
             .with(sc -> sc.setBaseUrl("fake_url"))
@@ -60,6 +57,7 @@ public class EpicControllerTests extends ControllerTestHarness {
             .with(e -> e.setCreationDate(LocalDateTime.now()))
             .with(e -> e.setProduct(product))
             .with(e -> e.setTitle("title"))
+            .with(e -> e.setEpicIid(1))
             .get();
 
     EpicDTO epicDTO = Builder.build(EpicDTO.class)
@@ -70,7 +68,7 @@ public class EpicControllerTests extends ControllerTestHarness {
             .get();
 
     @BeforeEach
-    void init() throws Exception {
+    void init() {
         when(userService.findByKeycloakUid(any())).thenReturn(Optional.of(authUser));
     }
 
@@ -131,6 +129,17 @@ public class EpicControllerTests extends ControllerTestHarness {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.isHidden").value(true));
+    }
+
+    @Test
+    void should_get_all_epics_by_project_id() throws Exception {
+        Set<Epic> epics = Set.of(epic);
+        when(epicService.getAllGitlabEpicsForProduct(anyLong())).thenReturn(epics);
+
+        mockMvc.perform(get("/api/epics/all/2"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$", hasSize(1)));
     }
 
 }

@@ -29,8 +29,10 @@ import org.gitlab4j.api.models.Job;
 import org.gitlab4j.api.models.Project;
 
 import mil.af.abms.midas.api.helper.JsonMapper;
+import mil.af.abms.midas.api.issue.Issue;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.clients.gitlab.models.GitLabEpic;
+import mil.af.abms.midas.clients.gitlab.models.GitLabIssue;
 import mil.af.abms.midas.clients.gitlab.models.GitLabProject;
 import mil.af.abms.midas.exception.GitApiException;
 
@@ -74,12 +76,25 @@ public class GitLab4JClient {
         }
     }
 
+    public Optional<Issue> findIssueByIdAndProjectId(Integer id, Integer projectId) {
+        try {
+            return (Optional<Issue>) makeRequest(() -> client.getIssuesApi().getOptionalIssue(projectId, id));
+        } catch (GitApiException e) {
+            log.error(String.format("GitLab4JClient could not find issue with id: %d in project: %d", id, projectId));
+            return Optional.empty();
+        }
+    }
+
     public Boolean projectExistsById(Integer id) {
         return findProjectById(id).isPresent();
     }
 
     public Boolean epicExistsByIdAndGroupId(Integer id, Integer groupId) {
         return findEpicByIdAndGroupId(id, groupId).isPresent();
+    }
+
+    public Boolean issueExistsByIdAndProjectId(Integer id, Integer projectId) {
+        return findIssueByIdAndProjectId(id, projectId).isPresent();
     }
 
     public Map<String, String> getLatestCodeCoverage(Integer projectId, Integer currentJobId) {
@@ -140,6 +155,15 @@ public class GitLab4JClient {
 
     public List<GitLabEpic> getEpicsFromGroup(Integer groupId) {
         String url = String.format("%s/api/v4/groups/%d/epics", this.baseUrl, groupId);
+        return getGitLabEpics(url);
+    }
+
+    public List<GitLabEpic> getSubEpicsFromEpicAndGroup(Integer groupId, Integer iid) {
+        String url = String.format("%s/api/v4/groups/%d/epics/%d/epics", this.baseUrl, groupId, iid);
+        return getGitLabEpics(url);
+    }
+
+    private List<GitLabEpic> getGitLabEpics(String url) {
         ResponseEntity<String> response = requestGet(url);
         var epics = new ArrayList<GitLabEpic>();
 
@@ -149,9 +173,38 @@ public class GitLab4JClient {
                 for (var epic : epicArray) {
                     epics.add(mapEpicFromJson(epic.toString()));
                 }
-               return epics;
+                return epics;
             } catch (IOException e) {
                 throw new GitApiException("Unable to map Gitlab Epic Json to Midas Epic");
+            }
+        else {
+            throw new HttpClientErrorException(response.getStatusCode());
+        }
+    }
+
+    public List<GitLabIssue> getIssuesFromEpic(Integer groupId, Integer epicIid) {
+        String url = String.format("%s/api/v4/groups/%d/epics/%d/issues", this.baseUrl, groupId, epicIid);
+        return getGitLabIssues(url);
+    }
+
+    public List<GitLabIssue> getIssuesFromProject(Integer projectId) {
+        String url = String.format("%s/api/v4/projects/%d/issues", this.baseUrl, projectId);
+        return getGitLabIssues(url);
+    }
+
+    private List<GitLabIssue> getGitLabIssues(String url) {
+        ResponseEntity<String> response = requestGet(url);
+        var issues = new ArrayList<GitLabIssue>();
+
+        if (response.getStatusCode().equals(HttpStatus.OK))
+            try {
+                var issueArray = JsonMapper.dateMapper().readTree(response.getBody());
+                for (var issue : issueArray) {
+                    issues.add(mapIssueFromJson(issue.toString()));
+                }
+                return issues;
+            } catch (IOException e) {
+                throw new GitApiException("Unable to map Gitlab Issue Json to Midas Issue");
             }
         else {
             throw new HttpClientErrorException(response.getStatusCode());
@@ -167,6 +220,28 @@ public class GitLab4JClient {
         else {
             throw new HttpClientErrorException(response.getStatusCode());
         }
+    }
+
+    public GitLabIssue getIssueFromProject(Integer projectId, Integer iid) {
+        String url = String.format("%s/api/v4/projects/%d/issues/%d", this.baseUrl, projectId, iid);
+        ResponseEntity<String> response = requestGet(url);
+
+        if (response.getStatusCode().equals(HttpStatus.OK))
+            return mapIssueFromJson(response.getBody());
+        else {
+            throw new HttpClientErrorException(response.getStatusCode());
+        }
+    }
+
+    protected GitLabIssue mapIssueFromJson(String body) {
+        try {
+             return JsonMapper.dateMapper()
+                    .readerFor(GitLabIssue.class)
+                    .readValue(body);
+        } catch (IOException e) {
+            throw new GitApiException("Unable to map Gitlab Issue Json to Midas Issue");
+        }
+
     }
 
     protected GitLabEpic mapEpicFromJson(String body) {
@@ -190,8 +265,7 @@ public class GitLab4JClient {
         }
     }
 
-    public List<GitLabProject> getProjectsFromGroup(Integer groupId)
-    {
+    public List<GitLabProject> getProjectsFromGroup(Integer groupId) {
         String url = String.format("%s/api/v4/groups/%d/projects", this.baseUrl, groupId);
         ResponseEntity<String> response = requestGet(url);
         var projects = new ArrayList<GitLabProject>();

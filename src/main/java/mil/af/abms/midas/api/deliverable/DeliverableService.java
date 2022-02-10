@@ -129,6 +129,19 @@ public class DeliverableService extends AbstractCRUDService<Deliverable, Deliver
     }
 
     @Transactional
+    public void deleteAllByEpicId(Long epicId) {
+        var deliverablesToRemove = getAllDeliverablesByEpicId(epicId);
+        for (Deliverable deliverable : deliverablesToRemove) {
+            deleteById(deliverable.getId());
+        }
+    }
+
+    @Transactional
+    public List<Deliverable> getAllDeliverablesByEpicId(Long epicId) {
+        return repository.findAllDeliverablesByEpicId(epicId).orElse(List.of());
+    }
+
+    @Transactional
     @Override
     public void deleteById(Long id) {
         var deliverable = findById(id);
