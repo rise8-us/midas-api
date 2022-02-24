@@ -6,8 +6,10 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import java.util.HashSet;
@@ -16,34 +18,24 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 
-import mil.af.abms.midas.api.AbstractTimeConstrainedEntity;
+import mil.af.abms.midas.api.AbstractEntity;
 import mil.af.abms.midas.api.Commentable;
 import mil.af.abms.midas.api.assertion.Assertion;
 import mil.af.abms.midas.api.comment.Comment;
+import mil.af.abms.midas.api.completion.Completion;
 import mil.af.abms.midas.api.measure.dto.MeasureDTO;
-import mil.af.abms.midas.enums.CompletionType;
 import mil.af.abms.midas.enums.ProgressionStatus;
 
 @Entity @Setter @Getter
 @Table(name = "measure")
-public class Measure extends AbstractTimeConstrainedEntity<MeasureDTO> implements Commentable {
+public class Measure extends AbstractEntity<MeasureDTO> implements Commentable {
 
-    @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "VARCHAR(70) DEFAULT 'BINARY'", nullable = false)
-    private CompletionType completionType = CompletionType.BINARY;
+    @Column(columnDefinition = "TEXT")
+    private String text;
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(70) DEFAULT 'NOT_STARTED'", nullable = false)
     private ProgressionStatus status = ProgressionStatus.NOT_STARTED;
-
-    @Column(columnDefinition = "FLOAT DEFAULT 0", nullable = false)
-    private Float value;
-
-    @Column(columnDefinition = "FLOAT DEFAULT 1", nullable = false)
-    private Float target;
-
-    @Column(columnDefinition = "TEXT")
-    private String text;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assertion_id")
@@ -52,20 +44,22 @@ public class Measure extends AbstractTimeConstrainedEntity<MeasureDTO> implement
     @OneToMany(mappedBy = "measure", orphanRemoval = true)
     private Set<Comment> comments = new HashSet<>();
 
+    @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinTable(
+            name = "completion_measure",
+            joinColumns = @JoinColumn(name = "measure_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "completion_id", referencedColumnName = "id"))
+    private Completion completion;
+
     public MeasureDTO toDto() {
         return new MeasureDTO(
                 id,
                 creationDate,
-                startDate,
-                dueDate,
-                completedAt,
-                completionType,
-                value,
-                target,
                 text,
                 getIdOrNull(assertion),
                 getIds(comments),
-                status
+                status,
+                completion.toDto()
         );
     }
 

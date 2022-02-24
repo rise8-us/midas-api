@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import mil.af.abms.midas.api.completion.dto.UpdateCompletionDTO;
 import mil.af.abms.midas.enums.ProgressionStatus;
 
 @Data
@@ -30,6 +31,7 @@ public class UpdateDeliverableDTO implements Serializable {
     private List<Long> releaseIds;
     private ProgressionStatus status;
     private Long assignedToId;
-    private Long epicId;
+    
+    private UpdateCompletionDTO completion;
 
 }

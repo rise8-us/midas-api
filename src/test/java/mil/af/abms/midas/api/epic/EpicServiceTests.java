@@ -13,7 +13,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -29,7 +32,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
 
-import mil.af.abms.midas.api.deliverable.DeliverableService;
+import mil.af.abms.midas.api.completion.Completion;
+import mil.af.abms.midas.api.completion.CompletionService;
 import mil.af.abms.midas.api.dtos.AddGitLabEpicDTO;
 import mil.af.abms.midas.api.dtos.IsHiddenDTO;
 import mil.af.abms.midas.api.helper.Builder;
@@ -38,6 +42,7 @@ import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
 import mil.af.abms.midas.clients.gitlab.models.GitLabEpic;
+import mil.af.abms.midas.clients.gitlab.models.GitLabIssue;
 
 @ExtendWith(SpringExtension.class)
 @Import(EpicService.class)
@@ -50,7 +55,7 @@ class EpicServiceTests {
     @MockBean
     private ProductService productService;
     @MockBean
-    private DeliverableService deliverableService;
+    private CompletionService completionService;
     @MockBean
     private GitLab4JClient client;
 
@@ -59,6 +64,8 @@ class EpicServiceTests {
 
     private static final LocalDateTime CREATED_AT = LocalDateTime.now().minusDays(1L);
     private static final LocalDateTime CLOSED_AT = LocalDateTime.now();
+    private static final String TOTAL = "total";
+    private static final String COMPLETED = "completed";
 
     private final SourceControl sourceControl = Builder.build(SourceControl.class)
             .with(sc -> sc.setId(3L))
@@ -71,6 +78,9 @@ class EpicServiceTests {
             .with(p -> p.setSourceControl(sourceControl))
             .with(p -> p.setIsArchived(false))
             .get();
+    private final Completion completion = Builder.build(Completion.class)
+            .with(c -> c.setId(10L))
+            .get();
     private final Epic foundEpic = Builder.build(Epic.class)
             .with(e -> e.setId(6L))
             .with(e -> e.setTitle("title"))
@@ -79,12 +89,23 @@ class EpicServiceTests {
             .with(e -> e.setCompletedWeight(0L))
             .with(e -> e.setTotalWeight(0L))
             .with(e -> e.setProduct(foundProduct))
+            .with((e -> e.setCompletions(Set.of(completion))))
             .get();
     private final GitLabEpic gitLabEpic = Builder.build(GitLabEpic.class)
             .with(e -> e.setTitle("title"))
             .with(e -> e.setEpicIid(2))
             .with(e -> e.setCompletedAt(CLOSED_AT))
             .get();
+    private final GitLabIssue gitLabIssue = Builder.build(GitLabIssue.class)
+            .with(i -> i.setTitle("title"))
+            .with(i -> i.setIssueIid(2))
+            .with(i -> i.setCreationDate(CREATED_AT))
+            .with(i -> i.setCompletedAt(CLOSED_AT))
+            .get();
+    private final HashMap<String, Integer> base = new HashMap<>(Map.ofEntries(
+            Map.entry(TOTAL, 10),
+            Map.entry(COMPLETED, 5)
+    ));
 
     @Test
     void can_create_Epic_new() {
@@ -144,6 +165,7 @@ class EpicServiceTests {
         doReturn(gitLabEpic).when(epicService).getEpicFromClient(any(Product.class), anyInt());
         when(productService.findById(any())).thenReturn(foundProduct);
         when(repository.findById(anyLong())).thenReturn(Optional.of(foundEpic));
+        doNothing().when(completionService).setCompletionTypeToFailure(anyLong());
 
         epicService.updateById(1L);
 
@@ -153,25 +175,73 @@ class EpicServiceTests {
 
     @Test
     void should_get_weights_on_epics() {
+        GitLabEpic newGitlabEpic = new GitLabEpic();
+        BeanUtils.copyProperties(gitLabEpic, newGitlabEpic);
+
+        doReturn(List.of(newGitlabEpic, gitLabEpic)).when(client).getSubEpicsFromEpicAndGroup(anyInt(), anyInt());
+        doReturn(List.of(gitLabIssue)).when(client).getIssuesFromEpic(anyInt(), anyInt());
+
         epicService.getAllEpicWeights(client, Optional.of(gitLabEpic));
 
         verify(epicService, times(1)).getAllEpicWeights(client, Optional.of(gitLabEpic));
     }
 
     @Test
-    void should_return_set_if_product_has_all_gitlab_details() {
-        when(productService.findById(foundProduct.getId())).thenReturn(foundProduct);
+    void should_set_weights_on_epics() {
+        doReturn(base).when(epicService).getAllEpicWeights(any(), any());
+        doReturn(gitLabEpic).when(client).getEpicFromGroup(anyInt(), anyInt());
+        doReturn(client).when(epicService).getGitlabClient(any());
+
+        epicService.setWeights(foundEpic);
+
+        verify(epicService, times(1)).setWeights(any());
+    }
+
+    @Test
+    void should_return_false_when_product_is_archived() {
+        foundProduct.setIsArchived(true);
+
         epicService.hasGitlabDetails(foundProduct);
 
         verify(epicService, times(1)).hasGitlabDetails(foundProduct);
     }
 
     @Test
-    void should_return_empty_set_if_product_does_not_have_all_gitlab_details() {
-        when(productService.findById(foundProduct.getId())).thenReturn(foundProduct);
-        doReturn(false).when(epicService).hasGitlabDetails(foundProduct);
+    void should_return_false_when_product_gitlab_group_id_is_null() {
+        foundProduct.setGitlabGroupId(null);
 
-        assertThat(epicService.getAllGitlabEpicsForProduct(foundProduct.getId())).isEqualTo(Set.of());
+        epicService.hasGitlabDetails(foundProduct);
+
+        verify(epicService, times(1)).hasGitlabDetails(foundProduct);
+    }
+
+    @Test
+    void should_return_false_when_product_source_control_is_null() {
+        foundProduct.setSourceControl(null);
+
+        epicService.hasGitlabDetails(foundProduct);
+
+        verify(epicService, times(1)).hasGitlabDetails(foundProduct);
+    }
+
+    @Test
+    void should_return_false_when_product_source_control_token_is_null() {
+        sourceControl.setToken(null);
+        foundProduct.setSourceControl(sourceControl);
+
+        epicService.hasGitlabDetails(foundProduct);
+
+        verify(epicService, times(1)).hasGitlabDetails(foundProduct);
+    }
+
+    @Test
+    void should_return_false_when_product_source_control_url_is_null() {
+        sourceControl.setBaseUrl(null);
+        foundProduct.setSourceControl(sourceControl);
+
+        epicService.hasGitlabDetails(foundProduct);
+
+        verify(epicService, times(1)).hasGitlabDetails(foundProduct);
     }
 
     @Test
@@ -190,6 +260,25 @@ class EpicServiceTests {
         doReturn(foundEpic).when(epicService).convertToEpic(any(), any());
 
         assertThat(epicService.getAllGitlabEpicsForProduct(foundProduct.getId())).isEqualTo(Set.of(expectedEpic));
+    }
+
+    @Test
+    void should_return_empty_set_if_product_is_missing_gitlab_details() {
+        var expectedEpic = new Epic();
+        BeanUtils.copyProperties(foundEpic, expectedEpic);
+        expectedEpic.setTitle(gitLabEpic.getTitle());
+        expectedEpic.setId(6L);
+
+        doReturn(expectedEpic).when(repository).save(any(Epic.class));
+        when(epicService.getGitlabClient(foundProduct)).thenReturn(client);
+        when(productService.findById(foundProduct.getId())).thenReturn(foundProduct);
+        doReturn(Optional.of(foundEpic)).when(repository).findByEpicIid(any());
+        when(client.getEpicsFromGroup(foundProduct.getGitlabGroupId())).thenReturn(List.of(gitLabEpic));
+        doNothing().when(epicService).removeAllUntrackedEpics(anyLong(), anyList());
+        doReturn(foundEpic).when(epicService).convertToEpic(any(), any());
+        doReturn(false).when(epicService).hasGitlabDetails(any());
+
+        assertThat(epicService.getAllGitlabEpicsForProduct(foundProduct.getId())).isEqualTo(Set.of());
     }
 
     @Test
@@ -259,6 +348,32 @@ class EpicServiceTests {
         Epic epicSaved = captor.getValue();
 
         assertThat(epicSaved.getIsHidden()).isEqualTo(isHiddenDTO.getIsHidden());
+    }
+
+    @Test
+    void should_remove_all_untracked_epics() {
+        var expectedEpic = new Epic();
+        BeanUtils.copyProperties(foundEpic, expectedEpic);
+        expectedEpic.setTitle(gitLabEpic.getTitle());
+        expectedEpic.setEpicIid(42);
+
+        doReturn(new ArrayList<>(List.of(foundEpic, expectedEpic))).when(epicService).getAllEpicsByProductId(anyLong());
+        doNothing().when(repository).deleteAll(anyList());
+
+        epicService.removeAllUntrackedEpics(foundProduct.getId(), List.of(gitLabEpic));
+
+        verify(repository, times(1)).deleteAll(List.of(expectedEpic));
+
+    }
+
+    @Test
+    void should_get_epic_from_client() {
+        doReturn(gitLabEpic).when(client).getEpicFromGroup(anyInt(), anyInt());
+        doReturn(client).when(epicService).getGitlabClient(any());
+
+        epicService.getEpicFromClient(foundProduct, 2);
+
+        verify(epicService, times(1)).getEpicFromClient(any(), anyInt());
     }
 
 }

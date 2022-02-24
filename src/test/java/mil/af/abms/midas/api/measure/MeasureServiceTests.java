@@ -2,6 +2,8 @@ package mil.af.abms.midas.api.measure;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -10,7 +12,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -31,6 +32,10 @@ import mil.af.abms.midas.api.assertion.Assertion;
 import mil.af.abms.midas.api.assertion.AssertionService;
 import mil.af.abms.midas.api.comment.Comment;
 import mil.af.abms.midas.api.comment.CommentService;
+import mil.af.abms.midas.api.completion.Completion;
+import mil.af.abms.midas.api.completion.CompletionService;
+import mil.af.abms.midas.api.completion.dto.CreateCompletionDTO;
+import mil.af.abms.midas.api.completion.dto.UpdateCompletionDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.helper.TimeConversion;
 import mil.af.abms.midas.api.measure.dto.CreateMeasureDTO;
@@ -52,6 +57,8 @@ class MeasureServiceTests {
     @MockBean
     CommentService commentService;
     @MockBean
+    CompletionService completionService;
+    @MockBean
     UserService userService;
     @MockBean
     SimpMessageSendingOperations websocket;
@@ -62,14 +69,39 @@ class MeasureServiceTests {
     private ArgumentCaptor<Assertion> assertionCaptor;
     @Captor
     private ArgumentCaptor<Long> longCaptor;
-    @Captor
-    private ArgumentCaptor<String> stringCaptor;
-
 
     private final LocalDate DUE_DATE = TimeConversion.getLocalDateOrNullFromObject("2021-07-09");
     private final Assertion assertion = Builder.build(Assertion.class)
             .with(a -> a.setId(3L))
             .get();
+    private final Completion completion = Builder.build(Completion.class)
+            .with(c -> c.setId(1L))
+            .with(c -> c.setValue(1F))
+            .with(c -> c.setTarget(5F))
+            .with(c -> c.setCompletionType(CompletionType.NUMBER))
+            .with(c -> c.setDueDate(DUE_DATE))
+            .with(c -> c.setStartDate(DUE_DATE))
+            .get();
+    private final UpdateCompletionDTO updateCompletionDTO = new UpdateCompletionDTO(
+            completion.getStartDate().toString(),
+            completion.getDueDate().toString(),
+            completion.getCompletionType(),
+            0F,
+            1F,
+            null,
+            null
+    );
+    private final CreateCompletionDTO createCompletionDTO = new CreateCompletionDTO(
+            completion.getStartDate().toString(),
+            completion.getDueDate().toString(),
+            null,
+            completion.getCompletionType(),
+            0F,
+            5F,
+            null,
+            null
+
+    );
     private Measure measure = new Measure();
     private CreateMeasureDTO createMeasureDTO = new CreateMeasureDTO();
     private UpdateMeasureDTO updateMeasureDTO = new UpdateMeasureDTO();
@@ -83,60 +115,33 @@ class MeasureServiceTests {
     void init() {
         this.measure = Builder.build(Measure.class)
                 .with(m -> m.setId(1L))
-                .with(m -> m.setStartDate(DUE_DATE))
-                .with(m -> m.setDueDate(DUE_DATE))
-                .with(m -> m.setCompletionType(CompletionType.NUMBER))
-                .with(m -> m.setValue(1F))
-                .with(m -> m.setTarget(5F))
                 .with(m -> m.setText("First"))
                 .with(m -> m.setAssertion(assertion))
                 .with(m -> m.setStatus(ProgressionStatus.NOT_STARTED))
+                .with(m -> m.setCompletion(completion))
                 .get();
        this.createMeasureDTO = new CreateMeasureDTO(
-                0F,
-                5F,
                 measure.getText(),
                 assertion.getId(),
                 measure.getStatus(),
-                measure.getStartDate().toString(),
-                measure.getDueDate().toString(),
-                measure.getCompletionType()
+                createCompletionDTO
         );
         this.updateMeasureDTO = new UpdateMeasureDTO(
-                measure.getTarget(),
-                5F,
                 "Updated",
                 measure.getStatus(),
-                measure.getStartDate().toString(),
-                measure.getDueDate().toString(),
-                measure.getCompletionType()
+                updateCompletionDTO
+
         );
     }
 
-    @ParameterizedTest
-    @CsvSource(value = {" , ", "1F,2F", "2F, 2F"})
-    void should_create_measure(Float value, Float target) {
-        createMeasureDTO.setValue(value);
-        createMeasureDTO.setTarget(target);
-
-        when(repository.save(any())).thenReturn(measure);
-        when(assertionService.findById(assertion.getId())).thenReturn(assertion);
-
+    @Test
+    void should_create_measure() {
+        doReturn(completion).when(completionService).create(createCompletionDTO);
+        doReturn(measure).when(repository).save(any());
         measureService.create(createMeasureDTO);
-        verify(repository, times(1)).save(measureCaptor.capture());
-        verify(websocket, times(1)).convertAndSend(stringCaptor.capture(), assertionCaptor.capture());
-        Measure measureSaved = measureCaptor.getAllValues().get(0);
 
-        assertThat(measureSaved.getText()).isEqualTo(createMeasureDTO.getText());
-        assertThat(measureSaved.getCompletionType()).isEqualTo(createMeasureDTO.getCompletionType());
-        assertThat(measureSaved.getStartDate()).isEqualTo(createMeasureDTO.getStartDate());
-        assertThat(measureSaved.getDueDate()).isEqualTo(createMeasureDTO.getDueDate());
-        assertThat(measureSaved.getValue()).isEqualTo(createMeasureDTO.getValue());
-        assertThat(measureSaved.getTarget()).isEqualTo(createMeasureDTO.getTarget());
-        assertThat(measureSaved.getText()).isEqualTo(createMeasureDTO.getText());
-        assertThat(measureSaved.getStatus()).isEqualTo(createMeasureDTO.getStatus());
-        assertThat(assertion.toDto()).isEqualTo(assertionCaptor.getValue());
-        assertThat("/topic/update_assertion").isEqualTo(stringCaptor.getValue());
+        verify(repository, times(1)).save(any());
+        verify(measureService, times(1)).updateRelation(any(), any());
     }
 
     @Test
@@ -201,67 +206,56 @@ class MeasureServiceTests {
         }
     }
 
+    @Test
+    void should_update_by_id() {
+        doReturn(measure).when(measureService).findById(anyLong());
+        doReturn(completion).when(completionService).updateById(anyLong(), any());
+        doNothing().when(assertionService).updateAssertionIfAllChildrenAndMeasuresComplete(any());
+
+        measureService.updateById(1L, updateMeasureDTO);
+        verify(repository, times(1)).save(any());
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = { "COMPLETED", "NOT_STARTED" })
+    void should_calculate_value(String status) {
+        updateMeasureDTO.setStatus(ProgressionStatus.valueOf(status));
+
+        doNothing().when(commentService).createSystemComment(anyLong(), anyLong(), anyString());
+
+        measureService.calculateValue(updateMeasureDTO, measure);
+        verify(measureService, times(1)).calculateValue(any(), any());
+    }
+
     @ParameterizedTest
     @CsvSource(value = {
-            "1: 5: 5: ON_TRACK: ON_TRACK: COMPLETED",
-            "1: 5: 5: COMPLETED: COMPLETED: COMPLETED",
-            "1: 1: 5: ON_TRACK: COMPLETED: COMPLETED",
-            "1: 1: 1: NOT_STARTED: ON_TRACK: ON_TRACK",
-            "2: 3: 3: ON_TRACK: ON_TRACK: BLOCKED",
-            "3: 4: 4: BLOCKED: BLOCKED: ON_TRACK",
-            "2: 4: 4: BLOCKED: BLOCKED: BLOCKED",
-            "5: 0: 0: COMPLETED: COMPLETED: ON_TRACK",
-            "4: 0: 0: ON_TRACK: ON_TRACK: NOT_STARTED",
-            "4: 0: 0: NOT_STARTED: NOT_STARTED: NOT_STARTED",
-            "0: 1: 1: NOT_STARTED: NOT_STARTED: ON_TRACK",
-            "0: 2: 2: NOT_STARTED: NOT_STARTED: ON_TRACK",
-            "1: 3: 3: ON_TRACK: ON_TRACK: ON_TRACK"
+            "1: 5: ON_TRACK: COMPLETED: 0",
+            "5: 5: ON_TRACK: ON_TRACK: 0",
+            "5: 5: COMPLETED: COMPLETED: 0",
+            "1: 5: ON_TRACK: ON_TRACK: 0",
+            "2: 5: AT_RISK: AT_RISK: 0",
+            "1: 5: AT_RISK: AT_RISK: 0",
+            "0: 5: ON_TRACK: ON_TRACK: 1",
+            "0: 5: BLOCKED: BLOCKED: 1",
+            "0: 5: ON_TRACK: ON_TRACK: 0",
+            "0: 5: NOT_STARTED: NOT_STARTED: 0",
     }, delimiter = ':')
-    void should_updateById_and_calculateValueAndStatus(
-            Float initialValue, Float updatedValue, Float expectedValue,
-            String initialStatus, String updatedStatus, String expectedStatus) {
+    void should_calculate_status(Float value, Float target, String measureStatus, String dtoStatus, Integer daysToAdd) {
+        var foundCompletion = measure.getCompletion();
+        foundCompletion.setValue(value);
+        foundCompletion.setTarget(target);
+        measure.setStatus(ProgressionStatus.valueOf(measureStatus));
+        updateMeasureDTO.setStatus(ProgressionStatus.valueOf(dtoStatus));
+        foundCompletion.setDueDate(LocalDate.now().minusDays(daysToAdd));
 
-        var date = LocalDate.now();
-
-        measure.setValue(initialValue);
-        measure.setStatus(ProgressionStatus.valueOf(initialStatus));
-        if (initialStatus.equals("COMPLETED")) measure.setCompletedAt(LocalDateTime.now());
-        updateMeasureDTO.setValue(updatedValue);
-        updateMeasureDTO.setStatus(ProgressionStatus.valueOf(updatedStatus));
-        updateMeasureDTO.setStartDate((updatedValue.equals(2F) || initialValue.equals(4F)) ? null : date.toString());
-
-        if (initialValue.equals(2F)) {
-            updateMeasureDTO.setDueDate(date.minusDays(1).toString());
-        } else if (initialValue.equals(3F)) {
-            updateMeasureDTO.setDueDate(null);
-        } else {
-            updateMeasureDTO.setDueDate(date.plusDays(1).toString());
+        if (value == 2F || value == 0F) {
+            foundCompletion.setStartDate(null);
         }
 
-        doReturn(measure).when(measureService).findById(measure.getId());
-        when(repository.save(any(Measure.class))).thenReturn(new Measure());
+        doNothing().when(commentService).createSystemComment(anyLong(), anyLong(), anyString());
 
-        measureService.updateById(measure.getId(), updateMeasureDTO);
-        verify(repository, times(1)).save(measureCaptor.capture());
-
-        var measureSaved = measureCaptor.getValue();
-
-        if (!initialValue.equals(4F)) {
-            assertThat(measureSaved.getStartDate()).isNotNull();
-        } else {
-            assertThat(measureSaved.getStartDate()).isNull();
-        }
-
-        if (initialValue.equals(3F)) {
-            assertThat(measureSaved.getDueDate()).isNull();
-        } else {
-            assertThat(measureSaved.getDueDate()).isEqualTo(updateMeasureDTO.getDueDate());
-        }
-        assertThat(measureSaved.getCompletionType()).isEqualTo(updateMeasureDTO.getCompletionType());
-        assertThat(measureSaved.getValue()).isEqualTo(expectedValue);
-        assertThat(measureSaved.getTarget()).isEqualTo(updateMeasureDTO.getTarget());
-        assertThat(measureSaved.getText()).isEqualTo(updateMeasureDTO.getText());
-        assertThat(measureSaved.getStatus()).isEqualTo(ProgressionStatus.valueOf(expectedStatus));
+        measureService.calculateStatus(updateMeasureDTO, measure);
+        verify(measureService, times(1)).calculateStatus(any(), any());
     }
 
 }

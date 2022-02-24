@@ -9,6 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
@@ -30,11 +31,14 @@ import mil.af.abms.midas.api.assertion.AssertionService;
 import mil.af.abms.midas.api.assertion.dto.AssertionDTO;
 import mil.af.abms.midas.api.comment.dto.CreateCommentDTO;
 import mil.af.abms.midas.api.comment.dto.UpdateCommentDTO;
+import mil.af.abms.midas.api.completion.Completion;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.helper.TimeConversion;
 import mil.af.abms.midas.api.measure.Measure;
 import mil.af.abms.midas.api.measure.MeasureService;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
+import mil.af.abms.midas.enums.CompletionType;
 import mil.af.abms.midas.enums.ProgressionStatus;
 
 @ExtendWith(SpringExtension.class)
@@ -62,10 +66,22 @@ class CommentServiceTests {
     @MockBean
     SimpMessageSendingOperations websocket;
 
+    private final LocalDate DUE_DATE = TimeConversion.getLocalDateOrNullFromObject("2021-07-09");
     private final User createdBy = Builder.build(User.class).with(u -> u.setId(3L)).get();
     private final Comment parentComment = Builder.build(Comment.class).with(c -> c.setId(55L)).get();
     private final Assertion assertion = Builder.build(Assertion.class).with(a -> a.setId(1L)).get();
-    private final Measure measure = Builder.build(Measure.class).with(m -> m.setId(1L)).get();
+    private final Completion completion = Builder.build(Completion.class)
+            .with(c -> c.setId(1L))
+            .with(c -> c.setValue(1F))
+            .with(c -> c.setTarget(5F))
+            .with(c -> c.setCompletionType(CompletionType.NUMBER))
+            .with(c -> c.setDueDate(DUE_DATE))
+            .with(c -> c.setStartDate(DUE_DATE))
+            .get();
+    private final Measure measure = Builder.build(Measure.class)
+            .with(m -> m.setId(1L))
+            .with(m -> m.setCompletion(completion))
+            .get();
     private final Comment comment = Builder.build(Comment.class)
             .with(c -> c.setId(1L))
             .with(c -> c.setText("New Idea"))

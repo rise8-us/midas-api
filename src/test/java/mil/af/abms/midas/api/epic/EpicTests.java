@@ -21,6 +21,8 @@ import mil.af.abms.midas.api.user.User;
 
 public class EpicTests {
 
+    private static final int ENTITY_DTO_FIELD_OFFSET = 1;
+
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(1L))
             .get();
@@ -43,7 +45,7 @@ public class EpicTests {
     void should_have_all_epicDTO_fields() {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Epic.class, fields::add);
-        assertThat(fields.size()).isEqualTo(EpicDTO.class.getDeclaredFields().length);
+        assertThat(fields.size()).isEqualTo(EpicDTO.class.getDeclaredFields().length + ENTITY_DTO_FIELD_OFFSET);
     }
 
     @Test

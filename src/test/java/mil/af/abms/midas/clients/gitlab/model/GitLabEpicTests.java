@@ -32,8 +32,6 @@ class GitLabEpicTests {
        assertThat(epic.getDescription()).isEqualTo("Molestias");
        assertThat(epic.getState()).isEqualTo("opened");
        assertThat(epic.getWebUrl()).isEqualTo("http://gitlab.example.com/groups/test/-/epics/4");
-       assertThat(epic.getSelfApi()).isEqualTo("http://gitlab.example.com/api/v4/groups/7/epics/4");
-       assertThat(epic.getEpicIssuesApi()).isEqualTo("http://gitlab.example.com/api/v4/groups/7/epics/4/issues");
        assertThat(epic.getStartDate()).isEqualTo(LocalDate.parse("2018-07-01"));
        assertThat(epic.getDueDate()).isEqualTo(LocalDate.parse("2018-07-31"));
        assertThat(epic.getStartDateFromInheritedSource()).isEqualTo(LocalDate.parse("2018-07-01"));

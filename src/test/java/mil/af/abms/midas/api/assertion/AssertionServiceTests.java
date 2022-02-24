@@ -38,6 +38,7 @@ import mil.af.abms.midas.api.assertion.dto.CreateAssertionDTO;
 import mil.af.abms.midas.api.assertion.dto.UpdateAssertionDTO;
 import mil.af.abms.midas.api.comment.Comment;
 import mil.af.abms.midas.api.comment.CommentService;
+import mil.af.abms.midas.api.completion.Completion;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.helper.TimeConversion;
 import mil.af.abms.midas.api.measure.Measure;
@@ -83,6 +84,7 @@ class AssertionServiceTests {
     private Product product;
     private Comment comment;
     private Measure measure;
+    private Completion completion;
     private Assertion assertion;
     private Assertion assertionChild;
     private Assertion assertionParent;
@@ -108,20 +110,24 @@ class AssertionServiceTests {
 
         childProduct.setParent(product);
 
+        completion = Builder.build(Completion.class)
+                .with(c -> c.setValue(0F))
+                .with(c -> c.setTarget(1F))
+                .with(c -> c.setCompletionType(CompletionType.BINARY))
+                .with(c -> c.setDueDate(null))
+                .with(c -> c.setStartDate(null))
+                .get();
+
         comment = Builder.build(Comment.class).with(c -> c.setId(404L)).with(c -> c.setCreatedBy(createdBy)).get();
         assertion = Builder.build(Assertion.class)
                 .with(a -> a.setId(3L))
                 .get();
         measure = Builder.build(Measure.class)
                 .with(m -> m.setId(1L))
-                .with(m -> m.setValue(1F))
-                .with(m -> m.setTarget(5F))
-                .with(m -> m.setStartDate(DUE_DATE))
-                .with(m -> m.setDueDate(DUE_DATE))
-                .with(m -> m.setCompletionType(CompletionType.NUMBER))
                 .with(m -> m.setAssertion(assertion))
                 .with(m -> m.setText("First"))
                 .with(m -> m.setComments(Set.of()))
+                .with(m -> m.setCompletion(completion))
                 .get();
         assertionParent = Builder.build(Assertion.class)
                 .with(a -> a.setId(1L))

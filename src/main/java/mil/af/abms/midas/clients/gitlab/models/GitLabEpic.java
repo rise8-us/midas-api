@@ -2,7 +2,6 @@ package mil.af.abms.midas.clients.gitlab.models;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -34,14 +33,5 @@ public class GitLabEpic {
     private String webUrl;
     @JsonProperty("group_id")
     private Integer groupId;
-    
-    private String selfApi;
-    private String epicIssuesApi;
-
-    @JsonProperty("_links")
-    private void unpackNestedLinks(Map<String, Object> links) {
-        this.selfApi = (String) links.get("self");
-        this.epicIssuesApi = (String) links.get("epic_issues");
-    }
 
 }

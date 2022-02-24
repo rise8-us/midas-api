@@ -36,7 +36,6 @@ class DeliverableTests {
             .with(d -> d.setReleases(releases))
             .with(d -> d.setPerformanceMeasure(null))
             .with(d -> d.setAssignedTo(assignedTo))
-            .with(d -> d.setEpic(null))
             .get();
     private final DeliverableDTO deliverableDTOExpected = Builder.build(DeliverableDTO.class)
             .with(d -> d.setId(1L))
@@ -49,7 +48,6 @@ class DeliverableTests {
             .with(d -> d.setCreationDate(deliverable.getCreationDate()))
             .with(d -> d.setPerformanceMeasureId(null))
             .with(d -> d.setAssignedToId(assignedTo.getId()))
-            .with(d -> d.setEpicId(null))
             .with(d -> d.setIsArchived(false))
             .get();
 

@@ -4,6 +4,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -11,9 +13,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -45,6 +50,8 @@ public class IssueServiceTests {
     private IssueRepository repository;
     @MockBean
     private ProjectService projectService;
+    @MockBean
+    private  GitLab4JClient gitLab4JClient;
 
     @Captor
     ArgumentCaptor<Issue> captor;
@@ -240,6 +247,33 @@ public class IssueServiceTests {
     @Test
     void can_add_Issue_returns_false() {
         assertFalse(issueService.canAddIssue(foundIssue.getIssueIid(), foundProject));
+    }
+
+    @Test
+    void should_remove_all_untracked_issues() {
+
+        var expectedIssue = new Issue();
+        BeanUtils.copyProperties(foundIssue, expectedIssue);
+        expectedIssue.setTitle(gitLabIssue.getTitle());
+        expectedIssue.setIssueIid(42);
+
+        doReturn(new HashSet<>(Stream.of(foundIssue, expectedIssue).collect(Collectors.toSet()))).when(issueService).getAllGitlabIssuesForProject(anyLong());
+        doNothing().when(repository).deleteAll(anyList());
+
+        issueService.removeAllUntrackedIssues(foundProject.getId(), List.of(gitLabIssue));
+
+        verify(repository, times(1)).deleteAll(any());
+
+    }
+
+    @Test
+    void should_get_issue_from_client() {
+        doReturn(gitLabIssue).when(gitLab4JClient).getIssueFromProject(anyInt(), anyInt());
+        doReturn(gitLab4JClient).when(issueService).getGitlabClient(any());
+
+        issueService.getIssueFromClient(foundProject, 2);
+
+        verify(issueService, times(1)).getIssueFromClient(any(), anyInt());
     }
 
 }

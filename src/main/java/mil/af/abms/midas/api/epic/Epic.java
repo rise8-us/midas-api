@@ -4,11 +4,14 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -23,6 +26,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractTimeConstrainedEntity;
+import mil.af.abms.midas.api.completion.Completion;
 import mil.af.abms.midas.api.epic.dto.EpicDTO;
 import mil.af.abms.midas.api.product.Product;
 
@@ -68,12 +72,6 @@ public class Epic extends AbstractTimeConstrainedEntity<EpicDTO> {
     @Column(columnDefinition = "TEXT")
     private String webUrl;
 
-    @Column(columnDefinition = "TEXT")
-    private String selfApi;
-
-    @Column(columnDefinition = "TEXT")
-    private String epicIssuesApi;
-
     @Column(columnDefinition = "VARCHAR(255)")
     private String epicUid;
 
@@ -86,6 +84,13 @@ public class Epic extends AbstractTimeConstrainedEntity<EpicDTO> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
+
+    @OneToMany
+    @JoinTable(
+            name = "completion_gitlab_epic",
+            joinColumns = @JoinColumn(name = "completion_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "epic_id", referencedColumnName = "id"))
+    private Set<Completion> completions;
 
     public EpicDTO toDto() {
         return new EpicDTO(
@@ -103,8 +108,6 @@ public class Epic extends AbstractTimeConstrainedEntity<EpicDTO> {
             epicIid,
             state,
             webUrl,
-            selfApi,
-            epicIssuesApi,
             epicUid,
             totalWeight,
             completedWeight,
