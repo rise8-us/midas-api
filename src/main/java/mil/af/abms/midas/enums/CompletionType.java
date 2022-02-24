@@ -13,6 +13,11 @@ import mil.af.abms.midas.api.init.dto.EnumDTO;
 @Getter
 public enum CompletionType {
 
+    CONNECTION_FAILURE(
+            "CONNECTION_FAILURE",
+            "Connection Failure",
+            "Connection to external source lost"
+    ),
     BINARY(
             "BINARY",
             "Binary",

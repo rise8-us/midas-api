@@ -25,6 +25,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
+import mil.af.abms.midas.api.completion.dto.CreateCompletionDTO;
+import mil.af.abms.midas.api.completion.dto.UpdateCompletionDTO;
 import mil.af.abms.midas.api.deliverable.dto.CreateDeliverableDTO;
 import mil.af.abms.midas.api.deliverable.dto.UpdateDeliverableDTO;
 import mil.af.abms.midas.api.dtos.IsArchivedDTO;
@@ -39,10 +41,12 @@ class DeliverableControllerTests extends ControllerTestHarness {
     @MockBean
     private DeliverableService deliverableService;
 
+    private final UpdateCompletionDTO updateCompletionDTO = new UpdateCompletionDTO();
+    private final CreateCompletionDTO createCompletionDTO = new CreateCompletionDTO();
     private final UpdateDeliverableDTO updateDeliverableDTO = new UpdateDeliverableDTO(
-            1L, "title", 1, 0, List.of(), ProgressionStatus.COMPLETED, 2L, 3L);
+            1L, "title", 1, 0, List.of(), ProgressionStatus.COMPLETED, 2L, updateCompletionDTO);
     private final CreateDeliverableDTO createDeliverableDTO = new CreateDeliverableDTO(
-            "title", 1, 0, 2L, 3L, List.of(), List.of(10L),  9L, 5L, 2L, 6L
+            "title", 1, 0, 2L, 3L, List.of(), List.of(10L),  9L, 5L, 2L, createCompletionDTO
     );
 
     private final Product product = Builder.build(Product.class)

@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.AbstractDTO;
+import mil.af.abms.midas.api.completion.dto.CompletionDTO;
 import mil.af.abms.midas.enums.ProgressionStatus;
 
 @Data
@@ -29,7 +30,7 @@ public class DeliverableDTO implements AbstractDTO {
     private Long performanceMeasureId;
     private Long capabilityId;
     private Long assignedToId;
-    private Long epicId;
     private Boolean isArchived;
+    private CompletionDTO completion;
 
 }

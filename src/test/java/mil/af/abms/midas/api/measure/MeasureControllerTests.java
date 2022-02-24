@@ -26,6 +26,9 @@ import org.junit.jupiter.api.Test;
 import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.assertion.Assertion;
 import mil.af.abms.midas.api.assertion.AssertionService;
+import mil.af.abms.midas.api.completion.Completion;
+import mil.af.abms.midas.api.completion.dto.CreateCompletionDTO;
+import mil.af.abms.midas.api.completion.dto.UpdateCompletionDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.helper.TimeConversion;
 import mil.af.abms.midas.api.measure.dto.CreateMeasureDTO;
@@ -43,38 +46,53 @@ public class MeasureControllerTests extends ControllerTestHarness {
 
     private final LocalDate START_DATE = TimeConversion.getLocalDateOrNullFromObject("2020-01-01");
     private final LocalDate DUE_DATE = TimeConversion.getLocalDateOrNullFromObject("2020-02-02");
+    private final Completion completion = Builder.build(Completion.class)
+            .with(m -> m.setId(4L))
+            .with(m -> m.setStartDate(START_DATE))
+            .with(m -> m.setDueDate(DUE_DATE))
+            .with(m -> m.setValue(1F))
+            .with(m -> m.setTarget(5F))
+            .with(m -> m.setCompletionType(CompletionType.NUMBER))
+            .get();
     private final Assertion assertion = Builder.build(Assertion.class)
             .with(a -> a.setId(3L))
             .get();
     private final Measure measure = Builder.build(Measure.class)
             .with(m -> m.setId(1L))
-            .with(m -> m.setStartDate(START_DATE))
-            .with(m -> m.setDueDate(DUE_DATE))
-            .with(m -> m.setValue(1F))
-            .with(m -> m.setTarget(5F))
             .with(m -> m.setText("First"))
             .with(m -> m.setAssertion(assertion))
-            .with(m -> m.setCompletionType(CompletionType.NUMBER))
+            .with(m -> m.setCompletion(completion))
             .with(m -> m.setStatus(ProgressionStatus.NOT_STARTED))
             .get();
+    CreateCompletionDTO createCompletionDTO = new CreateCompletionDTO(
+            completion.getStartDate().toString(),
+            completion.getDueDate().toString(),
+            null,
+            completion.getCompletionType(),
+            completion.getValue(),
+            completion.getTarget(),
+            null,
+            null
+    );
+    UpdateCompletionDTO updateCompletionDTO = new UpdateCompletionDTO(
+            completion.getStartDate().toString(),
+            completion.getDueDate().toString(),
+            completion.getCompletionType(),
+            completion.getValue(),
+            completion.getTarget(),
+            null,
+            null
+    );
     CreateMeasureDTO createMeasureDTO = new CreateMeasureDTO(
-            measure.getValue(),
-            measure.getTarget(),
             measure.getText(),
             assertion.getId(),
             measure.getStatus(),
-            measure.getStartDate().toString(),
-            measure.getDueDate().toString(),
-            measure.getCompletionType()
+            createCompletionDTO
     );
     UpdateMeasureDTO updateMeasureDTO = new UpdateMeasureDTO(
-            measure.getValue(),
-            measure.getTarget(),
             "Updated",
             measure.getStatus(),
-            measure.getStartDate().toString(),
-            measure.getDueDate().toString(),
-            measure.getCompletionType()
+            updateCompletionDTO
     );
 
     @BeforeEach
@@ -100,6 +118,8 @@ public class MeasureControllerTests extends ControllerTestHarness {
     void should_update_by_id() throws Exception {
         var newMeasure = new Measure();
         BeanUtils.copyProperties(updateMeasureDTO, newMeasure);
+        newMeasure.setCompletion(completion);
+
         when(measureService.updateById(any(), any(UpdateMeasureDTO.class))).thenReturn(newMeasure);
 
         mockMvc.perform(put("/api/measures/1")
@@ -115,8 +135,11 @@ public class MeasureControllerTests extends ControllerTestHarness {
     void should_throw_text_must_not_be_blank_message_on_create() throws Exception {
         var measure2 = new CreateMeasureDTO();
         BeanUtils.copyProperties(createMeasureDTO, measure2);
-        measure2.setValue(null);
-        measure2.setTarget(null);
+
+        var foundCompletion = measure2.getCompletion();
+        foundCompletion.setValue(null);
+        foundCompletion.setTarget(null);
+        measure2.setCompletion(foundCompletion);
         measure2.setText(null);
 
         when(assertionService.existsById(anyLong())).thenReturn(true);
@@ -128,9 +151,7 @@ public class MeasureControllerTests extends ControllerTestHarness {
                 .andExpect(status().is4xxClientError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.errors[0]").exists())
-                .andExpect(jsonPath("$.errors[1]").exists())
-                .andExpect(jsonPath("$.errors[2]").exists())
-                .andExpect(jsonPath("$.errors[3]").doesNotExist());
+                .andExpect(jsonPath("$.errors[1]").doesNotExist());
     }
 
     @Test

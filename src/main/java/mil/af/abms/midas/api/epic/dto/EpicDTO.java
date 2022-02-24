@@ -28,8 +28,6 @@ public class EpicDTO implements AbstractDTO {
     private Integer epicIid;
     private String state;
     private String webUrl;
-    private String selfApi;
-    private String epicIssuesApi;
     private String epicUid;
     private Long totalWeight;
     private Long completedWeight;

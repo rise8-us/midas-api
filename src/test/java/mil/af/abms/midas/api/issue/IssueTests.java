@@ -22,6 +22,8 @@ import mil.af.abms.midas.api.user.User;
 
 public class IssueTests {
 
+    private static final int ENTITY_DTO_FIELD_OFFSET = 1;
+
     private final Project project = Builder.build(Project.class)
             .with(p -> p.setId(1L))
             .get();
@@ -42,7 +44,7 @@ public class IssueTests {
     void should_have_all_issueDTO_fields() {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Issue.class, fields::add);
-        assertThat(fields.size()).isEqualTo(IssueDTO.class.getDeclaredFields().length);
+        assertThat(fields.size()).isEqualTo(IssueDTO.class.getDeclaredFields().length + ENTITY_DTO_FIELD_OFFSET);
     }
 
     @Test

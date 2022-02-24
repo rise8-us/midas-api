@@ -1,6 +1,8 @@
 package mil.af.abms.midas.api.deliverable;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -23,6 +25,10 @@ import org.mockito.Captor;
 
 import mil.af.abms.midas.api.capability.Capability;
 import mil.af.abms.midas.api.capability.CapabilityService;
+import mil.af.abms.midas.api.completion.Completion;
+import mil.af.abms.midas.api.completion.CompletionService;
+import mil.af.abms.midas.api.completion.dto.CreateCompletionDTO;
+import mil.af.abms.midas.api.completion.dto.UpdateCompletionDTO;
 import mil.af.abms.midas.api.deliverable.dto.CreateDeliverableDTO;
 import mil.af.abms.midas.api.deliverable.dto.UpdateDeliverableDTO;
 import mil.af.abms.midas.api.dtos.IsArchivedDTO;
@@ -37,6 +43,7 @@ import mil.af.abms.midas.api.release.Release;
 import mil.af.abms.midas.api.release.ReleaseService;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
+import mil.af.abms.midas.enums.CompletionType;
 import mil.af.abms.midas.enums.ProgressionStatus;
 
 @ExtendWith(SpringExtension.class)
@@ -56,6 +63,8 @@ class DeliverableServiceTests {
     @MockBean
     CapabilityService capabilityService;
     @MockBean
+    CompletionService completionService;
+    @MockBean
     PerformanceMeasureService performanceMeasureService;
     @MockBean
     DeliverableRepository deliverableRepository;
@@ -70,6 +79,24 @@ class DeliverableServiceTests {
     private final Capability capability = Builder.build(Capability.class).with(p -> p.setId(5L)).get();
     private final PerformanceMeasure performanceMeasure = Builder.build(PerformanceMeasure.class).with(p -> p.setId(5L)).get();
     private final Epic epic = Builder.build(Epic.class).with(e -> e.setId(6L)).get();
+    private final CreateCompletionDTO createCompletionDTO = new CreateCompletionDTO();
+    private final Completion completion = Builder.build(Completion.class)
+            .with(c -> c.setId(1L))
+            .with(c -> c.setValue(0F))
+            .with(c -> c.setTarget(1F))
+            .with(c -> c.setCompletionType(CompletionType.BINARY))
+            .with(c -> c.setDueDate(null))
+            .with(c -> c.setStartDate(null))
+            .get();
+    private final UpdateCompletionDTO updateCompletionDTO = new UpdateCompletionDTO(
+            null,
+            null,
+            CompletionType.BINARY,
+            0F,
+            1F,
+            null,
+            null
+    );
     private final Deliverable deliverable = Builder.build(Deliverable.class)
             .with(d -> d.setId(1L))
             .with(d -> d.setTitle("title"))
@@ -81,15 +108,15 @@ class DeliverableServiceTests {
             .with(d -> d.setReleases(Set.of(release)))
             .with(d -> d.setPerformanceMeasure(performanceMeasure))
             .with(d -> d.setAssignedTo(assignedTo))
-            .with(d -> d.setEpic(epic))
             .with(d -> d.setCapability(capability))
             .with(d -> d.setIsArchived(false))
+            .with(d -> d.setCompletion(completion))
             .get();
 
     @Test
     void should_create_deliverable() {
         CreateDeliverableDTO createDeliverableDTO = new CreateDeliverableDTO(
-                "title", 1, 0, 4L, null, List.of(), List.of(10L), 9L, 5L, 2L, 6L);
+                "title", 1, 0, 4L, null, List.of(), List.of(10L), 9L, 5L, 2L, createCompletionDTO);
 
         when(productService.findByIdOrNull(createDeliverableDTO.getProductId())).thenReturn(product);
         when(performanceMeasureService.findByIdOrNull(createDeliverableDTO.getPerformanceMeasureId())).thenReturn(performanceMeasure);
@@ -111,10 +138,11 @@ class DeliverableServiceTests {
     @Test
     void should_update_deliverable_by_id() {
         UpdateDeliverableDTO updateDeliverableDTO = new UpdateDeliverableDTO(
-                1L, "title", 1, 0, List.of(), ProgressionStatus.COMPLETED, 2L, 6L);
+                1L, "title", 1, 0, List.of(), ProgressionStatus.COMPLETED, 2L, updateCompletionDTO);
 
         when(deliverableRepository.findById(1L)).thenReturn(Optional.of(deliverable));
         when(deliverableRepository.save(deliverable)).thenReturn(deliverable);
+        doReturn(completion).when(completionService).updateById(anyLong(), any());
 
         deliverableService.updateById(1L, updateDeliverableDTO);
 
@@ -130,7 +158,7 @@ class DeliverableServiceTests {
     @Test
     void should_bulk_update_deliverable() {
         UpdateDeliverableDTO updateDeliverableDTO = new UpdateDeliverableDTO(
-                1L, "title", 1, 0, List.of(), ProgressionStatus.COMPLETED, 2L, 6L);
+                1L, "title", 1, 0, List.of(), ProgressionStatus.COMPLETED, 2L, updateCompletionDTO);
 
         doReturn(deliverable).when(deliverableService).updateById(1L, updateDeliverableDTO);
 

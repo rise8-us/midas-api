@@ -10,6 +10,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import java.util.HashSet;
@@ -21,8 +22,8 @@ import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
 import mil.af.abms.midas.api.capability.Capability;
+import mil.af.abms.midas.api.completion.Completion;
 import mil.af.abms.midas.api.deliverable.dto.DeliverableDTO;
-import mil.af.abms.midas.api.epic.Epic;
 import mil.af.abms.midas.api.performancemeasure.PerformanceMeasure;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.release.Release;
@@ -80,9 +81,12 @@ public class Deliverable extends AbstractEntity<DeliverableDTO> {
     @JoinColumn(name = "capability_id", nullable = true)
     private Capability capability;
 
-    @ManyToOne
-    @JoinColumn(name = "epic_id", nullable = true)
-    private Epic epic;
+    @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinTable(
+            name = "completion_deliverable",
+            joinColumns = @JoinColumn(name = "deliverable_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "completion_id", referencedColumnName = "id"))
+    private Completion completion;
 
     public DeliverableDTO toDto() {
         return new DeliverableDTO(
@@ -99,8 +103,8 @@ public class Deliverable extends AbstractEntity<DeliverableDTO> {
                 getIdOrNull(performanceMeasure),
                 getIdOrNull(capability),
                 getIdOrNull(assignedTo),
-                getIdOrNull(epic),
-                isArchived
+                isArchived,
+                getDtoOrNull(completion)
         );
     }
 

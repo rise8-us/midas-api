@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
-import mil.af.abms.midas.api.deliverable.DeliverableService;
+import mil.af.abms.midas.api.completion.CompletionService;
 import mil.af.abms.midas.api.dtos.AddGitLabEpicDTO;
 import mil.af.abms.midas.api.dtos.IsHiddenDTO;
 import mil.af.abms.midas.api.epic.dto.EpicDTO;
@@ -34,7 +34,7 @@ import mil.af.abms.midas.clients.gitlab.models.GitLabIssue;
 public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicRepository> {
 
     private ProductService productService;
-    private DeliverableService deliverableService;
+    private CompletionService completionService;
 
     private static final String TOTAL = "total";
     private static final String COMPLETED = "completed";
@@ -49,8 +49,8 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
     }
 
     @Autowired
-    public void setDeliverableService(DeliverableService deliverableService) {
-        this.deliverableService = deliverableService;
+    public void setCompletionService(CompletionService completionService) {
+        this.completionService = completionService;
     }
 
     public Epic create(AddGitLabEpicDTO dto) {
@@ -74,9 +74,10 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
             var gitLabEpic = getEpicFromClient(product, foundEpic.getEpicIid());
             return syncEpic(gitLabEpic, foundEpic);
         } catch (Exception e) {
-            deliverableService.deleteAllByEpicId(foundEpic.getId());
+            foundEpic.getCompletions().forEach(c -> completionService.setCompletionTypeToFailure(c.getId()));
+
             repository.delete(foundEpic);
-            return new Epic();
+            return null;
         }
     }
 
@@ -127,9 +128,7 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
     @Scheduled(cron = "0 0 0 * * *")
     public void runScheduledEpicSync() {
         for (Long productId : productService.getAllProductIds()) {
-            if (productId != null) {
                 getAllGitlabEpicsForProduct(productId);
-            }
         }
     }
 
@@ -173,6 +172,14 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
         return repository.save(updatedEpic);
     }
 
+    protected boolean hasGitlabDetails(Product product) {
+        return !product.getIsArchived() &&
+                product.getGitlabGroupId() != null &&
+                product.getSourceControl() != null &&
+                product.getSourceControl().getToken() != null &&
+                product.getSourceControl().getBaseUrl() != null;
+    }
+
     protected Epic setWeights(Epic epic) {
         var client = getGitlabClient(epic.getProduct());
         Optional<GitLabEpic> foundEpic = Optional.of(client.getEpicFromGroup(epic.getProduct().getGitlabGroupId(), epic.getEpicIid()));
@@ -181,14 +188,6 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
         epic.setTotalWeight(weights.get(TOTAL).longValue());
         epic.setCompletedWeight(weights.get(COMPLETED).longValue());
         return epic;
-    }
-
-    protected boolean hasGitlabDetails(Product product) {
-        return !product.getIsArchived() &&
-                product.getGitlabGroupId() != null &&
-                product.getSourceControl() != null &&
-                product.getSourceControl().getToken() != null &&
-                product.getSourceControl().getBaseUrl() != null;
     }
 
     public HashMap<String, Integer> getAllEpicWeights(GitLab4JClient client, Optional<GitLabEpic> epic) {

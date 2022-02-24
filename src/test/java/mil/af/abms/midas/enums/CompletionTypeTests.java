@@ -8,11 +8,14 @@ class CompletionTypeTests {
 
     @Test
     void should_have_7_values() {
-        assertThat(CompletionType.values().length).isEqualTo(6);
+        assertThat(CompletionType.values().length).isEqualTo(7);
     }
 
     @Test
     void should_get_fields() {
+        assertThat(CompletionType.CONNECTION_FAILURE.getName()).isEqualTo("CONNECTION_FAILURE");
+        assertThat(CompletionType.CONNECTION_FAILURE.getDisplayName()).isEqualTo("Connection Failure");
+        assertThat(CompletionType.CONNECTION_FAILURE.getDescription()).isEqualTo("Connection to external source lost");
         assertThat(CompletionType.BINARY.getName()).isEqualTo("BINARY");
         assertThat(CompletionType.BINARY.getDisplayName()).isEqualTo("Binary");
         assertThat(CompletionType.BINARY.getDescription()).isEqualTo("Complete? true or false");

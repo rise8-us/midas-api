@@ -14,11 +14,13 @@ import org.springframework.stereotype.Service;
 import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.DeliverableInterface;
 import mil.af.abms.midas.api.capability.CapabilityService;
+import mil.af.abms.midas.api.completion.Completion;
+import mil.af.abms.midas.api.completion.CompletionService;
+import mil.af.abms.midas.api.completion.dto.CreateCompletionDTO;
 import mil.af.abms.midas.api.deliverable.dto.CreateDeliverableDTO;
 import mil.af.abms.midas.api.deliverable.dto.DeliverableDTO;
 import mil.af.abms.midas.api.deliverable.dto.UpdateDeliverableDTO;
 import mil.af.abms.midas.api.dtos.IsArchivedDTO;
-import mil.af.abms.midas.api.epic.EpicService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.performancemeasure.PerformanceMeasureService;
 import mil.af.abms.midas.api.product.ProductService;
@@ -34,7 +36,7 @@ public class DeliverableService extends AbstractCRUDService<Deliverable, Deliver
     private ReleaseService releaseService;
     private PerformanceMeasureService performanceMeasureService;
     private CapabilityService capabilityService;
-    private EpicService epicService;
+    private CompletionService completionService;
     private final SimpMessageSendingOperations websocket;
 
     private static final UnaryOperator<String> TOPIC = clazzName -> "/topic/update_" + clazzName;
@@ -68,49 +70,64 @@ public class DeliverableService extends AbstractCRUDService<Deliverable, Deliver
     }
 
     @Autowired
-    public void setEpicService(EpicService epicService) {
-        this.epicService = epicService;
+    public void setCompletionService(CompletionService completionService) {
+        this.completionService = completionService;
     }
 
     @Transactional
     public Deliverable create(CreateDeliverableDTO dto) {
         var atCandidate =  userService.findByIdOrNull(dto.getAssignedToId());
         User assignedTo = atCandidate != null ? atCandidate : userService.getUserBySecContext();
+
+        CreateCompletionDTO createCompletionDTO = Optional.ofNullable(dto.getCompletion()).isPresent() ?
+                dto.getCompletion() : new CreateCompletionDTO();
+        Completion completion = completionService.create(createCompletionDTO);
+
         Deliverable newDeliverable = Builder.build(Deliverable.class)
                 .with(d -> d.setTitle(dto.getTitle()))
                 .with(d -> d.setReferenceId(dto.getReferenceId()))
-                .with(d -> d.setEpic(epicService.findByIdOrNull(dto.getEpicId())))
+                .with(d -> d.setCompletion(completion))
                 .with(d -> d.setPosition(dto.getIndex()))
                 .with(d -> d.setProduct(productService.findByIdOrNull(dto.getProductId())))
                 .with(d -> d.setPerformanceMeasure(performanceMeasureService.findByIdOrNull(dto.getPerformanceMeasureId())))
                 .with(d -> d.setParent(findByIdOrNull(dto.getParentId())))
-                .with(d -> d.setReleases(dto.getReleaseIds().stream()
-                        .map(releaseService::findById).collect(Collectors.toSet())))
                 .with(d -> d.setAssignedTo(assignedTo))
                 .with(d -> d.setCapability(capabilityService.findByIdOrNull(dto.getCapabilityId())))
                 .get();
+        setReleasesFromIds(dto.getReleaseIds(), newDeliverable);
 
         newDeliverable = repository.save(newDeliverable);
         Long parentId = newDeliverable.getId();
-        newDeliverable.setChildren(dto.getChildren().stream().map(d -> {
-            d.setParentId(parentId);
-            return this.create(d);
-        }).collect(Collectors.toSet()));
+
+        if (dto.getChildren() != null) {
+            newDeliverable.setChildren(dto.getChildren().stream().map(d -> {
+                d.setParentId(parentId);
+                return this.create(d);
+            }).collect(Collectors.toSet()));
+        }
+
         return newDeliverable;
+    }
+
+    private void setReleasesFromIds(List<Long> releaseIds, Deliverable deliverable) {
+        Optional.ofNullable(releaseIds).ifPresent(ids ->
+                deliverable.setReleases(ids.stream().map(releaseService::findById).collect(Collectors.toSet()))
+        );
     }
 
     @Transactional
     public Deliverable updateById(Long id, UpdateDeliverableDTO dto) {
         Deliverable deliverable = findById(id);
 
+        completionService.updateById(deliverable.getCompletion().getId(), dto.getCompletion());
+
         deliverable.setStatus(dto.getStatus());
         deliverable.setTitle(dto.getTitle());
         deliverable.setReferenceId(dto.getReferenceId());
-        deliverable.setEpic(epicService.findByIdOrNull(dto.getEpicId()));
         deliverable.setPosition(dto.getIndex());
-        deliverable.setReleases(dto.getReleaseIds().stream()
-                .map(releaseService::findById).collect(Collectors.toSet()));
         deliverable.setAssignedTo(userService.findByIdOrNull(dto.getAssignedToId()));
+
+        setReleasesFromIds(dto.getReleaseIds(), deliverable);
 
         return repository.save(deliverable);
     }
@@ -129,25 +146,10 @@ public class DeliverableService extends AbstractCRUDService<Deliverable, Deliver
     }
 
     @Transactional
-    public void deleteAllByEpicId(Long epicId) {
-        var deliverablesToRemove = getAllDeliverablesByEpicId(epicId);
-        for (Deliverable deliverable : deliverablesToRemove) {
-            deleteById(deliverable.getId());
-        }
-    }
-
-    @Transactional
-    public List<Deliverable> getAllDeliverablesByEpicId(Long epicId) {
-        return repository.findAllDeliverablesByEpicId(epicId).orElse(List.of());
-    }
-
-    @Transactional
     @Override
     public void deleteById(Long id) {
         var deliverable = findById(id);
-        deliverable.getChildren().forEach(d -> {
-            repository.deleteById(d.getId());
-        });
+        deliverable.getChildren().forEach(d -> repository.deleteById(d.getId()));
         repository.deleteById(id);
         websocket.convertAndSend(TOPIC.apply(deliverable.getLowercaseClassName()), deliverable.toDto());
     }
