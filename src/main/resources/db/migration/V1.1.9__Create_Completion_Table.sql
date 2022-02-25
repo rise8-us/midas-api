@@ -1,9 +1,10 @@
+SET GLOBAL log_bin_trust_function_creators = 1;
 DROP FUNCTION IF EXISTS nextID;
 
 DELIMITER $$
 CREATE FUNCTION nextID()
     RETURNS BIGINT
-    DETERMINISTIC
+    NOT DETERMINISTIC
 BEGIN
     DECLARE response BIGINT;
     SET response = (SELECT `next_val` FROM `hibernate_sequence` LIMIT 1);
