@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -13,12 +12,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -76,6 +73,7 @@ public class IssueServiceTests {
             .with(i -> i.setIssueUid("3422"))
             .with(i -> i.setIssueIid(2))
             .with(i -> i.setProject(foundProject))
+            .with(i -> i.setWeight(null))
             .get();
     private final GitLabIssue gitLabIssue = Builder.build(GitLabIssue.class)
             .with(i -> i.setTitle("title"))
@@ -134,6 +132,13 @@ public class IssueServiceTests {
     }
 
     @Test
+    void should_get_all_issues_by_project_id() {
+        issueService.getAllIssuesByProjectId(foundProject.getId());
+
+        assertThat(issueService.getAllIssuesByProjectId(foundProject.getId())).isNotNull();
+    }
+
+    @Test
     void should_get_all_issues_for_gitlab_project() {
         var gitLab4JClient = Mockito.mock(GitLab4JClient.class);
         var expectedIssue = new Issue();
@@ -176,6 +181,18 @@ public class IssueServiceTests {
         when(projectService.findById(foundProject.getId())).thenReturn(foundProject);
 
         assertThat(issueService.getAllGitlabIssuesForProject(foundProject.getId())).isEqualTo(Set.of());
+    }
+
+    @Test
+    void should_update_issue_weight() {
+        var newIssue = new Issue();
+        BeanUtils.copyProperties(foundIssue, newIssue);
+
+        newIssue.setWeight(5L);
+
+        issueService.updateWeight(newIssue);
+
+        assertThat(newIssue.getWeight()).isEqualTo(5L);
     }
 
     @Test
@@ -257,8 +274,8 @@ public class IssueServiceTests {
         expectedIssue.setTitle(gitLabIssue.getTitle());
         expectedIssue.setIssueIid(42);
 
-        doReturn(new HashSet<>(Stream.of(foundIssue, expectedIssue).collect(Collectors.toSet()))).when(issueService).getAllGitlabIssuesForProject(anyLong());
         doNothing().when(repository).deleteAll(anyList());
+        doReturn(new ArrayList<>(List.of(foundIssue))).when(issueService).getAllIssuesByProjectId(foundProject.getId());
 
         issueService.removeAllUntrackedIssues(foundProject.getId(), List.of(gitLabIssue));
 

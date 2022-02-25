@@ -58,12 +58,16 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
 
     public void removeAllUntrackedIssues(Long projectId, List<GitLabIssue> gitLabIssueList) {
         var issueIids = gitLabIssueList.stream().map(GitLabIssue::getIssueIid).collect(Collectors.toSet());
-        var midasProjectIssues = getAllGitlabIssuesForProject(projectId);
+        var midasProjectIssues = getAllIssuesByProjectId(projectId);
         var midasProjectIssuesIids = midasProjectIssues.stream().map(Issue::getIssueIid).collect(Collectors.toSet());
 
         midasProjectIssuesIids.removeAll(issueIids);
         midasProjectIssues.removeIf(issue -> !midasProjectIssuesIids.contains(issue.getIssueIid()));
         repository.deleteAll(midasProjectIssues);
+    }
+
+    public List<Issue> getAllIssuesByProjectId(Long projectId) {
+        return repository.findAllIssuesByProjectId(projectId).orElse(List.of());
     }
 
     public Set<Issue> getAllGitlabIssuesForProject(Long projectId) {
@@ -111,6 +115,7 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
         var uId = generateUniqueId(sourceControlId, gitlabProjectId, gitLabIssue.getIssueIid());
         var newIssue = new Issue();
         BeanUtils.copyProperties(gitLabIssue, newIssue);
+        updateWeight(newIssue);
         newIssue.setSyncedAt(LocalDateTime.now());
         newIssue.setIssueUid(uId);
         newIssue.setProject(project);
@@ -128,8 +133,15 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
 
     protected Issue syncIssue(GitLabIssue gitLabIssue, Issue issue) {
         BeanUtils.copyProperties(gitLabIssue, issue);
+        updateWeight(issue);
         issue.setSyncedAt(LocalDateTime.now());
         return repository.save(issue);
+    }
+
+    protected void updateWeight(Issue issue) {
+        if (issue.getWeight() == null) {
+            issue.setWeight(0L);
+        }
     }
 
     private boolean hasGitlabDetails(Project project) {
