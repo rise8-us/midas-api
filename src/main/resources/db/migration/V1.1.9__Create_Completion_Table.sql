@@ -36,10 +36,10 @@ CREATE TABLE `completion_gitlab_issue` (
 DROP FUNCTION IF EXISTS nextID;
     DELIMITER $$
     CREATE FUNCTION nextID()
-        RETURNS BIGINT(20)
-        NOT DETERMINISTIC
+        RETURNS BIGINT
+        DETERMINISTIC
     BEGIN
-        DECLARE response BIGINT(20);
+        DECLARE response BIGINT;
         SET response = (SELECT `next_val` FROM `hibernate_sequence` LIMIT 1);
         UPDATE `hibernate_sequence` SET `next_val` = `next_val` + 1;
         RETURN (response);
