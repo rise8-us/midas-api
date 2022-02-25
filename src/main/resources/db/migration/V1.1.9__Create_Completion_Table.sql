@@ -1,3 +1,17 @@
+DROP FUNCTION IF EXISTS nextID;
+
+DELIMITER $$
+CREATE FUNCTION nextID()
+    RETURNS BIGINT
+    DETERMINISTIC
+BEGIN
+    DECLARE response BIGINT;
+    SET response = (SELECT `next_val` FROM `hibernate_sequence` LIMIT 1);
+    UPDATE `hibernate_sequence` SET `next_val` = `next_val` + 1;
+    RETURN (response);
+END $$
+DELIMITER ;
+
 CREATE TABLE `completion` (
    `id` BIGINT NOT NULL,
    `creation_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -32,19 +46,6 @@ CREATE TABLE `completion_gitlab_issue` (
     `completion_id` BIGINT NOT NULL,
     `issue_id` BIGINT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-DROP FUNCTION IF EXISTS nextID;
-    DELIMITER $$
-    CREATE FUNCTION nextID()
-        RETURNS BIGINT
-        DETERMINISTIC
-    BEGIN
-        DECLARE response BIGINT;
-        SET response = (SELECT `next_val` FROM `hibernate_sequence` LIMIT 1);
-        UPDATE `hibernate_sequence` SET `next_val` = `next_val` + 1;
-        RETURN (response);
-    END $$
-DELIMITER ;
 
 INSERT INTO `completion` (id, start_date, due_date, completed_at, completion_type, value, target, measure_id)
     SELECT nextID(), start_date, due_date, completed_at, completion_type, value, target, id
