@@ -71,7 +71,8 @@ public class MySQLClient {
 
     public void restore(String mysqlDump) {
         try (var connection = DBUtils.connect(dbUrl, dbUser, dbPassword, dbDriver);) {
-            var sqlAsResource = new ByteArrayResource(mysqlDump.getBytes(StandardCharsets.UTF_8));
+            String sqlDropAllTablesUpdate = dropAllTables(mysqlDump);
+            var sqlAsResource = new ByteArrayResource(sqlDropAllTablesUpdate.getBytes(StandardCharsets.UTF_8));
             ScriptUtils.executeSqlScript(connection, sqlAsResource);
         } catch (SQLException e) {
             log.error(e.getMessage());
@@ -198,5 +199,18 @@ public class MySQLClient {
         sql.append(";");
 
         return sql.toString();
+    }
+
+    private String dropAllTables(String backupString) {
+        Set<String> tableNames = getTableNames();
+        StringBuilder sqlDropAllContent = new StringBuilder();
+
+        sqlDropAllContent.append("SET FOREIGN_KEY_CHECKS=0;\n");
+
+        for (String name: tableNames) {
+            sqlDropAllContent.append("DROP TABLE IF EXISTS `").append(name).append("`;\n");
+        }
+
+        return sqlDropAllContent.append(backupString).toString();
     }
 }
