@@ -2,7 +2,9 @@ package mil.af.abms.midas.api.deliverable;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -124,6 +126,7 @@ class DeliverableServiceTests {
         when(deliverableRepository.save(deliverable)).thenReturn(new Deliverable());
         when(userService.findByIdOrNull(createDeliverableDTO.getAssignedToId())).thenReturn(assignedTo);
         when(capabilityService.findByIdOrNull(capability.getId())).thenReturn(capability);
+        doNothing().when(deliverableService).updateParentCompletion(anyLong(), anyFloat());
 
         deliverableService.create(createDeliverableDTO);
 
@@ -168,6 +171,16 @@ class DeliverableServiceTests {
     }
 
     @Test
+    void should_updateParentCompletion() {
+        doReturn(deliverable).when(deliverableService).findByIdOrNull(any());
+        doNothing().when(completionService).updateTarget(anyLong(), anyFloat());
+
+        deliverableService.updateParentCompletion(1L, 1F);
+
+        verify(completionService, times(1)).updateTarget(completion.getId(), 1F);
+    }
+
+    @Test
     void should_update_isArchived() {
         IsArchivedDTO isArchivedDTO = new IsArchivedDTO(true);
 
@@ -202,12 +215,15 @@ class DeliverableServiceTests {
         deliverableToDelete.setId(2L);
         deliverableToDelete.setCapability(capability);
         deliverableToDelete.setPerformanceMeasure(performanceMeasure);
+        deliverableToDelete.setParent(deliverable);
         deliverableToDelete.setChildren(Set.of(deliverable));
 
         doReturn(deliverableToDelete).when(deliverableService).findById(2L);
+        doNothing().when(deliverableService).updateParentCompletion(any(), anyFloat());
 
         deliverableService.deleteById(2L);
         verify(deliverableRepository, times(1)).deleteById(2L);
+        verify(deliverableService, times(1)).updateParentCompletion(deliverable.getId(), -1F);
     }
 
 }

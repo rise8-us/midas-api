@@ -144,6 +144,16 @@ class CompletionServiceTests {
     }
 
     @Test
+    void should_update_target(){
+        doReturn(completion).when(completionService).findByIdOrNull(anyLong());
+
+        completionService.updateTarget(1L, 2F);
+        verify(repository, times(1)).save(completionCaptor.capture());
+
+        assertThat(completion.getTarget()).isEqualTo(3F);
+    }
+
+    @Test
     void should_set_completion_completed_at_and_value_to_target() {
         doReturn(completion).when(completionService).findById(anyLong());
 
