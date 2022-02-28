@@ -144,7 +144,7 @@ class CompletionServiceTests {
     }
 
     @Test
-    void should_update_target(){
+    void should_update_target() {
         doReturn(completion).when(completionService).findByIdOrNull(anyLong());
 
         completionService.updateTarget(1L, 2F);
