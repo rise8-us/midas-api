@@ -1,32 +1,18 @@
-DROP FUNCTION IF EXISTS nextID;
-
-DELIMITER $$
-CREATE FUNCTION nextID()
-    RETURNS BIGINT
-    NOT DETERMINISTIC
-    READS SQL DATA
-    MODIFIES SQL DATA
-BEGIN
-    DECLARE response BIGINT;
-    SET response = (SELECT `next_val` FROM `hibernate_sequence` LIMIT 1);
-    UPDATE `hibernate_sequence` SET `next_val` = `next_val` + 1;
-    RETURN (response);
-END $$
-DELIMITER ;
+DROP PROCEDURE IF EXISTS COMPLETION_CONVERSION;
 
 CREATE TABLE `completion` (
-   `id` BIGINT NOT NULL,
-   `creation_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-   `start_date` DATE,
-   `due_date` DATE,
-   `completed_at` DATETIME,
-   `completion_type` VARCHAR(70) NOT NULL DEFAULT 'BINARY',
-   `value` FLOAT NOT NULL DEFAULT 0,
-   `target` FLOAT NOT NULL DEFAULT 1,
-   `measure_id` BIGINT,
-   `deliverable_id` BIGINT,
-   `epic_id` BIGINT,
-   PRIMARY KEY (`id`)
+    `id` BIGINT NOT NULL,
+    `creation_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `start_date` DATE,
+    `due_date` DATE,
+    `completed_at` DATETIME,
+    `completion_type` VARCHAR(70) NOT NULL DEFAULT 'BINARY',
+    `value` FLOAT NOT NULL DEFAULT 0,
+    `target` FLOAT NOT NULL DEFAULT 1,
+    `measure_id` BIGINT,
+    `deliverable_id` BIGINT,
+    `epic_id` BIGINT,
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `completion_measure` (
@@ -49,19 +35,66 @@ CREATE TABLE `completion_gitlab_issue` (
     `issue_id` BIGINT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO `completion` (id, start_date, due_date, completed_at, completion_type, value, target, measure_id)
-    SELECT nextID(), start_date, due_date, completed_at, completion_type, value, target, id
-    FROM `measure`;
+DELIMITER //
+CREATE PROCEDURE COMPLETION_CONVERSION()
+    BEGIN
+        DECLARE finished INTEGER DEFAULT 0;
+        DECLARE v_id BIGINT;
+        DECLARE v_start_date DATE;
+        DECLARE v_due_date DATE;
+        DECLARE v_completed_at DATETIME;
+        DECLARE v_completion_type VARCHAR(70);
+        DECLARE v_value FLOAT;
+        DECLARE v_target FLOAT;
+        DECLARE v_measure_id BIGINT;
+        DECLARE v_deliverable_id BIGINT;
+        DECLARE v_epic_id BIGINT;
+        DECLARE curMeasure CURSOR FOR SELECT start_date, due_date, completed_at, completion_type, value, target, id FROM `measure`;
+        DECLARE curDeliverableNoEpic CURSOR FOR SELECT id FROM `deliverable` WHERE `epic_id` IS NULL;
+        DECLARE curDeliverableWithEpic CURSOR FOR SELECT id, epic_id FROM `deliverable` WHERE `epic_id` IS NOT NULL;
+        DECLARE CONTINUE HANDLER FOR NOT FOUND SET finished = 1;
 
-INSERT INTO `completion` (id, completion_type, value, target, deliverable_id)
-    SELECT nextID(), 'NUMBER', 0, 1, id
-    FROM `deliverable`
-    WHERE `epic_id` IS NULL;
+    OPEN curMeasure;
+        setCompletion: LOOP
+            FETCH curMeasure INTO v_start_date, v_due_date, v_completed_at, v_completion_type, v_value, v_target, v_measure_id;
+            IF finished = 1 THEN LEAVE setCompletion; END IF;
+            SET v_id = (SELECT next_val FROM hibernate_sequence LIMIT 1);
+            INSERT INTO `completion` (id, start_date, due_date, completed_at, completion_type, value, target, measure_id)
+            VALUES (v_id, v_start_date, v_due_date, v_completed_at, v_completion_type, v_value, v_target, v_measure_id);
+            UPDATE `hibernate_sequence` SET next_val = next_val + 1;
+        END LOOP setCompletion;
+    CLOSE curMeasure;
 
-INSERT INTO `completion` (id, completion_type, value, target, deliverable_id, epic_id)
-    SELECT nextID(), 'NUMBER', (SELECT `completed_weight` FROM `epic` WHERE `id` = `epic_id`), (SELECT `total_weight` FROM `epic` WHERE `id` = `epic_id`), id, epic_id
-    FROM `deliverable`
-    WHERE `epic_id` IS NOT NULL;
+    SET finished = 0;
+
+    OPEN curDeliverableNoEpic;
+        setCompletion: LOOP
+            FETCH curDeliverableNoEpic INTO v_deliverable_id;
+            IF finished = 1 THEN LEAVE setCompletion; END IF;
+            SET v_id = (SELECT next_val FROM hibernate_sequence LIMIT 1);
+            INSERT INTO `completion` (id, completion_type, value, target, deliverable_id)
+            VALUES (v_id, 'NUMBER', 0, (SELECT COUNT(id) FROM deliverable WHERE parent_id = v_deliverable_id), v_deliverable_id);
+            UPDATE `hibernate_sequence` SET next_val = next_val + 1;
+        END LOOP setCompletion;
+    CLOSE curDeliverableNoEpic;
+
+    SET finished = 0;
+
+    OPEN curDeliverableWithEpic;
+        setCompletion: LOOP
+            FETCH curDeliverableWithEpic INTO v_deliverable_id, v_epic_id;
+            IF finished = 1 THEN LEAVE setCompletion; END IF;
+            SET v_id = (SELECT next_val FROM hibernate_sequence LIMIT 1);
+            INSERT INTO `completion` (id, completion_type, value, target, deliverable_id, epic_id)
+            VALUES (v_id, 'NUMBER', (SELECT `completed_weight` FROM `epic` WHERE `id` = v_epic_id), (SELECT `total_weight` FROM `epic` WHERE `id` = v_epic_id), v_deliverable_id, v_epic_id);
+            UPDATE `hibernate_sequence` SET next_val = next_val + 1;
+        END LOOP setCompletion;
+    CLOSE curDeliverableWithEpic;
+
+END//
+DELIMITER ;
+
+CALL COMPLETION_CONVERSION();
 
 INSERT INTO `completion_measure` (completion_id, measure_id)
     SELECT id, measure_id
