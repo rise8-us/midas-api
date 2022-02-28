@@ -89,6 +89,13 @@ public class CompletionService extends AbstractCRUDService<Completion, Completio
     }
 
     @Transactional
+    public void updateTarget(Long id, Float value) {
+        var foundCompletion = findByIdOrNull(id);
+        foundCompletion.setTarget(foundCompletion.getTarget() + value);
+        repository.save(foundCompletion);
+    }
+
+    @Transactional
     public void setCompletedAtAndValueToTarget(Long id) {
         Completion foundCompletion = findById(id);
         foundCompletion.setValue(foundCompletion.getTarget());

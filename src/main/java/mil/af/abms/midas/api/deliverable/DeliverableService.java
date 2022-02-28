@@ -95,6 +95,7 @@ public class DeliverableService extends AbstractCRUDService<Deliverable, Deliver
                 .with(d -> d.setCapability(capabilityService.findByIdOrNull(dto.getCapabilityId())))
                 .get();
         setReleasesFromIds(dto.getReleaseIds(), newDeliverable);
+        updateParentCompletion(dto.getParentId(), 1F);
 
         newDeliverable = repository.save(newDeliverable);
         Long parentId = newDeliverable.getId();
@@ -107,6 +108,15 @@ public class DeliverableService extends AbstractCRUDService<Deliverable, Deliver
         }
 
         return newDeliverable;
+    }
+
+    protected void updateParentCompletion(Long parentId, Float value) {
+        Deliverable foundDeliverable = findByIdOrNull(parentId);
+
+        Optional.ofNullable(foundDeliverable).ifPresent(deliverable -> {
+            completionService.updateTarget(deliverable.getCompletion().getId(), value);
+            websocket.convertAndSend(TOPIC.apply(deliverable.getLowercaseClassName()), deliverable.toDto());
+        });
     }
 
     private void setReleasesFromIds(List<Long> releaseIds, Deliverable deliverable) {
@@ -148,8 +158,11 @@ public class DeliverableService extends AbstractCRUDService<Deliverable, Deliver
     @Transactional
     @Override
     public void deleteById(Long id) {
-        var deliverable = findById(id);
+        Deliverable deliverable = findById(id);
         deliverable.getChildren().forEach(d -> repository.deleteById(d.getId()));
+        Optional.ofNullable(deliverable.getParent()).ifPresent(parent -> {
+            updateParentCompletion(parent.getId(), -1F);
+        });
         repository.deleteById(id);
         websocket.convertAndSend(TOPIC.apply(deliverable.getLowercaseClassName()), deliverable.toDto());
     }
