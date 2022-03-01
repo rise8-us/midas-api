@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import mil.af.abms.midas.api.init.dto.RoleDTO;
+import mil.af.abms.midas.api.init.dto.BitwiseDTO;
 
 public class RolesTest {
 
@@ -59,10 +59,10 @@ public class RolesTest {
 
     @Test
     public void should_convert_to_dto() {
-        var rolesDTO = List.of(new RoleDTO(0, "ADMIN", "Can update or add anything"));
+        var bitWiseDTO = List.of(new BitwiseDTO(0, "ADMIN", "Can update or add anything"));
 
-        assertThat(Roles.toDTO().get(0).getOffset()).isEqualTo(rolesDTO.get(0).getOffset());
-        assertThat(Roles.toDTO().get(0).getName()).isEqualTo(rolesDTO.get(0).getName());
-        assertThat(Roles.toDTO().get(0).getDescription()).isEqualTo(rolesDTO.get(0).getDescription());
+        assertThat(Roles.toDTO().get(0).getOffset()).isEqualTo(bitWiseDTO.get(0).getOffset());
+        assertThat(Roles.toDTO().get(0).getName()).isEqualTo(bitWiseDTO.get(0).getName());
+        assertThat(Roles.toDTO().get(0).getDescription()).isEqualTo(bitWiseDTO.get(0).getDescription());
     }
 }

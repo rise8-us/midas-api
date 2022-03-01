@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class RoadmapStatusDTO implements Serializable {
+public class ColorDTO implements Serializable {
     private final String name;
     private final String label;
     private final String color;

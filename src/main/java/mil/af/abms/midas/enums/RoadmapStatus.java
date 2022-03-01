@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import mil.af.abms.midas.api.init.dto.RoadmapStatusDTO;
+import mil.af.abms.midas.api.init.dto.ColorDTO;
 
 @AllArgsConstructor
 @Getter
@@ -25,7 +25,7 @@ public enum RoadmapStatus {
         return Stream.of(RoadmapStatus.values());
     }
 
-    public static List<RoadmapStatusDTO> toDTO() {
-        return stream().map(v -> new RoadmapStatusDTO(v.name, v.label, v.color)).collect(Collectors.toList());
+    public static List<ColorDTO> toDTO() {
+        return stream().map(v -> new ColorDTO(v.name, v.label, v.color)).collect(Collectors.toList());
     }
 }

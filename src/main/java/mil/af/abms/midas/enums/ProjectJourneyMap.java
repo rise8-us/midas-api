@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import mil.af.abms.midas.api.init.dto.ProjectJourneyMapDTO;
+import mil.af.abms.midas.api.init.dto.BitwiseDTO;
 
 @Getter
 @AllArgsConstructor
@@ -39,8 +39,8 @@ public enum ProjectJourneyMap {
         return ProjectJourneyMap.stream().filter(currentProjectJourneyMap::get).mapToLong(ProjectJourneyMap::getBitValue).sum();
     }
 
-    public static List<ProjectJourneyMapDTO> toDTO() {
-        return stream().map(v -> new ProjectJourneyMapDTO(v.offset, v.name, v.description)).collect(Collectors.toList());
+    public static List<BitwiseDTO> toDTO() {
+        return stream().map(v -> new BitwiseDTO(v.offset, v.name, v.description)).collect(Collectors.toList());
     }
 
     public Long getBitValue() {
