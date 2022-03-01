@@ -34,7 +34,6 @@ import mil.af.abms.midas.api.completion.dto.UpdateCompletionDTO;
 import mil.af.abms.midas.api.deliverable.dto.CreateDeliverableDTO;
 import mil.af.abms.midas.api.deliverable.dto.UpdateDeliverableDTO;
 import mil.af.abms.midas.api.dtos.IsArchivedDTO;
-import mil.af.abms.midas.api.epic.Epic;
 import mil.af.abms.midas.api.epic.EpicService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.performancemeasure.PerformanceMeasure;
@@ -80,7 +79,6 @@ class DeliverableServiceTests {
     private final Product product = Builder.build(Product.class).with(p -> p.setId(4L)).get();
     private final Capability capability = Builder.build(Capability.class).with(p -> p.setId(5L)).get();
     private final PerformanceMeasure performanceMeasure = Builder.build(PerformanceMeasure.class).with(p -> p.setId(5L)).get();
-    private final Epic epic = Builder.build(Epic.class).with(e -> e.setId(6L)).get();
     private final CreateCompletionDTO createCompletionDTO = new CreateCompletionDTO();
     private final Completion completion = Builder.build(Completion.class)
             .with(c -> c.setId(1L))
