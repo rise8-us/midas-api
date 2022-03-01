@@ -34,16 +34,16 @@ public class InitDTO implements Serializable {
     private final UserDTO userLoggedIn;
     private final List<AnnouncementDTO> unseenAnnouncements;
     private final Set<Long> productIdsForLoggedInUser;
-    private final List<RoleDTO> roles = Roles.toDTO();
-    private final List<ProjectJourneyMapDTO> projectJourneyMap = ProjectJourneyMap.toDTO();
-    private final List<ProgressionStatusDTO> assertionStatus = ProgressionStatus.toDTO();
+    private final List<BitwiseDTO> roles = Roles.toDTO();
+    private final List<BitwiseDTO> projectJourneyMap = ProjectJourneyMap.toDTO();
+    private final List<ColorDTO> assertionStatus = ProgressionStatus.toDTO();
     private final List<EnumDTO> sonarqubeReliability = SonarqubeReliability.toDTO();
     private final List<EnumDTO> sonarqubeMaintainability = SonarqubeMaintainability.toDTO();
     private final List<EnumDTO> sonarqubeSecurity = SonarqubeSecurity.toDTO();
     private final TagType[] tagTypes = TagType.values();
     private final List<EnumDTO> roadmapType = RoadmapType.toDTO();
-    private final List<RoadmapStatusDTO> roadmapStatus = RoadmapStatus.toDTO();
-    private final List<EnumDTO> completionType = CompletionType.toDTO();
+    private final List<ColorDTO> roadmapStatus = RoadmapStatus.toDTO();
+    private final List<CompletionTypeDTO> completionType = CompletionType.toDTO();
     private final List<FeedbackRatingDTO> feedbackRating = FeedbackRating.toDTO();
     private final List<EnumDTO> userType = UserType.toDTO();
 

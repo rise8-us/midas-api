@@ -7,8 +7,8 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ProgressionStatusDTO implements Serializable {
+public class BitwiseDTO implements Serializable {
+    private final Integer offset;
     private final String name;
-    private final String label;
-    private final String color;
+    private final String description;
 }

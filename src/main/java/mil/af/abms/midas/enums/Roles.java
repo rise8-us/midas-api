@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import mil.af.abms.midas.api.init.dto.RoleDTO;
+import mil.af.abms.midas.api.init.dto.BitwiseDTO;
 
 @Getter
 @AllArgsConstructor
@@ -44,8 +44,8 @@ public enum Roles {
         return Roles.stream().filter(currentRolesMap::get).mapToLong(Roles::getBitValue).sum();
     }
 
-    public static List<RoleDTO> toDTO() {
-        return stream().map(v -> new RoleDTO(v.offset, v.name, v.description)).collect(Collectors.toList());
+    public static List<BitwiseDTO> toDTO() {
+        return stream().map(v -> new BitwiseDTO(v.offset, v.name, v.description)).collect(Collectors.toList());
     }
 
     public Long getBitValue() {

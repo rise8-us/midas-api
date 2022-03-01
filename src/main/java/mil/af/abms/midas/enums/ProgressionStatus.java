@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import mil.af.abms.midas.api.init.dto.ProgressionStatusDTO;
+import mil.af.abms.midas.api.init.dto.ColorDTO;
 
 @AllArgsConstructor
 @Getter
@@ -27,7 +27,7 @@ public enum ProgressionStatus {
         return Stream.of(ProgressionStatus.values());
     }
 
-    public static List<ProgressionStatusDTO> toDTO() {
-        return stream().map(v -> new ProgressionStatusDTO(v.name, v.label, v.color)).collect(Collectors.toList());
+    public static List<ColorDTO> toDTO() {
+        return stream().map(v -> new ColorDTO(v.name, v.label, v.color)).collect(Collectors.toList());
     }
 }
