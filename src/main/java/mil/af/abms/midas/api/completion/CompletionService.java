@@ -110,35 +110,59 @@ public class CompletionService extends AbstractCRUDService<Completion, Completio
         repository.save(foundCompletion);
     }
 
-    protected void linkGitlabEpic(Long gitlabEpicId, Completion completion) {
-        Epic foundGitlabEpic = epicService.findByIdOrNull(gitlabEpicId);
+    protected void linkGitlabEpic(Long epicId, Completion completion) {
+        Epic foundEpic = epicService.findByIdOrNull(epicId);
 
-        Optional.ofNullable(foundGitlabEpic).ifPresentOrElse(gitlabEpic -> {
-            completion.setEpic(gitlabEpic);
-            completion.setValue(gitlabEpic.getCompletedWeight().floatValue());
-            completion.setTarget(gitlabEpic.getTotalWeight().floatValue());
-            completion.setStartDate(gitlabEpic.getStartDate());
-            completion.setDueDate(gitlabEpic.getDueDate());
-            completion.setCompletedAt(gitlabEpic.getCompletedAt());
+        Optional.ofNullable(foundEpic).ifPresentOrElse(epic -> {
+            Epic updatedEpic = epicService.updateById(epic.getId());
+            completion.setEpic(updatedEpic);
+            updateCompletionWithGitlabEpic(completion, updatedEpic);
         }, () -> { completion.setEpic(null); });
 
     }
 
-    protected void linkGitlabIssue(Long gitlabIssueId, Completion completion) {
-        Issue foundGitlabIssue = issueService.findByIdOrNull(gitlabIssueId);
+    protected void linkGitlabIssue(Long issueId, Completion completion) {
+        Issue foundIssue = issueService.findByIdOrNull(issueId);
 
-        Optional.ofNullable(foundGitlabIssue).ifPresentOrElse(gitlabIssue -> {
-            completion.setIssue(gitlabIssue);
-            completion.setTarget(gitlabIssue.getWeight().floatValue());
-            completion.setStartDate(gitlabIssue.getStartDate());
-            completion.setDueDate(gitlabIssue.getDueDate());
-            completion.setCompletedAt(gitlabIssue.getCompletedAt());
-
-            if (gitlabIssue.getCompletedAt() != null) {
-                completion.setValue(gitlabIssue.getWeight().floatValue());
-            } else {
-                completion.setValue(0F);
-            }
+        Optional.ofNullable(foundIssue).ifPresentOrElse(issue -> {
+            Issue updatedIssue = issueService.updateById(issue.getId());
+            completion.setIssue(updatedIssue);
+            updateCompletionWithGitlabIssue(completion, updatedIssue);
         }, () -> { completion.setIssue(null); });
+    }
+
+    public void updateLinkedIssue(Issue issue) {
+        issue.getCompletions().forEach(completion -> {
+            updateCompletionWithGitlabIssue(completion, issue);
+            repository.save(completion);
+        });
+    }
+
+    public void updateLinkedEpic(Epic epic) {
+        epic.getCompletions().forEach(completion -> {
+            updateCompletionWithGitlabEpic(completion, epic);
+            repository.save(completion);
+        });
+    }
+
+    protected void updateCompletionWithGitlabEpic(Completion completion, Epic epic) {
+        completion.setValue(epic.getCompletedWeight().floatValue());
+        completion.setTarget(epic.getTotalWeight().floatValue());
+        completion.setStartDate(epic.getStartDate());
+        completion.setDueDate(epic.getDueDate());
+        completion.setCompletedAt(epic.getCompletedAt());
+    }
+
+    protected void updateCompletionWithGitlabIssue(Completion completion, Issue issue) {
+        completion.setTarget(issue.getWeight().floatValue());
+        completion.setStartDate(issue.getStartDate());
+        completion.setDueDate(issue.getDueDate());
+        completion.setCompletedAt(issue.getCompletedAt());
+
+        if (issue.getCompletedAt() != null) {
+            completion.setValue(issue.getWeight().floatValue());
+        } else {
+            completion.setValue(0F);
+        }
     }
 }

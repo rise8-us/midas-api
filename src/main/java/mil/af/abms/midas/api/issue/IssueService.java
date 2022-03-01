@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
+import mil.af.abms.midas.api.completion.CompletionService;
 import mil.af.abms.midas.api.dtos.AddGitLabIssueDTO;
 import mil.af.abms.midas.api.issue.dto.IssueDTO;
 import mil.af.abms.midas.api.project.Project;
@@ -25,10 +26,16 @@ import mil.af.abms.midas.clients.gitlab.models.GitLabIssue;
 public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepository> {
 
     private ProjectService projectService;
+    private CompletionService completionService;
 
     @Autowired
     public void setProjectService(ProjectService projectService) {
         this.projectService = projectService;
+    }
+
+    @Autowired
+    public void setCompletionService(CompletionService completionService) {
+        this.completionService = completionService;
     }
 
     public IssueService(IssueRepository repository) {
@@ -133,8 +140,11 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
 
     protected Issue syncIssue(GitLabIssue gitLabIssue, Issue issue) {
         BeanUtils.copyProperties(gitLabIssue, issue);
+
         updateWeight(issue);
+        completionService.updateLinkedIssue(issue);
         issue.setSyncedAt(LocalDateTime.now());
+
         return repository.save(issue);
     }
 

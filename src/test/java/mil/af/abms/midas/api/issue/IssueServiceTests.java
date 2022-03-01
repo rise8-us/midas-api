@@ -29,6 +29,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
 
+import mil.af.abms.midas.api.completion.CompletionService;
 import mil.af.abms.midas.api.dtos.AddGitLabIssueDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.project.Project;
@@ -47,6 +48,8 @@ public class IssueServiceTests {
     private IssueRepository repository;
     @MockBean
     private ProjectService projectService;
+    @MockBean
+    private CompletionService completionService;
     @MockBean
     private  GitLab4JClient gitLab4JClient;
 
@@ -83,7 +86,7 @@ public class IssueServiceTests {
             .get();
 
     @Test
-    void can_create_Epic_new() {
+    void can_create_issue_new() {
         doReturn(gitLabIssue).when(issueService).getIssueFromClient(any(Project.class), anyInt());
         when(projectService.findById(any())).thenReturn(foundProject);
 
@@ -97,7 +100,7 @@ public class IssueServiceTests {
     }
 
     @Test
-    void can_create_Epic_exists() {
+    void can_create_issue_exists() {
 
         doReturn(gitLabIssue).when(issueService).getIssueFromClient(any(Project.class), anyInt());
         when(projectService.findById(any())).thenReturn(foundProject);
@@ -121,6 +124,7 @@ public class IssueServiceTests {
         doReturn(gitLabIssue).when(issueService).getIssueFromClient(any(Project.class), anyInt());
         when(projectService.findById(any())).thenReturn(foundProject);
         when(repository.findById(any())).thenReturn(Optional.of(issueDuplicate));
+        doNothing().when(completionService).updateLinkedIssue(any());
 
         issueService.updateById(1L);
 

@@ -1,13 +1,16 @@
 package mil.af.abms.midas.api.completion;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -60,21 +63,25 @@ class CompletionServiceTests {
             .with(c -> c.setCompletedAt(null))
             .get();
     private final Epic epic = Builder.build(Epic.class)
+            .with(e -> e.setId(1L))
             .with(e -> e.setTitle("title"))
             .with(e -> e.setEpicIid(2))
             .with(e -> e.setCompletedWeight(2L))
             .with(e -> e.setTotalWeight(5L))
             .with(e -> e.setCompletedAt(LocalDateTime.now()))
-            .with(e -> e.setStartDate(LocalDate.now().plusDays(-1)))
+            .with(e -> e.setStartDate(LocalDate.now().minusDays(1)))
             .with(e -> e.setDueDate(LocalDate.now().plusDays(1)))
+            .with(e -> e.setCompletions(Set.of(completion)))
             .get();
     private final Issue issue = Builder.build(Issue.class)
+            .with(i -> i.setId(1L))
             .with(i -> i.setTitle("issue"))
             .with(i -> i.setState("closed"))
             .with(i -> i.setWeight(1L))
             .with(i -> i.setCompletedAt(LocalDateTime.now()))
-            .with(i -> i.setStartDate(LocalDate.now().plusDays(-1)))
+            .with(i -> i.setStartDate(LocalDate.now().minusDays(1)))
             .with(i -> i.setDueDate(LocalDate.now().plusDays(1)))
+            .with(i -> i.setCompletions(Set.of(completion)))
             .get();
 
     Completion completion2 = new Completion();
@@ -181,6 +188,7 @@ class CompletionServiceTests {
     @Test
     void should_linkGitlabEpic() {
         doReturn(epic).when(epicService).findByIdOrNull(anyLong());
+        doReturn(epic).when(epicService).updateById(anyLong());
 
         completionService.linkGitlabEpic(1L, completion2);
 
@@ -195,6 +203,8 @@ class CompletionServiceTests {
     @Test
     void should_linkGitlabIssue_for_completed_issues() {
         doReturn(issue).when(issueService).findByIdOrNull(anyLong());
+        doReturn(issue).when(issueService).updateById(anyLong());
+
         completionService.linkGitlabIssue(1L, completion2);
 
         assertThat(completion2.getIssue()).isEqualTo(issue);
@@ -210,9 +220,29 @@ class CompletionServiceTests {
         issue2.setCompletedAt(null);
 
         doReturn(issue2).when(issueService).findByIdOrNull(anyLong());
+        doReturn(issue2).when(issueService).updateById(anyLong());
+
         completionService.linkGitlabIssue(1L, completion2);
 
         assertThat(completion2.getCompletedAt()).isNull();
         assertThat(completion2.getValue()).isEqualTo(0F);
+    }
+
+    @Test
+    void should_update_linked_issue() {
+        doNothing().when(completionService).updateCompletionWithGitlabIssue(any(), any());
+
+        completionService.updateLinkedIssue(issue);
+
+        verify(completionService, times(1)).updateLinkedIssue(any());
+    }
+
+    @Test
+    void should_update_linked_epic() {
+        doNothing().when(completionService).updateCompletionWithGitlabEpic(any(), any());
+
+        completionService.updateLinkedEpic(epic);
+
+        verify(completionService, times(1)).updateLinkedEpic(any());
     }
 }
