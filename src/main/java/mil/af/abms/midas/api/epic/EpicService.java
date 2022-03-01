@@ -165,9 +165,10 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
 
     protected Epic syncEpic(GitLabEpic gitLabEpic, Epic epic) {
         BeanUtils.copyProperties(gitLabEpic, epic);
-        epic.setSyncedAt(LocalDateTime.now());
 
         Epic updatedEpic = setWeights(epic);
+        completionService.updateLinkedEpic(epic);
+        epic.setSyncedAt(LocalDateTime.now());
 
         return repository.save(updatedEpic);
     }
