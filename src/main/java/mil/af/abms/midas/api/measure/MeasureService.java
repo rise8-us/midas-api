@@ -19,7 +19,9 @@ import mil.af.abms.midas.api.assertion.Assertion;
 import mil.af.abms.midas.api.assertion.AssertionService;
 import mil.af.abms.midas.api.comment.CommentService;
 import mil.af.abms.midas.api.comment.SystemComments;
+import mil.af.abms.midas.api.completion.Completion;
 import mil.af.abms.midas.api.completion.CompletionService;
+import mil.af.abms.midas.api.completion.dto.CreateCompletionDTO;
 import mil.af.abms.midas.api.completion.dto.UpdateCompletionDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.measure.dto.CreateMeasureDTO;
@@ -52,7 +54,9 @@ public class MeasureService extends AbstractCRUDService<Measure, MeasureDTO, Mea
 
     @Transactional
     public Measure create(CreateMeasureDTO dto) {
-        var completion = completionService.create(dto.getCompletion());
+        CreateCompletionDTO createCompletionDTO = Optional.ofNullable(dto.getCompletion()).isPresent() ?
+                dto.getCompletion() : new CreateCompletionDTO();
+        Completion completion = completionService.create(createCompletionDTO);
         Measure newMeasure = Builder.build(Measure.class)
                 .with(m -> m.setCompletion(completion))
                 .with(m -> m.setStatus(ProgressionStatus.NOT_STARTED))
