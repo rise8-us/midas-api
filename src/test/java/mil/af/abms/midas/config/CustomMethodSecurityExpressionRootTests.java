@@ -350,8 +350,8 @@ class CustomMethodSecurityExpressionRootTests {
     void hasPersonaAccess_false_when_personaId_null_or_no_product() {
         when(personaService.findById(anyLong())).thenReturn(persona);
 
-        assertFalse(security.hasPersonaAccess(null));
-        assertFalse(security.hasPersonaAccess(9L));
+        assertFalse(security.hasPersonaUpdateAccess(null));
+        assertFalse(security.hasPersonaUpdateAccess(9L));
     }
 
     @Test
@@ -363,15 +363,15 @@ class CustomMethodSecurityExpressionRootTests {
         when(personaService.findById(anyLong())).thenReturn(persona2);
         doReturn(true).when(security).hasProductAccess(anyLong());
 
-        assertTrue(security.hasPersonaAccess(9L));
+        assertTrue(security.hasPersonaUpdateAccess(9L));
     }
 
     @Test
     void hasFeatureAccess_false_when_featureId_null_or_no_product() {
         when(featureService.findById(anyLong())).thenReturn(feature);
 
-        assertFalse(security.hasFeatureAccess(null));
-        assertFalse(security.hasFeatureAccess(10L));
+        assertFalse(security.hasFeatureUpdateAccess(null));
+        assertFalse(security.hasFeatureUpdateAccess(10L));
     }
 
     @Test
@@ -383,7 +383,7 @@ class CustomMethodSecurityExpressionRootTests {
         when(featureService.findById(anyLong())).thenReturn(feature2);
         doReturn(true).when(security).hasProductAccess(anyLong());
 
-        assertTrue(security.hasFeatureAccess(10L));
+        assertTrue(security.hasFeatureUpdateAccess(10L));
     }
 
     @Test

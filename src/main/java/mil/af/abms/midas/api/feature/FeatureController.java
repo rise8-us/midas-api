@@ -18,7 +18,8 @@ import mil.af.abms.midas.api.AbstractCRUDController;
 import mil.af.abms.midas.api.feature.dto.CreateFeatureDTO;
 import mil.af.abms.midas.api.feature.dto.FeatureDTO;
 import mil.af.abms.midas.api.feature.dto.UpdateFeatureDTO;
-import mil.af.abms.midas.config.security.annotations.HasFeatureAccess;
+import mil.af.abms.midas.config.security.annotations.HasFeatureCreateAccess;
+import mil.af.abms.midas.config.security.annotations.HasFeatureUpdateAccess;
 
 @RestController
 @RequestMapping("/api/features")
@@ -29,26 +30,26 @@ public class FeatureController extends AbstractCRUDController<Feature, FeatureDT
         super(service);
     }
 
-    @HasFeatureAccess
+    @HasFeatureCreateAccess
     @PostMapping
-    public FeatureDTO create(@Valid @RequestBody CreateFeatureDTO createFeatureDTODTO) {
-        return service.create(createFeatureDTODTO).toDto();
+    public FeatureDTO create(@Valid @RequestBody CreateFeatureDTO createFeatureDTO) {
+        return service.create(createFeatureDTO).toDto();
     }
 
-    @HasFeatureAccess
+    @HasFeatureUpdateAccess
     @PutMapping("/{id}")
     public FeatureDTO updateById(@Valid @RequestBody UpdateFeatureDTO updateFeatureDTO, @PathVariable Long id) {
         return service.updateById(id, updateFeatureDTO).toDto();
     }
 
-    @HasFeatureAccess
+    @HasFeatureUpdateAccess
     @PutMapping("/bulk")
     public List<FeatureDTO> bulkUpdate(@Valid @RequestBody List<UpdateFeatureDTO> updateFeatureDTOs) {
         return service.bulkUpdate(updateFeatureDTOs).stream().map(Feature::toDto).collect(Collectors.toList());
     }
 
     @Override
-    @HasFeatureAccess
+    @HasFeatureUpdateAccess
     @DeleteMapping("/{id}")
     public void deleteById(@PathVariable Long id) {
         service.deleteById(id);

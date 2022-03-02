@@ -50,10 +50,12 @@ public final class AuthExpression {
     public static final String HAS_FEEDBACK_EDIT_ACCESS = "isFeedbackCreator(#id)" + OR + IS_ADMIN;
 
     // Persona
-    public static final String HAS_PERSONA_ACCESS = "hasPersonaAccess(#id)" + OR + IS_ADMIN;
+    public static final String HAS_PERSONA_CREATE_ACCESS = "hasProductAccess(#createPersonaDTO.getProductId())" + OR + IS_ADMIN;
+    public static final String HAS_PERSONA_UPDATE_ACCESS = "hasPersonaUpdateAccess(#id)" + OR + IS_ADMIN;
 
     // Feature
-    public static final String HAS_FEATURE_ACCESS = "hasFeatureAccess(#id)" + OR + IS_ADMIN;
+    public static final String HAS_FEATURE_CREATE_ACCESS = "hasProductAccess(#createFeatureDTO.getProductId())" + OR + IS_ADMIN;
+    public static final String HAS_FEATURE_UPDATE_ACCESS = "hasFeatureUpdateAccess(#id)" + OR + IS_ADMIN;
 
     // Epic
     public static final String HAS_EPIC_HIDE_ACCESS = "hasEpicHideAccess(#id)" + OR + IS_ADMIN;

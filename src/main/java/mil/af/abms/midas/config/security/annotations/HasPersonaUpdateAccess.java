@@ -11,6 +11,6 @@ import mil.af.abms.midas.config.security.AuthExpression;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-@PreAuthorize(AuthExpression.HAS_PERSONA_ACCESS)
-public @interface HasPersonaAccess {
+@PreAuthorize(AuthExpression.HAS_PERSONA_UPDATE_ACCESS)
+public @interface HasPersonaUpdateAccess {
 }
