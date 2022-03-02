@@ -97,14 +97,14 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
         return userMakingRequest.getId().equals(feedbackToModify.getCreatedBy().getId());
     }
 
-    public boolean hasPersonaAccess(Long personaId) {
+    public boolean hasPersonaUpdateAccess(Long personaId) {
         if (personaId == null) { return false; }
         var personaBeingAccessed = personaService().findById(personaId);
         if (personaBeingAccessed.getProduct() == null) { return false; }
         return hasProductAccess(personaBeingAccessed.getProduct().getId());
     }
 
-    public boolean hasFeatureAccess(Long featureId) {
+    public boolean hasFeatureUpdateAccess(Long featureId) {
         if (featureId == null) { return false; }
         var featureBeingAccessed = featureService().findById(featureId);
         if (featureBeingAccessed.getProduct() == null) { return false; }

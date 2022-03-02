@@ -18,7 +18,8 @@ import mil.af.abms.midas.api.AbstractCRUDController;
 import mil.af.abms.midas.api.persona.dto.CreatePersonaDTO;
 import mil.af.abms.midas.api.persona.dto.PersonaDTO;
 import mil.af.abms.midas.api.persona.dto.UpdatePersonaDTO;
-import mil.af.abms.midas.config.security.annotations.HasPersonaAccess;
+import mil.af.abms.midas.config.security.annotations.HasPersonaCreateAccess;
+import mil.af.abms.midas.config.security.annotations.HasPersonaUpdateAccess;
 
 @RestController
 @RequestMapping("/api/personas")
@@ -29,26 +30,26 @@ public class PersonaController extends AbstractCRUDController<Persona, PersonaDT
         super(service);
     }
 
-    @HasPersonaAccess
+    @HasPersonaCreateAccess
     @PostMapping
     public PersonaDTO create(@Valid @RequestBody CreatePersonaDTO createPersonaDTO) {
         return service.create(createPersonaDTO).toDto();
     }
 
-    @HasPersonaAccess
+    @HasPersonaUpdateAccess
     @PutMapping("/{id}")
     public PersonaDTO updateById(@Valid @RequestBody UpdatePersonaDTO updatePersonaDTO, @PathVariable Long id) {
         return service.updateById(id, updatePersonaDTO).toDto();
     }
 
-    @HasPersonaAccess
+    @HasPersonaUpdateAccess
     @PutMapping("/bulk")
     public List<PersonaDTO> bulkUpdate(@Valid @RequestBody List<UpdatePersonaDTO> updatePersonaDTOs) {
         return service.bulkUpdate(updatePersonaDTOs).stream().map(Persona::toDto).collect(Collectors.toList());
     }
 
     @Override
-    @HasPersonaAccess
+    @HasPersonaUpdateAccess
     @DeleteMapping("/{id}")
     public void deleteById(@PathVariable Long id) {
         service.deleteById(id);
