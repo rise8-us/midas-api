@@ -4,13 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -25,12 +30,15 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
 import mil.af.abms.midas.api.appusermetrics.dto.AppUserMetricsDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.search.SpecificationsBuilder;
+import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @ExtendWith(SpringExtension.class)
@@ -48,7 +56,6 @@ class AppUserMetricsServiceTests {
 
     private final LocalDate DATE_ID1 = LocalDate.now();
     private final LocalDate DATE_ID2 = LocalDate.now().plusDays(1L);
-    private final LocalDate DATE_DTO = DATE_ID1.plusDays(1L);
     private final AppUserMetrics appUserMetrics1 = Builder.build(AppUserMetrics.class)
             .with(m -> m.setId(DATE_ID1))
             .with(m -> m.setUniqueLogins(2L))
@@ -59,19 +66,64 @@ class AppUserMetricsServiceTests {
             .get();
     private final List<AppUserMetrics> appUserMetrics = List.of(appUserMetrics1, appUserMetrics2);
     private final Page<AppUserMetrics> page = new PageImpl<AppUserMetrics>(appUserMetrics);
+    private final  User user = Builder.build(User.class)
+            .with(u -> u.setId(1L))
+            .with(u -> u.setRoles(1L))
+            .with(u -> u.setKeycloakUid("abc-123"))
+            .with(u -> u.setUsername("grogu"))
+            .with(u -> u.setLastLogin(LocalDateTime.now()))
+            .get();
 
     @Test
     void should_create_metric() {
         var newAppUserMetricsDTO = new AppUserMetricsDTO();
         newAppUserMetricsDTO.setId(DATE_ID1);
+        doNothing().when(service).updateUniqueRoles(any(), any());
 
-        service.create(newAppUserMetricsDTO.getId());
+        service.create(newAppUserMetricsDTO.getId(), user);
 
         verify(repository, times(1)).save(appUserMetricsArgumentCaptor.capture());
         AppUserMetrics metricSaved = appUserMetricsArgumentCaptor.getValue();
 
         assertThat(metricSaved.getId()).isEqualTo(DATE_ID1);
-        assertThat(metricSaved.getUniqueLogins()).isEqualTo(1L);
+        assertThat(metricSaved.getUniqueLogins()).isEqualTo(0L);
+    }
+
+    @Test
+    void should_increment_uniqueLogins() {
+        doReturn(appUserMetrics1).when(service).findById(any());
+
+        service.incrementUniqueLogins(DATE_ID1);
+
+        verify(service, times(1)).incrementUniqueLogins(DATE_ID1);
+
+        assertThat(appUserMetrics1.getUniqueLogins()).isEqualTo(3L);
+    }
+
+    @Test
+    void should_update_unique_roles() {
+        doReturn(appUserMetrics1).when(service).findById(any());
+        doNothing().when(service).updateRoleCountByEnum(any(), any());
+
+        service.updateUniqueRoles(DATE_ID1, user);
+
+        verify(service, times(1)).updateRoleCountByEnum(any(), any());
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {1, 0})
+    void should_update_role_count_by_enum(Long roleCount) {
+        var uniqueRoleCounts = new HashMap<String, Set<Object>>();
+        uniqueRoleCounts.put("UNASSIGNED", Set.of(1));
+
+        user.setRoles(roleCount);
+
+        service.updateRoleCountByEnum(uniqueRoleCounts, user);
+
+        verify(service, times(1)).updateUnassignedRole(any(), any(), any());
+
+        assertThat(user.getRoles()).isEqualTo(roleCount);
+
     }
 
     @Test
@@ -141,39 +193,34 @@ class AppUserMetricsServiceTests {
     void should_update_uniqueLogins_by_id() {
         when(repository.findById(DATE_ID1)).thenReturn(Optional.of(appUserMetrics1));
         when(repository.save(appUserMetrics1)).thenReturn(appUserMetrics1);
+        doNothing().when(service).updateUniqueRoles(any(), any());
 
-        service.updateById(DATE_ID1);
+        service.updateById(DATE_ID1, user);
 
         verify(repository, times(1)).save(appUserMetricsArgumentCaptor.capture());
         AppUserMetrics savedAppUserMetrics = appUserMetricsArgumentCaptor.getValue();
 
-        assertThat(savedAppUserMetrics.getUniqueLogins()).isEqualTo(3L);
+        assertThat(savedAppUserMetrics.getUniqueLogins()).isEqualTo(2L);
     }
 
     @Test
     void should_determine_create() {
-        when(repository.findById(DATE_ID1)).thenReturn(Optional.of(appUserMetrics1));
-        when(repository.save(appUserMetrics1)).thenReturn(appUserMetrics1);
+        doReturn(null).when(service).findByIdOrNull(any());
+        doNothing().when(service).create(any(), any());
 
-        service.determineUpdateOrCreate(null);
+        service.determineCreateOrUpdate(DATE_ID1, user);
 
-        verify(repository, times(1)).save(appUserMetricsArgumentCaptor.capture());
-        AppUserMetrics savedAppUserMetrics = appUserMetricsArgumentCaptor.getValue();
-
-        assertThat(savedAppUserMetrics.getUniqueLogins()).isEqualTo(1L);
+        verify(service, times(1)).create(DATE_ID1, user);
     }
 
     @Test
     void should_determine_update() {
-        when(repository.findById(DATE_ID1)).thenReturn(Optional.of(appUserMetrics1));
-        when(repository.save(appUserMetrics1)).thenReturn(appUserMetrics1);
+        doReturn(appUserMetrics1).when(service).findByIdOrNull(any());
+        doNothing().when(service).updateById(any(), any());
 
-        service.determineUpdateOrCreate(DATE_ID1);
+        service.determineCreateOrUpdate(DATE_ID1, user);
 
-        verify(repository, times(1)).save(appUserMetricsArgumentCaptor.capture());
-        AppUserMetrics savedAppUserMetrics = appUserMetricsArgumentCaptor.getValue();
-
-        assertThat(savedAppUserMetrics.getUniqueLogins()).isEqualTo(3L);
+        verify(service, times(1)).updateById(DATE_ID1, user);
     }
 
 }

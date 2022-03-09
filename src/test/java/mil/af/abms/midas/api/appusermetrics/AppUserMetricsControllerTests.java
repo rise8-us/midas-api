@@ -4,12 +4,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.appusermetrics.dto.AppUserMetricsDTO;
+import mil.af.abms.midas.api.dtos.metrics.UniqueRoleMetricsDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.helper.JsonMapper;
 
@@ -42,7 +44,18 @@ public class AppUserMetricsControllerTests extends ControllerTestHarness {
             .with(a -> a.setId(DATE_ID2))
             .with(a -> a.setUniqueLogins(3L))
             .get();
-    AppUserMetricsDTO dto = new AppUserMetricsDTO(DATE_ID1, 2L);
+    private final UniqueRoleMetricsDTO uniqueRoleMetricsDTO = Builder.build(UniqueRoleMetricsDTO.class)
+            .with(u -> u.setAdmins(Set.of()))
+            .with(u -> u.setDesigners(Set.of()))
+            .with(u -> u.setPlatformOperators(Set.of()))
+            .with(u -> u.setPortfolioAdmins(Set.of()))
+            .with(u -> u.setPortfolioLeads(Set.of()))
+            .with(u -> u.setProductManagers(Set.of()))
+            .with(u -> u.setStakeholders(Set.of()))
+            .with(u -> u.setTechLeads(Set.of()))
+            .with(u -> u.setUnassigned(Set.of()))
+            .get();
+    AppUserMetricsDTO dto = new AppUserMetricsDTO(DATE_ID1, 2L, uniqueRoleMetricsDTO);
     private final List<AppUserMetrics> appUserMetrics = List.of(appUserMetrics1, appUserMetrics2);
 
     @BeforeEach
