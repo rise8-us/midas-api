@@ -39,9 +39,11 @@ public class PlatformOneAuthenticationProvider implements AuthenticationProvider
         PlatformOneAuthenticationToken token = (PlatformOneAuthenticationToken) authentication;
         User user = userService.findByKeycloakUid(token.getKeycloakUid()).orElseGet(() -> userService.create(token));
 
+        appUserMetricsService.determineCreateOrUpdate(id, user);
+
         if (user.getLastLogin() == null || user.getLastLogin().isBefore(id.atStartOfDay())) {
             userService.updateLastLogin(user);
-            appUserMetricsService.determineUpdateOrCreate(id);
+            appUserMetricsService.incrementUniqueLogins(id);
         }
 
         List<GrantedAuthority> authorityList = new ArrayList<>(getRoles(user));

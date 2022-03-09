@@ -6,24 +6,39 @@ import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.util.ReflectionUtils;
 
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.appusermetrics.dto.AppUserMetricsDTO;
+import mil.af.abms.midas.api.dtos.metrics.UniqueRoleMetricsDTO;
 import mil.af.abms.midas.api.helper.Builder;
 
 class AppUserMetricsTests {
 
     private final LocalDate DATE_ID = LocalDate.now();
+    private static final int ENTITY_DTO_FIELD_OFFSET = 1;
     private final AppUserMetrics appUserMetrics = Builder.build(AppUserMetrics.class)
             .with(a -> a.setId(DATE_ID))
             .with(a -> a.setUniqueLogins(2L))
             .get();
+    private final UniqueRoleMetricsDTO uniqueRoleMetricsDTO = Builder.build(UniqueRoleMetricsDTO.class)
+            .with(u -> u.setAdmins(Set.of()))
+            .with(u -> u.setDesigners(Set.of()))
+            .with(u -> u.setPlatformOperators(Set.of()))
+            .with(u -> u.setPortfolioAdmins(Set.of()))
+            .with(u -> u.setPortfolioLeads(Set.of()))
+            .with(u -> u.setProductManagers(Set.of()))
+            .with(u -> u.setStakeholders(Set.of()))
+            .with(u -> u.setTechLeads(Set.of()))
+            .with(u -> u.setUnassigned(Set.of()))
+            .get();
     private final AppUserMetricsDTO appUserMetricsDTO = Builder.build(AppUserMetricsDTO.class)
             .with(a -> a.setId(DATE_ID))
             .with(a -> a.setUniqueLogins(2L))
+            .with(a -> a.setUniqueRoleMetrics(uniqueRoleMetricsDTO))
             .get();
 
     @Test
@@ -31,7 +46,7 @@ class AppUserMetricsTests {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(AppUserMetrics.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(AppUserMetricsDTO.class.getDeclaredFields().length);
+        assertThat(fields.size()).isEqualTo(AppUserMetricsDTO.class.getDeclaredFields().length + ENTITY_DTO_FIELD_OFFSET);
     }
 
     @Test
