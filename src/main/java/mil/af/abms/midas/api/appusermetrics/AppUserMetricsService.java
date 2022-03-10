@@ -67,22 +67,22 @@ public class AppUserMetricsService {
 
     protected void updateUniqueRoles(LocalDate id, User user) {
         AppUserMetrics uniqueLoginEntry = findById(id);
-        Map<String, Set<Object>> uniqueRoleCounts = uniqueLoginEntry.getUniqueRoleMetrics();
+        Map<String, Set<Long>> uniqueRoleCounts = uniqueLoginEntry.getUniqueRoleMetrics();
         updateRoleCountByEnum(uniqueRoleCounts, user);
     }
 
-    protected void updateRoleCountByEnum(Map<String, Set<Object>> uniqueRoleCounts, User user) {
+    protected void updateRoleCountByEnum(Map<String, Set<Long>> uniqueRoleCounts, User user) {
         Map<Roles, Boolean> mapOfUserRoles = Roles.getRoles(user.getRoles());
 
         if (user.getRoles() > 0) {
-            for (Roles role : mapOfUserRoles.keySet()) {
-                Set<Object> listOfUsersWithRole = new HashSet<>(uniqueRoleCounts.getOrDefault(role.getName(), new HashSet<>()));
-                if (mapOfUserRoles.get(role)) {
-                    listOfUsersWithRole.add(user.getId().intValue());
+            for (Map.Entry<Roles, Boolean> role : mapOfUserRoles.entrySet()) {
+                Set<Long> listOfUsersWithRole = new HashSet<>(uniqueRoleCounts.getOrDefault(role.getKey().getName(), new HashSet<>()));
+                if (mapOfUserRoles.get(role.getKey())) {
+                    listOfUsersWithRole.add(user.getId());
                 } else {
-                    listOfUsersWithRole.remove(user.getId().intValue());
+                    listOfUsersWithRole.remove(user.getId());
                 }
-                uniqueRoleCounts.put(role.getName(), listOfUsersWithRole);
+                uniqueRoleCounts.put(role.getKey().getName(), listOfUsersWithRole);
             }
             updateUnassignedRole(uniqueRoleCounts, user.getId(), false);
         } else {
@@ -90,10 +90,10 @@ public class AppUserMetricsService {
         }
     }
 
-    protected void updateUnassignedRole(Map<String, Set<Object>> uniqueRoleCounts, Long userId, Boolean unassigned) {
-        Set<Object> listOfUsersWithRole = new HashSet<>(uniqueRoleCounts.getOrDefault("UNASSIGNED", new HashSet<>()));
-        if (unassigned) listOfUsersWithRole.add(userId.intValue());
-        else listOfUsersWithRole.remove(userId.intValue());
+    protected void updateUnassignedRole(Map<String, Set<Long>> uniqueRoleCounts, Long userId, Boolean unassigned) {
+        Set<Long> listOfUsersWithRole = new HashSet<>(uniqueRoleCounts.getOrDefault("UNASSIGNED", new HashSet<>()));
+        if (unassigned) listOfUsersWithRole.add(userId);
+        else listOfUsersWithRole.remove(userId);
         uniqueRoleCounts.put("UNASSIGNED", listOfUsersWithRole);
     }
 

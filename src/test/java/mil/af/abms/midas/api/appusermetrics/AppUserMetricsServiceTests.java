@@ -113,8 +113,8 @@ class AppUserMetricsServiceTests {
     @ParameterizedTest
     @ValueSource(longs = {1, 0})
     void should_update_role_count_by_enum(Long roleCount) {
-        var uniqueRoleCounts = new HashMap<String, Set<Object>>();
-        uniqueRoleCounts.put("UNASSIGNED", Set.of(1));
+        var uniqueRoleCounts = new HashMap<String, Set<Long>>();
+        uniqueRoleCounts.put("UNASSIGNED", Set.of(1L));
 
         user.setRoles(roleCount);
 

@@ -6,13 +6,14 @@ import javax.persistence.Converter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 //Pulled from https://medium.com/@bcarunmail/using-json-datatype-in-relational-database-to-develop-flexible-configurable-software-6a169e9ce75b
 @Converter
-public class JsonConverter implements AttributeConverter<Map<String, Object>, String> {
+public class JsonSetOfLongConverter implements AttributeConverter<Map<String, Set<Long>>, String> {
 
     private static final ObjectMapper mapper;
 
@@ -22,7 +23,7 @@ public class JsonConverter implements AttributeConverter<Map<String, Object>, St
     }
 
     @Override
-    public String convertToDatabaseColumn(Map<String, Object> data) {
+    public String convertToDatabaseColumn(Map<String, Set<Long>> data) {
         if (null == data) {
             // You may return null if you prefer that style
             return "{}";
@@ -37,7 +38,7 @@ public class JsonConverter implements AttributeConverter<Map<String, Object>, St
     }
 
     @Override
-    public Map<String, Object> convertToEntityAttribute(String s) {
+    public Map<String, Set<Long>> convertToEntityAttribute(String s) {
         if (null == s) {
             // You may return null if you prefer that style
             return new HashMap<>();
