@@ -1,22 +1,26 @@
 package mil.af.abms.midas.api.dtos.metrics;
 
+import java.util.Set;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import mil.af.abms.midas.api.AbstractDTO;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UniqueRoleMetricsDTO {
+public class UniqueRoleMetricsDTO implements AbstractDTO {
 
-    private Object admins;
-    private Object portfolioLeads;
-    private Object productManagers;
-    private Object techLeads;
-    private Object designers;
-    private Object platformOperators;
-    private Object portfolioAdmins;
-    private Object stakeholders;
-    private Object unassigned;
+    private Set<Long> admins;
+    private Set<Long> portfolioLeads;
+    private Set<Long> productManagers;
+    private Set<Long> techLeads;
+    private Set<Long> designers;
+    private Set<Long> platformOperators;
+    private Set<Long> portfolioAdmins;
+    private Set<Long> stakeholders;
+    private Set<Long> unassigned;
 
 }

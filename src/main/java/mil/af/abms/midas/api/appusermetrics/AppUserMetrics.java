@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import mil.af.abms.midas.api.appusermetrics.dto.AppUserMetricsDTO;
 import mil.af.abms.midas.api.dtos.metrics.UniqueRoleMetricsDTO;
-import mil.af.abms.midas.api.helper.JsonConverter;
+import mil.af.abms.midas.api.helper.JsonSetOfLongConverter;
 
 @Slf4j
 @Entity
@@ -44,8 +44,8 @@ public class AppUserMetrics implements Serializable {
 
     @SuppressWarnings("JpaAttributeTypeInspection")
     @Column(columnDefinition = "JSON")
-    @Convert(converter = JsonConverter.class)
-    private Map<String, Set<Object>> uniqueRoleMetrics = new HashMap<>();
+    @Convert(converter = JsonSetOfLongConverter.class)
+    private Map<String, Set<Long>> uniqueRoleMetrics = new HashMap<>();
 
     public AppUserMetricsDTO toDto() {
         return new AppUserMetricsDTO(
@@ -55,7 +55,7 @@ public class AppUserMetrics implements Serializable {
         );
     }
 
-    private UniqueRoleMetricsDTO getUniqueRoleMetricsDTO(Map<String, Set<Object>> uniqueRoleMetrics) {
+    private UniqueRoleMetricsDTO getUniqueRoleMetricsDTO(Map<String, Set<Long>> uniqueRoleMetrics) {
         return new UniqueRoleMetricsDTO(
                 uniqueRoleMetrics.getOrDefault("ADMIN", Set.of()),
                 uniqueRoleMetrics.getOrDefault("PORTFOLIO_LEAD", Set.of()),
