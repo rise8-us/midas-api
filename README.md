@@ -13,6 +13,8 @@ Platform 1 CtF criteria
 # Features
 
 ## Currently integrated
+These are tools/features that are currently in use within the API.  
+*It is not necessary to download/install anything for these features to operate.*
 
 - Mysql 8 db
 - flyway db migration mgmt
@@ -25,69 +27,133 @@ Platform 1 CtF criteria
 - keycloak identity integration
 - secure configuration for web security
 - custom method security for securing endpoints
-- Gitlab4j 
+- Gitlab4j
 - websockets
-
-## Awaiting integration
-
-- CDS (Cross Domain Solution)
 
 # Setting Up IntelliJ
 - `⌘` + `,` select Editor | Code Style | Java
 - Click the cog
 - Import MidasCodeStyle-IntelliJ.xml from localRun folder
 - select Editor | General | Auto-Import
-- Check `Optimize imports on the fly` 
+- Check `Optimize imports on the fly`
 
 # Running the API
 
-1. Have [Docker](https://docs.docker.com/get-docker/) installed  
-1. Have minimum of [Java 11](https://adoptopenjdk.net/) (Recommend [SDKMan](https://sdkman.io/) for Java Ver Manager)
-1. Navigate to the `localRun` folder
-1. Follow steps in `.example_envrc`
-1. Execute `docker-compose up -d`.
-1. Execute `./run.sh`.
+1. Have [Docker](https://docs.docker.com/get-docker/) installed
+2. Have minimum of [Java 11](https://adoptopenjdk.net/) (Recommend [SDKMan](https://sdkman.io/) for Java Ver Manager)
+3. Navigate to the `localRun` folder
+4. Follow steps in `.example_envrc`
+5. Execute `docker-compose up -d`.
+6. Execute `./run.sh`.
 
-# Downloading MySQL Backup From Staging
-- Navigate to `https://midas.staging.dso.mil/`
-- Log in to MIDAS with Administrative Permissions
-- Click on the Gavel Icon in the top right corner to navigate to the admin portal
-- Click on the `DATABASE BACKUP & RECOVERY` tab
-- To take backup perform one of the following steps:
-    - Enter a specific name of your choosing in the text field and click the back-up icon
-    - Accept the default naming convention and click the back-up icon
-- Once you have taken the back-up, select the back-up from the `DB Backups` dropdown
-- Click `DOWNLOAD` button
+# Committing to GitLab
+#### Notes:
+- *These steps are in reference to creating and registering a GpG key*
 
-# Importing Downloaded MySQL Backup into Adminer
-**Note: You will have to complete [Running the API](#Running the API) prior to running this section**
-- Navigate to `http://localhost:8181`
-- Log in to Adminer with `localDBUser`
-- If your database is currently populated, select all tables and click `Drop`
-- Click on the `Import` hyperlink in the left pane
-- Click on the `Choose Files` button
-- A window will open
-- Navigate to the back-up taken in the previous section and click `Open`
-- Inside Adminer, click on the `Execute` button
+#### Steps:
+1. Install GPG with [Homebrew](https://brew.sh/)
+  1. `brew install gpg`
+2. Enter `gpg --full-gen-key`
+3. Enter `1` for RSA and RSA (default)
+4. Enter `4096`
+5. Enter `0`
+6. Enter `y`
+7. Enter your full name
+8. Enter your work email address that is associated with GitLab
+9. Press Enter to skip the `Comment` portion
+10. Verify your information.  If correct, enter `O`
+11. Pick a strong password when asked and type it twice to confirm.
+12. Enter `gpg --list-secret-keys --keyid-format LONG <your_email>`
+13. Copy the GPG key ID that starts with sec. In the following example, that's `30F2B65B9246B6CA`
+```
+sec   rsa4096/30F2B65B9246B6CA 2017-08-18 [SC]
+      D5E4F29F3275DC0CDA8FFC8730F2B65B9246B6CA
+uid                   [ultimate] Mr. Robot <your_email>
+ssb   rsa4096/B7ABC0813E4028C0 2017-08-18 [E]
+```
+14. Export the public key of that ID `gpg --armor --export 30F2B65B9246B6CA`
+15. Within GitLab, select your avatar in the top-right corner
+16. Select `Edit profile`
+17. On the left sidebar, select `GPG Keys`
+18. Paste your *public* key in the `Key` text box
+19. Select `Add key` to add it to GitLab
+20. List the private GPG key you just created `gpg --list-secret-keys --keyid-format LONG <your_email>`
+21. Copy the GPG key ID that starts with sec. In the following example, that's `30F2B65B9246B6CA`
+```
+sec   rsa4096/30F2B65B9246B6CA 2017-08-18 [SC]
+      D5E4F29F3275DC0CDA8FFC8730F2B65B9246B6CA
+uid                   [ultimate] Mr. Robot <your_email>
+ssb   rsa4096/B7ABC0813E4028C0 2017-08-18 [E]
+```
+22. Enter `git config --global user.signingkey 30F2B65B9246B6CA`
+23. Enter `git config --global commit.gpgsign true`
+24. Install [GpGSuite](https://gpgtools.org/)
+25. Accept all defaults.
+26. Enter `export GPG_TTY=$(tty)`
+
+
+# Downloading Database Backup From Staging
+#### Notes:
+- *This is not required for running the API, just for getting a database copy*
+- *This requires admin privileges and to be a part of the MIDAS Staging Application Group for P1*
+
+#### Steps:
+1. Navigate to `https://midas.staging.dso.mil/`
+1. Log in to MIDAS with Administrative Permissions
+1. Click on the Gavel Icon in the top right corner to navigate to the admin portal
+1. Click on the `DATABASE BACKUP & RECOVERY` tab
+1. To take backup perform one of the following steps:
+  1. Enter a specific name of your choosing in the text field and click the back-up icon
+  1. Accept the default naming convention and click the back-up icon
+1. Once you have taken the back-up, select the back-up from the `DB Backups` dropdown
+1. Click `DOWNLOAD` button
+
+# Importing Downloaded Database Backup into Adminer
+#### Notes:
+- *You will have to complete [Running the API](#Running the API) prior to running this section*
+
+#### Steps:
+1. Navigate to `http://localhost:8181`
+2. Log in to Adminer with,
+```
+UserName: localDBUser  
+Password: This can be acquired from the `docker_compose.yml` file.
+Database: midas_db
+```
+3. If your database is currently populated, select all tables and click `Drop`
+  1. If you get dropped in on the select database name, select midas_db from the dropdown on the left
+4. Click on the `Import` hyperlink in the left pane
+5. Click on the `Choose Files` button and a window will open
+6. Navigate to the back-up taken in the previous section and click `Open`
+7. Inside Adminer, click on the `Execute` button
 
 # Remove Source Control Tokens from Imported Backup
-**Note: This should be completed after importing a MySQL back-up from staging or prod**
-- Navigate to `http://localhost:8181`
-- Log in to Adminer with `localDBUser`
-- Click on `select` that is next to `source_control` 
-- For each source control listed, click edit and remove the token listed.
+#### Notes:
+- *This should be completed after importing a MySQL back-up from staging or prod*
 
-# Prod and Staging Restore
-**Note: These procedures are only required in the event you are restoring to a different database version**
-- Navigate to the appropriate environment Kustomization file  
-    - For Staging: [Kustomization Staging Manifest File](https://code.il2.dso.mil/abms/products/rise8/midas/midas-manifests/-/blob/master/il2/overlays/staging/kustomization.yaml)
-    - For Prod: [Kustomization Prod Manifest File](https://code.il2.dso.mil/abms/products/rise8/midas/midas-manifests/-/blob/master/il4/overlays/prod/kustomization.yaml)
-- Copy the tag nested under images -> newTag for the API and save it for future step.
-- Click the history button that is at the top right of the page.
-- Select an older version of the file that has the same database version as your desired restore and copy the tag nested under images -> newTag.
-  - **It should be different from the current tag.**
-- Return to the current file and edit it with the tag that was copied in the previous step.
-- Navigate to the appropriate ARGO application (Staging or Prod) and click refresh.
+#### Steps:
+1. Navigate to `http://localhost:8181`
+2. Log in to Adminer with `localDBUser`
+3. Click on `select` that is to the left of `source_control` in the left column
+4. For each source control listed
+  1. Click `Edit`
+  2. Clear the text in the token field
+  3. Click `Save`
+
+# Updating Manifest File Tags for Debugging
+#### Notes:
+- *These procedures are only required in the event you are restoring to a different database version*
+
+#### Steps:
+1. Navigate to the appropriate environment Kustomization file
+  1. For Staging: [Kustomization Staging Manifest File](https://code.il2.dso.mil/abms/products/rise8/midas/midas-manifests/-/blob/master/il2/overlays/staging/kustomization.yaml)
+  1. For Prod: [Kustomization Prod Manifest File](https://code.il2.dso.mil/abms/products/rise8/midas/midas-manifests/-/blob/master/il4/overlays/prod/kustomization.yaml)
+1. Copy the tag nested under images -> newTag for the API and save it for future step.
+1. Click the history button that is at the top right of the page.
+1. Select an older version of the file that has the same database version as your desired restore and copy the tag nested under images -> newTag.
+  1. **It should be different from the current tag.**
+1. Return to the current file and edit it with the tag that was copied in the previous step.
+1. Navigate to the appropriate ARGO application (Staging or Prod) and click refresh.
 
 # Understanding Search with ANTLR
 
@@ -150,15 +216,15 @@ when passed to methods such as `repository.findall(specifications)`
 
 # [Gitlab4J](https://github.com/gitlab4j/gitlab4j-api)
 
-GitLab4J™ API (gitlab4j-api) provides a full featured and easy to consume Java library for working with GitLab 
-repositories via the GitLab REST API. Additionally, full support for working with GitLab webhooks and system hooks 
+GitLab4J™ API (gitlab4j-api) provides a full featured and easy to consume Java library for working with GitLab
+repositories via the GitLab REST API. Additionally, full support for working with GitLab webhooks and system hooks
 is also provided.
 
 # Security Considerations
 
 - Midas is configured to use PlatformOne SSO, Keycloak, and JWT.  P1 provides an Istio Envoy sidecar that provides AuthN and logging.
 - Other considerations.  midas-api uses an AttributeEncryptor for storing and retrieving encrypted strings from the DB.  Midas encrypts with NIST approved AES 256 GCM with random Initialization Vector.  
-A `key` and a `salt` must be provided in the container environment.  The key and salt provide a seed for the java key generator.  
+  A `key` and a `salt` must be provided in the container environment.  The key and salt provide a seed for the java key generator.
 
 # Gradle commands
 * ```bash
@@ -186,6 +252,7 @@ For further reference, please consider the following sections:
 - [WebSocket](https://docs.spring.io/spring-boot/docs/2.6.2/reference/htmlsingle/#boot-features-websockets)
 - [Spring Boot Actuator](https://docs.spring.io/spring-boot/docs/2.6.2/reference/htmlsingle/#production-ready)
 - [Gitlab4J](https://github.com/gitlab4j/gitlab4j-api)
+- [Maven Repository](https://mvnrepository.com/)
 
 ### Guides
 
