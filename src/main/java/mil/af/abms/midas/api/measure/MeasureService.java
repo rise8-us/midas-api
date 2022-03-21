@@ -78,7 +78,6 @@ public class MeasureService extends AbstractCRUDService<Measure, MeasureDTO, Mea
         UpdateCompletionDTO updateCompletionDTO = dto.getCompletion();
         updateCompletionDTO.setValue(calculateValue(dto, foundMeasure));
         completionService.updateById(completionId, dto.getCompletion());
-
         foundMeasure.setText(dto.getText());
         foundMeasure.setStatus(calculateStatus(dto, foundMeasure));
 

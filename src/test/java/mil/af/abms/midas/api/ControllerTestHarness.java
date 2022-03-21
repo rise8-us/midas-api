@@ -11,7 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import mil.af.abms.midas.api.appusermetrics.AppUserMetricsService;
+import mil.af.abms.midas.api.metrics.appusermetrics.AppUserMetricsService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.helper.JsonMapper;
 import mil.af.abms.midas.api.user.User;

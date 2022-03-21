@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.appusermetrics.dto;
+package mil.af.abms.midas.api.metrics.appusermetrics.dto;
 
 import java.time.LocalDate;
 
@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.AbstractDTO;
-import mil.af.abms.midas.api.dtos.metrics.UniqueRoleMetricsDTO;
+import mil.af.abms.midas.api.metrics.dtos.UniqueRoleMetricsDTO;
 
 @Data
 @NoArgsConstructor

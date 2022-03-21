@@ -1,35 +1,25 @@
-package mil.af.abms.midas.api.appusermetrics;
+package mil.af.abms.midas.api.metrics.appusermetrics;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import mil.af.abms.midas.api.appusermetrics.dto.AppUserMetricsDTO;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.metrics.AbstractMetricsService;
+import mil.af.abms.midas.api.metrics.appusermetrics.dto.AppUserMetricsDTO;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.enums.Roles;
-import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @Service
-public class AppUserMetricsService {
-
-    private final AppUserMetricsRepository repository;
+public class AppUserMetricsService extends AbstractMetricsService<AppUserMetrics, AppUserMetricsDTO, AppUserMetricsRepository> {
 
     public AppUserMetricsService(AppUserMetricsRepository repository) {
-        this.repository = repository;
+        super(repository, AppUserMetrics.class, AppUserMetricsDTO.class);
     }
 
     @Transactional
@@ -40,12 +30,6 @@ public class AppUserMetricsService {
                 .get();
         repository.save(newAppUserMetrics);
         updateUniqueRoles(id, user);
-    }
-
-    @Transactional
-    public void incrementUniqueLogins(LocalDate id) {
-        AppUserMetrics appUserMetricsToUpdate = findById(id);
-        appUserMetricsToUpdate.setUniqueLogins(appUserMetricsToUpdate.getUniqueLogins() + 1);
     }
 
     @Transactional
@@ -65,6 +49,12 @@ public class AppUserMetricsService {
         }
     }
 
+    @Transactional
+    public void incrementUniqueLogins(LocalDate id) {
+        AppUserMetrics appUserMetricsToUpdate = findById(id);
+        appUserMetricsToUpdate.setUniqueLogins(appUserMetricsToUpdate.getUniqueLogins() + 1);
+    }
+
     protected void updateUniqueRoles(LocalDate id, User user) {
         AppUserMetrics uniqueLoginEntry = findById(id);
         Map<String, Set<Long>> uniqueRoleCounts = uniqueLoginEntry.getUniqueRoleMetrics();
@@ -72,6 +62,7 @@ public class AppUserMetricsService {
     }
 
     protected void updateRoleCountByEnum(Map<String, Set<Long>> uniqueRoleCounts, User user) {
+
         Map<Roles, Boolean> mapOfUserRoles = Roles.getRoles(user.getRoles());
 
         if (user.getRoles() > 0) {
@@ -95,41 +86,6 @@ public class AppUserMetricsService {
         if (unassigned) listOfUsersWithRole.add(userId);
         else listOfUsersWithRole.remove(userId);
         uniqueRoleCounts.put("UNASSIGNED", listOfUsersWithRole);
-    }
-
-    public Optional<AppUserMetrics> getById(LocalDate id) {
-        return id == null ? Optional.empty() : repository.findById(id);
-    }
-
-    @Transactional
-    public AppUserMetrics findByIdOrNull(LocalDate id) { return getById(id).orElse(null); }
-
-    @Transactional
-    public AppUserMetrics findById(LocalDate id) {
-        return getById(id).orElseThrow(() -> new EntityNotFoundException(AppUserMetrics.class.getSimpleName()));
-    }
-
-    @Transactional
-    public Page<AppUserMetrics> search(Specification<AppUserMetrics> specs, Integer page, Integer size, String sortBy, String orderBy) {
-        List<String> sortOptions = List.of("ASC", "DESC");
-        page = Optional.ofNullable(page).orElse(0);
-        size = Optional.ofNullable(size).orElse(Integer.MAX_VALUE);
-        sortBy = Optional.ofNullable(sortBy).orElse("id");
-        orderBy = Optional.ofNullable(orderBy).orElse("ASC");
-        Sort.Direction direction = sortOptions.contains(orderBy.toUpperCase()) ? Sort.Direction.valueOf(orderBy) : Sort.Direction.ASC;
-
-        PageRequest pageRequest = PageRequest.of(page, size, direction, sortBy);
-        return repository.findAll(Specification.where(specs), pageRequest);
-    }
-
-    @Transactional
-    public List<AppUserMetricsDTO> preparePageResponse(Page<AppUserMetrics> page, HttpServletResponse response) {
-        response.addHeader("X-Total-Pages", String.valueOf(page.getTotalPages()));
-        return toDTOs(page.getContent());
-    }
-
-    protected List<AppUserMetricsDTO> toDTOs(List<AppUserMetrics> entities) {
-        return entities.stream().map(AppUserMetrics::toDto).collect(Collectors.toList());
     }
 
 }

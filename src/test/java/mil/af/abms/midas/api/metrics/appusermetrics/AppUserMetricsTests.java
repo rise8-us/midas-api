@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.appusermetrics;
+package mil.af.abms.midas.api.metrics.appusermetrics;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -12,14 +12,14 @@ import org.springframework.util.ReflectionUtils;
 
 import org.junit.jupiter.api.Test;
 
-import mil.af.abms.midas.api.appusermetrics.dto.AppUserMetricsDTO;
-import mil.af.abms.midas.api.dtos.metrics.UniqueRoleMetricsDTO;
+import mil.af.abms.midas.api.metrics.appusermetrics.dto.AppUserMetricsDTO;
+import mil.af.abms.midas.api.metrics.dtos.UniqueRoleMetricsDTO;
 import mil.af.abms.midas.api.helper.Builder;
 
 class AppUserMetricsTests {
 
     private final LocalDate DATE_ID = LocalDate.now();
-    private static final int ENTITY_DTO_FIELD_OFFSET = 1;
+
     private final AppUserMetrics appUserMetrics = Builder.build(AppUserMetrics.class)
             .with(a -> a.setId(DATE_ID))
             .with(a -> a.setUniqueLogins(2L))
@@ -46,7 +46,7 @@ class AppUserMetricsTests {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(AppUserMetrics.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(AppUserMetricsDTO.class.getDeclaredFields().length + ENTITY_DTO_FIELD_OFFSET);
+        assertThat(fields.size()).isEqualTo(AppUserMetricsDTO.class.getDeclaredFields().length);
     }
 
     @Test
