@@ -20,7 +20,7 @@ public abstract class AbstractMetricsController<E extends AbstractMetricsEntity<
     protected final S service;
 
     @Autowired
-    public AbstractMetricsController(S service) { this.service = service; }
+    protected AbstractMetricsController(S service) { this.service = service; }
 
     @Override
     public List<D> search(

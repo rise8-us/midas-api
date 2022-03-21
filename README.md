@@ -46,51 +46,24 @@ These are tools/features that are currently in use within the API.
 5. Execute `docker-compose up -d`.
 6. Execute `./run.sh`.
 
-# Committing to GitLab
+# Adding a GPG signing key to your GitLab account
 #### Notes:
-- *These steps are in reference to creating and registering a GpG key*
+- *This is required to commit code to PlatformOne*
 
 #### Steps:
 1. Install GPG with [Homebrew](https://brew.sh/)
-  1. `brew install gpg`
-2. Enter `gpg --full-gen-key`
-3. Enter `1` for RSA and RSA (default)
-4. Enter `4096`
-5. Enter `0`
-6. Enter `y`
-7. Enter your full name
-8. Enter your work email address that is associated with GitLab
-9. Press Enter to skip the `Comment` portion
-10. Verify your information.  If correct, enter `O`
-11. Pick a strong password when asked and type it twice to confirm.
-12. Enter `gpg --list-secret-keys --keyid-format LONG <your_email>`
-13. Copy the GPG key ID that starts with sec. In the following example, that's `30F2B65B9246B6CA`
-```
-sec   rsa4096/30F2B65B9246B6CA 2017-08-18 [SC]
-      D5E4F29F3275DC0CDA8FFC8730F2B65B9246B6CA
-uid                   [ultimate] Mr. Robot <your_email>
-ssb   rsa4096/B7ABC0813E4028C0 2017-08-18 [E]
-```
-14. Export the public key of that ID `gpg --armor --export 30F2B65B9246B6CA`
-15. Within GitLab, select your avatar in the top-right corner
-16. Select `Edit profile`
-17. On the left sidebar, select `GPG Keys`
-18. Paste your *public* key in the `Key` text box
-19. Select `Add key` to add it to GitLab
-20. List the private GPG key you just created `gpg --list-secret-keys --keyid-format LONG <your_email>`
-21. Copy the GPG key ID that starts with sec. In the following example, that's `30F2B65B9246B6CA`
-```
-sec   rsa4096/30F2B65B9246B6CA 2017-08-18 [SC]
-      D5E4F29F3275DC0CDA8FFC8730F2B65B9246B6CA
-uid                   [ultimate] Mr. Robot <your_email>
-ssb   rsa4096/B7ABC0813E4028C0 2017-08-18 [E]
-```
-22. Enter `git config --global user.signingkey 30F2B65B9246B6CA`
-23. Enter `git config --global commit.gpgsign true`
-24. Install [GpGSuite](https://gpgtools.org/)
-25. Accept all defaults.
-26. Enter `export GPG_TTY=$(tty)`
+2. `brew install gpg`
+3. [Create a GPG key](https://docs.gitlab.com/ee/user/project/repository/gpg_signed_commits/#create-a-gpg-key)
+   1. Enter `gpg --full-gen-key`
+   2. Accept default for algorithm type
+   3. Byte size select 4096
+4. [Add a GPG key to your account](https://docs.gitlab.com/ee/user/project/repository/gpg_signed_commits/#add-a-gpg-key-to-your-account)
+5. [Associate your GPG key with Git](https://docs.gitlab.com/ee/user/project/repository/gpg_signed_commits/#associate-your-gpg-key-with-git)
+6. Install [GpGSuite](https://gpgtools.org/)
+7. Accept all defaults.
 
+**NOTE**
+- Enter `export GPG_TTY=$(tty)` on your command line if your commit is failing and not prompting for the key
 
 # Downloading Database Backup From Staging
 #### Notes:
@@ -117,7 +90,6 @@ ssb   rsa4096/B7ABC0813E4028C0 2017-08-18 [E]
 2. Log in to Adminer with,
 ```
 UserName: localDBUser  
-Password: This can be acquired from the `docker_compose.yml` file.
 Database: midas_db
 ```
 3. If your database is currently populated, select all tables and click `Drop`
