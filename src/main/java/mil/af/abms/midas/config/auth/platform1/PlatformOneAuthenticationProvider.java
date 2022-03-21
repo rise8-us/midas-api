@@ -14,7 +14,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import mil.af.abms.midas.api.appusermetrics.AppUserMetricsService;
+import mil.af.abms.midas.api.metrics.appusermetrics.AppUserMetricsService;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.enums.Roles;

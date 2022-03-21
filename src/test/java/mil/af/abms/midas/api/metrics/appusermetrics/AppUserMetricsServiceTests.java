@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.appusermetrics;
+package mil.af.abms.midas.api.metrics.appusermetrics;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -35,7 +35,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
-import mil.af.abms.midas.api.appusermetrics.dto.AppUserMetricsDTO;
+import mil.af.abms.midas.api.metrics.appusermetrics.dto.AppUserMetricsDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.search.SpecificationsBuilder;
 import mil.af.abms.midas.api.user.User;

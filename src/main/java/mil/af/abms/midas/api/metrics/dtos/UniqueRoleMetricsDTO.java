@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.dtos.metrics;
+package mil.af.abms.midas.api.metrics.dtos;
 
 import java.util.Set;
 

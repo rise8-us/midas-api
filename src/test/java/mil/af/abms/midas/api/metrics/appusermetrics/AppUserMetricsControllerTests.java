@@ -1,11 +1,11 @@
-package mil.af.abms.midas.api.appusermetrics;
+package mil.af.abms.midas.api.metrics.appusermetrics;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -13,8 +13,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
@@ -23,16 +23,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
-import mil.af.abms.midas.api.appusermetrics.dto.AppUserMetricsDTO;
-import mil.af.abms.midas.api.dtos.metrics.UniqueRoleMetricsDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.helper.JsonMapper;
+import mil.af.abms.midas.api.metrics.appusermetrics.dto.AppUserMetricsDTO;
+import mil.af.abms.midas.api.metrics.dtos.UniqueRoleMetricsDTO;
 
 @WebMvcTest({AppUserMetricsController.class})
 public class AppUserMetricsControllerTests extends ControllerTestHarness {
 
-    @Autowired
-    AppUserMetricsService service;
+    @SpyBean
+    private AppUserMetricsService service;
 
     private final LocalDate DATE_ID1 = LocalDate.now().minusDays(1);
     private final LocalDate DATE_ID2 = LocalDate.now();
