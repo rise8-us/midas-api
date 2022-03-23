@@ -55,8 +55,10 @@ These are tools/features that are currently in use within the API.
 2. `brew install gpg`
 3. [Create a GPG key](https://docs.gitlab.com/ee/user/project/repository/gpg_signed_commits/#create-a-gpg-key)
    1. Enter `gpg --full-gen-key`
-   2. Accept default for algorithm type
-   3. Byte size select 4096
+   2. Select `1` for RSA and RSA for key type
+   3. Enter byte size of 4096
+   4. Accept default (press enter) of `0`
+   5. Verify you've made the correct selection and enter `y`
 4. [Add a GPG key to your account](https://docs.gitlab.com/ee/user/project/repository/gpg_signed_commits/#add-a-gpg-key-to-your-account)
 5. [Associate your GPG key with Git](https://docs.gitlab.com/ee/user/project/repository/gpg_signed_commits/#associate-your-gpg-key-with-git)
 6. Install [GpGSuite](https://gpgtools.org/)
