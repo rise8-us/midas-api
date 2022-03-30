@@ -1,10 +1,6 @@
 package mil.af.abms.midas.api.product.validation;
 
-import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import javax.validation.Constraint;
@@ -14,11 +10,11 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-@Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE, TYPE_USE})
+@Target({ FIELD })
 @Retention(RUNTIME)
-@Constraint(validatedBy = UniqueNameValidator.class)
 @Documented
-public @interface UniqueName {
+@Constraint(validatedBy = UniqueProductNameValidator.class)
+public @interface UniqueProductName {
 
     String message() default "product name already exists";
 

@@ -23,6 +23,7 @@ public final class AuthExpression {
     // Roles and Admin
     public static final String IS_PLATFORM_OPERATOR_OR_ADMIN = IS_PLATFORM_OPERATOR + OR + IS_ADMIN;
     public static final String IS_PORTFOLIO_ADMIN_OR_ADMIN = IS_PORTFOLIO_ADMIN + OR + IS_ADMIN;
+    public static final String IS_PORTFOLIO_LEADERSHIP_OR_ADMIN = IS_PORTFOLIO_ADMIN + OR + IS_PORTFOLIO_LEAD + OR + IS_ADMIN;
 
     // User
     public static final String SELF = "isSelf(#id)";
@@ -37,6 +38,7 @@ public final class AuthExpression {
     // Product
     public static final String HAS_PRODUCT_ACCESS = "hasProductAccess(#id)" + OR + IS_ADMIN;
     public static final String HAS_PRODUCT_CREATE_ACCESS = IS_PORTFOLIO_LEAD + OR + IS_PRODUCT_MANAGER + OR + IS_ADMIN;
+    public static final String HAS_PORTFOLIO_ACCESS = "hasPortfolioAccess(#id)" + OR + IS_ADMIN;
 
     // Assertion
     public static final String HAS_ASSERTION_CREATE_ACCESS = "hasProductAccess(#createAssertionDTO.getProductId())" + OR + IS_ADMIN;

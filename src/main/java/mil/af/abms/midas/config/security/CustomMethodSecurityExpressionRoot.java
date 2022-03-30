@@ -15,6 +15,10 @@ import mil.af.abms.midas.api.feedback.FeedbackService;
 import mil.af.abms.midas.api.measure.Measure;
 import mil.af.abms.midas.api.measure.MeasureService;
 import mil.af.abms.midas.api.persona.PersonaService;
+import mil.af.abms.midas.api.personnel.Personnel;
+import mil.af.abms.midas.api.personnel.PersonnelService;
+import mil.af.abms.midas.api.portfolio.Portfolio;
+import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.project.ProjectService;
@@ -25,15 +29,17 @@ import mil.af.abms.midas.config.SpringContext;
 public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot implements MethodSecurityExpressionOperations {
 
     private static AssertionService assertionService() { return SpringContext.getBean(AssertionService.class); }
-    private static MeasureService measureService() { return SpringContext.getBean(MeasureService.class); }
-    private static ProductService productService() { return SpringContext.getBean(ProductService.class); }
-    private static UserService userService() { return SpringContext.getBean(UserService.class); }
-    private static ProjectService projectService() { return SpringContext.getBean(ProjectService.class); }
     private static CommentService commentService() { return SpringContext.getBean(CommentService.class); }
-    private static PersonaService personaService() { return SpringContext.getBean(PersonaService.class); }
-    private static FeatureService featureService() { return SpringContext.getBean(FeatureService.class); }
     private static EpicService epicService() { return SpringContext.getBean(EpicService.class); }
+    private static FeatureService featureService() { return SpringContext.getBean(FeatureService.class); }
     private static FeedbackService feedbackService() { return SpringContext.getBean(FeedbackService.class); }
+    private static MeasureService measureService() { return SpringContext.getBean(MeasureService.class); }
+    private static PersonaService personaService() { return SpringContext.getBean(PersonaService.class); }
+    private static PortfolioService portfolioService() { return SpringContext.getBean(PortfolioService.class); }
+    private static ProductService productService() { return SpringContext.getBean(ProductService.class); }
+    private static ProjectService projectService() { return SpringContext.getBean(ProjectService.class); }
+    private static UserService userService() { return SpringContext.getBean(UserService.class); }
+    private static PersonnelService personnelService() { return SpringContext.getBean(PersonnelService.class); }
 
     public CustomMethodSecurityExpressionRoot(Authentication authentication) {
         super(authentication);
@@ -51,6 +57,15 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
         return userMakingRequest.getTeamIds().contains(teamToModifyId);
     }
 
+    public boolean hasPersonnelAccess(Long personnelId) {
+        if (personnelId == null) { return false; }
+        var personnelBeingAccessed = personnelService().findById(personnelId);
+        var teamId = personnelBeingAccessed.getTeams().stream().findFirst().map(Team::getId).orElse(null);
+        var userMakingRequest = userService().getUserBySecContext();
+        var owner = personnelBeingAccessed.getOwner();
+        return userMakingRequest.equals(owner) || hasTeamAccess(teamId);
+    }
+
     public boolean hasProjectAccess(Long projectId) {
         var projectBeingAccessed = projectService().findById(projectId);
         var productContainingProject = Optional.ofNullable(projectBeingAccessed.getProduct()).orElse(new Product());
@@ -59,14 +74,19 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
         return hasTeamAccess(teamId) || hasProductAccess(productId);
     }
 
+    public boolean hasPortfolioAccess(Long portfolioId) {
+        if (portfolioId == null) { return false; }
+        var portfolioBeingAccessed = portfolioService().findById(portfolioId);
+        var personnelId = Optional.ofNullable(portfolioBeingAccessed.getPersonnel()).map(Personnel::getId).orElse(null);
+        return hasPersonnelAccess(personnelId);
+    }
+
     public boolean hasProductAccess(Long productId) {
         if (productId == null) { return false; }
         var productBeingAccessed = productService().findById(productId);
-        var parent = Optional.ofNullable(productBeingAccessed.getParent()).orElse(new Product());
-        var userMakingRequest = userService().getUserBySecContext();
-        var productManager = productBeingAccessed.getOwner();
-        var teamId = productBeingAccessed.getTeams().stream().findFirst().map(Team::getId).orElse(null);
-        return userMakingRequest.equals(productManager) || hasProductAccess(parent.getId()) || hasTeamAccess(teamId);
+        var portfolio = Optional.ofNullable(productBeingAccessed.getPortfolio()).orElse(new Portfolio());
+        var personnelId = Optional.ofNullable(productBeingAccessed.getPersonnel()).map(Personnel::getId).orElse(null);
+        return hasPortfolioAccess(portfolio.getId()) || hasPersonnelAccess(personnelId);
     }
 
     public boolean hasAssertionWriteAccess(Long assertionId) {

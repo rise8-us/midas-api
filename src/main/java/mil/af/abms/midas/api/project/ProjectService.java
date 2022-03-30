@@ -16,10 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.coverage.CoverageService;
+import mil.af.abms.midas.api.dtos.IsArchivedDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
-import mil.af.abms.midas.api.project.dto.ArchiveProjectDTO;
 import mil.af.abms.midas.api.project.dto.CreateProjectDTO;
 import mil.af.abms.midas.api.project.dto.ProjectDTO;
 import mil.af.abms.midas.api.project.dto.UpdateProjectDTO;
@@ -161,10 +161,10 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
     }
 
     @Transactional
-    public Project archive(Long id, ArchiveProjectDTO archiveProjectDTO) {
+    public Project archive(Long id, IsArchivedDTO isArchivedDTO) {
         var projectToArchive = findById(id);
         projectToArchive.setTeam(null);
-        projectToArchive.setIsArchived(archiveProjectDTO.getIsArchived());
+        projectToArchive.setIsArchived(isArchivedDTO.getIsArchived());
         return repository.save(projectToArchive);
     }
 

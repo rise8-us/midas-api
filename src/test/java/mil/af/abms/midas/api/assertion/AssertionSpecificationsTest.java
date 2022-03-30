@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.RepositoryTestHarness;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.personnel.Personnel;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.enums.ProgressionStatus;
 import mil.af.abms.midas.exception.EntityNotFoundException;
@@ -25,13 +26,18 @@ class AssertionSpecificationsTest extends RepositoryTestHarness {
     AssertionRepository assertionRepository;
 
     private Product savedProduct;
+    private Personnel savedPersonnel;
 
     @BeforeEach
     void beforeEach() {
+        Personnel personnel = Builder.build(Personnel.class)
+                .get();
+        savedPersonnel = entityManager.persist(personnel);
+
         Product product = Builder.build(Product.class)
                 .with(p -> p.setName("Halo"))
+                .with(p -> p.setPersonnel(savedPersonnel))
                 .get();
-
         savedProduct = entityManager.persist(product);
 
         Assertion assertion = Builder.build(Assertion.class)
@@ -39,8 +45,8 @@ class AssertionSpecificationsTest extends RepositoryTestHarness {
                 .with(a -> a.setStatus(ProgressionStatus.COMPLETED))
                 .with(a -> a.setMeasures(Set.of()))
                 .get();
-
         entityManager.persist(assertion);
+
         entityManager.flush();
     }
 

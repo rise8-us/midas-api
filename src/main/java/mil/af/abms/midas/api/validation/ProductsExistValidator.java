@@ -3,6 +3,7 @@ package mil.af.abms.midas.api.validation;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,10 +20,12 @@ public class ProductsExistValidator implements ConstraintValidator<ProductsExist
     public boolean isValid(Set<Long> ids, ConstraintValidatorContext constraintContext) {
         constraintContext.disableDefaultConstraintViolation();
 
-        var violations = ids.stream().filter(i -> !productService.existsById(i)).map(i ->
-            constraintContext.buildConstraintViolationWithTemplate(
-                        String.format("Product with id: %s does not exists", i))
-                    .addConstraintViolation()
+        if (ids == null) { return true; }
+
+        List<ConstraintValidatorContext> violations = ids.stream()
+                .filter(i -> !productService.existsById(i)).map(i -> constraintContext
+                        .buildConstraintViolationWithTemplate(String.format("Product with id: %s does not exists", i))
+                        .addConstraintViolation()
         ).collect(Collectors.toList());
 
         return violations.isEmpty();

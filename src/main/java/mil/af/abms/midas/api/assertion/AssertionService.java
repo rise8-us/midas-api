@@ -27,6 +27,7 @@ import mil.af.abms.midas.api.comment.SystemComments;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.measure.MeasureService;
 import mil.af.abms.midas.api.measure.dto.CreateMeasureDTO;
+import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.user.UserService;
@@ -90,9 +91,9 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
 
         addNewChildren(assertionToUpdate, dto);
         calculateCompleted(assertionToUpdate, dto);
-        assertionToUpdate.getMeasures().forEach((measure) -> {
-            measureService.updateMeasureIfAssertionComplete(measure, assertionToUpdate.getStatus(), assertionToUpdate.getText());
-        });
+        assertionToUpdate.getMeasures().forEach(measure ->
+            measureService.updateMeasureIfAssertionComplete(measure, assertionToUpdate.getStatus(), assertionToUpdate.getText())
+        );
         updateChildrenToCompletedIfParentComplete(assertionToUpdate);
         updateAssertionIfAllChildrenAndMeasuresComplete(assertionToUpdate.getParent());
 
@@ -153,9 +154,9 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
                     commentService.createSystemComment(childAssertion.getId(), null, text);
 
                     repository.save(childAssertion);
-                    childAssertion.getMeasures().forEach((measure) -> {
-                        measureService.updateMeasureIfAssertionComplete(measure, childAssertion.getStatus(), childAssertion.getText());
-                    });
+                    childAssertion.getMeasures().forEach(measure ->
+                        measureService.updateMeasureIfAssertionComplete(measure, childAssertion.getStatus(), childAssertion.getText())
+                    );
                 }
                 updateChildrenToCompletedIfParentComplete(childAssertion);
             });
@@ -176,11 +177,11 @@ public class AssertionService extends AbstractCRUDService<Assertion, AssertionDT
             Comment latestComment = a.getComments().stream().max(Comparator.comparing(Comment::getId)).orElse(new Comment());
             latestComment.setChildren(Set.of());
             Product product = a.getProduct();
-            Long productParentId = Optional.ofNullable(product).map(Product::getParent).map(Product::getId).orElse(null);
+            Long portfolioId = Optional.ofNullable(product).map(Product::getPortfolio).map(Portfolio::getId).orElse(null);
             a.setChildren(Set.of());
             a.setComments(Set.of());
             return new BlockerAssertionDTO(
-                    productParentId,
+                    portfolioId,
                     a.getIdOrNull(product),
                     Optional.ofNullable(product).map(Product::getName).orElse(null),
                     a.toDto(), latestComment.toDto()

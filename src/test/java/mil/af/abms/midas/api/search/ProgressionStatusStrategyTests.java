@@ -19,7 +19,6 @@ import mil.af.abms.midas.api.assertion.AssertionRepository;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.user.User;
-import mil.af.abms.midas.enums.ProductType;
 import mil.af.abms.midas.enums.ProgressionStatus;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -27,7 +26,6 @@ class ProgressionStatusStrategyTests extends RepositoryTestHarness {
 
     private Product product = Builder.build(Product.class)
             .with(p -> p.setName("foo"))
-            .with(p -> p.setType(ProductType.PRODUCT))
             .get();
     private  User user = Builder.build(User.class)
             .with(u -> u.setKeycloakUid("abc-123"))

@@ -117,7 +117,7 @@ public class CompletionService extends AbstractCRUDService<Completion, Completio
             Epic updatedEpic = epicService.updateById(epic.getId());
             completion.setEpic(updatedEpic);
             updateCompletionWithGitlabEpic(completion, updatedEpic);
-        }, () -> { completion.setEpic(null); });
+        }, () -> completion.setEpic(null));
 
     }
 
@@ -128,7 +128,7 @@ public class CompletionService extends AbstractCRUDService<Completion, Completio
             Issue updatedIssue = issueService.updateById(issue.getId());
             completion.setIssue(updatedIssue);
             updateCompletionWithGitlabIssue(completion, updatedIssue);
-        }, () -> { completion.setIssue(null); });
+        }, () -> completion.setIssue(null));
     }
 
     public void updateLinkedIssue(Issue issue) {

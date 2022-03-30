@@ -2,7 +2,6 @@ package mil.af.abms.midas.api.init.dto;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Set;
 
 import lombok.Getter;
 
@@ -23,17 +22,15 @@ import mil.af.abms.midas.enums.UserType;
 
 @Getter
 public class InitDTO implements Serializable {
-    public InitDTO(String classificationString, String caveat, UserDTO userDTO, List<AnnouncementDTO> announcementDTOs, Set<Long> productIds) {
+    public InitDTO(String classificationString, String caveat, UserDTO userDTO, List<AnnouncementDTO> announcementDTOs) {
         this.classification = new ClassificationDTO(classificationString, caveat);
         this.userLoggedIn = userDTO;
         this.unseenAnnouncements = announcementDTOs;
-        this.productIdsForLoggedInUser = productIds;
     }
 
     private final ClassificationDTO classification;
     private final UserDTO userLoggedIn;
     private final List<AnnouncementDTO> unseenAnnouncements;
-    private final Set<Long> productIdsForLoggedInUser;
     private final List<BitwiseDTO> roles = Roles.toDTO();
     private final List<BitwiseDTO> projectJourneyMap = ProjectJourneyMap.toDTO();
     private final List<ColorDTO> assertionStatus = ProgressionStatus.toDTO();

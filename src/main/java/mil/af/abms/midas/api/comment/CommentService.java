@@ -56,7 +56,7 @@ public class CommentService extends AbstractCRUDService<Comment, CommentDTO, Com
     public Comment create(CreateCommentDTO dto, Boolean isSystemGenerated) {
         var newComment = Builder.build(Comment.class)
                 .with(c -> c.setText(dto.getText()))
-                .with(c -> c.setCreatedBy(isSystemGenerated ? userService.findByUsername("comment-system") : userService.getUserBySecContext()))
+                .with(c -> c.setCreatedBy(Boolean.TRUE.equals(isSystemGenerated) ? userService.findByUsername("comment-system") : userService.getUserBySecContext()))
                 .with(c -> c.setParent(findByIdOrNull(dto.getParentId())))
                 .with(c -> c.setAssertion(assertionService.findByIdOrNull(dto.getAssertionId())))
                 .with(c -> c.setMeasure(measureService.findByIdOrNull(dto.getMeasureId())))

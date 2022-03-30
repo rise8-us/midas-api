@@ -1,13 +1,12 @@
-package mil.af.abms.midas.api.team.validation;
+package mil.af.abms.midas.api.product.validation;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import javax.validation.ConstraintValidatorContext;
-
-import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -22,25 +21,23 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.team.Team;
-import mil.af.abms.midas.api.team.TeamService;
+import mil.af.abms.midas.api.product.Product;
+import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 import mil.af.abms.midas.helpers.RequestContext;
 
 @ExtendWith(SpringExtension.class)
-@Import({UniqueNameValidator.class})
-public class UniqueNameValidatorTests {
+@Import({UniqueProductNameValidator.class})
+public class UniqueProductNameValidatorTests {
 
-    private final LocalDateTime CREATION_DATE = LocalDateTime.now();
-    private final Team foundTeam = Builder.build(Team.class)
-            .with(t -> t.setId(1L))
-            .with(t -> t.setName("foo"))
-            .with(t -> t.setCreationDate(CREATION_DATE)).get();
+    private final Product foundProduct = Builder.build(Product.class)
+            .with(p -> p.setId(1L))
+            .with(p -> p.setName("MIDAS")).get();
 
     @Autowired
-    UniqueNameValidator validator;
+    UniqueProductNameValidator validator;
     @MockBean
-    private TeamService teamService;
+    private ProductService productService;
     @Mock
     private ConstraintValidatorContext context;
     @Mock
@@ -57,43 +54,43 @@ public class UniqueNameValidatorTests {
     }
 
     @Test
-    public void should_validate_new_team_true() {
+    public void should_validate_new_product_true() {
         RequestContext.setRequestContext("id", "1");
         validator.setNew(true);
 
-        when(teamService.findByName("foo")).thenThrow(new EntityNotFoundException("Team"));
+        when(productService.findByName("MIDAS")).thenThrow(new EntityNotFoundException("Product"));
 
-        assertTrue(validator.isValid(foundTeam.getName(), context));
+        assertTrue(validator.isValid(foundProduct.getName(), context));
     }
 
     @Test
-    public void should_validate_new_team_false() {
+    public void should_validate_new_product_false() {
         RequestContext.setRequestContext("id", "2");
         validator.setNew(true);
 
-        when(teamService.findByName("foo")).thenReturn(foundTeam);
+        when(productService.findByName("MIDAS")).thenReturn(foundProduct);
 
-        assertFalse(validator.isValid(foundTeam.getName(), context));
+        assertFalse(validator.isValid(foundProduct.getName(), context));
     }
 
     @Test
-    public void should_validate_update_team_true() {
+    public void should_validate_update_product_true() {
         RequestContext.setRequestContext("id", "1");
         validator.setNew(false);
 
-        when(teamService.findByName("foo")).thenReturn(foundTeam);
+        when(productService.findByName(any())).thenReturn(foundProduct);
 
-        assertTrue(validator.isValid(foundTeam.getName(), context));
+        assertTrue(validator.isValid(foundProduct.getName(), context));
     }
 
     @Test
-    public void should_validate_update_team_false() {
+    public void should_validate_update_product_false() {
         RequestContext.setRequestContext("id", "2");
         validator.setNew(false);
 
-        when(teamService.findByName("foo")).thenReturn(foundTeam);
+        when(productService.findByName(any())).thenReturn(foundProduct);
 
-        assertFalse(validator.isValid(foundTeam.getName(), context));
+        assertFalse(validator.isValid(foundProduct.getName(), context));
     }
 
     private void clearRequestContext() {

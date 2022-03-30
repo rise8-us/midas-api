@@ -15,16 +15,14 @@ import mil.af.abms.midas.api.AbstractDTO;
 public class TeamDTO implements AbstractDTO {
 
     private Long id;
-    private String name;
-    private Boolean isArchived;
     private LocalDateTime creationDate;
-    private Long gitlabGroupId;
+    private String name;
     private String description;
-    private Set<Long> projectIds;
-    private Set<Long> userIds;
-    private Set<Long> productIds;
+    private Boolean isArchived;
+    private Set<Long> personnelIds;
     private Long productManagerId;
     private Long designerId;
     private Long techLeadId;
+    private Set<Long> userIds;
 
 }

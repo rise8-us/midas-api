@@ -55,7 +55,7 @@ public class MySQLClient {
     }
 
     public String getLatestFlywayVersion() {
-        var query = "SELECT version FROM flyway_schema_history ORDER BY version DESC LIMIT 1;";
+        var query = "SELECT version FROM flyway_schema_history ORDER BY installed_on DESC LIMIT 1;";
 
         try (var connection = DBUtils.connect(dbUrl, dbUser, dbPassword, dbDriver);
              var statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);

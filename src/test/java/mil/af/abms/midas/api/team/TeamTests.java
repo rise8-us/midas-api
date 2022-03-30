@@ -1,8 +1,9 @@
 package mil.af.abms.midas.api.team;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.lang.reflect.Field;
 import java.util.LinkedList;
@@ -15,23 +16,17 @@ import org.springframework.util.ReflectionUtils;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.product.Product;
-import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.team.dto.TeamDTO;
 import mil.af.abms.midas.api.user.User;
 
 class TeamTests {
 
     private final Set<User> users = Set.of(Builder.build(User.class).with(u -> u.setId(3L)).get());
-    private final Set<Project> projects = Set.of(Builder.build(Project.class).with(u -> u.setId(3L)).get());
-    private final Set<Product> products = Set.of(Builder.build(Product.class).with(u -> u.setId(4L)).get());
     private final Team team = Builder.build(Team.class)
             .with(t -> t.setId(1L))
             .with(t -> t.setName("MIDAS"))
             .with(t -> t.setIsArchived(false))
-            .with(t -> t.setProjects(projects))
             .with(t -> t.setDescription("dev team"))
-            .with(t -> t.setProducts(products))
             .with(t -> t.setMembers(users)).get();
     private final TeamDTO teamDTOExpected = Builder.build(TeamDTO.class)
             .with(t -> t.setId(1L))
@@ -40,15 +35,15 @@ class TeamTests {
             .with(t -> t.setDescription("dev team"))
             .with(t -> t.setCreationDate(team.getCreationDate()))
             .with(t -> t.setUserIds(Set.of(3L)))
-            .with(t -> t.setProductIds(Set.of(4L)))
-            .with(t -> t.setProjectIds(Set.of(3L))).get();
+            .with(t -> t.setPersonnelIds(Set.of()))
+            .get();
 
     @Test
     void should_have_all_teamDTO_fields() {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Team.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(TeamDTO.class.getDeclaredFields().length);
+        assertThat(fields.size()).isEqualTo(TeamDTO.class.getDeclaredFields().length + 1);
     }
 
     @Test
@@ -56,11 +51,11 @@ class TeamTests {
         Team team2 = new Team();
         BeanUtils.copyProperties(team, team2);
 
-        assertTrue(team.equals(team));
-        assertFalse(team.equals(null));
-        assertFalse(team.equals(new User()));
-        assertFalse(team.equals(new Team()));
-        assertTrue(team.equals(team2));
+        assertEquals(team, team);
+        assertNotEquals(null, team);
+        assertNotEquals(team, new User());
+        assertNotEquals(team, new Team());
+        assertEquals(team, team2);
     }
 
     @Test
@@ -69,8 +64,7 @@ class TeamTests {
         assertThat(team.getName()).isEqualTo("MIDAS");
         assertFalse(team.getIsArchived());
         assertThat(team.getDescription()).isEqualTo("dev team");
-        assertTrue(team.getProjects().equals(projects));
-        assertTrue(team.getMembers().equals(users));
+        assertEquals(team.getMembers(), users);
     }
 
     @Test

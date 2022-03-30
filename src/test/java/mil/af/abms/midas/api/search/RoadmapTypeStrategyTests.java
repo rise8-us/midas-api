@@ -17,7 +17,6 @@ import mil.af.abms.midas.api.RepositoryTestHarness;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductRepository;
-import mil.af.abms.midas.enums.ProductType;
 import mil.af.abms.midas.enums.RoadmapType;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -25,7 +24,6 @@ class RoadmapTypeStrategyTests extends RepositoryTestHarness {
 
     private Product product = Builder.build(Product.class)
             .with(p -> p.setName("foo"))
-            .with(p -> p.setType(ProductType.PRODUCT))
             .with(p -> p.setRoadmapType(RoadmapType.MANUAL))
             .get();
 

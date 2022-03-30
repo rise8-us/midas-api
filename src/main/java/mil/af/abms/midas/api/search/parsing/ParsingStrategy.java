@@ -16,7 +16,6 @@ public interface ParsingStrategy {
             Map.entry("LocalDateTime", new LocalDateTimeParsingStrategy()),
             Map.entry("LocalDate", new LocalDateParsingStrategy()),
             Map.entry("ProgressionStatus", new ProgressionStatusParsingStrategy()),
-            Map.entry("ProductType", new ProductTypeParsingStrategy()),
             Map.entry("RoadmapType", new RoadmapTypeParsingStrategy()),
             Map.entry("CompletionType", new CompletionTypeParsingStrategy()),
             Map.entry("FeedbackRating", new FeedbackRatingParsingStrategy())

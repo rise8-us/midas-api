@@ -8,8 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.AbstractDTO;
+import mil.af.abms.midas.api.personnel.dto.PersonnelDTO;
 import mil.af.abms.midas.api.tag.dto.TagDTO;
-import mil.af.abms.midas.enums.ProductType;
 import mil.af.abms.midas.enums.RoadmapType;
 
 @Data
@@ -18,22 +18,19 @@ import mil.af.abms.midas.enums.RoadmapType;
 public class ProductDTO implements AbstractDTO {
 
     private Long id;
-    private Long ownerId;
-    private Long parentId;
     private String name;
     private String description;
+    private PersonnelDTO personnel;
     private Boolean isArchived;
     private LocalDateTime creationDate;
     private Set<Long> projectIds;
     private Set<TagDTO> tags;
-    private Set<Long> children;
-    private ProductType type;
     private Integer gitlabGroupId;
     private Long sourceControlId;
-    private Set<Long> teamIds;
     private String vision;
     private String mission;
     private String problemStatement;
     private RoadmapType roadmapType;
+    private Long portfolioId;
 
 }
