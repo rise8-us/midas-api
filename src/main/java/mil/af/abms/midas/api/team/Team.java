@@ -6,7 +6,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import java.util.HashSet;
@@ -17,8 +16,7 @@ import lombok.Setter;
 import org.hibernate.annotations.NaturalId;
 
 import mil.af.abms.midas.api.AbstractEntity;
-import mil.af.abms.midas.api.product.Product;
-import mil.af.abms.midas.api.project.Project;
+import mil.af.abms.midas.api.personnel.Personnel;
 import mil.af.abms.midas.api.team.dto.TeamDTO;
 import mil.af.abms.midas.api.user.User;
 
@@ -33,9 +31,10 @@ public class Team extends AbstractEntity<TeamDTO> {
     @Column(columnDefinition = "BIT(1) DEFAULT 0", nullable = false)
     private Boolean isArchived = false;
 
-    @OneToMany(mappedBy = "team")
-    private Set<Project> projects = new HashSet<>();
-
+    /**
+     * @deprecated will be removed since team we are not associating a team with a gitlab group
+     */
+    @Deprecated
     @Column(columnDefinition = "BIGINT")
     private Long gitlabGroupId;
 
@@ -61,16 +60,24 @@ public class Team extends AbstractEntity<TeamDTO> {
 
     @ManyToMany
     @JoinTable(
-            name = "product_team",
+            name = "personnel_team",
             joinColumns = @JoinColumn(name = "team_id", referencedColumnName = "id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = false)
+            inverseJoinColumns = @JoinColumn(name = "personnel_id", referencedColumnName = "id", nullable = false)
     )
-    private Set<Product> products = new HashSet<>();
+    private Set<Personnel> personnels = new HashSet<>();
 
     public TeamDTO toDto() {
         return new TeamDTO(
-                id, name, isArchived, creationDate, gitlabGroupId, description, getIds(projects), getIds(members),
-                getIds(products), getIdOrNull(productManager), getIdOrNull(designer), getIdOrNull(techLead)
+                id,
+                creationDate,
+                name,
+                description,
+                isArchived,
+                getIds(personnels),
+                getIdOrNull(productManager),
+                getIdOrNull(designer),
+                getIdOrNull(techLead),
+                getIds(members)
         );
     }
 

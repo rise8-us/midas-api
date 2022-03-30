@@ -12,7 +12,7 @@ import mil.af.abms.midas.api.comment.dto.CommentDTO;
 @AllArgsConstructor
 public class BlockerAssertionDTO implements AbstractDTO {
 
-    private Long productParentId;
+    private Long portfolioId;
     private Long productId;
     private String productName;
 

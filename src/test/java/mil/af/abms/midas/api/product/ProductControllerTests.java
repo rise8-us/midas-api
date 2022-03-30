@@ -22,16 +22,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
+import mil.af.abms.midas.api.dtos.IsArchivedDTO;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.personnel.Personnel;
+import mil.af.abms.midas.api.personnel.dto.CreatePersonnelDTO;
+import mil.af.abms.midas.api.personnel.dto.UpdatePersonnelDTO;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
-import mil.af.abms.midas.api.product.dto.UpdateProductIsArchivedDTO;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.api.team.TeamService;
-import mil.af.abms.midas.api.user.User;
-import mil.af.abms.midas.enums.ProductType;
 import mil.af.abms.midas.enums.RoadmapType;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
@@ -52,47 +53,39 @@ class ProductControllerTests extends ControllerTestHarness {
     private final UpdateProductDTO updateProductDTO = new UpdateProductDTO(
             "Midas",
             "Full Stack",
-            3L,
-            1L,
             Set.of(3L),
             Set.of(3L),
-            Set.of(),
-            ProductType.PRODUCT,
             null,
             null,
-            Set.of(),
+            RoadmapType.GITLAB,
+            new UpdatePersonnelDTO(),
             null,
             null,
-            null,
-            RoadmapType.GITLAB
+            null
     );
     private final CreateProductDTO createProductDTO = new CreateProductDTO(
             "Midas",
-            "backend",
-            1L,
-            1L,
+            "Full Stack",
             Set.of(3L),
             Set.of(3L),
-            Set.of(),
-            ProductType.PRODUCT,
             null,
             null,
-            Set.of(),
+            RoadmapType.GITLAB,
+            new CreatePersonnelDTO(),
             null,
             null,
-            null,
-            RoadmapType.GITLAB
+            null
     );
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(5L))
             .with(p -> p.setName("Midas"))
-            .with(p -> p.setOwner(new User()))
             .with(p -> p.setDescription("stack full"))
             .with(p -> p.setGitlabGroupId(123))
             .with(p -> p.setCreationDate(CREATION_DATE))
             .with(p -> p.setIsArchived(false))
             .with(p -> p.setProjects(Set.of(new Project())))
             .with(p -> p.setRoadmapType(RoadmapType.GITLAB))
+            .with(p -> p.setPersonnel(new Personnel()))
             .get();
 
     @BeforeEach
@@ -181,7 +174,7 @@ class ProductControllerTests extends ControllerTestHarness {
 
     @Test
     void should_toggle_product_is_archived() throws Exception {
-        UpdateProductIsArchivedDTO archivedDTO = Builder.build(UpdateProductIsArchivedDTO.class)
+        IsArchivedDTO archivedDTO = Builder.build(IsArchivedDTO.class)
                 .with(d -> d.setIsArchived(true)).get();
         product.setIsArchived(true);
 

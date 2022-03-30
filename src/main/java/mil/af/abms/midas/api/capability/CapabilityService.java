@@ -77,7 +77,7 @@ public class CapabilityService extends AbstractCRUDService<Capability, Capabilit
        Optional.ofNullable(capability).map(c -> {
            c.getDeliverables().forEach(deliverableService::deleteAllRelatedDeliverables);
            return c;
-       }).ifPresent(d -> websocket.convertAndSend(UPDATE_TOPIC.apply(d.getLowercaseClassName()), d.toDto()));;
+       }).ifPresent(d -> websocket.convertAndSend(UPDATE_TOPIC.apply(d.getLowercaseClassName()), d.toDto()));
 
     }
 }

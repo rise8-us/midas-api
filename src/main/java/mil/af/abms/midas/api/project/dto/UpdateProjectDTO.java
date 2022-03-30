@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import mil.af.abms.midas.api.project.validation.UniqueName;
+import mil.af.abms.midas.api.project.validation.UniqueProjectName;
 import mil.af.abms.midas.api.validation.TagsExist;
 import mil.af.abms.midas.api.validation.TeamExists;
 
@@ -19,7 +19,7 @@ import mil.af.abms.midas.api.validation.TeamExists;
 public class UpdateProjectDTO implements Serializable {
 
     @NotBlank(message = "Project name must not be blank")
-    @UniqueName(isNew = false)
+    @UniqueProjectName(isNew = false)
     private String name;
 
     private Integer gitlabProjectId;

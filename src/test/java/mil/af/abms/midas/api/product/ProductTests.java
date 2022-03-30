@@ -4,7 +4,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.lang.reflect.Field;
 import java.util.HashSet;
@@ -18,31 +17,40 @@ import org.springframework.util.ReflectionUtils;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.personnel.Personnel;
+import mil.af.abms.midas.api.personnel.dto.PersonnelDTO;
+import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.project.Project;
-import mil.af.abms.midas.api.team.Team;
+import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.user.User;
-import mil.af.abms.midas.enums.ProductType;
 import mil.af.abms.midas.enums.RoadmapType;
 
 class ProductTests {
 
-    private final User lead = Builder.build(User.class).with(u -> u.setId(2L)).get();
-    private final Team team = Builder.build(Team.class).with(t -> t.setId(4L)).get();
     private final Set<Project> projects = Set.of(Builder.build(Project.class).with(p -> p.setId(3L)).get());
-    private final Product portfolio = Builder.build(Product.class).with(p -> p.setId(3L)).get();
+    private final PersonnelDTO personnelDTO = Builder.build(PersonnelDTO.class)
+            .with(d -> d.setTeamIds(Set.of()))
+            .with(d -> d.setAdminIds(Set.of()))
+            .get();
+
+    private final SourceControl sourceControl = Builder.build(SourceControl.class)
+            .with(sc -> sc.setId(4L))
+            .get();
+
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setName("Midas"))
             .with(p -> p.setDescription("test product"))
             .with(p -> p.setIsArchived(false))
-            .with(p -> p.setOwner(lead))
-            .with(p -> p.setParent(portfolio))
-            .with(p -> p.setChildren(Set.of()))
+            .with(p -> p.setSourceControl(sourceControl))
             .with(p -> p.setProjects(projects))
-            .with(p -> p.setType(ProductType.PRODUCT))
-            .with(p -> p.setTeams(Set.of(team)))
+            .with(p -> p.setPersonnel(new Personnel()))
+            .with(p -> p.setPortfolio(new Portfolio()))
             .with(p -> p.setRoadmapType(RoadmapType.GITLAB))
+            .with(p -> p.setVision("vision"))
+            .with(p -> p.setMission("mission"))
+            .with(p -> p.setProblemStatement("problem"))
             .get();
     private final ProductDTO productDTO = Builder.build(ProductDTO.class)
             .with(d -> d.setId(1L))
@@ -50,14 +58,15 @@ class ProductTests {
             .with(d -> d.setDescription("test product"))
             .with(d -> d.setCreationDate(product.getCreationDate()))
             .with(d -> d.setIsArchived(false))
-            .with(d -> d.setOwnerId(lead.getId()))
-            .with(d -> d.setParentId(portfolio.getId()))
             .with(d -> d.setTags(new HashSet<>()))
             .with(d -> d.setProjectIds(Set.of(3L)))
-            .with(d -> d.setChildren(Set.of()))
-            .with(d -> d.setType(ProductType.PRODUCT))
-            .with(d -> d.setTeamIds(Set.of(4L)))
-            .with(p -> p.setRoadmapType(RoadmapType.GITLAB))
+            .with(d -> d.setSourceControlId(4L))
+            .with(d -> d.setRoadmapType(RoadmapType.GITLAB))
+            .with(d -> d.setPersonnel(personnelDTO))
+            .with(d -> d.setPortfolioId(null))
+            .with(d -> d.setVision("vision"))
+            .with(d -> d.setMission("mission"))
+            .with(d -> d.setProblemStatement("problem"))
             .get();
 
     @Test
@@ -86,8 +95,6 @@ class ProductTests {
         assertThat(product.getName()).isEqualTo("Midas");
         assertThat(product.getDescription()).isEqualTo("test product");
         assertFalse(product.getIsArchived());
-        assertThat(product.getOwner()).isEqualTo(lead);
-        assertThat(product.getParent()).isEqualTo(portfolio);
         assertThat(product.getProjects()).isEqualTo(projects);
     }
 
@@ -96,14 +103,4 @@ class ProductTests {
         assertThat(product.toDto()).isEqualTo(productDTO);
     }
 
-    @Test
-    void should_return_dto_with_null_fields() {
-        Product nullAppAndProduct = new Product();
-        BeanUtils.copyProperties(product, nullAppAndProduct);
-        nullAppAndProduct.setOwner(null);
-        nullAppAndProduct.setParent(null);
-
-        assertNull(nullAppAndProduct.toDto().getOwnerId());
-        assertNull(nullAppAndProduct.toDto().getParentId());
-    }
 }

@@ -38,6 +38,10 @@ import mil.af.abms.midas.api.measure.Measure;
 import mil.af.abms.midas.api.measure.MeasureService;
 import mil.af.abms.midas.api.persona.Persona;
 import mil.af.abms.midas.api.persona.PersonaService;
+import mil.af.abms.midas.api.personnel.Personnel;
+import mil.af.abms.midas.api.personnel.PersonnelService;
+import mil.af.abms.midas.api.portfolio.Portfolio;
+import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.project.Project;
@@ -53,10 +57,10 @@ import mil.af.abms.midas.helpers.TestUtil;
 @Import({CustomMethodSecurityExpressionRoot.class, SpringContext.class})
 class CustomMethodSecurityExpressionRootTests {
 
-    @SpyBean
-    CustomMethodSecurityExpressionRoot security;
     @Autowired
     SpringContext springContext;
+    @SpyBean
+    CustomMethodSecurityExpressionRoot security;
     @MockBean
     Authentication auth;
     @MockBean
@@ -72,6 +76,8 @@ class CustomMethodSecurityExpressionRootTests {
     @MockBean
     ProductService productService;
     @MockBean
+    PortfolioService portfolioService;
+    @MockBean
     CommentService commentService;
     @MockBean
     PersonaService personaService;
@@ -81,6 +87,8 @@ class CustomMethodSecurityExpressionRootTests {
     EpicService epicService;
     @MockBean
     FeedbackService feedbackService;
+    @MockBean
+    PersonnelService personnelService;
 
     Assertion assertion = Builder.build(Assertion.class)
             .with(a -> a.setId(7L))
@@ -100,14 +108,25 @@ class CustomMethodSecurityExpressionRootTests {
             .with(u -> u.setId(20L))
             .with(u -> u.setKeycloakUid("def"))
             .get();
+    Personnel personnel = Builder.build(Personnel.class)
+            .with(p -> p.setId(30L))
+            .with(p -> p.setOwner(user))
+            .get();
+    Personnel personnel2 = Builder.build(Personnel.class)
+            .with(p -> p.setId(31L))
+            .with(p -> p.setOwner(user))
+            .get();
     Project project = Builder.build(Project.class)
             .with(p -> p.setId(1L))
             .get();
+    Portfolio portfolio = Builder.build(Portfolio.class)
+            .with(p -> p.setId(5L))
+            .with(p -> p.setPersonnel(personnel2))
+            .get();
     Product product = Builder.build(Product.class)
             .with(p -> p.setId(4L))
-            .get();
-    Product portfolio = Builder.build(Product.class)
-            .with(p -> p.setId(5L))
+            .with(p -> p.setPersonnel(personnel))
+            .with(p -> p.setPortfolio(portfolio))
             .get();
     Comment comment = Builder.build(Comment.class)
             .with(c -> c.setId(8L))
@@ -131,8 +150,6 @@ class CustomMethodSecurityExpressionRootTests {
     public void init() {
         project.setProduct(product);
         project.setTeam(team);
-        product.setOwner(user);
-        product.setParent(portfolio);
         assertion.setProduct(product);
         measure.setAssertion(assertion);
         doReturn(user).when(userService).getUserBySecContext();
@@ -154,6 +171,42 @@ class CustomMethodSecurityExpressionRootTests {
     @Test
     void should_hasTeamAccess() {
         assertTrue(security.hasTeamAccess(3L));
+    }
+
+    @Test
+    void hasPersonnelAccess_if_prop_null() {
+        assertFalse(security.hasPersonnelAccess(null));
+    }
+
+    @Test
+    void hasPersonnelAccess_should_call_with_team_and_personnel() {
+        when(personnelService.findById(2L)).thenReturn(personnel);
+
+        doReturn(true).when(security).hasTeamAccess(3L);
+        doReturn(user).when(userService).getUserBySecContext();
+
+        assertTrue(security.hasPersonnelAccess(2L));
+    }
+
+    @Test
+    void hasPersonnelAccess_should_call_with_team_false_and_personnel_false() {
+        when(personnelService.findById(2L)).thenReturn(personnel);
+
+        doReturn(false).when(security).hasTeamAccess(3L);
+        doReturn(user2).when(userService).getUserBySecContext();
+
+        assertFalse(security.hasPersonnelAccess(2L));
+    }
+
+    @Test
+    void hasPersonnelAccess_should_call_with_team_true_and_personnel_false() {
+        personnel.setTeams(Set.of(team));
+        when(personnelService.findById(2L)).thenReturn(personnel);
+
+        doReturn(true).when(security).hasTeamAccess(3L);
+        doReturn(user2).when(userService).getUserBySecContext();
+
+        assertTrue(security.hasPersonnelAccess(2L));
     }
 
     @Test
@@ -202,38 +255,43 @@ class CustomMethodSecurityExpressionRootTests {
     }
 
     @Test
-    void hasProductAccess_should_call_with_productManager_true_and_product_false() {
+    void hasProductAccess_should_call_with_personnel_true_and_portfolio_false() {
         when(productService.findById(product.getId())).thenReturn(product);
-        doReturn(false).when(security).hasProductAccess(5L);
+        doReturn(false).when(security).hasPortfolioAccess(5L);
+        doReturn(true).when(security).hasPersonnelAccess(30L);
 
         assertTrue(security.hasProductAccess(4L));
     }
 
     @Test
-    void hasProductAccess_should_call_with_productManager_false_and_product_true() {
-        product.setOwner(null);
+    void hasProductAccess_should_return_true_with_personnel_false_and_portfolio_true() {
         when(productService.findById(product.getId())).thenReturn(product);
-        doReturn(true).when(security).hasProductAccess(5L);
+        doReturn(true).when(security).hasPortfolioAccess(5L);
+        doReturn(false).when(security).hasPersonnelAccess(30L);
 
         assertTrue(security.hasProductAccess(4L));
     }
 
     @Test
-    void hasProductAccess_should_call_with_productManager_false_and_product_false() {
-        product.setOwner(null);
+    void hasProductAccess_should_call_with_personnel_false_and_portfolio_false() {
         when(productService.findById(product.getId())).thenReturn(product);
-        doReturn(false).when(security).hasProductAccess(5L);
+        doReturn(false).when(security).hasPortfolioAccess(5L);
+        doReturn(false).when(security).hasPersonnelAccess(30L);
 
         assertFalse(security.hasProductAccess(4L));
     }
 
     @Test
-    void hasProductAccess_should_create_new_product_for_parent() {
-        product.setParent(null);
-        when(productService.findById(product.getId())).thenReturn(product);
-        doReturn(false).when(security).hasProductAccess(null);
+    void hasPortfolioAccess_if_prop_null() {
+        assertFalse(security.hasPortfolioAccess(null));
+    }
 
-        assertTrue(security.hasProductAccess(4L));
+    @Test
+    void hasPortfolioAccess_should_call_with_personnel_true() {
+        when(portfolioService.findById(portfolio.getId())).thenReturn(portfolio);
+        doReturn(true).when(security).hasPersonnelAccess(31L);
+
+        assertTrue(security.hasPortfolioAccess(5L));
     }
 
     @Test

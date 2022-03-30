@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import mil.af.abms.midas.api.AbstractCRUDController;
+import mil.af.abms.midas.api.dtos.IsArchivedDTO;
 import mil.af.abms.midas.api.team.dto.CreateTeamDTO;
 import mil.af.abms.midas.api.team.dto.TeamDTO;
 import mil.af.abms.midas.api.team.dto.UpdateTeamDTO;
-import mil.af.abms.midas.api.team.dto.UpdateTeamIsArchivedDTO;
 import mil.af.abms.midas.config.security.annotations.IsAdmin;
 
 @RestController
@@ -38,8 +38,7 @@ public class TeamController extends AbstractCRUDController<Team, TeamDTO, TeamSe
 
     @IsAdmin
     @PutMapping("/{id}/archive")
-    public TeamDTO updateIsArchivedById(@RequestBody UpdateTeamIsArchivedDTO updateTeamIsArchivedDTO,
-        @PathVariable Long id) {
-        return service.updateIsArchivedById(id, updateTeamIsArchivedDTO).toDto();
+    public TeamDTO updateIsArchivedById(@RequestBody IsArchivedDTO isArchivedDTO, @PathVariable Long id) {
+        return service.updateIsArchivedById(id, isArchivedDTO).toDto();
     }
 }

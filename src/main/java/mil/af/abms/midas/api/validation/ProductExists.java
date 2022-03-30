@@ -12,8 +12,8 @@ import java.lang.annotation.Target;
 
 @Target({ FIELD })
 @Retention(RUNTIME)
-@Constraint(validatedBy = ProductExistsValidator.class)
 @Documented
+@Constraint(validatedBy = ProductExistsValidator.class)
 public @interface ProductExists {
 
     String message() default "product does not exist";

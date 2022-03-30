@@ -2,39 +2,30 @@ package mil.af.abms.midas.api.product.dto;
 
 import javax.validation.constraints.NotBlank;
 
-import java.io.Serializable;
 import java.util.Set;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import mil.af.abms.midas.api.product.validation.UniqueName;
-import mil.af.abms.midas.api.validation.ProductExists;
-import mil.af.abms.midas.api.validation.ProductsExist;
+import mil.af.abms.midas.api.personnel.dto.CreatePersonnelDTO;
+import mil.af.abms.midas.api.product.validation.UniqueProductName;
 import mil.af.abms.midas.api.validation.ProjectsCanBeAssignedToProduct;
 import mil.af.abms.midas.api.validation.ProjectsExist;
 import mil.af.abms.midas.api.validation.TagsExist;
-import mil.af.abms.midas.api.validation.UserExists;
-import mil.af.abms.midas.enums.ProductType;
 import mil.af.abms.midas.enums.RoadmapType;
 
-@Getter
+@Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateProductDTO implements Serializable {
+public class CreateProductDTO implements ProductInterfaceDTO {
 
     @NotBlank(message = "name must not be blank")
-    @UniqueName(isNew = true)
+    @UniqueProductName(isNew = true)
     private String name;
 
     private String description;
-
-    @UserExists(allowNull = true)
-    private Long ownerId;
-
-    @ProductExists
-    private Long parentId;
 
     @ProjectsExist
     @ProjectsCanBeAssignedToProduct
@@ -43,16 +34,13 @@ public class CreateProductDTO implements Serializable {
     @TagsExist
     private Set<Long> tagIds;
 
-    @ProductsExist
-    private Set<Long> childIds;
-
-    private ProductType type;
     private Integer gitlabGroupId;
     private Long sourceControlId;
-    private Set<Long> teamIds;
+    private RoadmapType roadmapType;
+    private CreatePersonnelDTO personnel;
+
     private String vision;
     private String mission;
     private String problemStatement;
-    private RoadmapType roadmapType;
 
 }

@@ -3,7 +3,6 @@ package mil.af.abms.midas.api.init.dto;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +12,7 @@ class InitDTOTests {
     
     @Test
     void should_get_fields() {
-        InitDTO dto = new InitDTO("unclass", "cui", new UserDTO(), List.of(), Set.of());
+        InitDTO dto = new InitDTO("unclass", "cui", new UserDTO(), List.of());
         
         assertThat(dto.getRoles().size()).isEqualTo(8);
         assertThat(dto.getProjectJourneyMap().size()).isEqualTo(4);

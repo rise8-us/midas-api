@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.team.validation;
+package mil.af.abms.midas.api.product.validation;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -8,31 +8,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import lombok.Setter;
 
 import mil.af.abms.midas.api.helper.HttpPathVariableIdGrabber;
-import mil.af.abms.midas.api.team.Team;
-import mil.af.abms.midas.api.team.TeamService;
+import mil.af.abms.midas.api.product.Product;
+import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
-public class UniqueNameValidator implements ConstraintValidator<UniqueName, String> {
+public class UniqueProductNameValidator implements ConstraintValidator<UniqueProductName, String> {
 
     @Autowired
-    private TeamService teamService;
+    private ProductService productService;
 
     @Setter
     private boolean isNew;
 
     @Override
-    public void initialize(UniqueName constraintAnnotation) {
-        this.isNew = constraintAnnotation.isNew();
-    }
+    public void initialize(UniqueProductName constraintAnnotation) { this.isNew = constraintAnnotation.isNew(); }
 
     @Override
     public boolean isValid(String name, ConstraintValidatorContext constraintContext) {
         try {
-            Team existingTeam = teamService.findByName(name);
+            Product existingProduct = productService.findByName(name);
             if (isNew) {
                 return false;
             } else {
-                return HttpPathVariableIdGrabber.getPathId().equals(existingTeam.getId());
+                return HttpPathVariableIdGrabber.getPathId().equals(existingProduct.getId());
             }
         } catch (EntityNotFoundException e) {
             return true;

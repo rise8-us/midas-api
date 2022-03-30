@@ -4,11 +4,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import java.util.HashSet;
@@ -18,63 +20,23 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 
-import mil.af.abms.midas.api.AbstractEntity;
+import mil.af.abms.midas.api.AbstractProductPortfolio;
+import mil.af.abms.midas.api.personnel.Personnel;
+import mil.af.abms.midas.api.personnel.dto.PersonnelDTO;
+import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.project.Project;
-import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.tag.dto.TagDTO;
-import mil.af.abms.midas.api.team.Team;
-import mil.af.abms.midas.api.user.User;
-import mil.af.abms.midas.enums.ProductType;
 import mil.af.abms.midas.enums.RoadmapType;
 
 @Entity @Getter @Setter
 @Table(name = "product")
-public class Product extends AbstractEntity<ProductDTO> {
-
-    @Column(columnDefinition = "VARCHAR(70)", nullable = false, unique = true)
-    private String name;
-
-    @Column(columnDefinition = "TEXT")
-    private String description;
-
-    @Column(columnDefinition = "TEXT")
-    private String vision;
-
-    @Column(columnDefinition = "TEXT")
-    private String mission;
-
-    @Column(columnDefinition = "TEXT")
-    private String problemStatement;
-
-    @Column(columnDefinition = "BIT(1) DEFAULT 0", nullable = false)
-    private Boolean isArchived = false;
-
-    @Column(columnDefinition = "INT")
-    private Integer gitlabGroupId;
-
-    @Column(columnDefinition = "VARCHAR(255)", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private ProductType type = ProductType.PRODUCT;
+public class Product extends AbstractProductPortfolio<ProductDTO> {
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(70) DEFAULT 'MANUAL'", nullable = false)
     private RoadmapType roadmapType = RoadmapType.MANUAL;
-
-    @ManyToOne
-    @JoinColumn(name = "owner_id")
-    private User owner;
-
-    @ManyToOne
-    private SourceControl sourceControl;
-
-    @ManyToOne
-    @JoinColumn(name = "parent_id", nullable = true)
-    private Product parent;
-
-    @OneToMany(mappedBy = "parent")
-    private Set<Product> children = new HashSet<>();
 
     @OneToMany(mappedBy = "product")
     private Set<Project> projects = new HashSet<>();
@@ -82,40 +44,45 @@ public class Product extends AbstractEntity<ProductDTO> {
     @ManyToMany
     @JoinTable(
             name = "product_tag",
-            joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = true),
-            inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id", nullable = true)
+            joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id")
     )
     private Set<Tag> tags = new HashSet<>();
 
-    @ManyToMany
+    @OneToOne
     @JoinTable(
-            name = "product_team",
-            joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = true),
-            inverseJoinColumns = @JoinColumn(name = "team_id", referencedColumnName = "id", nullable = true)
+            name = "product_personnel",
+            joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "personnel_id", referencedColumnName = "id")
     )
-    private Set<Team> teams = new HashSet<>();
+    private Personnel personnel;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "product_portfolio",
+            joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "portfolio_id", referencedColumnName = "id"))
+    private Portfolio portfolio;
 
     public ProductDTO toDto() {
         Set<TagDTO> tagDTOs = tags.stream().map(Tag::toDto).collect(Collectors.toSet());
+        PersonnelDTO personnelDTO = personnel != null ? personnel.toDto() : new PersonnelDTO();
         return new ProductDTO(
                 id,
-                getIdOrNull(owner),
-                getIdOrNull(parent),
                 name,
                 description,
+                personnelDTO,
                 isArchived,
                 creationDate,
                 getIds(projects),
                 tagDTOs,
-                getIds(children),
-                type,
                 gitlabGroupId,
                 getIdOrNull(sourceControl),
-                getIds(teams),
                 vision,
                 mission,
                 problemStatement,
-                roadmapType
+                roadmapType,
+                getIdOrNull(portfolio)
         );
     }
 

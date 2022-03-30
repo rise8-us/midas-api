@@ -73,9 +73,9 @@ class SpecificationImplTests extends RepositoryTestHarness {
         Class<?> clazz = SpecificationImpl.class;
         Method method = clazz.getDeclaredMethod("getNestedRoot", Root.class, String[].class);
         method.setAccessible(true);
-        String[] keys = {"parent", "id"};
+        String[] keys = {"personnel", "id"};
         Path<Product> path = (Path<Product>) method.invoke(new SpecificationImpl<>(criteria), root, keys);
-        assertThat(path.getModel().toString()).isEqualTo("Product#parent(MANY_TO_ONE)");
+        assertThat(path.getModel().toString()).isEqualTo("Product#personnel(ONE_TO_ONE)");
 
     }
 

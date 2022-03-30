@@ -12,9 +12,9 @@ import java.lang.annotation.Target;
 
 @Target({ FIELD })
 @Retention(RUNTIME)
-@Constraint(validatedBy = UniqueNameValidator.class)
+@Constraint(validatedBy = UniqueProjectNameValidator.class)
 @Documented
-public @interface UniqueName {
+public @interface UniqueProjectName {
 
     String message() default "project name already exists";
 

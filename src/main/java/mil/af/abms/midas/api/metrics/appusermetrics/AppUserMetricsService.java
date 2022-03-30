@@ -68,7 +68,7 @@ public class AppUserMetricsService extends AbstractMetricsService<AppUserMetrics
         if (user.getRoles() > 0) {
             for (Map.Entry<Roles, Boolean> role : mapOfUserRoles.entrySet()) {
                 Set<Long> listOfUsersWithRole = new HashSet<>(uniqueRoleCounts.getOrDefault(role.getKey().getName(), new HashSet<>()));
-                if (mapOfUserRoles.get(role.getKey())) {
+                if (Boolean.TRUE.equals(mapOfUserRoles.get(role.getKey()))) {
                     listOfUsersWithRole.add(user.getId());
                 } else {
                     listOfUsersWithRole.remove(user.getId());
@@ -83,7 +83,7 @@ public class AppUserMetricsService extends AbstractMetricsService<AppUserMetrics
 
     protected void updateUnassignedRole(Map<String, Set<Long>> uniqueRoleCounts, Long userId, Boolean unassigned) {
         Set<Long> listOfUsersWithRole = new HashSet<>(uniqueRoleCounts.getOrDefault("UNASSIGNED", new HashSet<>()));
-        if (unassigned) listOfUsersWithRole.add(userId);
+        if (Boolean.TRUE.equals(unassigned)) listOfUsersWithRole.add(userId);
         else listOfUsersWithRole.remove(userId);
         uniqueRoleCounts.put("UNASSIGNED", listOfUsersWithRole);
     }

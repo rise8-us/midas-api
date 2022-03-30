@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import mil.af.abms.midas.api.AbstractCRUDController;
-import mil.af.abms.midas.api.project.dto.ArchiveProjectDTO;
+import mil.af.abms.midas.api.dtos.IsArchivedDTO;
 import mil.af.abms.midas.api.project.dto.CreateProjectDTO;
 import mil.af.abms.midas.api.project.dto.ProjectDTO;
 import mil.af.abms.midas.api.project.dto.UpdateProjectDTO;
@@ -56,8 +56,8 @@ public class ProjectController extends AbstractCRUDController<Project, ProjectDT
 
     @HasProjectAccess
     @PutMapping("/{id}/archive")
-    public ProjectDTO archiveById(@RequestBody ArchiveProjectDTO archiveProjectDTO, @PathVariable Long id) {
-        return service.archive(id, archiveProjectDTO).toDto();
+    public ProjectDTO archiveById(@RequestBody IsArchivedDTO isArchivedDTO, @PathVariable Long id) {
+        return service.archive(id, isArchivedDTO).toDto();
     }
 
 }

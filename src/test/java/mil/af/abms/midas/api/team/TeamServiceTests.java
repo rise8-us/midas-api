@@ -13,20 +13,20 @@ import java.util.Set;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
+import mil.af.abms.midas.api.dtos.IsArchivedDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.team.dto.CreateTeamDTO;
 import mil.af.abms.midas.api.team.dto.UpdateTeamDTO;
-import mil.af.abms.midas.api.team.dto.UpdateTeamIsArchivedDTO;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
@@ -62,11 +62,27 @@ class TeamServiceTests {
             .with(t -> t.setId(1L))
             .get();
     Set<User> users = Set.of(user);
+    CreateTeamDTO createTeamDTO = Builder.build(CreateTeamDTO.class)
+            .with(d -> d.setName("teamName"))
+            .with(d -> d.setDescription("description"))
+            .with(d -> d.setProductManagerId(3L))
+            .with(d -> d.setDesignerId(3L))
+            .with(d -> d.setTechLeadId(3L))
+            .with(d -> d.setUserIds(Set.of(3L)))
+            .with(d -> d.setPersonnelIds(Set.of()))
+            .get();
+    UpdateTeamDTO updateTeamDTO = Builder.build(UpdateTeamDTO.class)
+            .with(d -> d.setName("teamName updated"))
+            .with(d -> d.setDescription("description updated"))
+            .with(d -> d.setProductManagerId(3L))
+            .with(d -> d.setDesignerId(3L))
+            .with(d -> d.setTechLeadId(3L))
+            .with(d -> d.setUserIds(Set.of(3L)))
+            .with(d -> d.setPersonnelIds(Set.of()))
+            .get();
 
     @Test
     void should_create_team() {
-        CreateTeamDTO createTeamDTO = new CreateTeamDTO("MIDAS", 2L, "dev team", Set.of(3L), 3L, 3L, 3L, Set.of(42L));
-
         when(userService.findById(3L)).thenReturn(user);
         when(userService.findByIdOrNull(3L)).thenReturn(user);
         when(teamRepository.save(team)).thenReturn(new Team());
@@ -75,16 +91,12 @@ class TeamServiceTests {
         teamService.create(createTeamDTO);
 
         verify(teamRepository, times(1)).save(teamCaptor.capture());
-        verify(websocket, times(1)).convertAndSend("/topic/update_product", product.toDto());
-
         assertThat(teamCaptor.getValue().getName()).isEqualTo(createTeamDTO.getName());
-        assertThat(teamCaptor.getValue().getGitlabGroupId()).isEqualTo(createTeamDTO.getGitlabGroupId());
         assertThat(teamCaptor.getValue().getDescription()).isEqualTo(createTeamDTO.getDescription());
         assertThat(teamCaptor.getValue().getMembers()).isEqualTo(users);
         assertThat(teamCaptor.getValue().getProductManager()).isEqualTo(user);
         assertThat(teamCaptor.getValue().getDesigner()).isEqualTo(user);
         assertThat(teamCaptor.getValue().getTechLead()).isEqualTo(user);
-        assertThat(teamCaptor.getValue().getProducts()).isEqualTo(Set.of(product));
 
     }
 
@@ -97,14 +109,11 @@ class TeamServiceTests {
 
     @Test
     void should_throw_error_find_by_name() throws EntityNotFoundException {
-        assertThrows(EntityNotFoundException.class, () ->
-                teamService.findByName("MIDAS"));
+        assertThrows(EntityNotFoundException.class, () -> teamService.findByName("MIDAS"));
     }
 
     @Test
     void should_update_team_by_id() {
-        UpdateTeamDTO updateTeamDTO = new UpdateTeamDTO("Home One", 22L, "dev team", Set.of(3L), 3L, 3L, 3L, Set.of());
-
         when(userService.findById(3L)).thenReturn(user);
         when(userService.findByIdOrNull(3L)).thenReturn(user);
         when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
@@ -116,7 +125,6 @@ class TeamServiceTests {
         Team teamSaved = teamCaptor.getValue();
 
         assertThat(teamSaved.getName()).isEqualTo(updateTeamDTO.getName());
-        assertThat(teamSaved.getGitlabGroupId()).isEqualTo(updateTeamDTO.getGitlabGroupId());
         assertThat(teamSaved.getDescription()).isEqualTo(updateTeamDTO.getDescription());
         assertThat(teamSaved.getProductManager()).isEqualTo(user);
         assertThat(teamSaved.getDesigner()).isEqualTo(user);
@@ -125,7 +133,7 @@ class TeamServiceTests {
 
     @Test
     void should_update_is_archived_by_id() {
-        UpdateTeamIsArchivedDTO updateDTO = Builder.build(UpdateTeamIsArchivedDTO.class)
+        IsArchivedDTO updateDTO = Builder.build(IsArchivedDTO.class)
                 .with(d -> d.setIsArchived(true)).get();
 
         when(teamRepository.findById(any())).thenReturn(Optional.of(team));

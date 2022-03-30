@@ -31,10 +31,10 @@ import org.mockito.Captor;
 
 import mil.af.abms.midas.api.coverage.Coverage;
 import mil.af.abms.midas.api.coverage.CoverageService;
+import mil.af.abms.midas.api.dtos.IsArchivedDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
-import mil.af.abms.midas.api.project.dto.ArchiveProjectDTO;
 import mil.af.abms.midas.api.project.dto.CreateProjectDTO;
 import mil.af.abms.midas.api.project.dto.UpdateProjectDTO;
 import mil.af.abms.midas.api.project.dto.UpdateProjectJourneyMapDTO;
@@ -262,7 +262,7 @@ class ProjectServiceTests {
 
     @Test
     void should_archive_project() {
-        ArchiveProjectDTO archiveProjectDTO = Builder.build(ArchiveProjectDTO.class)
+        IsArchivedDTO archiveProjectDTO = Builder.build(IsArchivedDTO.class)
                 .with(d -> d.setIsArchived(true)).get();
 
         when(repository.findById(1L)).thenReturn(Optional.of(this.project));
@@ -277,7 +277,7 @@ class ProjectServiceTests {
 
     @Test
     void should_un_archive_project() {
-        ArchiveProjectDTO archiveProjectDTO = Builder.build(ArchiveProjectDTO.class)
+        IsArchivedDTO archiveProjectDTO = Builder.build(IsArchivedDTO.class)
                 .with(d -> d.setIsArchived(false)).get();
 
         when(repository.findById(1L)).thenReturn(Optional.of(this.project));

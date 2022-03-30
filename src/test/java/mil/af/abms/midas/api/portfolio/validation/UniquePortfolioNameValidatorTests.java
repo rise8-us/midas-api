@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.project.validation;
+package mil.af.abms.midas.api.portfolio.validation;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -7,8 +7,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import javax.validation.ConstraintValidatorContext;
-
-import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -23,28 +21,23 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.project.Project;
-import mil.af.abms.midas.api.project.ProjectService;
+import mil.af.abms.midas.api.portfolio.Portfolio;
+import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 import mil.af.abms.midas.helpers.RequestContext;
 
 @ExtendWith(SpringExtension.class)
-@Import({UniqueNameValidator.class})
-public class UniqueNameValidatorTests {
+@Import({UniquePortfolioNameValidator.class})
+public class UniquePortfolioNameValidatorTests {
 
-    private final LocalDateTime CREATION_DATE = LocalDateTime.now();
-    private final Project foundProject = Builder.build(Project.class)
+    private final Portfolio foundPortfolio = Builder.build(Portfolio.class)
             .with(p -> p.setId(1L))
-            .with(p -> p.setName("MIDAS"))
-            .with(p -> p.setDescription("MIDAS Project"))
-            .with(p -> p.setGitlabProjectId(2))
-            .with(p -> p.setCreationDate(CREATION_DATE))
-            .with(p -> p.setIsArchived(false)).get();
+            .with(p -> p.setName("ABMS")).get();
 
     @Autowired
-    UniqueNameValidator validator;
+    UniquePortfolioNameValidator validator;
     @MockBean
-    private ProjectService projectService;
+    private PortfolioService portfolioService;
     @Mock
     private ConstraintValidatorContext context;
     @Mock
@@ -61,43 +54,43 @@ public class UniqueNameValidatorTests {
     }
 
     @Test
-    public void should_validate_new_project_true() {
+    public void should_validate_new_portfolio_true() {
         RequestContext.setRequestContext("id", "1");
         validator.setNew(true);
 
-        when(projectService.findByName("MIDAS")).thenThrow(new EntityNotFoundException("Project"));
+        when(portfolioService.findByName("ABMS")).thenThrow(new EntityNotFoundException("Portfolio"));
 
-        assertTrue(validator.isValid(foundProject.getName(), context));
+        assertTrue(validator.isValid(foundPortfolio.getName(), context));
     }
 
     @Test
-    public void should_validate_new_project_false() {
+    public void should_validate_new_portfolio_false() {
         RequestContext.setRequestContext("id", "2");
         validator.setNew(true);
 
-        when(projectService.findByName("MIDAS")).thenReturn(foundProject);
+        when(portfolioService.findByName("ABMS")).thenReturn(foundPortfolio);
 
-        assertFalse(validator.isValid(foundProject.getName(), context));
+        assertFalse(validator.isValid(foundPortfolio.getName(), context));
     }
 
     @Test
-    public void should_validate_update_project_true() {
+    public void should_validate_update_portfolio_true() {
         RequestContext.setRequestContext("id", "1");
         validator.setNew(false);
 
-        when(projectService.findByName(any())).thenReturn(foundProject);
+        when(portfolioService.findByName(any())).thenReturn(foundPortfolio);
 
-        assertTrue(validator.isValid(foundProject.getName(), context));
+        assertTrue(validator.isValid(foundPortfolio.getName(), context));
     }
 
     @Test
-    public void should_validate_update_project_false() {
+    public void should_validate_update_portfolio_false() {
         RequestContext.setRequestContext("id", "2");
         validator.setNew(false);
 
-        when(projectService.findByName(any())).thenReturn(foundProject);
+        when(portfolioService.findByName(any())).thenReturn(foundPortfolio);
 
-        assertFalse(validator.isValid(foundProject.getName(), context));
+        assertFalse(validator.isValid(foundPortfolio.getName(), context));
     }
 
     private void clearRequestContext() {

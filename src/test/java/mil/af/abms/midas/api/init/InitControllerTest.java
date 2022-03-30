@@ -20,7 +20,6 @@ import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.announcement.Announcement;
 import mil.af.abms.midas.api.announcement.AnnouncementService;
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.config.CustomProperty;
@@ -35,11 +34,8 @@ class InitControllerTest extends ControllerTestHarness {
     @MockBean
     TeamService teamService;
 
-    private Team team = Builder.build(Team.class)
+    private final Team team = Builder.build(Team.class)
             .with(t -> t.setId(2L))
-            .get();
-    private Product product = Builder.build(Product.class)
-            .with(t -> t.setId(3L))
             .get();
 
     @BeforeEach
@@ -54,7 +50,6 @@ class InitControllerTest extends ControllerTestHarness {
                 .with(a -> a.setId(1L))
                 .with(a -> a.setCreationDate(LocalDateTime.now()))
                 .with(a -> a.setMessage("HELLO")).get();
-        team.setProducts(Set.of(product));
         authUser.setTeams(Set.of(team));
 
         when(userService.getUserBySecContext()).thenReturn(authUser);
@@ -80,7 +75,6 @@ class InitControllerTest extends ControllerTestHarness {
                 .andExpect(jsonPath("$.userLoggedIn").isNotEmpty())
                 .andExpect(jsonPath("$.userLoggedIn.keycloakUid").value("abc-123"))
                 .andExpect(jsonPath("$.unseenAnnouncements").isArray())
-                .andExpect(jsonPath("$.unseenAnnouncements[0].message").value("HELLO"))
-                .andExpect(jsonPath("$.productIdsForLoggedInUser[0]").value(product.getId()));
+                .andExpect(jsonPath("$.unseenAnnouncements[0].message").value("HELLO"));
     }
 }

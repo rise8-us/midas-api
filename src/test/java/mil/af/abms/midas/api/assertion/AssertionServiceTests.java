@@ -44,6 +44,7 @@ import mil.af.abms.midas.api.helper.TimeConversion;
 import mil.af.abms.midas.api.measure.Measure;
 import mil.af.abms.midas.api.measure.MeasureService;
 import mil.af.abms.midas.api.measure.dto.CreateMeasureDTO;
+import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.user.User;
@@ -77,11 +78,11 @@ class AssertionServiceTests {
 
     private LocalDateTime CREATION_DATE;
     private User createdBy;
-    private Product childProduct;
+    private Product product;
     private Comment childComment;
     private Assertion assertionSibling;
 
-    private Product product;
+    private Portfolio portfolio;
     private Comment comment;
     private Measure measure;
     private Completion completion;
@@ -97,19 +98,19 @@ class AssertionServiceTests {
         CREATION_DATE = LocalDateTime.now();
         createdBy = Builder.build(User.class).with(u -> u.setId(3L)).get();
 
-        childProduct = Builder.build(Product.class)
-                .with(p -> p.setId(5L))
-                .with(p -> p.setName("Halo2")).get();
-        childComment = Builder.build(Comment.class).with(c -> c.setId(204L)).with(c -> c.setCreatedBy(createdBy)).get();
-
-        product = Builder.build(Product.class)
+        portfolio = Builder.build(Portfolio.class)
                 .with(p -> p.setId(3L))
                 .with(p -> p.setName("Halo"))
-                .with(p -> p.setChildren(Set.of(childProduct)))
                 .get();
-
-        childProduct.setParent(product);
-
+        product = Builder.build(Product.class)
+                .with(p -> p.setId(5L))
+                .with(p -> p.setName("Halo2"))
+                .with(p -> p.setPortfolio(portfolio))
+                .get();
+        childComment = Builder.build(Comment.class)
+                .with(c -> c.setId(204L))
+                .with(c -> c.setCreatedBy(createdBy))
+                .get();
         completion = Builder.build(Completion.class)
                 .with(c -> c.setValue(0F))
                 .with(c -> c.setTarget(1F))
@@ -151,7 +152,7 @@ class AssertionServiceTests {
                 .get();
         assertionSibling = Builder.build(Assertion.class)
                 .with(a -> a.setId(9L))
-                .with(a -> a.setProduct(childProduct))
+                .with(a -> a.setProduct(product))
                 .with(a -> a.setParent(assertionParent))
                 .with(a -> a.setText("First"))
                 .with(a -> a.setComments(Set.of(comment)))
@@ -310,8 +311,8 @@ class AssertionServiceTests {
         }).collect(Collectors.toList());
 
         List<BlockerAssertionDTO> expected = List.of(
-                new BlockerAssertionDTO(null, product.getId(), product.getName(), expectedAssertionList.get(0).toDto(), comment2.toDto()),
-                new BlockerAssertionDTO(null, product.getId(), product.getName(), expectedAssertionList.get(1).toDto(), comment.toDto())
+                new BlockerAssertionDTO(portfolio.getId(), product.getId(), product.getName(), expectedAssertionList.get(0).toDto(), comment2.toDto()),
+                new BlockerAssertionDTO(portfolio.getId(), product.getId(), product.getName(), expectedAssertionList.get(1).toDto(), comment.toDto())
         );
 
         assertThat(assertionService.getAllBlockerAssertions()).isEqualTo(expected);

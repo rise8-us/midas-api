@@ -16,9 +16,9 @@ import java.lang.annotation.Target;
 
 @Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE, TYPE_USE})
 @Retention(RUNTIME)
-@Constraint(validatedBy = UniqueNameValidator.class)
+@Constraint(validatedBy = UniqueTeamNameValidator.class)
 @Documented
-public @interface UniqueName {
+public @interface UniqueTeamName {
 
     String message() default "team name already exists";
 

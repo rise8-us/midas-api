@@ -160,9 +160,7 @@ public class DeliverableService extends AbstractCRUDService<Deliverable, Deliver
     public void deleteById(Long id) {
         Deliverable deliverable = findById(id);
         deliverable.getChildren().forEach(d -> repository.deleteById(d.getId()));
-        Optional.ofNullable(deliverable.getParent()).ifPresent(parent -> {
-            updateParentCompletion(parent.getId(), -1F);
-        });
+        Optional.ofNullable(deliverable.getParent()).ifPresent(parent -> updateParentCompletion(parent.getId(), -1F));
         repository.deleteById(id);
         websocket.convertAndSend(TOPIC.apply(deliverable.getLowercaseClassName()), deliverable.toDto());
     }

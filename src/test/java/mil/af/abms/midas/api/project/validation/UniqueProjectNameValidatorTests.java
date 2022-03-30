@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.product.validation;
+package mil.af.abms.midas.api.project.validation;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -7,6 +7,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import javax.validation.ConstraintValidatorContext;
+
+import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -21,23 +23,28 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.product.Product;
-import mil.af.abms.midas.api.product.ProductService;
+import mil.af.abms.midas.api.project.Project;
+import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 import mil.af.abms.midas.helpers.RequestContext;
 
 @ExtendWith(SpringExtension.class)
-@Import({UniqueNameValidator.class})
-public class UniqueNameValidatorTests {
+@Import({UniqueProjectNameValidator.class})
+public class UniqueProjectNameValidatorTests {
 
-    private final Product foundProduct = Builder.build(Product.class)
+    private final LocalDateTime CREATION_DATE = LocalDateTime.now();
+    private final Project foundProject = Builder.build(Project.class)
             .with(p -> p.setId(1L))
-            .with(p -> p.setName("MIDAS")).get();
+            .with(p -> p.setName("MIDAS"))
+            .with(p -> p.setDescription("MIDAS Project"))
+            .with(p -> p.setGitlabProjectId(2))
+            .with(p -> p.setCreationDate(CREATION_DATE))
+            .with(p -> p.setIsArchived(false)).get();
 
     @Autowired
-    UniqueNameValidator validator;
+    UniqueProjectNameValidator validator;
     @MockBean
-    private ProductService productService;
+    private ProjectService projectService;
     @Mock
     private ConstraintValidatorContext context;
     @Mock
@@ -54,43 +61,43 @@ public class UniqueNameValidatorTests {
     }
 
     @Test
-    public void should_validate_new_product_true() {
+    public void should_validate_new_project_true() {
         RequestContext.setRequestContext("id", "1");
         validator.setNew(true);
 
-        when(productService.findByName("MIDAS")).thenThrow(new EntityNotFoundException("Product"));
+        when(projectService.findByName("MIDAS")).thenThrow(new EntityNotFoundException("Project"));
 
-        assertTrue(validator.isValid(foundProduct.getName(), context));
+        assertTrue(validator.isValid(foundProject.getName(), context));
     }
 
     @Test
-    public void should_validate_new_product_false() {
+    public void should_validate_new_project_false() {
         RequestContext.setRequestContext("id", "2");
         validator.setNew(true);
 
-        when(productService.findByName("MIDAS")).thenReturn(foundProduct);
+        when(projectService.findByName("MIDAS")).thenReturn(foundProject);
 
-        assertFalse(validator.isValid(foundProduct.getName(), context));
+        assertFalse(validator.isValid(foundProject.getName(), context));
     }
 
     @Test
-    public void should_validate_update_product_true() {
+    public void should_validate_update_project_true() {
         RequestContext.setRequestContext("id", "1");
         validator.setNew(false);
 
-        when(productService.findByName(any())).thenReturn(foundProduct);
+        when(projectService.findByName(any())).thenReturn(foundProject);
 
-        assertTrue(validator.isValid(foundProduct.getName(), context));
+        assertTrue(validator.isValid(foundProject.getName(), context));
     }
 
     @Test
-    public void should_validate_update_product_false() {
+    public void should_validate_update_project_false() {
         RequestContext.setRequestContext("id", "2");
         validator.setNew(false);
 
-        when(productService.findByName(any())).thenReturn(foundProduct);
+        when(projectService.findByName(any())).thenReturn(foundProject);
 
-        assertFalse(validator.isValid(foundProduct.getName(), context));
+        assertFalse(validator.isValid(foundProject.getName(), context));
     }
 
     private void clearRequestContext() {
