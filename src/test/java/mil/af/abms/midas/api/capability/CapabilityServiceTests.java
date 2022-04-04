@@ -1,6 +1,9 @@
 package mil.af.abms.midas.api.capability;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -27,8 +30,9 @@ import mil.af.abms.midas.api.deliverable.DeliverableService;
 import mil.af.abms.midas.api.dtos.IsArchivedDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.missionthread.MissionThreadService;
-import mil.af.abms.midas.api.performancemeasure.PerformanceMeasure;
 import mil.af.abms.midas.api.performancemeasure.PerformanceMeasureService;
+import mil.af.abms.midas.api.portfolio.Portfolio;
+import mil.af.abms.midas.api.portfolio.PortfolioService;
 
 @ExtendWith(SpringExtension.class)
 @Import(CapabilityService.class)
@@ -42,6 +46,8 @@ public class CapabilityServiceTests {
     PerformanceMeasureService performanceMeasureService;
     @MockBean
     MissionThreadService missionThreadService;
+    @MockBean
+    PortfolioService portfolioService;
     @MockBean
     CapabilityRepository capabilityRepository;
     @Captor
@@ -57,10 +63,9 @@ public class CapabilityServiceTests {
             .with(c -> c.setIsArchived(false))
             .get();
 
-    private final PerformanceMeasure performanceMeasure = Builder.build(PerformanceMeasure.class)
-            .with(d -> d.setId(1L))
-            .with(d -> d.setTitle("title"))
-            .with(d -> d.setCapability(capability))
+    private final Portfolio portfolio = Builder.build(Portfolio.class)
+            .with(p -> p.setId(5L))
+            .with(p -> p.setCapabilities(Set.of(capability)))
             .get();
 
     private final Deliverable deliverable = Builder.build(Deliverable.class)
@@ -71,9 +76,15 @@ public class CapabilityServiceTests {
 
     @Test
     void should_create_capability() {
-        CreateCapabilityDTO createCapabilityDTO = new CreateCapabilityDTO("title", "description", 0);
+        CreateCapabilityDTO createCapabilityDTO = Builder.build(CreateCapabilityDTO.class)
+                .with(d -> d.setTitle("title"))
+                .with(d -> d.setDescription("description"))
+                .with(d -> d.setReferenceId(0))
+                .with(d -> d.setPortfolioId(5L))
+                .get();
 
         when(capabilityRepository.save(capability)).thenReturn(new Capability());
+        when(portfolioService.findByIdOrNull(anyLong())).thenReturn(portfolio);
 
         capabilityService.create(createCapabilityDTO);
 
@@ -82,14 +93,22 @@ public class CapabilityServiceTests {
 
         assertThat(capabilitySaved.getTitle()).isEqualTo(createCapabilityDTO.getTitle());
         assertThat(capabilitySaved.getReferenceId()).isEqualTo(createCapabilityDTO.getReferenceId());
+        assertThat(capabilitySaved.getPortfolio()).isEqualTo(portfolio);
     }
 
     @Test
     void should_update_capability_by_id() {
-        UpdateCapabilityDTO updateCapabilityDTO = new UpdateCapabilityDTO("title", "description", 0);
+        UpdateCapabilityDTO updateCapabilityDTO = Builder.build(UpdateCapabilityDTO.class)
+                .with(d -> d.setTitle("title"))
+                .with(d -> d.setDescription("description"))
+                .with(d -> d.setReferenceId(0))
+                .with(d -> d.setPortfolioId(5L))
+                .get();
 
         when(capabilityRepository.findById(1L)).thenReturn(Optional.of(capability));
         when(capabilityRepository.save(capability)).thenReturn(capability);
+        when(portfolioService.findByIdOrNull(anyLong())).thenReturn(portfolio);
+        doNothing().when(portfolioService).sendUpdatedPortfolio(any(Portfolio.class));
 
         capabilityService.updateById(1L, updateCapabilityDTO);
 
@@ -98,6 +117,7 @@ public class CapabilityServiceTests {
 
         assertThat(capabilitySaved.getTitle()).isEqualTo(updateCapabilityDTO.getTitle());
         assertThat(capabilitySaved.getReferenceId()).isEqualTo(updateCapabilityDTO.getReferenceId());
+        assertThat(capabilitySaved.getPortfolio()).isEqualTo(portfolio);
     }
 
     @Test

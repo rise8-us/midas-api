@@ -2,17 +2,17 @@ package mil.af.abms.midas.api.portfolio.dto;
 
 import javax.validation.constraints.NotBlank;
 
-import java.io.Serializable;
 import java.util.Set;
 
 import lombok.Data;
 
 import mil.af.abms.midas.api.personnel.dto.CreatePersonnelDTO;
 import mil.af.abms.midas.api.portfolio.validation.UniquePortfolioName;
+import mil.af.abms.midas.api.validation.CapabilitiesExist;
 import mil.af.abms.midas.api.validation.ProductsExist;
 
 @Data
-public class CreatePortfolioDTO implements Serializable {
+public class CreatePortfolioDTO implements PortfolioInterfaceDTO {
 
     @NotBlank(message = "name must not be blank")
     @UniquePortfolioName(isNew = true)
@@ -27,4 +27,7 @@ public class CreatePortfolioDTO implements Serializable {
 
     @ProductsExist
     private Set<Long> productIds;
+
+    @CapabilitiesExist
+    private Set<Long> capabilityIds;
 }

@@ -44,7 +44,7 @@ public class PortfolioTests {
             .with(p -> p.setProducts(Set.of()))
             .with(p -> p.setVision("vision"))
             .with(p -> p.setMission("mission"))
-            .with(p -> p.setProblemStatement("problem]"))
+            .with(p -> p.setProblemStatement("problem"))
             .get();
 
     private final PortfolioDTO portfolioDTO = Builder.build(PortfolioDTO.class)
@@ -59,7 +59,8 @@ public class PortfolioTests {
             .with(d -> d.setPersonnel(personnelDTO))
             .with(d -> d.setVision("vision"))
             .with(d -> d.setMission("mission"))
-            .with(d -> d.setProblemStatement("problem]"))
+            .with(d -> d.setProblemStatement("problem"))
+            .with(d -> d.setCapabilities(List.of()))
             .get();
 
     @Test

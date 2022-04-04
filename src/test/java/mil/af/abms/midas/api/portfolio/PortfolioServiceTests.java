@@ -26,6 +26,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
+import mil.af.abms.midas.api.capability.Capability;
+import mil.af.abms.midas.api.capability.CapabilityService;
 import mil.af.abms.midas.api.dtos.IsArchivedDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.personnel.Personnel;
@@ -56,6 +58,8 @@ public class PortfolioServiceTests {
     @MockBean
     ProductService productService;
     @MockBean
+    CapabilityService capabilityService;
+    @MockBean
     SourceControlService sourceControlService;
     @MockBean
     PortfolioRepository portfolioRepository;
@@ -78,16 +82,23 @@ public class PortfolioServiceTests {
             .with(p -> p.setProduct(null))
             .with(p -> p.setTeams(Set.of()))
             .get();
+    private final Capability capability = Builder.build(Capability.class)
+            .with(c -> c.setId(5L))
+            .with(c -> c.setTitle("title"))
+            .with(c -> c.setReferenceId(0))
+            .get();
 
     @Test
     void should_create_portfolio_no_personnel() {
         CreatePortfolioDTO createPortfolioDTO = Builder.build(CreatePortfolioDTO.class)
                 .with(d -> d.setName("ABMS"))
                 .with(d -> d.setProductIds(Set.of(2L)))
+                .with(d -> d.setCapabilityIds(Set.of(5L)))
                 .get();
 
         when(personnelService.create(any(CreatePersonnelDTO.class))).thenReturn(new Personnel());
         when(productService.findById(anyLong())).thenReturn(product);
+        when(capabilityService.findById(anyLong())).thenReturn(capability);
 
         portfolioService.create(createPortfolioDTO);
 
@@ -103,6 +114,7 @@ public class PortfolioServiceTests {
         assertThat(portfolioSaved.getMission()).isEqualTo(createPortfolioDTO.getMission());
         assertThat(portfolioSaved.getProblemStatement()).isEqualTo(createPortfolioDTO.getProblemStatement());
         assertThat(portfolioSaved.getSourceControl()).isEqualTo(null);
+        assertThat(portfolioSaved.getCapabilities()).isEqualTo(Set.of(capability));
 
     }
     @Test
@@ -137,12 +149,14 @@ public class PortfolioServiceTests {
                 .with(p -> p.setDescription("new description"))
                 .with(p -> p.setPersonnel(updatePersonnelDTO))
                 .with(p -> p.setProductIds(Set.of(4L)))
+                .with(p -> p.setCapabilityIds(Set.of(5L)))
                 .get();
         personnel.setOwner(user2);
         portfolio.setPersonnel(personnel);
 
         doReturn(portfolio).when(portfolioService).findById(anyLong());
         when(productService.findById(anyLong())).thenReturn(product);
+        when(capabilityService.findById(anyLong())).thenReturn(capability);
         when(personnelService.updateById(anyLong(), any(UpdatePersonnelDTO.class))).thenReturn(personnel);
         when(portfolioRepository.findById(anyLong())).thenReturn(Optional.of(portfolio));
         when(portfolioRepository.save(portfolio)).thenReturn(portfolio);
@@ -159,6 +173,7 @@ public class PortfolioServiceTests {
         assertThat(portfolioSaved.getVision()).isEqualTo(updatePortfolioDTO.getVision());
         assertThat(portfolioSaved.getMission()).isEqualTo(updatePortfolioDTO.getMission());
         assertThat(portfolioSaved.getProblemStatement()).isEqualTo(updatePortfolioDTO.getProblemStatement());
+        assertThat(portfolioSaved.getCapabilities()).isEqualTo((Set.of(capability)));
     }
 
     @Test

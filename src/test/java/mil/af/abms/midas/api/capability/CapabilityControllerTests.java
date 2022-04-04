@@ -37,8 +37,16 @@ public class CapabilityControllerTests extends ControllerTestHarness {
 
     private final static LocalDateTime CREATION_DATE = LocalDateTime.now();
 
-    private final UpdateCapabilityDTO updateCapabilityDTO = new UpdateCapabilityDTO("title", "description", 0);
-    private final CreateCapabilityDTO createCapabilityDTO = new CreateCapabilityDTO("title", "description", 1);
+    private final UpdateCapabilityDTO updateCapabilityDTO = Builder.build(UpdateCapabilityDTO.class)
+            .with((d -> d.setTitle("title")))
+            .with((d -> d.setDescription("description")))
+            .with((d -> d.setReferenceId(0)))
+            .get();
+    private final CreateCapabilityDTO createCapabilityDTO = Builder.build(CreateCapabilityDTO.class)
+            .with((d -> d.setTitle("title")))
+            .with((d -> d.setDescription("description")))
+            .with((d -> d.setReferenceId(1)))
+            .get();
     private final Capability capability = Builder.build(Capability.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setTitle(createCapabilityDTO.getTitle()))
