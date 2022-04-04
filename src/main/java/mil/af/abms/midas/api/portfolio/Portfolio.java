@@ -10,11 +10,13 @@ import javax.persistence.Table;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractProductPortfolio;
+import mil.af.abms.midas.api.capability.Capability;
 import mil.af.abms.midas.api.personnel.Personnel;
 import mil.af.abms.midas.api.personnel.dto.PersonnelDTO;
 import mil.af.abms.midas.api.portfolio.dto.PortfolioDTO;
@@ -30,6 +32,13 @@ public class Portfolio extends AbstractProductPortfolio<PortfolioDTO> {
             joinColumns = @JoinColumn(name = "portfolio_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id"))
     private Set<Product> products = new HashSet<>();
+
+    @OneToMany
+    @JoinTable(
+            name = "portfolio_capability",
+            joinColumns = @JoinColumn(name = "portfolio_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "capability_id", referencedColumnName = "id"))
+    private Set<Capability> capabilities = new HashSet<>();
 
     @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinTable(
@@ -52,7 +61,8 @@ public class Portfolio extends AbstractProductPortfolio<PortfolioDTO> {
                 personnelDTO,
                 vision,
                 mission,
-                problemStatement
+                problemStatement,
+                capabilities.stream().map(Capability::toDto).collect(Collectors.toList())
         );
     }
 

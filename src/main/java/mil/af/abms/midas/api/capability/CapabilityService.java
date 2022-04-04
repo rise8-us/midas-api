@@ -2,6 +2,8 @@ package mil.af.abms.midas.api.capability;
 
 import javax.transaction.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.function.UnaryOperator;
 
@@ -11,16 +13,20 @@ import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.capability.dto.CapabilityDTO;
+import mil.af.abms.midas.api.capability.dto.CapabilityInterfaceDTO;
 import mil.af.abms.midas.api.capability.dto.CreateCapabilityDTO;
 import mil.af.abms.midas.api.capability.dto.UpdateCapabilityDTO;
 import mil.af.abms.midas.api.deliverable.DeliverableService;
 import mil.af.abms.midas.api.dtos.IsArchivedDTO;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.portfolio.Portfolio;
+import mil.af.abms.midas.api.portfolio.PortfolioService;
 
 @Service
 public class CapabilityService extends AbstractCRUDService<Capability, CapabilityDTO, CapabilityRepository> {
 
     private DeliverableService deliverableService;
+    private PortfolioService portfolioService;
 
     private static final UnaryOperator<String> UPDATE_TOPIC = topic -> "/topic/update_" + topic.toLowerCase();
 
@@ -36,15 +42,17 @@ public class CapabilityService extends AbstractCRUDService<Capability, Capabilit
         this.deliverableService = deliverableService;
     }
 
+    @Autowired
+    public void setPortfolioService(PortfolioService portfolioService) {
+        this.portfolioService = portfolioService;
+    }
+
     @Transactional
     public Capability create(CreateCapabilityDTO dto) {
         Capability newCapability = Builder.build(Capability.class)
                 .with(c -> c.setTitle(dto.getTitle()))
-                .with(c -> c.setDescription(dto.getDescription()))
-                .with(c -> c.setReferenceId(dto.getReferenceId()))
                 .get();
-
-        return repository.save(newCapability);
+        return updateCommonFields(newCapability, dto);
     }
 
     @Transactional
@@ -52,10 +60,26 @@ public class CapabilityService extends AbstractCRUDService<Capability, Capabilit
         Capability capability = findById(id);
 
         capability.setTitle(dto.getTitle());
+        return updateCommonFields(capability, dto);
+    }
+
+    public Capability updateCommonFields(Capability capability, CapabilityInterfaceDTO dto) {
         capability.setDescription(dto.getDescription());
         capability.setReferenceId(dto.getReferenceId());
 
-        return repository.save(capability);
+        Portfolio portfolio = portfolioService.findByIdOrNull(dto.getPortfolioId());
+        capability.setPortfolio(portfolio);
+
+        Capability savedCapability = repository.save(capability);
+
+        if (portfolio != null) {
+            var currentCapabilities = new ArrayList<>(portfolio.getCapabilities());
+            currentCapabilities.add(capability);
+            portfolio.setCapabilities(new HashSet<>(currentCapabilities));
+            portfolioService.sendUpdatedPortfolio(portfolio);
+        }
+
+        return savedCapability;
     }
 
     public Capability updateIsArchived(Long id, IsArchivedDTO dto) {

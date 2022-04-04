@@ -2,6 +2,7 @@ package mil.af.abms.midas.api.portfolio.dto;
 
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 import lombok.AllArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.AbstractDTO;
+import mil.af.abms.midas.api.capability.dto.CapabilityDTO;
 import mil.af.abms.midas.api.personnel.dto.PersonnelDTO;
 
 @Data
@@ -28,4 +30,5 @@ public class PortfolioDTO implements AbstractDTO {
     private String vision;
     private String mission;
     private String problemStatement;
+    private List<CapabilityDTO> capabilities;
 }

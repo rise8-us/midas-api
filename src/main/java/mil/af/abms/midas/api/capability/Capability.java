@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -20,6 +21,7 @@ import mil.af.abms.midas.api.capability.dto.CapabilityDTO;
 import mil.af.abms.midas.api.deliverable.Deliverable;
 import mil.af.abms.midas.api.missionthread.MissionThread;
 import mil.af.abms.midas.api.performancemeasure.PerformanceMeasure;
+import mil.af.abms.midas.api.portfolio.Portfolio;
 
 @Entity @Setter @Getter
 @Table(name = "capability")
@@ -47,6 +49,13 @@ public class Capability extends AbstractEntity<CapabilityDTO> implements Deliver
     @JoinColumn(name = "mission_thread_id", nullable = true)
     private MissionThread missionThread;
 
+    @ManyToOne
+    @JoinTable(
+            name = "portfolio_capability",
+            joinColumns = @JoinColumn(name = "capability_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "portfolio_id", referencedColumnName = "id"))
+    private Portfolio portfolio;
+
     public CapabilityDTO toDto() {
         return new CapabilityDTO(
                 id,
@@ -57,7 +66,8 @@ public class Capability extends AbstractEntity<CapabilityDTO> implements Deliver
                 referenceId,
                 getIdOrNull(missionThread),
                 getIds(deliverables),
-                isArchived
+                isArchived,
+                getIdOrNull(portfolio)
         );
     }
 

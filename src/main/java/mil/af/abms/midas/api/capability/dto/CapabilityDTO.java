@@ -23,5 +23,6 @@ public class CapabilityDTO implements AbstractDTO {
     private Long missionThreadId;
     private Set<Long> deliverableIds;
     private Boolean isArchived;
+    private Long portfolioId;
 
 }
