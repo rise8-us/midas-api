@@ -12,6 +12,8 @@ import mil.af.abms.midas.api.comment.CommentService;
 import mil.af.abms.midas.api.epic.EpicService;
 import mil.af.abms.midas.api.feature.FeatureService;
 import mil.af.abms.midas.api.feedback.FeedbackService;
+import mil.af.abms.midas.api.gantt.target.Target;
+import mil.af.abms.midas.api.gantt.target.TargetService;
 import mil.af.abms.midas.api.measure.Measure;
 import mil.af.abms.midas.api.measure.MeasureService;
 import mil.af.abms.midas.api.persona.PersonaService;
@@ -35,11 +37,12 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
     private static FeedbackService feedbackService() { return SpringContext.getBean(FeedbackService.class); }
     private static MeasureService measureService() { return SpringContext.getBean(MeasureService.class); }
     private static PersonaService personaService() { return SpringContext.getBean(PersonaService.class); }
+    private static PersonnelService personnelService() { return SpringContext.getBean(PersonnelService.class); }
     private static PortfolioService portfolioService() { return SpringContext.getBean(PortfolioService.class); }
     private static ProductService productService() { return SpringContext.getBean(ProductService.class); }
     private static ProjectService projectService() { return SpringContext.getBean(ProjectService.class); }
+    private static TargetService targetService() { return SpringContext.getBean(TargetService.class); }
     private static UserService userService() { return SpringContext.getBean(UserService.class); }
-    private static PersonnelService personnelService() { return SpringContext.getBean(PersonnelService.class); }
 
     public CustomMethodSecurityExpressionRoot(Authentication authentication) {
         super(authentication);
@@ -62,8 +65,9 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
         var personnelBeingAccessed = personnelService().findById(personnelId);
         var teamId = personnelBeingAccessed.getTeams().stream().findFirst().map(Team::getId).orElse(null);
         var userMakingRequest = userService().getUserBySecContext();
+        var isPersonnelAdmin = personnelBeingAccessed.getAdmins().contains(userMakingRequest);
         var owner = personnelBeingAccessed.getOwner();
-        return userMakingRequest.equals(owner) || hasTeamAccess(teamId);
+        return userMakingRequest.equals(owner) || hasTeamAccess(teamId) || isPersonnelAdmin;
     }
 
     public boolean hasProjectAccess(Long projectId) {
@@ -87,6 +91,13 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
         var portfolio = Optional.ofNullable(productBeingAccessed.getPortfolio()).orElse(new Portfolio());
         var personnelId = Optional.ofNullable(productBeingAccessed.getPersonnel()).map(Personnel::getId).orElse(null);
         return hasPortfolioAccess(portfolio.getId()) || hasPersonnelAccess(personnelId);
+    }
+
+    public boolean hasGanttTargetDeleteAccess(Long targetId) {
+        if (targetId == null) { return false; }
+        Target targetBeingAccessed = targetService().findById(targetId);
+        Long portfolioId = Optional.ofNullable(targetBeingAccessed.getPortfolio()).map(Portfolio::getId).orElse(null);
+        return hasPortfolioAccess(portfolioId);
     }
 
     public boolean hasAssertionWriteAccess(Long assertionId) {

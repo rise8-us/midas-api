@@ -44,6 +44,11 @@ public final class AuthExpression {
     public static final String HAS_ASSERTION_CREATE_ACCESS = "hasProductAccess(#createAssertionDTO.getProductId())" + OR + IS_ADMIN;
     public static final String HAS_ASSERTION_UPDATE_ACCESS = "hasAssertionWriteAccess(#id)" + OR + IS_ADMIN;
 
+    // Target
+    public static final String HAS_TARGET_CREATE_ACCESS = "hasPortfolioAccess(#createTargetDTO.getPortfolioId())" + OR + IS_ADMIN;
+    public static final String HAS_TARGET_UPDATE_ACCESS = "hasPortfolioAccess(#updateTargetDTO.getPortfolioId())" + OR + IS_ADMIN;
+    public static final String HAS_TARGET_DELETE_ACCESS = "hasGanttTargetDeleteAccess(#id)" + OR + IS_ADMIN;
+
     // Measure
     public static final String HAS_MEASURE_CREATE_ACCESS = "hasAssertionWriteAccess(#createMeasureDTO.getAssertionId())" + OR + IS_ADMIN;
     public static final String HAS_MEASURE_UPDATE_ACCESS = "hasMeasureWriteAccess(#id)" + OR + IS_ADMIN;

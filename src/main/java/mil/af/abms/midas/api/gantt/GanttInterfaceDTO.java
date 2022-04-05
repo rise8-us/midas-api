@@ -1,0 +1,10 @@
+package mil.af.abms.midas.api.gantt;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+
+public interface GanttInterfaceDTO extends Serializable {
+    public String getTitle();
+    public String getDescription();
+    public LocalDate getDueDate();
+}
