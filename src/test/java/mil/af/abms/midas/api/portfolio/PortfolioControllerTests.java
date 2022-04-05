@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
+import mil.af.abms.midas.api.capability.CapabilityService;
 import mil.af.abms.midas.api.dtos.IsArchivedDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.personnel.Personnel;
@@ -41,6 +42,8 @@ public class PortfolioControllerTests extends ControllerTestHarness {
     PersonnelService personnelService;
     @MockBean
     SourceControlService sourceControlService;
+    @MockBean
+    CapabilityService capabilityService;
 
     private final UpdatePortfolioDTO updatePortfolioDTO = Builder.build(UpdatePortfolioDTO.class)
             .with(d -> d.setName("new name"))

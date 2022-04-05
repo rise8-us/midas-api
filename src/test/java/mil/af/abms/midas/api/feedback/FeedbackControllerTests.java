@@ -108,15 +108,14 @@ public class FeedbackControllerTests extends ControllerTestHarness {
         BeanUtils.copyProperties(updateFeedbackDTO, feedback3);
         feedback3.setRating(null);
 
-        mockMvc.perform(post("/api/feedback")
+        mockMvc.perform(put("/api/feedback/1")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(mapper.writeValueAsString(feedback3))
                 )
                 .andExpect(status().is4xxClientError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.errors[0]").exists())
-                .andExpect(jsonPath("$.errors[1]").exists())
-                .andExpect(jsonPath("$.errors[2]").doesNotExist());
+                .andExpect(jsonPath("$.errors[1]").doesNotExist());
     }
 
     @Test
