@@ -33,6 +33,10 @@ import mil.af.abms.midas.api.feature.Feature;
 import mil.af.abms.midas.api.feature.FeatureService;
 import mil.af.abms.midas.api.feedback.Feedback;
 import mil.af.abms.midas.api.feedback.FeedbackService;
+import mil.af.abms.midas.api.gantt.milestone.Milestone;
+import mil.af.abms.midas.api.gantt.milestone.MilestoneService;
+import mil.af.abms.midas.api.gantt.target.Target;
+import mil.af.abms.midas.api.gantt.target.TargetService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.measure.Measure;
 import mil.af.abms.midas.api.measure.MeasureService;
@@ -89,6 +93,10 @@ class CustomMethodSecurityExpressionRootTests {
     FeedbackService feedbackService;
     @MockBean
     PersonnelService personnelService;
+    @MockBean
+    TargetService targetService;
+    @MockBean
+    MilestoneService milestoneService;
 
     Assertion assertion = Builder.build(Assertion.class)
             .with(a -> a.setId(7L))
@@ -144,6 +152,14 @@ class CustomMethodSecurityExpressionRootTests {
     Feedback feedback = Builder.build(Feedback.class)
             .with(f -> f.setId(12L))
             .with(f -> f.setCreatedBy(user))
+            .get();
+    Target target = Builder.build(Target.class)
+            .with(t -> t.setId(13L))
+            .with(t -> t.setPortfolio(portfolio))
+            .get();
+    Milestone milestone = Builder.build(Milestone.class)
+            .with(m -> m.setId(14L))
+            .with(m -> m.setPortfolio(portfolio))
             .get();
 
     @BeforeEach
@@ -462,6 +478,32 @@ class CustomMethodSecurityExpressionRootTests {
         doReturn(true).when(security).hasProductAccess(anyLong());
 
         assertTrue(security.hasEpicHideAccess(11L));
+    }
+
+    @Test
+    void hasGanttTargetModifyAccess_false() {
+        assertFalse(security.hasGanttTargetModifyAccess(null));
+    }
+
+    @Test
+    void hasGanttTargetModifyAccess_true() {
+        when(targetService.findById(anyLong())).thenReturn(target);
+        doReturn(true).when(security).hasPortfolioAccess(anyLong());
+
+        assertTrue(security.hasGanttTargetModifyAccess(13L));
+    }
+
+    @Test
+    void hasGanttMilestoneModifyAccess_false() {
+        assertFalse(security.hasGanttMilestoneModifyAccess(null));
+    }
+
+    @Test
+    void hasGanttMilestoneModifyAccess_true() {
+        when(milestoneService.findById(anyLong())).thenReturn(milestone);
+        doReturn(true).when(security).hasPortfolioAccess(anyLong());
+
+        assertTrue(security.hasGanttMilestoneModifyAccess(14L));
     }
 
 }

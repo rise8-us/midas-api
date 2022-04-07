@@ -16,8 +16,7 @@ import mil.af.abms.midas.api.gantt.target.dto.CreateTargetDTO;
 import mil.af.abms.midas.api.gantt.target.dto.TargetDTO;
 import mil.af.abms.midas.api.gantt.target.dto.UpdateTargetDTO;
 import mil.af.abms.midas.config.security.annotations.HasTargetCreateAccess;
-import mil.af.abms.midas.config.security.annotations.HasTargetDeleteAccess;
-import mil.af.abms.midas.config.security.annotations.HasTargetUpdateAccess;
+import mil.af.abms.midas.config.security.annotations.HasTargetModifyAccess;
 
 @RestController
 @RequestMapping("/api/gantt_targets")
@@ -34,14 +33,14 @@ public class TargetController extends AbstractCRUDController<Target, TargetDTO, 
         return service.create(createTargetDTO).toDto();
     }
 
-    @HasTargetUpdateAccess
+    @HasTargetModifyAccess
     @PutMapping("/{id}")
     public TargetDTO updateById(@Valid @RequestBody UpdateTargetDTO updateTargetDTO, @PathVariable Long id) {
         return service.updateById(id, updateTargetDTO).toDto();
     }
 
     @Override
-    @HasTargetDeleteAccess
+    @HasTargetModifyAccess
     @DeleteMapping("/{id}")
     public void deleteById(@PathVariable Long id) {
         service.deleteById(id);
