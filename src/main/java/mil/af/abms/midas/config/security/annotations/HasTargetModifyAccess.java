@@ -11,6 +11,6 @@ import mil.af.abms.midas.config.security.AuthExpression;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-@PreAuthorize(AuthExpression.HAS_TARGET_DELETE_ACCESS)
-public @interface HasTargetDeleteAccess {
+@PreAuthorize(AuthExpression.HAS_TARGET_MODIFY_ACCESS)
+public @interface HasTargetModifyAccess {
 }

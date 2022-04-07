@@ -46,8 +46,11 @@ public final class AuthExpression {
 
     // Target
     public static final String HAS_TARGET_CREATE_ACCESS = "hasPortfolioAccess(#createTargetDTO.getPortfolioId())" + OR + IS_ADMIN;
-    public static final String HAS_TARGET_UPDATE_ACCESS = "hasPortfolioAccess(#updateTargetDTO.getPortfolioId())" + OR + IS_ADMIN;
-    public static final String HAS_TARGET_DELETE_ACCESS = "hasGanttTargetDeleteAccess(#id)" + OR + IS_ADMIN;
+    public static final String HAS_TARGET_MODIFY_ACCESS = "hasGanttTargetModifyAccess(#id)" + OR + IS_ADMIN;
+
+    // MILESTONE
+    public static final String HAS_MILESTONE_CREATE_ACCESS = "hasPortfolioAccess(#createMilestoneDTO.getPortfolioId())" + OR + IS_ADMIN;
+    public static final String HAS_MILESTONE_MODIFY_ACCESS = "hasGanttMilestoneModifyAccess(#id)" + OR + IS_ADMIN;
 
     // Measure
     public static final String HAS_MEASURE_CREATE_ACCESS = "hasAssertionWriteAccess(#createMeasureDTO.getAssertionId())" + OR + IS_ADMIN;

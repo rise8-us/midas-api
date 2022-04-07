@@ -11,6 +11,6 @@ import mil.af.abms.midas.config.security.AuthExpression;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-@PreAuthorize(AuthExpression.HAS_TARGET_UPDATE_ACCESS)
-public @interface HasTargetUpdateAccess {
+@PreAuthorize(AuthExpression.HAS_MILESTONE_MODIFY_ACCESS)
+public @interface HasMilestoneModifyAccess {
 }

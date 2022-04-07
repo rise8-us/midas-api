@@ -12,7 +12,6 @@ import mil.af.abms.midas.config.security.AuthExpression;
 
 class AuthExpressionTests {
 
-
     @Test
     void should_throw_error_if_private_constructor_is_called() throws Exception {
         Class<?> clazz = AuthExpression.class;
