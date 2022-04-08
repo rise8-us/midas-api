@@ -2,8 +2,6 @@ package mil.af.abms.midas.api.capability;
 
 import javax.transaction.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.function.UnaryOperator;
 
@@ -70,16 +68,7 @@ public class CapabilityService extends AbstractCRUDService<Capability, Capabilit
         Portfolio portfolio = portfolioService.findByIdOrNull(dto.getPortfolioId());
         capability.setPortfolio(portfolio);
 
-        Capability savedCapability = repository.save(capability);
-
-        if (portfolio != null) {
-            var currentCapabilities = new ArrayList<>(portfolio.getCapabilities());
-            currentCapabilities.add(capability);
-            portfolio.setCapabilities(new HashSet<>(currentCapabilities));
-            portfolioService.sendUpdatedPortfolio(portfolio);
-        }
-
-        return savedCapability;
+        return repository.save(capability);
     }
 
     public Capability updateIsArchived(Long id, IsArchivedDTO dto) {

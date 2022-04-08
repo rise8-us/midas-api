@@ -1,9 +1,7 @@
 package mil.af.abms.midas.api.capability;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -108,7 +106,6 @@ public class CapabilityServiceTests {
         when(capabilityRepository.findById(1L)).thenReturn(Optional.of(capability));
         when(capabilityRepository.save(capability)).thenReturn(capability);
         when(portfolioService.findByIdOrNull(anyLong())).thenReturn(portfolio);
-        doNothing().when(portfolioService).sendUpdatedPortfolio(any(Portfolio.class));
 
         capabilityService.updateById(1L, updateCapabilityDTO);
 
