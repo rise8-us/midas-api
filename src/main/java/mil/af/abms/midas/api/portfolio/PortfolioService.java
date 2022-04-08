@@ -110,7 +110,4 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
                 () -> new EntityNotFoundException(Product.class.getSimpleName(), "name", name));
     }
 
-    public void sendUpdatedPortfolio(Portfolio portfolio) {
-        websocket.convertAndSend("/topic/update_portfolio", portfolio.toDto());
-    }
 }
