@@ -29,14 +29,14 @@ public class MilestoneController extends AbstractCRUDController<Milestone, Miles
 
     @HasMilestoneCreateAccess
     @PostMapping
-    public MilestoneDTO create(@Valid @RequestBody CreateMilestoneDTO dto) {
-        return service.create(dto).toDto();
+    public MilestoneDTO create(@Valid @RequestBody CreateMilestoneDTO createMilestoneDTO) {
+        return service.create(createMilestoneDTO).toDto();
     }
 
     @HasMilestoneModifyAccess
     @PutMapping("/{id}")
-    public MilestoneDTO updateById(@Valid @RequestBody UpdateMilestoneDTO dto, @PathVariable Long id) {
-        return service.updateById(id, dto).toDto();
+    public MilestoneDTO updateById(@Valid @RequestBody UpdateMilestoneDTO updateMilestoneDTO, @PathVariable Long id) {
+        return service.updateById(id, updateMilestoneDTO).toDto();
     }
 
     @Override
