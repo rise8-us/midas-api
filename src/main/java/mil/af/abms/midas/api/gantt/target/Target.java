@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import java.time.LocalDate;
@@ -24,7 +24,7 @@ public class Target extends AbstractGanttEntity<TargetDTO> {
     @Column(nullable = false, columnDefinition = "DATE")
     private LocalDate startDate;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinTable(
             name = "gantt_portfolio_target",
             joinColumns = @JoinColumn(name = "target_id", referencedColumnName = "id"),
