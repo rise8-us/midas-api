@@ -1,27 +1,31 @@
-package mil.af.abms.midas.api.gantt.milestone.dto;
+package mil.af.abms.midas.api.gantt.event.dto;
 
 import javax.validation.constraints.NotBlank;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import mil.af.abms.midas.api.gantt.GanttInterfaceDTO;
 import mil.af.abms.midas.api.validation.PortfolioExists;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateMilestoneDTO implements GanttInterfaceDTO {
+public class CreateEventDTO implements EventInterfaceDTO {
 
+    private LocalDate startDate;
     private LocalDate dueDate;
 
-    @NotBlank(message = "Please enter a target title")
+    @NotBlank(message = "Please enter an event title")
     private String title;
     private String description;
 
     @PortfolioExists
     private Long portfolioId;
+    private String location;
+
+    private Set<Long> organizerIds;
 }

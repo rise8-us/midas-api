@@ -33,6 +33,8 @@ import mil.af.abms.midas.api.feature.Feature;
 import mil.af.abms.midas.api.feature.FeatureService;
 import mil.af.abms.midas.api.feedback.Feedback;
 import mil.af.abms.midas.api.feedback.FeedbackService;
+import mil.af.abms.midas.api.gantt.event.Event;
+import mil.af.abms.midas.api.gantt.event.EventService;
 import mil.af.abms.midas.api.gantt.milestone.Milestone;
 import mil.af.abms.midas.api.gantt.milestone.MilestoneService;
 import mil.af.abms.midas.api.gantt.target.Target;
@@ -94,6 +96,8 @@ class CustomMethodSecurityExpressionRootTests {
     @MockBean
     PersonnelService personnelService;
     @MockBean
+    EventService eventService;
+    @MockBean
     TargetService targetService;
     @MockBean
     MilestoneService milestoneService;
@@ -152,6 +156,10 @@ class CustomMethodSecurityExpressionRootTests {
     Feedback feedback = Builder.build(Feedback.class)
             .with(f -> f.setId(12L))
             .with(f -> f.setCreatedBy(user))
+            .get();
+    Event event = Builder.build(Event.class)
+            .with(e -> e.setId(15L))
+            .with(e -> e.setPortfolio(portfolio))
             .get();
     Target target = Builder.build(Target.class)
             .with(t -> t.setId(13L))
@@ -478,6 +486,19 @@ class CustomMethodSecurityExpressionRootTests {
         doReturn(true).when(security).hasProductAccess(anyLong());
 
         assertTrue(security.hasEpicHideAccess(11L));
+    }
+
+    @Test
+    void hasGanttEventModifyAccess_false() {
+        assertFalse(security.hasGanttEventModifyAccess(null));
+    }
+
+    @Test
+    void hasGanttEventModifyAccess_true() {
+        when(eventService.findById(anyLong())).thenReturn(event);
+        doReturn(true).when(security).hasPortfolioAccess(anyLong());
+
+        assertTrue(security.hasGanttEventModifyAccess(15L));
     }
 
     @Test
