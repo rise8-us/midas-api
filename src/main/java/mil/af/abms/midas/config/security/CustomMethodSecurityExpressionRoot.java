@@ -12,6 +12,8 @@ import mil.af.abms.midas.api.comment.CommentService;
 import mil.af.abms.midas.api.epic.EpicService;
 import mil.af.abms.midas.api.feature.FeatureService;
 import mil.af.abms.midas.api.feedback.FeedbackService;
+import mil.af.abms.midas.api.gantt.event.Event;
+import mil.af.abms.midas.api.gantt.event.EventService;
 import mil.af.abms.midas.api.gantt.milestone.Milestone;
 import mil.af.abms.midas.api.gantt.milestone.MilestoneService;
 import mil.af.abms.midas.api.gantt.target.Target;
@@ -35,6 +37,7 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
     private static AssertionService assertionService() { return SpringContext.getBean(AssertionService.class); }
     private static CommentService commentService() { return SpringContext.getBean(CommentService.class); }
     private static EpicService epicService() { return SpringContext.getBean(EpicService.class); }
+    private static EventService eventService() { return SpringContext.getBean(EventService.class); }
     private static FeatureService featureService() { return SpringContext.getBean(FeatureService.class); }
     private static FeedbackService feedbackService() { return SpringContext.getBean(FeedbackService.class); }
     private static MeasureService measureService() { return SpringContext.getBean(MeasureService.class); }
@@ -100,6 +103,13 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
         if (targetId == null) { return false; }
         Target targetBeingAccessed = targetService().findById(targetId);
         Long portfolioId = Optional.ofNullable(targetBeingAccessed.getPortfolio()).map(Portfolio::getId).orElse(null);
+        return hasPortfolioAccess(portfolioId);
+    }
+
+    public boolean hasGanttEventModifyAccess(Long eventId) {
+        if (eventId == null) { return false; }
+        Event eventBeingAccessed = eventService().findById(eventId);
+        Long portfolioId = Optional.ofNullable(eventBeingAccessed.getPortfolio()).map(Portfolio::getId).orElse(null);
         return hasPortfolioAccess(portfolioId);
     }
 
