@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
@@ -32,11 +31,9 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
     private ProductService productService;
     private SourceControlService sourceControlService;
     private CapabilityService capabilityService;
-    private final SimpMessageSendingOperations websocket;
 
-    public PortfolioService(PortfolioRepository repository, SimpMessageSendingOperations websocket) {
+    public PortfolioService(PortfolioRepository repository) {
         super(repository, Portfolio.class, PortfolioDTO.class);
-        this.websocket = websocket;
     }
 
     @Autowired
