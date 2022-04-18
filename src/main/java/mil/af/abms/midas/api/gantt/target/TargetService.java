@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
+import mil.af.abms.midas.api.gantt.GanttDateInterfaceDTO;
 import mil.af.abms.midas.api.gantt.target.dto.CreateTargetDTO;
 import mil.af.abms.midas.api.gantt.target.dto.TargetDTO;
-import mil.af.abms.midas.api.gantt.target.dto.TargetInterfaceDTO;
 import mil.af.abms.midas.api.gantt.target.dto.UpdateTargetDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.portfolio.PortfolioService;
@@ -47,7 +47,7 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
         return repository.save(foundTarget);
     }
 
-    protected void updateCommonFields(TargetInterfaceDTO dto, Target target) {
+    protected void updateCommonFields(GanttDateInterfaceDTO dto, Target target) {
         target.setStartDate(dto.getStartDate());
         target.setDueDate(dto.getDueDate());
         target.setTitle(dto.getTitle());

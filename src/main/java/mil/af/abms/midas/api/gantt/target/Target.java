@@ -34,7 +34,6 @@ public class Target extends AbstractGanttEntity<TargetDTO> {
     public TargetDTO toDto() {
         return new TargetDTO(
                 id,
-                creationDate,
                 startDate,
                 dueDate,
                 title,

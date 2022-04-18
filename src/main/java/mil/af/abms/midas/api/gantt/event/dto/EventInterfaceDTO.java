@@ -1,12 +1,10 @@
 package mil.af.abms.midas.api.gantt.event.dto;
 
-import java.time.LocalDate;
 import java.util.Set;
 
-import mil.af.abms.midas.api.gantt.GanttInterfaceDTO;
+import mil.af.abms.midas.api.gantt.GanttDateInterfaceDTO;
 
-public interface EventInterfaceDTO extends GanttInterfaceDTO {
-    public LocalDate getStartDate();
+public interface EventInterfaceDTO extends GanttDateInterfaceDTO {
     public String getLocation();
     public Set<Long> getOrganizerIds();
 }
