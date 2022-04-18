@@ -21,6 +21,8 @@ import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.user.User;
 
 class TargetTests {
+    private static final int ENTITY_DTO_FIELD_OFFSET = 1;
+
     private final Portfolio portfolio = Builder.build(Portfolio.class)
             .with(p -> p.setId(1L))
             .get();
@@ -34,7 +36,6 @@ class TargetTests {
             .get();
     TargetDTO targetDTO = new TargetDTO(
             target.getId(),
-            target.getCreationDate(),
             target.getStartDate(),
             target.getDueDate(),
             target.getTitle(),
@@ -47,7 +48,7 @@ class TargetTests {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Target.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(TargetDTO.class.getDeclaredFields().length);
+        assertThat(fields.size()).isEqualTo(TargetDTO.class.getDeclaredFields().length + ENTITY_DTO_FIELD_OFFSET);
     }
 
     @Test
