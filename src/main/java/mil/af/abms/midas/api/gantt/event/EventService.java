@@ -2,6 +2,7 @@ package mil.af.abms.midas.api.gantt.event;
 
 import javax.transaction.Transactional;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -67,6 +68,18 @@ public class EventService extends AbstractCRUDService<Event, EventDTO, EventRepo
             var organizers = organizer.stream().map(userService::findByIdOrNull).collect(Collectors.toSet());
             event.setOrganizers(organizers);
         }));
+    }
+
+    @Transactional
+    @Override
+    public void deleteById(Long id) {
+        Event eventToDelete = findById(id);
+        removeOrganizers(eventToDelete);
+        repository.deleteById(id);
+    }
+
+    private void removeOrganizers(Event event) {
+        event.setOrganizers(new HashSet<>());
     }
 
 }
