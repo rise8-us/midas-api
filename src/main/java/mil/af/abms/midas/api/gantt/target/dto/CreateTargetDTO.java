@@ -9,15 +9,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import mil.af.abms.midas.api.gantt.GanttDateInterfaceDTO;
 import mil.af.abms.midas.api.validation.IsValidGanttDueDate;
 import mil.af.abms.midas.api.validation.PortfolioExists;
+import mil.af.abms.midas.api.validation.TargetExists;
 
 @Data
 @IsValidGanttDueDate
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateTargetDTO implements GanttDateInterfaceDTO {
+public class CreateTargetDTO implements TargetInterfaceDTO {
 
     @NotNull(message = "Please enter a start date")
     private LocalDate startDate;
@@ -30,4 +30,8 @@ public class CreateTargetDTO implements GanttDateInterfaceDTO {
 
     @PortfolioExists
     private Long portfolioId;
+
+    @TargetExists
+    private Long parentId;
+
 }

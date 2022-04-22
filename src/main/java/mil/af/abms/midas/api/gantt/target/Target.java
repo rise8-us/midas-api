@@ -6,9 +6,13 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,6 +35,13 @@ public class Target extends AbstractGanttEntity<TargetDTO> {
             inverseJoinColumns = @JoinColumn(name = "portfolio_id", referencedColumnName = "id"))
     private Portfolio portfolio;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Target parent;
+
+    @OneToMany(mappedBy = "parent")
+    private Set<Target> children = new HashSet<>();
+
     public TargetDTO toDto() {
         return new TargetDTO(
                 id,
@@ -38,7 +49,9 @@ public class Target extends AbstractGanttEntity<TargetDTO> {
                 dueDate,
                 title,
                 description,
-                getIdOrNull(portfolio)
+                getIdOrNull(portfolio),
+                getIdOrNull(parent),
+                children.stream().map(Target::toDto).collect(Collectors.toList())
         );
     }
 

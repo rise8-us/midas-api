@@ -34,14 +34,15 @@ class TargetTests {
             .with(t -> t.setDescription("This is the description"))
             .with(t -> t.setPortfolio(portfolio))
             .get();
-    TargetDTO targetDTO = new TargetDTO(
-            target.getId(),
-            target.getStartDate(),
-            target.getDueDate(),
-            target.getTitle(),
-            target.getDescription(),
-            target.getPortfolio().getId()
-    );
+    TargetDTO targetDTO = Builder.build(TargetDTO.class)
+            .with(t -> t.setId(1L))
+            .with(t -> t.setStartDate(LocalDate.now()))
+            .with(t -> t.setDueDate(LocalDate.now().plusDays(1)))
+            .with(t -> t.setTitle("This is the title"))
+            .with(t -> t.setDescription("This is the description"))
+            .with(t -> t.setPortfolioId(portfolio.getId()))
+            .with(t -> t.setChildren(List.of()))
+            .get();
 
     @Test
     void should_have_all_dto_fields() {

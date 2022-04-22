@@ -1,6 +1,7 @@
 package mil.af.abms.midas.api.gantt.target.dto;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,4 +20,6 @@ public class TargetDTO implements AbstractDTO {
     private String title;
     private String description;
     private Long portfolioId;
+    private Long parentId;
+    private List<TargetDTO> children;
 }

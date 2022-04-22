@@ -16,7 +16,7 @@ public class IsValidGanttDueDateValidator implements ConstraintValidator<IsValid
         var start = getLocalDateOrNullFromObject(dto.getStartDate());
         var due = getLocalDateOrNullFromObject(dto.getDueDate());
 
-        if (start != null && start.isAfter(due)) {
+        if (start != null && due != null && start.isAfter(due)) {
             constraintContext.buildConstraintViolationWithTemplate("Due date must be after start date").addConstraintViolation();
             return false;
         }

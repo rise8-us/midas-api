@@ -17,12 +17,13 @@ import org.springframework.util.ReflectionUtils;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.gantt.event.dto.EventDTO;
-import mil.af.abms.midas.api.gantt.target.Target;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.user.User;
 
 class EventTests {
+    private static final int ENTITY_DTO_FIELD_OFFSET = 1;
+
     private final Portfolio portfolio = Builder.build(Portfolio.class)
             .with(p -> p.setId(1L))
             .get();
@@ -52,9 +53,9 @@ class EventTests {
     @Test
     void should_have_all_dto_fields() {
         List<Field> fields = new LinkedList<>();
-        ReflectionUtils.doWithFields(Target.class, fields::add);
+        ReflectionUtils.doWithFields(Event.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(7);
+        assertThat(fields.size()).isEqualTo(EventDTO.class.getDeclaredFields().length  + ENTITY_DTO_FIELD_OFFSET);
     }
 
     @Test
