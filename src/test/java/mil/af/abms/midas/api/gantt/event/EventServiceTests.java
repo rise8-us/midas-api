@@ -46,6 +46,8 @@ public class EventServiceTests {
     EventRepository eventRepository;
     @Captor
     ArgumentCaptor<Event> eventCaptor;
+    @Captor
+    ArgumentCaptor<Long> longCaptor;
 
     private final Portfolio portfolio = Builder.build(Portfolio.class)
             .with(p -> p.setId(1L))
@@ -62,6 +64,7 @@ public class EventServiceTests {
             .with(e -> e.setPortfolio(portfolio))
             .with(e -> e.setLocation("Here"))
             .with(e -> e.setOrganizers(Set.of(user1)))
+            .with(e -> e.setAttendees(Set.of(user1)))
             .get();
     private final CreateEventDTO createEventDTO = Builder.build(CreateEventDTO.class)
             .with(e -> e.setStartDate(event.getStartDate()))
@@ -71,6 +74,7 @@ public class EventServiceTests {
             .with(e -> e.setPortfolioId(event.getPortfolio().getId()))
             .with(e -> e.setLocation("Here"))
             .with(e -> e.setOrganizerIds(Set.of(1L)))
+            .with(e -> e.setAttendeeIds(Set.of(1L)))
             .get();
     private final UpdateEventDTO updateEventDTO = Builder.build(UpdateEventDTO.class)
             .with(e -> e.setStartDate(event.getStartDate()))
@@ -79,6 +83,7 @@ public class EventServiceTests {
             .with(e -> e.setDescription("This is an updated description"))
             .with(e -> e.setLocation("There"))
             .with(e -> e.setOrganizerIds(Set.of(1L)))
+            .with(e -> e.setAttendeeIds(Set.of(1L)))
             .get();
 
     @Test
@@ -108,7 +113,16 @@ public class EventServiceTests {
         assertThat(eventSaved.getTitle()).isEqualTo("This is an updated title");
         assertThat(eventSaved.getDescription()).isEqualTo("This is an updated description");
         assertThat(eventSaved.getLocation()).isEqualTo("There");
+    }
 
+    @Test
+    void should_delete_event_by_id() {
+        doReturn(event).when(eventService).findById(anyLong());
 
+        eventService.deleteById(1L);
+
+        verify(eventRepository, times(1)).deleteById(longCaptor.capture());
+
+        assertThat(longCaptor.getValue()).isEqualTo(1L);
     }
 }

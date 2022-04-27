@@ -33,4 +33,5 @@ public class CreateEventDTO implements EventInterfaceDTO {
     private String location;
 
     private Set<Long> organizerIds;
+    private Set<Long> attendeeIds;
 }

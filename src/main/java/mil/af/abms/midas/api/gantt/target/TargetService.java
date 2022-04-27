@@ -64,6 +64,7 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
     @Transactional
     public Target updateById(Long id, UpdateTargetDTO dto) {
         Target foundTarget = findById(id);
+
         removeLinkedEpics(foundTarget);
         linkEpics(dto.getGitlabEpicIds(), foundTarget);
         updateCommonFields(dto, foundTarget);
@@ -74,7 +75,7 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
     @Transactional
     @Override
     public void deleteById(Long id) {
-        var targetToDelete = findById(id);
+        Target targetToDelete = findById(id);
         removeLinkedEpics(targetToDelete);
         sendParentUpdatedWebsocketMessage(targetToDelete, false);
         targetToDelete.getChildren().forEach(t -> deleteById(t.getId()));
@@ -124,8 +125,7 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
     }
 
     private void removeLinkedEpics(Target target) {
-        Set<Epic> epics = new HashSet<>();
-        target.setEpics(epics);
+        target.setEpics(new HashSet<>());
     }
 
 }

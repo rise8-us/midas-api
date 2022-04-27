@@ -39,6 +39,7 @@ class EventTests {
             .with(e -> e.setPortfolio(portfolio))
             .with(e -> e.setLocation("Here"))
             .with(e -> e.setOrganizers(Set.of(user1)))
+            .with(e -> e.setAttendees(Set.of(user1)))
             .get();
     private final EventDTO eventDTO = Builder.build(EventDTO.class)
             .with(e -> e.setId(event.getId()))
@@ -49,6 +50,7 @@ class EventTests {
             .with(e -> e.setPortfolioId(event.getPortfolio().getId()))
             .with(e -> e.setLocation(event.getLocation()))
             .with(e -> e.setOrganizerIds(Set.of(1L)))
+            .with(e -> e.setAttendeeIds(Set.of(1L)))
             .get();
     @Test
     void should_have_all_dto_fields() {
