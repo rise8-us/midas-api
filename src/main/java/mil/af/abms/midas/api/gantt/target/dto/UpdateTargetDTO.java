@@ -4,6 +4,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,4 +27,6 @@ public class UpdateTargetDTO implements GanttDateInterfaceDTO {
     @NotBlank(message = "Please enter a target title")
     private String title;
     private String description;
+
+    private Set<Long> gitlabEpicIds;
 }

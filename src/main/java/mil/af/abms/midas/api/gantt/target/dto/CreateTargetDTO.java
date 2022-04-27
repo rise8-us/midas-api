@@ -4,6 +4,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,4 +35,5 @@ public class CreateTargetDTO implements TargetInterfaceDTO {
     @TargetExists
     private Long parentId;
 
+    private Set<Long> gitlabEpicIds;
 }
