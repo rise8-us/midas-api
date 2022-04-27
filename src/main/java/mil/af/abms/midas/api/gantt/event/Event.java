@@ -40,10 +40,17 @@ public class Event extends AbstractGanttEntity<EventDTO> {
 
     @ManyToMany
     @JoinTable(
-            name = "gantt_event_user",
+            name = "gantt_event_user_organizer",
             joinColumns = @JoinColumn(name = "event_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
     private Set<User> organizers = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "gantt_event_user_attendee",
+            joinColumns = @JoinColumn(name = "event_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
+    private Set<User> attendees = new HashSet<>();
 
     public EventDTO toDto() {
         return new EventDTO(
@@ -54,7 +61,8 @@ public class Event extends AbstractGanttEntity<EventDTO> {
                 description,
                 getIdOrNull(portfolio),
                 location,
-                getIds(organizers)
+                getIds(organizers),
+                getIds(attendees)
         );
     }
 

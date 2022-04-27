@@ -68,18 +68,23 @@ public class EventService extends AbstractCRUDService<Event, EventDTO, EventRepo
             var organizers = organizer.stream().map(userService::findByIdOrNull).collect(Collectors.toSet());
             event.setOrganizers(organizers);
         }));
+        Optional.ofNullable(dto.getAttendeeIds()).ifPresent((attendee -> {
+            var attendees = attendee.stream().map(userService::findByIdOrNull).collect(Collectors.toSet());
+            event.setAttendees(attendees);
+        }));
     }
 
     @Transactional
     @Override
     public void deleteById(Long id) {
         Event eventToDelete = findById(id);
-        removeOrganizers(eventToDelete);
+        removeOrganizersAndAttendees(eventToDelete);
         repository.deleteById(id);
     }
 
-    private void removeOrganizers(Event event) {
+    private void removeOrganizersAndAttendees(Event event) {
         event.setOrganizers(new HashSet<>());
+        event.setAttendees(new HashSet<>());
     }
 
 }

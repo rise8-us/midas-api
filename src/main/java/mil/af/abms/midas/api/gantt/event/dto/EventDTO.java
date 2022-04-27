@@ -22,4 +22,5 @@ public class EventDTO implements AbstractDTO {
     private Long portfolioId;
     private String location;
     private Set<Long> organizerIds;
+    private Set<Long> attendeeIds;
 }
