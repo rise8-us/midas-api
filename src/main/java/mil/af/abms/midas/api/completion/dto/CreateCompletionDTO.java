@@ -25,4 +25,5 @@ public class CreateCompletionDTO implements MeasurableDTO, CompletableDTO {
     
     private Long gitlabEpicId;
     private Long gitlabIssueId;
+
 }

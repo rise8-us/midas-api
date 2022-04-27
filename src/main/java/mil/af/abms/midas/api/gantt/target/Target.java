@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 
+import mil.af.abms.midas.api.epic.Epic;
 import mil.af.abms.midas.api.gantt.AbstractGanttEntity;
 import mil.af.abms.midas.api.gantt.target.dto.TargetDTO;
 import mil.af.abms.midas.api.portfolio.Portfolio;
@@ -42,6 +44,14 @@ public class Target extends AbstractGanttEntity<TargetDTO> {
     @OneToMany(mappedBy = "parent")
     private Set<Target> children = new HashSet<>();
 
+    @ManyToMany
+    @JoinTable(
+            name = "gantt_target_gitlab_epic",
+            joinColumns = @JoinColumn(name = "target_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "epic_id", referencedColumnName = "id")
+    )
+    private Set<Epic> epics = new HashSet<>();
+
     public TargetDTO toDto() {
         return new TargetDTO(
                 id,
@@ -51,7 +61,8 @@ public class Target extends AbstractGanttEntity<TargetDTO> {
                 description,
                 getIdOrNull(portfolio),
                 getIdOrNull(parent),
-                children.stream().map(Target::toDto).collect(Collectors.toList())
+                children.stream().map(Target::toDto).collect(Collectors.toList()),
+                epics.stream().map(Epic::toDto).collect(Collectors.toSet())
         );
     }
 

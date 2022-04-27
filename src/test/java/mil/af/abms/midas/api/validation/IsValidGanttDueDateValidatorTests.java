@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import javax.validation.ConstraintValidatorContext;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +49,8 @@ public class IsValidGanttDueDateValidatorTests {
             .with(t -> t.setStartDate(today))
             .with(t -> t.setDueDate(null))
             .get();
-    UpdateTargetDTO targetDTOWithValidDueDate = new UpdateTargetDTO(today, today.plusDays(1L), "updated title", "updated description");
-    UpdateTargetDTO targetDTOWithInValidDueDate = new UpdateTargetDTO(today, today.minusDays(1L), "updated title", "updated description");
+    UpdateTargetDTO targetDTOWithValidDueDate = new UpdateTargetDTO(today, today.plusDays(1L), "updated title", "updated description", Set.of());
+    UpdateTargetDTO targetDTOWithInValidDueDate = new UpdateTargetDTO(today, today.minusDays(1L), "updated title", "updated description", Set.of());
 
     @BeforeEach
     public void init() {

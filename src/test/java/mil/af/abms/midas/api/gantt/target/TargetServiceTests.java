@@ -23,10 +23,14 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
 import mil.af.abms.midas.api.comment.Comment;
+import mil.af.abms.midas.api.epic.Epic;
+import mil.af.abms.midas.api.epic.EpicService;
 import mil.af.abms.midas.api.gantt.target.dto.CreateTargetDTO;
 import mil.af.abms.midas.api.gantt.target.dto.UpdateTargetDTO;
 import mil.af.abms.midas.api.helper.Builder;
@@ -48,6 +52,8 @@ public class TargetServiceTests {
     PortfolioService portfolioService;
     @MockBean
     TargetRepository targetRepository;
+    @MockBean
+    EpicService epicService;
 
     @Captor
     private ArgumentCaptor<Target> targetCaptor;
@@ -66,6 +72,7 @@ public class TargetServiceTests {
             .with(t -> t.setPortfolio(portfolio))
             .with(t -> t.setParent(null))
             .with(t -> t.setChildren(Set.of()))
+            .with(t -> t.setEpics(Set.of()))
             .get();
     private final Target targetParent = Builder.build(Target.class)
             .with(t -> t.setId(1L))
@@ -92,20 +99,31 @@ public class TargetServiceTests {
             .with(t -> t.setDescription(target.getDescription()))
             .with(t -> t.setPortfolioId(target.getPortfolio().getId()))
             .with(t -> t.setParentId(null))
+            .with(t -> t.setGitlabEpicIds(Set.of(1L, 2L)))
             .get();
     private final UpdateTargetDTO updateTargetDTO = Builder.build(UpdateTargetDTO.class)
             .with(t -> t.setStartDate(target.getStartDate()))
             .with(t -> t.setDueDate(target.getDueDate()))
             .with(t -> t.setTitle("This is an updated title"))
             .with(t -> t.setDescription("This is an updated description"))
+            .with(t -> t.setGitlabEpicIds(Set.of()))
+            .get();
+    private final Epic epic = Builder.build(Epic.class)
+            .with(e -> e.setId(1L))
             .get();
 
-    @Test
-    void should_create_target() {
+    @ParameterizedTest
+    @CsvSource(value = { "true", "false" })
+    void should_create_target(Boolean foundEpic) {
         doReturn(portfolio).when(portfolioService).findById(anyLong());
         when(portfolioService.findById(anyLong())).thenReturn(portfolio);
         doReturn(target).when(targetRepository).save(any());
         doReturn(target).when(targetService).findByIdOrNull(any());
+        if (foundEpic) {
+            doReturn(epic).when(epicService).findByIdOrNull(anyLong());
+        } else {
+            doReturn(null).when(epicService).findByIdOrNull(anyLong());
+        }
 
         targetService.create(createTargetDTO);
 

@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.ReflectionUtils;
@@ -42,6 +43,7 @@ class TargetTests {
             .with(t -> t.setDescription("This is the description"))
             .with(t -> t.setPortfolioId(portfolio.getId()))
             .with(t -> t.setChildren(List.of()))
+            .with(t -> t.setEpics(Set.of()))
             .get();
 
     @Test
