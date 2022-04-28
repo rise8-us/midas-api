@@ -36,4 +36,6 @@ public class CreateTargetDTO implements TargetInterfaceDTO {
     private Long parentId;
 
     private Set<Long> gitlabEpicIds;
+    private Set<Long> deliverableIds;
+
 }

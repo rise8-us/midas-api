@@ -12,6 +12,8 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
+import mil.af.abms.midas.api.deliverable.Deliverable;
+import mil.af.abms.midas.api.deliverable.DeliverableService;
 import mil.af.abms.midas.api.epic.Epic;
 import mil.af.abms.midas.api.epic.EpicService;
 import mil.af.abms.midas.api.gantt.GanttDateInterfaceDTO;
@@ -27,6 +29,7 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
     private PortfolioService portfolioService;
     private final SimpMessageSendingOperations websocket;
     private EpicService epicService;
+    private DeliverableService deliverableService;
 
     public TargetService(TargetRepository repository, SimpMessageSendingOperations websocket) {
         super(repository, Target.class, TargetDTO.class);
@@ -36,6 +39,11 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
     @Autowired
     public void setEpicService(EpicService epicService) {
         this.epicService = epicService;
+    }
+
+    @Autowired
+    public void setDeliverableService(DeliverableService deliverableService) {
+        this.deliverableService = deliverableService;
     }
 
     @Autowired
@@ -52,6 +60,7 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
                 .get();
 
         linkEpics(dto.getGitlabEpicIds(), newTarget);
+        linkDeliverables(dto.getDeliverableIds(), newTarget);
 
         updateCommonFields(dto, newTarget);
 
@@ -65,8 +74,9 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
     public Target updateById(Long id, UpdateTargetDTO dto) {
         Target foundTarget = findById(id);
 
-        removeLinkedEpics(foundTarget);
+        removeLinks(foundTarget);
         linkEpics(dto.getGitlabEpicIds(), foundTarget);
+        linkDeliverables(dto.getDeliverableIds(), foundTarget);
         updateCommonFields(dto, foundTarget);
 
         return repository.save(foundTarget);
@@ -76,7 +86,7 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
     @Override
     public void deleteById(Long id) {
         Target targetToDelete = findById(id);
-        removeLinkedEpics(targetToDelete);
+        removeLinks(targetToDelete);
         sendParentUpdatedWebsocketMessage(targetToDelete, false);
         targetToDelete.getChildren().forEach(t -> deleteById(t.getId()));
         repository.deleteById(id);
@@ -103,6 +113,16 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
         }, () -> target.setEpics(Set.of()));
     }
 
+    protected void linkDeliverable(Long deliverableId, Target target) {
+            Deliverable foundDeliverable = deliverableService.findByIdOrNull(deliverableId);
+
+            Set<Deliverable> newDeliverableSet = new HashSet<>();
+            newDeliverableSet.add(foundDeliverable);
+            newDeliverableSet.addAll(target.getDeliverables());
+
+            target.setDeliverables(newDeliverableSet);
+    }
+
     private void sendParentUpdatedWebsocketMessage(Target target, boolean isAdded) {
         Optional.ofNullable(target.getParent()).ifPresent(parent -> {
             if (isAdded) { parent.getChildren().add(target); }
@@ -124,7 +144,16 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
         });
     }
 
-    private void removeLinkedEpics(Target target) {
+    private void linkDeliverables(Set<Long> deliverableIds, Target newTarget) {
+        Optional.ofNullable(deliverableIds).ifPresent(ids -> {
+            ids.forEach(deliverableId -> {
+                linkDeliverable(deliverableId, newTarget);
+            });
+        });
+    }
+
+    private void removeLinks(Target target) {
+        target.setDeliverables(new HashSet<>());
         target.setEpics(new HashSet<>());
     }
 

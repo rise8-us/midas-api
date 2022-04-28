@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.AbstractDTO;
+import mil.af.abms.midas.api.deliverable.dto.DeliverableDTO;
 import mil.af.abms.midas.api.epic.dto.EpicDTO;
 
 @Data
@@ -25,4 +26,5 @@ public class TargetDTO implements AbstractDTO {
     private Long parentId;
     private List<TargetDTO> children;
     private Set<EpicDTO> epics;
+    private Set<DeliverableDTO> deliverables;
 }
