@@ -69,8 +69,11 @@ public class Deliverable extends AbstractEntity<DeliverableDTO> {
     )
     private Set<Release> releases = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "performance_measure_id", nullable = true)
+    @ManyToOne
+    @JoinTable(
+            name = "performance_measure_deliverable",
+            joinColumns = @JoinColumn(name = "performance_measure_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "deliverable_id", referencedColumnName = "id"))
     private PerformanceMeasure performanceMeasure;
 
     @ManyToOne
@@ -78,7 +81,10 @@ public class Deliverable extends AbstractEntity<DeliverableDTO> {
     private User assignedTo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "capability_id", nullable = true)
+    @JoinTable(
+            name = "capability_deliverable",
+            joinColumns = @JoinColumn(name = "capability_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "deliverable_id", referencedColumnName = "id"))
     private Capability capability;
 
     @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)

@@ -2,7 +2,6 @@ package mil.af.abms.midas.api.capability;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
@@ -45,8 +44,11 @@ public class Capability extends AbstractEntity<CapabilityDTO> implements Deliver
     @OneToMany(mappedBy = "capability")
     private Set<Deliverable> deliverables = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "mission_thread_id", nullable = true)
+    @ManyToOne
+    @JoinTable(
+            name = "capability_mission_thread",
+            joinColumns = @JoinColumn(name = "capability_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "mission_thread_id", referencedColumnName = "id"))
     private MissionThread missionThread;
 
     @ManyToOne

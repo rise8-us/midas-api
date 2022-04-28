@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -37,7 +38,10 @@ public class PerformanceMeasure extends AbstractEntity<PerformanceMeasureDTO> im
     private Set<Deliverable> deliverables = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "capability_id", nullable = true)
+    @JoinTable(
+            name = "capability_performance_measure",
+            joinColumns = @JoinColumn(name = "capability_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "performance_measure_id", referencedColumnName = "id"))
     private Capability capability;
 
     public PerformanceMeasureDTO toDto() {

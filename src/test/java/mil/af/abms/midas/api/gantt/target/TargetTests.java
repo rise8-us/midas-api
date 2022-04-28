@@ -44,6 +44,7 @@ class TargetTests {
             .with(t -> t.setPortfolioId(portfolio.getId()))
             .with(t -> t.setChildren(List.of()))
             .with(t -> t.setEpics(Set.of()))
+            .with(t -> t.setDeliverables(Set.of()))
             .get();
 
     @Test

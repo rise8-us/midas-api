@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 
+import mil.af.abms.midas.api.deliverable.Deliverable;
 import mil.af.abms.midas.api.epic.Epic;
 import mil.af.abms.midas.api.gantt.AbstractGanttEntity;
 import mil.af.abms.midas.api.gantt.target.dto.TargetDTO;
@@ -52,6 +53,14 @@ public class Target extends AbstractGanttEntity<TargetDTO> {
     )
     private Set<Epic> epics = new HashSet<>();
 
+    @ManyToMany
+    @JoinTable(
+            name = "gantt_target_deliverables",
+            joinColumns = @JoinColumn(name = "target_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "deliverable_id", referencedColumnName = "id")
+    )
+    private Set<Deliverable> deliverables = new HashSet<>();
+
     public TargetDTO toDto() {
         return new TargetDTO(
                 id,
@@ -62,7 +71,8 @@ public class Target extends AbstractGanttEntity<TargetDTO> {
                 getIdOrNull(portfolio),
                 getIdOrNull(parent),
                 children.stream().map(Target::toDto).collect(Collectors.toList()),
-                epics.stream().map(Epic::toDto).collect(Collectors.toSet())
+                epics.stream().map(Epic::toDto).collect(Collectors.toSet()),
+                deliverables.stream().map(Deliverable::toDto).collect(Collectors.toSet())
         );
     }
 

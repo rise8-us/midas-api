@@ -29,6 +29,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
 import mil.af.abms.midas.api.comment.Comment;
+import mil.af.abms.midas.api.deliverable.DeliverableService;
 import mil.af.abms.midas.api.epic.Epic;
 import mil.af.abms.midas.api.epic.EpicService;
 import mil.af.abms.midas.api.gantt.target.dto.CreateTargetDTO;
@@ -54,6 +55,8 @@ public class TargetServiceTests {
     TargetRepository targetRepository;
     @MockBean
     EpicService epicService;
+    @MockBean
+    DeliverableService deliverableService;
 
     @Captor
     private ArgumentCaptor<Target> targetCaptor;
@@ -73,6 +76,7 @@ public class TargetServiceTests {
             .with(t -> t.setParent(null))
             .with(t -> t.setChildren(Set.of()))
             .with(t -> t.setEpics(Set.of()))
+            .with(t -> t.setDeliverables(Set.of()))
             .get();
     private final Target targetParent = Builder.build(Target.class)
             .with(t -> t.setId(1L))
@@ -99,7 +103,8 @@ public class TargetServiceTests {
             .with(t -> t.setDescription(target.getDescription()))
             .with(t -> t.setPortfolioId(target.getPortfolio().getId()))
             .with(t -> t.setParentId(null))
-            .with(t -> t.setGitlabEpicIds(Set.of(1L, 2L)))
+            .with(t -> t.setGitlabEpicIds(Set.of(1L)))
+            .with(t -> t.setDeliverableIds(Set.of(1L)))
             .get();
     private final UpdateTargetDTO updateTargetDTO = Builder.build(UpdateTargetDTO.class)
             .with(t -> t.setStartDate(target.getStartDate()))
@@ -107,10 +112,12 @@ public class TargetServiceTests {
             .with(t -> t.setTitle("This is an updated title"))
             .with(t -> t.setDescription("This is an updated description"))
             .with(t -> t.setGitlabEpicIds(Set.of()))
+            .with(t -> t.setDeliverableIds(Set.of()))
             .get();
     private final Epic epic = Builder.build(Epic.class)
             .with(e -> e.setId(1L))
             .get();
+
 
     @ParameterizedTest
     @CsvSource(value = { "true", "false" })
