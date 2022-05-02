@@ -11,7 +11,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -43,7 +45,7 @@ public class Target extends AbstractGanttEntity<TargetDTO> {
     private Target parent;
 
     @OneToMany(mappedBy = "parent")
-    private Set<Target> children = new HashSet<>();
+    private List<Target> children = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(
