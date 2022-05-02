@@ -41,8 +41,12 @@ public class Capability extends AbstractEntity<CapabilityDTO> implements Deliver
     @OneToMany(mappedBy = "capability")
     private Set<PerformanceMeasure> performanceMeasures = new HashSet<>();
 
-    @OneToMany(mappedBy = "capability")
-    private Set<Deliverable> deliverables = new HashSet<>();
+    @OneToMany
+    @JoinTable(
+            name = "capability_deliverable",
+            joinColumns = @JoinColumn(name = "capability_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "deliverable_id", referencedColumnName = "id"))
+    private Set<Deliverable> deliverables;
 
     @ManyToOne
     @JoinTable(

@@ -83,8 +83,8 @@ public class Deliverable extends AbstractEntity<DeliverableDTO> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinTable(
             name = "capability_deliverable",
-            joinColumns = @JoinColumn(name = "capability_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "deliverable_id", referencedColumnName = "id"))
+            joinColumns = @JoinColumn(name = "deliverable_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "capability_id", referencedColumnName = "id"))
     private Capability capability;
 
     @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
