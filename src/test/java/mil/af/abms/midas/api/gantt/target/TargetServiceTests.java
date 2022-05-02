@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -74,7 +75,7 @@ public class TargetServiceTests {
             .with(t -> t.setDescription("This is the description"))
             .with(t -> t.setPortfolio(portfolio))
             .with(t -> t.setParent(null))
-            .with(t -> t.setChildren(Set.of()))
+            .with(t -> t.setChildren(List.of()))
             .with(t -> t.setEpics(Set.of()))
             .with(t -> t.setDeliverables(Set.of()))
             .get();
@@ -144,7 +145,7 @@ public class TargetServiceTests {
 
     @Test
     void should_update_target_by_id() {
-        targetParent.setChildren(Set.of(targetChild));
+        targetParent.setChildren(List.of(targetChild));
 
         var newTarget = new Target();
         BeanUtils.copyProperties(targetParent, newTarget);
@@ -171,7 +172,7 @@ public class TargetServiceTests {
 
     @Test
     void should_delete_tree() {
-        targetParent.setChildren(Set.of(targetChild));
+        targetParent.setChildren(List.of(targetChild));
 
         doReturn(targetParent).when(targetService).findById(1L);
         doReturn(targetChild).when(targetService).findById(2L);

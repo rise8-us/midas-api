@@ -129,7 +129,7 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
             else {
                 parent.setChildren(parent.getChildren().stream()
                         .filter(a -> !a.getId().equals(target.getId()))
-                        .collect(Collectors.toSet())
+                        .collect(Collectors.toList())
                 );
             }
             websocket.convertAndSend("/topic/update_target", parent.toDto());
