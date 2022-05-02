@@ -42,7 +42,7 @@ public class RestQueryVisitorImpl<T> extends RestQueryBaseVisitor<Specification<
         String op = ctx.op().getText();
         String value = ctx.value().getText();
 
-        if (ctx.value().NULL() != null) {
+        if (value.equals("~")) {
             op = op.equals(":") ? ":~" : "!~";
         }
 

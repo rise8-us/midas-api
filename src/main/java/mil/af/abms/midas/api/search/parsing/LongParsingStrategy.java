@@ -20,7 +20,9 @@ public class LongParsingStrategy implements ParsingStrategy {
                 Map.entry(SearchOperation.GREATER_THAN, () -> builder.greaterThan(nestedRoot.get(criteriaKey), Long.valueOf(valueStr))),
                 Map.entry(SearchOperation.GREATER_THAN_OR_EQUAL, () -> builder.greaterThanOrEqualTo(nestedRoot.get(criteriaKey), Long.valueOf(valueStr))),
                 Map.entry(SearchOperation.LESS_THAN, () -> builder.lessThan(nestedRoot.get(criteriaKey), Long.valueOf(valueStr))),
-                Map.entry(SearchOperation.LESS_THAN_OR_EQUAL, () -> builder.lessThanOrEqualTo(nestedRoot.get(criteriaKey), Long.valueOf(valueStr)))
+                Map.entry(SearchOperation.LESS_THAN_OR_EQUAL, () -> builder.lessThanOrEqualTo(nestedRoot.get(criteriaKey), Long.valueOf(valueStr))),
+                Map.entry(SearchOperation.NULL, () -> builder.isNull(nestedRoot.get(criteriaKey))),
+                Map.entry(SearchOperation.NOT_NULL, () -> builder.isNotNull(nestedRoot.get(criteriaKey)))
         );
 
         return predicates.getOrDefault(operation, () -> null).get();
