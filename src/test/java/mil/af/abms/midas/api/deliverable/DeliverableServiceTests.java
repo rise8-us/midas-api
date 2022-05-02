@@ -77,7 +77,9 @@ class DeliverableServiceTests {
     private final User assignedTo = Builder.build(User.class).with(u -> u.setId(2L)).get();
     private final Release release = Builder.build(Release.class).with(p -> p.setId(3L)).get();
     private final Product product = Builder.build(Product.class).with(p -> p.setId(4L)).get();
-    private final Capability capability = Builder.build(Capability.class).with(p -> p.setId(5L)).get();
+    private final Capability capability = Builder.build(Capability.class)
+            .with(c -> c.setId(5L))
+            .get();
     private final PerformanceMeasure performanceMeasure = Builder.build(PerformanceMeasure.class).with(p -> p.setId(5L)).get();
     private final CreateCompletionDTO createCompletionDTO = new CreateCompletionDTO();
     private final Completion completion = Builder.build(Completion.class)
@@ -197,6 +199,7 @@ class DeliverableServiceTests {
     void should_delete_all_related_deliverables() {
         var deliverableToDelete = new Deliverable();
         deliverableToDelete.setId(2L);
+        capability.setDeliverables(Set.of(deliverableToDelete));
         deliverableToDelete.setCapability(capability);
         deliverableToDelete.setPerformanceMeasure(performanceMeasure);
         deliverableToDelete.setChildren(Set.of(deliverable));

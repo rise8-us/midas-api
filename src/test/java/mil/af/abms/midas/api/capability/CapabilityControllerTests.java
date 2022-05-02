@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -48,10 +49,11 @@ public class CapabilityControllerTests extends ControllerTestHarness {
             .with((d -> d.setReferenceId(1)))
             .get();
     private final Capability capability = Builder.build(Capability.class)
-            .with(p -> p.setId(1L))
-            .with(p -> p.setTitle(createCapabilityDTO.getTitle()))
-            .with(p -> p.setDescription(createCapabilityDTO.getDescription()))
-            .with(p -> p.setIsArchived(false))
+            .with(c -> c.setId(1L))
+            .with(c -> c.setTitle(createCapabilityDTO.getTitle()))
+            .with(c -> c.setDescription(createCapabilityDTO.getDescription()))
+            .with(c -> c.setDeliverables(Set.of()))
+            .with(c -> c.setIsArchived(false))
             .get();
 
     @BeforeEach
