@@ -23,6 +23,7 @@ public interface ParsingStrategy {
 
     static ParsingStrategy getStrategy(Path<?> node) {
         String javaType = node.getJavaType().getSimpleName();
+
         return parsingStrategies.getOrDefault(javaType, new NullParsingStrategy());
     }
 
