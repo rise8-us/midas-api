@@ -59,7 +59,7 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
                 .with(t -> t.setParent(findByIdOrNull(dto.getParentId())))
                 .get();
 
-        linkEpics(dto.getGitlabEpicIds(), newTarget);
+        linkEpics(dto.getEpicIds(), newTarget);
         linkDeliverables(dto.getDeliverableIds(), newTarget);
 
         updateCommonFields(dto, newTarget);
@@ -75,7 +75,7 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
         Target foundTarget = findById(id);
 
         removeLinks(foundTarget);
-        linkEpics(dto.getGitlabEpicIds(), foundTarget);
+        linkEpics(dto.getEpicIds(), foundTarget);
         linkDeliverables(dto.getDeliverableIds(), foundTarget);
         updateCommonFields(dto, foundTarget);
 

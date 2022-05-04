@@ -28,6 +28,6 @@ public class UpdateTargetDTO implements GanttDateInterfaceDTO {
     private String title;
     private String description;
 
-    private Set<Long> gitlabEpicIds;
+    private Set<Long> epicIds;
     private Set<Long> deliverableIds;
 }

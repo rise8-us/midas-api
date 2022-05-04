@@ -42,9 +42,9 @@ class TargetTests {
             .with(t -> t.setTitle("This is the title"))
             .with(t -> t.setDescription("This is the description"))
             .with(t -> t.setPortfolioId(portfolio.getId()))
-            .with(t -> t.setChildren(List.of()))
-            .with(t -> t.setEpics(Set.of()))
-            .with(t -> t.setDeliverables(Set.of()))
+            .with(t -> t.setChildrenIds(List.of()))
+            .with(t -> t.setEpicIds(Set.of()))
+            .with(t -> t.setDeliverableIds(Set.of()))
             .get();
 
     @Test

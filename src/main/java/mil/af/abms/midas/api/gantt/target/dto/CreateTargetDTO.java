@@ -35,7 +35,7 @@ public class CreateTargetDTO implements TargetInterfaceDTO {
     @TargetExists
     private Long parentId;
 
-    private Set<Long> gitlabEpicIds;
+    private Set<Long> epicIds;
     private Set<Long> deliverableIds;
 
 }
