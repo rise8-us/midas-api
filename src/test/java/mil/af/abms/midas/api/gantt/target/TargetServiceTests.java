@@ -104,7 +104,7 @@ public class TargetServiceTests {
             .with(t -> t.setDescription(target.getDescription()))
             .with(t -> t.setPortfolioId(target.getPortfolio().getId()))
             .with(t -> t.setParentId(null))
-            .with(t -> t.setGitlabEpicIds(Set.of(1L)))
+            .with(t -> t.setEpicIds(Set.of(1L)))
             .with(t -> t.setDeliverableIds(Set.of(1L)))
             .get();
     private final UpdateTargetDTO updateTargetDTO = Builder.build(UpdateTargetDTO.class)
@@ -112,7 +112,7 @@ public class TargetServiceTests {
             .with(t -> t.setDueDate(target.getDueDate()))
             .with(t -> t.setTitle("This is an updated title"))
             .with(t -> t.setDescription("This is an updated description"))
-            .with(t -> t.setGitlabEpicIds(Set.of()))
+            .with(t -> t.setEpicIds(Set.of()))
             .with(t -> t.setDeliverableIds(Set.of()))
             .get();
     private final Epic epic = Builder.build(Epic.class)

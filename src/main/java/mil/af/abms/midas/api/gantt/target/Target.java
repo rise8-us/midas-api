@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -72,9 +71,9 @@ public class Target extends AbstractGanttEntity<TargetDTO> {
                 description,
                 getIdOrNull(portfolio),
                 getIdOrNull(parent),
-                children.stream().map(Target::toDto).collect(Collectors.toList()),
-                epics.stream().map(Epic::toDto).collect(Collectors.toSet()),
-                deliverables.stream().map(Deliverable::toDto).collect(Collectors.toSet())
+                getIds(children),
+                getIds(epics),
+                getIds(deliverables)
         );
     }
 

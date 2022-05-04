@@ -12,6 +12,7 @@ import javax.persistence.PostUpdate;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -50,6 +51,10 @@ public abstract class AbstractEntity<D extends AbstractDTO> implements Serializa
 
     public <E extends AbstractEntity<?>> Set<Long> getIds(Set<E> entitySet) {
         return entitySet.stream().map(E::getId).collect(Collectors.toSet());
+    }
+
+    public <E extends AbstractEntity<?>> List<Long> getIds(List<E> entityList) {
+        return entityList.stream().map(E::getId).collect(Collectors.toList());
     }
 
     public <E extends AbstractEntity<?>> Long getIdOrNull(E entity) {
