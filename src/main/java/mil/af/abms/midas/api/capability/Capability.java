@@ -46,7 +46,7 @@ public class Capability extends AbstractEntity<CapabilityDTO> implements Deliver
             name = "capability_deliverable",
             joinColumns = @JoinColumn(name = "capability_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "deliverable_id", referencedColumnName = "id"))
-    private Set<Deliverable> deliverables;
+    private Set<Deliverable> deliverables = new HashSet<>();
 
     @ManyToOne
     @JoinTable(
