@@ -97,21 +97,25 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
         var epicIids = gitlabEpicsList.stream().map(GitLabEpic::getEpicIid).collect(Collectors.toSet());
         var midasProductEpics = getAllEpicsByProductId(productId);
         var midasProductEpicIids = midasProductEpics.stream().map(Epic::getEpicIid).collect(Collectors.toSet());
-
         midasProductEpicIids.removeAll(epicIids);
         midasProductEpics.removeIf(epic -> !midasProductEpicIids.contains(epic.getEpicIid()));
+        midasProductEpics.forEach((this::updateCompletionType));
         repository.deleteAll(midasProductEpics);
+    }
+
+    private void updateCompletionType(Epic epic) {
+        epic.getCompletions().forEach(c -> {
+            completionService.setCompletionTypeToFailure(c.getId());
+        });
     }
 
     public Set<Epic> getAllGitlabEpicsForProduct(Long productId) {
         var product = productService.findById(productId);
-
         if (hasGitlabDetails(product)) {
             var allEpicsInGitLab = getGitlabClient(product)
                     .getEpicsFromGroup(product.getGitlabGroupId());
             var sourceControlId = product.getSourceControl().getId();
             var groupId = product.getGitlabGroupId();
-
             removeAllUntrackedEpics(productId, allEpicsInGitLab);
 
             return allEpicsInGitLab.stream()

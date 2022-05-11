@@ -73,8 +73,8 @@ public class Issue extends AbstractTimeConstrainedEntity<IssueDTO> {
     @OneToMany
     @JoinTable(
             name = "completion_gitlab_issue",
-            joinColumns = @JoinColumn(name = "completion_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "issue_id", referencedColumnName = "id"))
+            joinColumns = @JoinColumn(name = "issue_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "completion_id", referencedColumnName = "id"))
     private Set<Completion> completions;
 
     public IssueDTO toDto() {
