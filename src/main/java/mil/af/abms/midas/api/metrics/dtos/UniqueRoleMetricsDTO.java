@@ -21,6 +21,7 @@ public class UniqueRoleMetricsDTO implements AbstractDTO {
     private Set<Long> platformOperators;
     private Set<Long> portfolioAdmins;
     private Set<Long> stakeholders;
+    private Set<Long> testers;
     private Set<Long> unassigned;
 
 }

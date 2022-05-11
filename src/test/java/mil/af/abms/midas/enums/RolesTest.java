@@ -28,6 +28,7 @@ public class RolesTest {
         rolesMap.put(Roles.PLATFORM_OPERATOR, false);
         rolesMap.put(Roles.PORTFOLIO_ADMIN, false);
         rolesMap.put(Roles.STAKEHOLDER, false);
+        rolesMap.put(Roles.TESTER, false);
 
         assertThat(Roles.getRoles(1L)).isEqualTo(rolesMap);
     }

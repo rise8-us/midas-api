@@ -47,6 +47,7 @@ public class AppUserMetrics extends AbstractMetricsEntity<AppUserMetricsDTO> {
                 uniqueRoleMetrics.getOrDefault("PLATFORM_OPERATOR", Set.of()),
                 uniqueRoleMetrics.getOrDefault("PORTFOLIO_ADMIN", Set.of()),
                 uniqueRoleMetrics.getOrDefault("STAKEHOLDER", Set.of()),
+                uniqueRoleMetrics.getOrDefault("TESTER", Set.of()),
                 uniqueRoleMetrics.getOrDefault("UNASSIGNED", Set.of())
         );
     }
