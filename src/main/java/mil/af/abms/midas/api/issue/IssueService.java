@@ -70,7 +70,14 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
 
         midasProjectIssuesIids.removeAll(issueIids);
         midasProjectIssues.removeIf(issue -> !midasProjectIssuesIids.contains(issue.getIssueIid()));
+        midasProjectIssues.forEach((this::updateCompletionType));
         repository.deleteAll(midasProjectIssues);
+    }
+
+    private void updateCompletionType(Issue issue) {
+        issue.getCompletions().forEach(c -> {
+            completionService.setCompletionTypeToFailure(c.getId());
+        });
     }
 
     public List<Issue> getAllIssuesByProjectId(Long projectId) {

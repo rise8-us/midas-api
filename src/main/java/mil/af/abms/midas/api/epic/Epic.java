@@ -88,8 +88,8 @@ public class Epic extends AbstractTimeConstrainedEntity<EpicDTO> {
     @OneToMany
     @JoinTable(
             name = "completion_gitlab_epic",
-            joinColumns = @JoinColumn(name = "completion_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "epic_id", referencedColumnName = "id"))
+            joinColumns = @JoinColumn(name = "epic_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "completion_id", referencedColumnName = "id"))
     private Set<Completion> completions;
 
     public EpicDTO toDto() {
