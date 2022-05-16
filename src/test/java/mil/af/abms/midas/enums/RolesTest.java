@@ -14,7 +14,7 @@ public class RolesTest {
 
     @Test
     public void can_Stream_Enum() {
-        assertThat((int) Roles.stream().count()).isEqualTo(8);
+        assertThat((int) Roles.stream().count()).isEqualTo(9);
     }
 
     @Test
