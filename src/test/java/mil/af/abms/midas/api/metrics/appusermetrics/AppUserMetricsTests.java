@@ -33,6 +33,7 @@ class AppUserMetricsTests {
             .with(u -> u.setProductManagers(Set.of()))
             .with(u -> u.setStakeholders(Set.of()))
             .with(u -> u.setTechLeads(Set.of()))
+            .with(u -> u.setTesters(Set.of()))
             .with(u -> u.setUnassigned(Set.of()))
             .get();
     private final AppUserMetricsDTO appUserMetricsDTO = Builder.build(AppUserMetricsDTO.class)
