@@ -22,7 +22,7 @@ public enum Roles {
     PLATFORM_OPERATOR(5, "PLATFORM_OPERATOR", "Owner/Operator of platform hosting service", "Platform Operator"),
     PORTFOLIO_ADMIN(6, "PORTFOLIO_ADMIN", "Admin over a portfolio", "Portfolio Admin"),
     STAKEHOLDER(7, "STAKEHOLDER", "Stakeholder", "Stakeholder"),
-    TESTER(8,"TESTER", "Tests app functionality", "Tester" );
+    TESTER(8, "TESTER", "Tests app functionality", "Tester");
 
     private final Integer offset;
     private final String name;
