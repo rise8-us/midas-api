@@ -25,4 +25,5 @@ public class TargetDTO implements AbstractDTO {
     private List<Long> childrenIds;
     private Set<Long> epicIds;
     private Set<Long> deliverableIds;
+    private Boolean isPriority;
 }

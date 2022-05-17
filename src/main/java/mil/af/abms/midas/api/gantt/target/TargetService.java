@@ -16,9 +16,9 @@ import mil.af.abms.midas.api.deliverable.Deliverable;
 import mil.af.abms.midas.api.deliverable.DeliverableService;
 import mil.af.abms.midas.api.epic.Epic;
 import mil.af.abms.midas.api.epic.EpicService;
-import mil.af.abms.midas.api.gantt.GanttDateInterfaceDTO;
 import mil.af.abms.midas.api.gantt.target.dto.CreateTargetDTO;
 import mil.af.abms.midas.api.gantt.target.dto.TargetDTO;
+import mil.af.abms.midas.api.gantt.target.dto.TargetInterfaceDTO;
 import mil.af.abms.midas.api.gantt.target.dto.UpdateTargetDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.portfolio.PortfolioService;
@@ -53,7 +53,6 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
 
     @Transactional
     public Target create(CreateTargetDTO dto) {
-
         Target newTarget = Builder.build(Target.class)
                 .with(t -> t.setPortfolio(portfolioService.findById(dto.getPortfolioId())))
                 .with(t -> t.setParent(findByIdOrNull(dto.getParentId())))
@@ -92,11 +91,14 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
         repository.deleteById(id);
     }
 
-    protected void updateCommonFields(GanttDateInterfaceDTO dto, Target target) {
+    protected void updateCommonFields(TargetInterfaceDTO dto, Target target) {
         target.setStartDate(dto.getStartDate());
         target.setDueDate(dto.getDueDate());
         target.setTitle(dto.getTitle());
         target.setDescription(dto.getDescription());
+        Optional.ofNullable(dto.getIsPriority()).ifPresent(value -> {
+            target.setIsPriority(dto.getIsPriority());
+        });
     }
 
     protected void linkGitlabEpic(Long epicId, Target target) {

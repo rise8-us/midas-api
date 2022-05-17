@@ -18,7 +18,7 @@ import mil.af.abms.midas.api.validation.TargetExists;
 @IsValidGanttDueDate
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateTargetDTO implements TargetInterfaceDTO {
+public class CreateTargetDTO implements TargetCreateInterfaceDTO {
 
     @NotNull(message = "Please enter a start date")
     private LocalDate startDate;
@@ -37,5 +37,5 @@ public class CreateTargetDTO implements TargetInterfaceDTO {
 
     private Set<Long> epicIds;
     private Set<Long> deliverableIds;
-
+    private Boolean isPriority = false;
 }

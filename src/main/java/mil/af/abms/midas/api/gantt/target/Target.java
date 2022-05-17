@@ -62,6 +62,9 @@ public class Target extends AbstractGanttEntity<TargetDTO> {
     )
     private Set<Deliverable> deliverables = new HashSet<>();
 
+    @Column(columnDefinition = "BIT(1) DEFAULT 0", nullable = false)
+    private Boolean isPriority = false;
+
     public TargetDTO toDto() {
         return new TargetDTO(
                 id,
@@ -73,7 +76,8 @@ public class Target extends AbstractGanttEntity<TargetDTO> {
                 getIdOrNull(parent),
                 getIds(children),
                 getIds(epics),
-                getIds(deliverables)
+                getIds(deliverables),
+                isPriority
         );
     }
 

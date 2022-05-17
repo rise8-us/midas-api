@@ -49,8 +49,8 @@ public class IsValidGanttDueDateValidatorTests {
             .with(t -> t.setStartDate(today))
             .with(t -> t.setDueDate(null))
             .get();
-    UpdateTargetDTO targetDTOWithValidDueDate = new UpdateTargetDTO(today, today.plusDays(1L), "updated title", "updated description", Set.of(), Set.of());
-    UpdateTargetDTO targetDTOWithInValidDueDate = new UpdateTargetDTO(today, today.minusDays(1L), "updated title", "updated description", Set.of(), Set.of());
+    UpdateTargetDTO targetDTOWithValidDueDate = new UpdateTargetDTO(today, today.plusDays(1L), "updated title", "updated description", Set.of(), Set.of(), false);
+    UpdateTargetDTO targetDTOWithInValidDueDate = new UpdateTargetDTO(today, today.minusDays(1L), "updated title", "updated description", Set.of(), Set.of(), false);
 
     @BeforeEach
     public void init() {

@@ -78,6 +78,7 @@ public class TargetServiceTests {
             .with(t -> t.setChildren(List.of()))
             .with(t -> t.setEpics(Set.of()))
             .with(t -> t.setDeliverables(Set.of()))
+            .with(t -> t.setIsPriority(false))
             .get();
     private final Target targetParent = Builder.build(Target.class)
             .with(t -> t.setId(1L))
@@ -114,6 +115,7 @@ public class TargetServiceTests {
             .with(t -> t.setDescription("This is an updated description"))
             .with(t -> t.setEpicIds(Set.of()))
             .with(t -> t.setDeliverableIds(Set.of()))
+            .with(t -> t.setIsPriority(true))
             .get();
     private final Epic epic = Builder.build(Epic.class)
             .with(e -> e.setId(1L))
@@ -140,6 +142,7 @@ public class TargetServiceTests {
 
         assertThat(targetSaved.getTitle()).isEqualTo("This is the title");
         assertThat(targetSaved.getDescription()).isEqualTo("This is the description");
+        assertThat(targetSaved.getIsPriority()).isEqualTo(false);
 
     }
 
@@ -152,6 +155,7 @@ public class TargetServiceTests {
         newTarget.setTitle("This is an updated title");
         newTarget.setDescription("This is an updated description");
         newTarget.setId(10L);
+        newTarget.setIsPriority(true);
 
         when(targetRepository.findById(1L)).thenReturn(Optional.of(newTarget));
         when(targetRepository.save(newTarget)).thenReturn(newTarget);
@@ -168,6 +172,7 @@ public class TargetServiceTests {
         assertThat(targetSaved.getDescription()).isEqualTo(updateTargetDTO.getDescription());
         assertThat(targetSaved.getStartDate()).isEqualTo(updateTargetDTO.getStartDate());
         assertThat(targetSaved.getDueDate()).isEqualTo(updateTargetDTO.getDueDate());
+        assertThat(targetSaved.getIsPriority()).isEqualTo(updateTargetDTO.getIsPriority());
     }
 
     @Test
