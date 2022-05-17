@@ -10,14 +10,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import mil.af.abms.midas.api.gantt.GanttDateInterfaceDTO;
 import mil.af.abms.midas.api.validation.IsValidGanttDueDate;
 
 @Data
 @IsValidGanttDueDate
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateTargetDTO implements GanttDateInterfaceDTO {
+public class UpdateTargetDTO implements TargetInterfaceDTO {
 
     @NotNull(message = "Please enter a start date")
     private LocalDate startDate;
@@ -30,4 +29,5 @@ public class UpdateTargetDTO implements GanttDateInterfaceDTO {
 
     private Set<Long> epicIds;
     private Set<Long> deliverableIds;
+    private Boolean isPriority;
 }

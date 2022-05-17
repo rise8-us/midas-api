@@ -1,0 +1,1 @@
+ALTER TABLE `gantt_target` ADD `is_priority` BIT(1) DEFAULT 0;

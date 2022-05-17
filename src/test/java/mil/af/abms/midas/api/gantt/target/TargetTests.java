@@ -45,6 +45,7 @@ class TargetTests {
             .with(t -> t.setChildrenIds(List.of()))
             .with(t -> t.setEpicIds(Set.of()))
             .with(t -> t.setDeliverableIds(Set.of()))
+            .with(t -> t.setIsPriority(false))
             .get();
 
     @Test
