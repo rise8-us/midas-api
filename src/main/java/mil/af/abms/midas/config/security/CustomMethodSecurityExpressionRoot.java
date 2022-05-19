@@ -18,6 +18,8 @@ import mil.af.abms.midas.api.gantt.milestone.Milestone;
 import mil.af.abms.midas.api.gantt.milestone.MilestoneService;
 import mil.af.abms.midas.api.gantt.target.Target;
 import mil.af.abms.midas.api.gantt.target.TargetService;
+import mil.af.abms.midas.api.gantt.win.Win;
+import mil.af.abms.midas.api.gantt.win.WinService;
 import mil.af.abms.midas.api.measure.Measure;
 import mil.af.abms.midas.api.measure.MeasureService;
 import mil.af.abms.midas.api.persona.PersonaService;
@@ -41,14 +43,15 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
     private static FeatureService featureService() { return SpringContext.getBean(FeatureService.class); }
     private static FeedbackService feedbackService() { return SpringContext.getBean(FeedbackService.class); }
     private static MeasureService measureService() { return SpringContext.getBean(MeasureService.class); }
+    private static MilestoneService milestoneService() { return SpringContext.getBean(MilestoneService.class); }
     private static PersonaService personaService() { return SpringContext.getBean(PersonaService.class); }
     private static PersonnelService personnelService() { return SpringContext.getBean(PersonnelService.class); }
     private static PortfolioService portfolioService() { return SpringContext.getBean(PortfolioService.class); }
     private static ProductService productService() { return SpringContext.getBean(ProductService.class); }
     private static ProjectService projectService() { return SpringContext.getBean(ProjectService.class); }
     private static TargetService targetService() { return SpringContext.getBean(TargetService.class); }
-    private static MilestoneService milestoneService() { return SpringContext.getBean(MilestoneService.class); }
     private static UserService userService() { return SpringContext.getBean(UserService.class); }
+    private static WinService winService() { return SpringContext.getBean(WinService.class); }
 
     public CustomMethodSecurityExpressionRoot(Authentication authentication) {
         super(authentication);
@@ -117,6 +120,13 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
         if (milestoneId == null) { return false; }
         Milestone milestoneBeingAccessed = milestoneService().findById(milestoneId);
         Long portfolioId = Optional.ofNullable(milestoneBeingAccessed.getPortfolio()).map(Portfolio::getId).orElse(null);
+        return hasPortfolioAccess(portfolioId);
+    }
+
+    public boolean hasGanttWinModifyAccess(Long winId) {
+        if (winId == null) { return false; }
+        Win winBeingAccessed = winService().findById(winId);
+        Long portfolioId = Optional.ofNullable(winBeingAccessed.getPortfolio()).map(Portfolio::getId).orElse(null);
         return hasPortfolioAccess(portfolioId);
     }
 
