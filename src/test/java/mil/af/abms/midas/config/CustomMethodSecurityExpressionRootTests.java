@@ -39,6 +39,8 @@ import mil.af.abms.midas.api.gantt.milestone.Milestone;
 import mil.af.abms.midas.api.gantt.milestone.MilestoneService;
 import mil.af.abms.midas.api.gantt.target.Target;
 import mil.af.abms.midas.api.gantt.target.TargetService;
+import mil.af.abms.midas.api.gantt.win.Win;
+import mil.af.abms.midas.api.gantt.win.WinService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.measure.Measure;
 import mil.af.abms.midas.api.measure.MeasureService;
@@ -101,6 +103,8 @@ class CustomMethodSecurityExpressionRootTests {
     TargetService targetService;
     @MockBean
     MilestoneService milestoneService;
+    @MockBean
+    WinService winService;
 
     Assertion assertion = Builder.build(Assertion.class)
             .with(a -> a.setId(7L))
@@ -167,6 +171,11 @@ class CustomMethodSecurityExpressionRootTests {
             .get();
     Milestone milestone = Builder.build(Milestone.class)
             .with(m -> m.setId(14L))
+            .with(m -> m.setPortfolio(portfolio))
+            .get();
+
+    Win win = Builder.build(Win.class)
+            .with(m -> m.setId(15L))
             .with(m -> m.setPortfolio(portfolio))
             .get();
 
@@ -525,6 +534,19 @@ class CustomMethodSecurityExpressionRootTests {
         doReturn(true).when(security).hasPortfolioAccess(anyLong());
 
         assertTrue(security.hasGanttMilestoneModifyAccess(14L));
+    }
+
+    @Test
+    void hasGanttWinModifyAccess_false() {
+        assertFalse(security.hasGanttWinModifyAccess(null));
+    }
+
+    @Test
+    void hasGanttWinModifyAccess_true() {
+        when(winService.findById(anyLong())).thenReturn(win);
+        doReturn(true).when(security).hasPortfolioAccess(anyLong());
+
+        assertTrue(security.hasGanttWinModifyAccess(15L));
     }
 
 }

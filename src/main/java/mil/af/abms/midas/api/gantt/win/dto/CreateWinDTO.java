@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.gantt.milestone.dto;
+package mil.af.abms.midas.api.gantt.win.dto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -15,12 +15,12 @@ import mil.af.abms.midas.api.validation.PortfolioExists;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateMilestoneDTO implements GanttInterfaceDTO {
+public class CreateWinDTO implements GanttInterfaceDTO {
 
-    @NotNull(message = "Please enter a due date")
+    @NotNull(message = "Please enter a date for this win")
     private LocalDate dueDate;
 
-    @NotBlank(message = "Please enter a milestone title")
+    @NotBlank(message = "Please enter a title for this win")
     private String title;
     private String description;
 
