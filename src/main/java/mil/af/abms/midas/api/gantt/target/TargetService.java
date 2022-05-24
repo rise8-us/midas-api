@@ -74,7 +74,6 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
     public Target updateById(Long id, UpdateTargetDTO dto) {
         Target foundTarget = findById(id);
 
-//        removeLinks(foundTarget);
         linkEpics(dto.getEpicIds(), foundTarget);
         linkDeliverables(dto.getDeliverableIds(), foundTarget);
         updateCommonFields(dto, foundTarget);
