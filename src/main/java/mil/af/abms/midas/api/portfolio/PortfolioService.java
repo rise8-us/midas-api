@@ -2,6 +2,7 @@ package mil.af.abms.midas.api.portfolio;
 
 import javax.transaction.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -105,6 +106,10 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
     public Portfolio findByName(String name) {
         return repository.findByName(name).orElseThrow(
                 () -> new EntityNotFoundException(Product.class.getSimpleName(), "name", name));
+    }
+
+    public List<Long> getAllPortfolioIds() {
+        return repository.findAll().stream().map(Portfolio::getId).collect(Collectors.toList());
     }
 
 }

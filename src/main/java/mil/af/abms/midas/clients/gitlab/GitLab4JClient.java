@@ -154,7 +154,7 @@ public class GitLab4JClient {
     }
 
     public List<GitLabEpic> getEpicsFromGroup(Integer groupId) {
-        String url = String.format("%s/api/v4/groups/%d/epics", this.baseUrl, groupId);
+        String url = String.format("%s/api/v4/groups/%d/epics?include_descendant_groups=false", this.baseUrl, groupId);
         return getGitLabEpics(url);
     }
 

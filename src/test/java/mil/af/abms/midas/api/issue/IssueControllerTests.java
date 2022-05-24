@@ -22,7 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
-import mil.af.abms.midas.api.dtos.AddGitLabIssueDTO;
+import mil.af.abms.midas.api.dtos.AddGitLabIssueWithProductDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
@@ -63,11 +63,11 @@ public class IssueControllerTests extends ControllerTestHarness {
     @Test
     void throw_should_create_issue_gitLab_not_found() throws Exception {
         when(projectService.findById(any())).thenReturn(project);
-        when(issueService.create(any(AddGitLabIssueDTO.class))).thenReturn(issue);
+        when(issueService.create(any(AddGitLabIssueWithProductDTO.class))).thenReturn(issue);
 
         mockMvc.perform(post("/api/issues")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(mapper.writeValueAsString(new AddGitLabIssueDTO(1, 2L)))
+                        .content(mapper.writeValueAsString(new AddGitLabIssueWithProductDTO(1, 2L)))
                 )
                 .andExpect(status().is(400))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -79,11 +79,11 @@ public class IssueControllerTests extends ControllerTestHarness {
     void should_create_issue() throws Exception {
         when(projectService.findById(any())).thenReturn(project);
         when(issueService.canAddIssue(any(), any())).thenReturn(true);
-        when(issueService.create(any(AddGitLabIssueDTO.class))).thenReturn(issue);
+        when(issueService.create(any(AddGitLabIssueWithProductDTO.class))).thenReturn(issue);
 
         mockMvc.perform(post("/api/issues")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(mapper.writeValueAsString(new AddGitLabIssueDTO(1, 2L)))
+                        .content(mapper.writeValueAsString(new AddGitLabIssueWithProductDTO(1, 2L)))
                 )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))

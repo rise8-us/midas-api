@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import mil.af.abms.midas.api.AbstractCRUDController;
-import mil.af.abms.midas.api.dtos.AddGitLabIssueDTO;
+import mil.af.abms.midas.api.dtos.AddGitLabIssueWithProductDTO;
 import mil.af.abms.midas.api.issue.dto.IssueDTO;
 
 @RestController
@@ -27,8 +27,8 @@ public class IssueController extends AbstractCRUDController<Issue, IssueDTO, Iss
     }
 
     @PostMapping
-    public IssueDTO create(@Valid @RequestBody AddGitLabIssueDTO addGitLabIssueDTO) {
-        return service.create(addGitLabIssueDTO).toDto();
+    public IssueDTO create(@Valid @RequestBody AddGitLabIssueWithProductDTO addGitLabIssueWithProductDTO) {
+        return service.create(addGitLabIssueWithProductDTO).toDto();
     }
 
     @GetMapping("/sync/{id}")

@@ -30,7 +30,7 @@ import org.mockito.Captor;
 import org.mockito.Mockito;
 
 import mil.af.abms.midas.api.completion.CompletionService;
-import mil.af.abms.midas.api.dtos.AddGitLabIssueDTO;
+import mil.af.abms.midas.api.dtos.AddGitLabIssueWithProductDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
@@ -90,7 +90,7 @@ public class IssueServiceTests {
         doReturn(gitLabIssue).when(issueService).getIssueFromClient(any(Project.class), anyInt());
         when(projectService.findById(any())).thenReturn(foundProject);
 
-        issueService.create(new AddGitLabIssueDTO(2, 1L));
+        issueService.create(new AddGitLabIssueWithProductDTO(2, 1L));
         verify(repository, times(1)).save(captor.capture());
         var epicSaved = captor.getValue();
 
@@ -106,7 +106,7 @@ public class IssueServiceTests {
         when(projectService.findById(any())).thenReturn(foundProject);
         when(repository.findByIssueUid(foundIssue.getIssueUid())).thenReturn(Optional.of(foundIssue));
 
-        issueService.create(new AddGitLabIssueDTO(2, 1L));
+        issueService.create(new AddGitLabIssueWithProductDTO(2, 1L));
 
         verify(repository, times(1)).save(captor.capture());
         var epicSaved = captor.getValue();

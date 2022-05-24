@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.completion.CompletionService;
-import mil.af.abms.midas.api.dtos.AddGitLabIssueDTO;
+import mil.af.abms.midas.api.dtos.AddGitLabIssueWithProductDTO;
 import mil.af.abms.midas.api.issue.dto.IssueDTO;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
@@ -42,7 +42,7 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
         super(repository, Issue.class, IssueDTO.class);
     }
 
-    public Issue create(AddGitLabIssueDTO dto) {
+    public Issue create(AddGitLabIssueWithProductDTO dto) {
         var project = projectService.findById(dto.getProjectId());
         var sourceControlId = project.getSourceControl().getId();
         var gitlabProjectId = project.getGitlabProjectId();

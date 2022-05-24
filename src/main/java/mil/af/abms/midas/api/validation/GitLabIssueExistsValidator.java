@@ -5,11 +5,11 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import mil.af.abms.midas.api.dtos.AddGitLabIssueDTO;
+import mil.af.abms.midas.api.dtos.AddGitLabIssueWithProductDTO;
 import mil.af.abms.midas.api.issue.IssueService;
 import mil.af.abms.midas.api.project.ProjectService;
 
-public class GitLabIssueExistsValidator implements ConstraintValidator<GitLabIssueExists, AddGitLabIssueDTO> {
+public class GitLabIssueExistsValidator implements ConstraintValidator<GitLabIssueExists, AddGitLabIssueWithProductDTO> {
 
     @Autowired
     private ProjectService projectService;
@@ -18,7 +18,7 @@ public class GitLabIssueExistsValidator implements ConstraintValidator<GitLabIss
     private IssueService issueService;
 
     @Override
-    public boolean isValid(AddGitLabIssueDTO dto, ConstraintValidatorContext constraintContext) {
+    public boolean isValid(AddGitLabIssueWithProductDTO dto, ConstraintValidatorContext constraintContext) {
         try {
             var project = projectService.findById(dto.getProjectId());
             return issueService.canAddIssue(dto.getIId(), project);

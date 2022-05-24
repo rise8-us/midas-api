@@ -1,8 +1,8 @@
 package mil.af.abms.midas.api.epic;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
@@ -53,10 +53,11 @@ public class EpicTests {
         Epic epic2 = new Epic();
         BeanUtils.copyProperties(epic, epic2);
 
-        assertFalse(epic.equals(null));
-        assertFalse(epic.equals(new User()));
-        assertFalse(epic.equals(new Epic()));
-        assertTrue(epic.equals(epic2));
+        assertEquals(epic, epic);
+        assertNotEquals(epic, null);
+        assertNotEquals(epic, new User());
+        assertNotEquals(epic, new Epic());
+        assertEquals(epic, epic2);
     }
 
     @Test

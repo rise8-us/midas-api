@@ -38,6 +38,7 @@ import mil.af.abms.midas.api.gantt.target.dto.UpdateTargetDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.portfolio.PortfolioService;
+import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.user.UserService;
 
 @ExtendWith(SpringExtension.class)
@@ -65,6 +66,9 @@ public class TargetServiceTests {
     ArgumentCaptor<Long> longCaptor;
 
     private final Portfolio portfolio = Builder.build(Portfolio.class)
+            .with(p -> p.setId(1L))
+            .get();
+    private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(1L))
             .get();
     private final Target target = Builder.build(Target.class)
@@ -117,8 +121,13 @@ public class TargetServiceTests {
             .with(t -> t.setDeliverableIds(Set.of()))
             .with(t -> t.setIsPriority(true))
             .get();
-    private final Epic epic = Builder.build(Epic.class)
+    private final Epic epicWithProduct = Builder.build(Epic.class)
             .with(e -> e.setId(1L))
+            .with(e -> e.setProduct(product))
+            .get();
+    private final Epic epicWithPortfolio = Builder.build(Epic.class)
+            .with(e -> e.setId(1L))
+            .with(e -> e.setPortfolio(portfolio))
             .get();
 
 
@@ -130,7 +139,7 @@ public class TargetServiceTests {
         doReturn(target).when(targetRepository).save(any());
         doReturn(target).when(targetService).findByIdOrNull(any());
         if (foundEpic) {
-            doReturn(epic).when(epicService).findByIdOrNull(anyLong());
+            doReturn(epicWithProduct).when(epicService).findByIdOrNull(anyLong());
         } else {
             doReturn(null).when(epicService).findByIdOrNull(anyLong());
         }
@@ -173,6 +182,26 @@ public class TargetServiceTests {
         assertThat(targetSaved.getStartDate()).isEqualTo(updateTargetDTO.getStartDate());
         assertThat(targetSaved.getDueDate()).isEqualTo(updateTargetDTO.getDueDate());
         assertThat(targetSaved.getIsPriority()).isEqualTo(updateTargetDTO.getIsPriority());
+    }
+
+    @Test
+    void should_linkGitlabEpic_for_product() {
+        doReturn(epicWithProduct).when(epicService).findByIdOrNull(anyLong());
+        doReturn(epicWithProduct).when(epicService).updateByIdForProduct(anyLong());
+
+        targetService.linkGitlabEpic(1L, target);
+
+        assertThat(target.getEpics()).isEqualTo(Set.of(epicWithProduct));
+    }
+
+    @Test
+    void should_linkGitlabEpic_for_portfolio() {
+        doReturn(epicWithPortfolio).when(epicService).findByIdOrNull(anyLong());
+        doReturn(epicWithPortfolio).when(epicService).updateByIdForPortfolio(anyLong());
+
+        targetService.linkGitlabEpic(1L, target);
+
+        assertThat(target.getEpics()).isEqualTo(Set.of(epicWithPortfolio));
     }
 
     @Test

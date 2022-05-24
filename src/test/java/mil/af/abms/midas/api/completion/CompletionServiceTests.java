@@ -34,6 +34,8 @@ import mil.af.abms.midas.api.epic.EpicService;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.issue.Issue;
 import mil.af.abms.midas.api.issue.IssueService;
+import mil.af.abms.midas.api.portfolio.Portfolio;
+import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.enums.CompletionType;
 
 @ExtendWith(SpringExtension.class)
@@ -62,7 +64,13 @@ class CompletionServiceTests {
             .with(c -> c.setStartDate(null))
             .with(c -> c.setCompletedAt(null))
             .get();
-    private final Epic epic = Builder.build(Epic.class)
+    private final Product product = Builder.build(Product.class)
+            .with(c -> c.setId(1L))
+            .get();
+    private final Portfolio portfolio = Builder.build(Portfolio.class)
+            .with(c -> c.setId(1L))
+            .get();
+    private final Epic epicWithProduct = Builder.build(Epic.class)
             .with(e -> e.setId(1L))
             .with(e -> e.setTitle("title"))
             .with(e -> e.setEpicIid(2))
@@ -72,6 +80,19 @@ class CompletionServiceTests {
             .with(e -> e.setStartDate(LocalDate.now().minusDays(1)))
             .with(e -> e.setDueDate(LocalDate.now().plusDays(1)))
             .with(e -> e.setCompletions(Set.of(completion)))
+            .with(e -> e.setProduct(product))
+            .get();
+    private final Epic epicWithPortfolio = Builder.build(Epic.class)
+            .with(e -> e.setId(1L))
+            .with(e -> e.setTitle("title"))
+            .with(e -> e.setEpicIid(2))
+            .with(e -> e.setCompletedWeight(2L))
+            .with(e -> e.setTotalWeight(5L))
+            .with(e -> e.setCompletedAt(LocalDateTime.now()))
+            .with(e -> e.setStartDate(LocalDate.now().minusDays(1)))
+            .with(e -> e.setDueDate(LocalDate.now().plusDays(1)))
+            .with(e -> e.setCompletions(Set.of(completion)))
+            .with(e -> e.setPortfolio(portfolio))
             .get();
     private final Issue issue = Builder.build(Issue.class)
             .with(i -> i.setId(1L))
@@ -186,18 +207,33 @@ class CompletionServiceTests {
     }
 
     @Test
-    void should_linkGitlabEpic() {
-        doReturn(epic).when(epicService).findByIdOrNull(anyLong());
-        doReturn(epic).when(epicService).updateById(anyLong());
+    void should_linkGitlabEpic_for_product() {
+        doReturn(epicWithProduct).when(epicService).findByIdOrNull(anyLong());
+        doReturn(epicWithProduct).when(epicService).updateByIdForProduct(anyLong());
 
         completionService.linkGitlabEpic(1L, completion2);
 
-        assertThat(completion2.getEpic()).isEqualTo(epic);
-        assertThat(completion2.getValue()).isEqualTo(epic.getCompletedWeight().floatValue());
-        assertThat(completion2.getTarget()).isEqualTo(epic.getTotalWeight().floatValue());
-        assertThat(completion2.getStartDate()).isEqualTo(epic.getStartDate());
-        assertThat(completion2.getDueDate()).isEqualTo(epic.getDueDate());
-        assertThat(completion2.getCompletedAt()).isEqualTo(epic.getCompletedAt());
+        assertThat(completion2.getEpic()).isEqualTo(epicWithProduct);
+        assertThat(completion2.getValue()).isEqualTo(epicWithProduct.getCompletedWeight().floatValue());
+        assertThat(completion2.getTarget()).isEqualTo(epicWithProduct.getTotalWeight().floatValue());
+        assertThat(completion2.getStartDate()).isEqualTo(epicWithProduct.getStartDate());
+        assertThat(completion2.getDueDate()).isEqualTo(epicWithProduct.getDueDate());
+        assertThat(completion2.getCompletedAt()).isEqualTo(epicWithProduct.getCompletedAt());
+    }
+
+    @Test
+    void should_linkGitlabEpic_for_portfolio() {
+        doReturn(epicWithPortfolio).when(epicService).findByIdOrNull(anyLong());
+        doReturn(epicWithPortfolio).when(epicService).updateByIdForPortfolio(anyLong());
+
+        completionService.linkGitlabEpic(1L, completion2);
+
+        assertThat(completion2.getEpic()).isEqualTo(epicWithPortfolio);
+        assertThat(completion2.getValue()).isEqualTo(epicWithPortfolio.getCompletedWeight().floatValue());
+        assertThat(completion2.getTarget()).isEqualTo(epicWithPortfolio.getTotalWeight().floatValue());
+        assertThat(completion2.getStartDate()).isEqualTo(epicWithPortfolio.getStartDate());
+        assertThat(completion2.getDueDate()).isEqualTo(epicWithPortfolio.getDueDate());
+        assertThat(completion2.getCompletedAt()).isEqualTo(epicWithPortfolio.getCompletedAt());
     }
 
     @Test
@@ -241,7 +277,7 @@ class CompletionServiceTests {
     void should_update_linked_epic() {
         doNothing().when(completionService).updateCompletionWithGitlabEpic(any(), any());
 
-        completionService.updateLinkedEpic(epic);
+        completionService.updateLinkedEpic(epicWithProduct);
 
         verify(completionService, times(1)).updateLinkedEpic(any());
     }

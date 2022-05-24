@@ -3,6 +3,7 @@ package mil.af.abms.midas.api.gantt.target;
 import javax.transaction.Transactional;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -73,7 +74,7 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
     public Target updateById(Long id, UpdateTargetDTO dto) {
         Target foundTarget = findById(id);
 
-        removeLinks(foundTarget);
+//        removeLinks(foundTarget);
         linkEpics(dto.getEpicIds(), foundTarget);
         linkDeliverables(dto.getDeliverableIds(), foundTarget);
         updateCommonFields(dto, foundTarget);
@@ -103,16 +104,18 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
 
     protected void linkGitlabEpic(Long epicId, Target target) {
         Epic foundEpic = epicService.findByIdOrNull(epicId);
+        Set<Epic> newEpicSet = new HashSet<>(target.getEpics());
 
         Optional.ofNullable(foundEpic).ifPresentOrElse(epic -> {
-            Epic updatedEpic = epicService.updateById(foundEpic.getId());
-
-            Set<Epic> newEpicSet = new HashSet<>();
-            newEpicSet.addAll(target.getEpics());
-            newEpicSet.add(updatedEpic);
+            if (Optional.ofNullable(epic.getProduct()).isPresent()) {
+                newEpicSet.add(epicService.updateByIdForProduct(epic.getId()));
+            }
+            if (Optional.ofNullable(epic.getPortfolio()).isPresent()) {
+                newEpicSet.add(epicService.updateByIdForPortfolio(epic.getId()));
+            }
             target.setEpics(newEpicSet);
-
         }, () -> target.setEpics(Set.of()));
+
     }
 
     protected void linkDeliverable(Long deliverableId, Target target) {
@@ -138,18 +141,34 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
         });
     }
 
-    private void linkEpics(Set<Long> epicIds, Target newTarget) {
-        Optional.ofNullable(epicIds).ifPresent(ids -> {
-            ids.forEach(epicId -> {
-                linkGitlabEpic(epicId, newTarget);
+    private void linkEpics(Set<Long> incomingIds, Target target) {
+        Optional.ofNullable(incomingIds).ifPresent(ids -> {
+            Set<Long> idsToRemove = target.getEpics().stream().map(Epic::getId).collect(Collectors.toSet());
+            Set<Long> idsToAdd = new HashSet<>(ids);
+            idsToAdd.removeAll(idsToRemove);
+            idsToRemove.removeAll(ids);
+
+            idsToRemove.forEach(id -> {
+                target.setEpics(target.getEpics().stream().filter(e -> !Objects.equals(e.getId(), id)).collect(Collectors.toSet()));
+            });
+            idsToAdd.forEach(id -> {
+                linkGitlabEpic(id, target);
             });
         });
     }
 
-    private void linkDeliverables(Set<Long> deliverableIds, Target newTarget) {
-        Optional.ofNullable(deliverableIds).ifPresent(ids -> {
-            ids.forEach(deliverableId -> {
-                linkDeliverable(deliverableId, newTarget);
+    private void linkDeliverables(Set<Long> incomingIds, Target target) {
+        Optional.ofNullable(incomingIds).ifPresent(ids -> {
+            Set<Long> idsToRemove = target.getDeliverables().stream().map(Deliverable::getId).collect(Collectors.toSet());
+            Set<Long> idsToAdd = new HashSet<>(ids);
+            idsToAdd.removeAll(idsToRemove);
+            idsToRemove.removeAll(ids);
+
+            idsToRemove.forEach(id -> {
+                target.setDeliverables(target.getDeliverables().stream().filter(e -> !Objects.equals(e.getId(), id)).collect(Collectors.toSet()));
+            });
+            idsToAdd.forEach(id -> {
+                linkDeliverable(id, target);
             });
         });
     }
