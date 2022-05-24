@@ -78,6 +78,8 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
         linkDeliverables(dto.getDeliverableIds(), foundTarget);
         updateCommonFields(dto, foundTarget);
 
+        updateChildrenDates(dto, foundTarget);
+
         return repository.save(foundTarget);
     }
 
@@ -98,6 +100,15 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
         target.setDescription(dto.getDescription());
         Optional.ofNullable(dto.getIsPriority()).ifPresent(value -> {
             target.setIsPriority(dto.getIsPriority());
+        });
+    }
+
+    protected void updateChildrenDates(TargetInterfaceDTO dto, Target target) {
+        target.getChildren().forEach(child -> {
+            child.setStartDate(dto.getStartDate());
+            child.setDueDate(dto.getDueDate());
+
+            repository.save(child);
         });
     }
 

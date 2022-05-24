@@ -169,6 +169,7 @@ public class TargetServiceTests {
         when(targetRepository.findById(1L)).thenReturn(Optional.of(newTarget));
         when(targetRepository.save(newTarget)).thenReturn(newTarget);
         when(targetRepository.save(targetChild)).thenReturn(targetChild);
+        doNothing().when(targetService).updateChildrenDates(any(), any());
 
         doReturn(newTarget).when(targetService).create(any());
 
@@ -182,6 +183,27 @@ public class TargetServiceTests {
         assertThat(targetSaved.getStartDate()).isEqualTo(updateTargetDTO.getStartDate());
         assertThat(targetSaved.getDueDate()).isEqualTo(updateTargetDTO.getDueDate());
         assertThat(targetSaved.getIsPriority()).isEqualTo(updateTargetDTO.getIsPriority());
+    }
+
+    @Test
+    void should_update_children_dates() {
+        targetChild.setStartDate(LocalDate.now().plusDays(30));
+        targetChild.setStartDate(LocalDate.now().plusDays(35));
+        targetParent.setChildren(List.of(targetChild));
+
+        when(targetRepository.findById(1L)).thenReturn(Optional.of(targetParent));
+        when(targetRepository.save(targetParent)).thenReturn(targetParent);
+        when(targetRepository.save(targetChild)).thenReturn(targetChild);
+
+        targetService.updateChildrenDates(updateTargetDTO, targetParent);
+
+        verify(targetRepository, times(1)).save(targetCaptor.capture());
+        var targetSaved = targetCaptor.getValue();
+
+        targetSaved.getChildren().forEach(child -> {
+            assertThat(child.getStartDate()).isEqualTo(updateTargetDTO.getStartDate());
+            assertThat(child.getDueDate()).isEqualTo(updateTargetDTO.getDueDate());
+        });
     }
 
     @Test
