@@ -409,7 +409,7 @@ class EpicServiceTests {
         var expectedEpic = new Epic();
         BeanUtils.copyProperties(foundEpicForPortfolio, expectedEpic);
         expectedEpic.setTitle(gitLabEpic.getTitle());
-        expectedEpic.setId(6L);
+        expectedEpic.setId(7L);
 
         doReturn(expectedEpic).when(repository).save(any(Epic.class));
         when(epicService.getGitlabClientForPortfolio(foundPortfolio)).thenReturn(client);
