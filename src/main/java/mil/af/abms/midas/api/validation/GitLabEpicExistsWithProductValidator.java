@@ -5,11 +5,11 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import mil.af.abms.midas.api.dtos.AddGitLabEpicDTO;
+import mil.af.abms.midas.api.dtos.AddGitLabEpicWithProductDTO;
 import mil.af.abms.midas.api.epic.EpicService;
 import mil.af.abms.midas.api.product.ProductService;
 
-public class GitLabEpicExistsValidator implements ConstraintValidator<GitLabEpicExists, AddGitLabEpicDTO> {
+public class GitLabEpicExistsWithProductValidator implements ConstraintValidator<GitLabEpicExistsForProduct, AddGitLabEpicWithProductDTO> {
 
     @Autowired
     private ProductService productService;
@@ -18,10 +18,10 @@ public class GitLabEpicExistsValidator implements ConstraintValidator<GitLabEpic
     private EpicService epicService;
 
     @Override
-    public boolean isValid(AddGitLabEpicDTO dto, ConstraintValidatorContext constraintContext) {
+    public boolean isValid(AddGitLabEpicWithProductDTO dto, ConstraintValidatorContext constraintContext) {
         try {
             var product = productService.findById(dto.getProductId());
-            return epicService.canAddEpic(dto.getIId(), product);
+            return epicService.canAddEpicWithProduct(dto.getIId(), product);
         } catch (Exception e) {
             return false;
         }

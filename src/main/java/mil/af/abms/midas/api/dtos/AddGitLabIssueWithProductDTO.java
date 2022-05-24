@@ -10,7 +10,7 @@ import mil.af.abms.midas.api.validation.GitLabIssueExists;
 @Data
 @AllArgsConstructor
 @GitLabIssueExists
-public class AddGitLabIssueDTO {
+public class AddGitLabIssueWithProductDTO {
 
     @NotNull(message = "iId cannot be null")
     private Integer iId;

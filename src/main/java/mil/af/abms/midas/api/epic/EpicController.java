@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import mil.af.abms.midas.api.AbstractCRUDController;
-import mil.af.abms.midas.api.dtos.AddGitLabEpicDTO;
+import mil.af.abms.midas.api.dtos.AddGitLabEpicWithPortfolioDTO;
+import mil.af.abms.midas.api.dtos.AddGitLabEpicWithProductDTO;
 import mil.af.abms.midas.api.dtos.IsHiddenDTO;
 import mil.af.abms.midas.api.epic.dto.EpicDTO;
 import mil.af.abms.midas.config.security.annotations.HasEpicHideAccess;
@@ -29,19 +30,34 @@ public class EpicController extends AbstractCRUDController<Epic, EpicDTO, EpicSe
         super(service);
     }
 
-    @PostMapping
-    public EpicDTO create(@Valid @RequestBody AddGitLabEpicDTO addGitLabEpicDTO) {
-        return service.create(addGitLabEpicDTO).toDto();
+    @PostMapping("/product")
+    public EpicDTO createForProduct(@Valid @RequestBody AddGitLabEpicWithProductDTO addGitLabEpicWithProductDTO) {
+        return service.createForProduct(addGitLabEpicWithProductDTO).toDto();
     }
 
-    @GetMapping("/sync/{id}")
-    public EpicDTO syncById(@PathVariable Long id) {
-        return service.updateById(id).toDto();
+    @PostMapping("/portfolio")
+    public EpicDTO createForPortfolio(@Valid @RequestBody AddGitLabEpicWithPortfolioDTO addGitLabEpicWithPortfolioDTO) {
+        return service.createForPortfolio(addGitLabEpicWithPortfolioDTO).toDto();
     }
 
-    @GetMapping("/all/{productId}")
-    public List<EpicDTO> getAllGroupEpics(@PathVariable Long productId) {
+    @GetMapping("/sync/product/{id}")
+    public EpicDTO syncByIdForProduct(@PathVariable Long id) {
+        return service.updateByIdForProduct(id).toDto();
+    }
+
+    @GetMapping("/sync/portfolio/{id}")
+    public EpicDTO syncByIdForPortfolio(@PathVariable Long id) {
+        return service.updateByIdForPortfolio(id).toDto();
+    }
+
+    @GetMapping("/all/product/{productId}")
+    public List<EpicDTO> getAllGroupEpicsForProducts(@PathVariable Long productId) {
         return service.getAllGitlabEpicsForProduct(productId).stream().map(Epic::toDto).collect(Collectors.toList());
+    }
+
+    @GetMapping("/all/portfolio/{portfolioId}")
+    public List<EpicDTO> getAllGroupEpicsForPortfolios(@PathVariable Long portfolioId) {
+        return service.getAllGitlabEpicsForPortfolio(portfolioId).stream().map(Epic::toDto).collect(Collectors.toList());
     }
 
     @PutMapping("/{id}/hide")

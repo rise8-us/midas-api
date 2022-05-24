@@ -14,4 +14,7 @@ public interface EpicRepository extends RepositoryInterface<Epic, EpicDTO> {
 
     @Query(value = "SELECT * FROM epic e WHERE e.product_id = :productId", nativeQuery = true)
     Optional<List<Epic>> findAllEpicsByProductId(Long productId);
+
+    @Query(value = "SELECT * FROM epic e WHERE e.portfolio_id = :portfolioId", nativeQuery = true)
+    Optional<List<Epic>> findAllEpicsByPortfolioId(Long portfolioId);
 }

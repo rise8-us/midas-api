@@ -32,5 +32,6 @@ public class EpicDTO implements AbstractDTO {
     private Long totalWeight;
     private Long completedWeight;
     private Long productId;
+    private Long portfolioId;
 
 }

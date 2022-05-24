@@ -114,9 +114,13 @@ public class CompletionService extends AbstractCRUDService<Completion, Completio
         Epic foundEpic = epicService.findByIdOrNull(epicId);
 
         Optional.ofNullable(foundEpic).ifPresentOrElse(epic -> {
-            Epic updatedEpic = epicService.updateById(epic.getId());
-            completion.setEpic(updatedEpic);
-            updateCompletionWithGitlabEpic(completion, updatedEpic);
+            if (Optional.ofNullable(epic.getProduct()).isPresent()) {
+                completion.setEpic(epicService.updateByIdForProduct(epic.getId()));
+            }
+            if (Optional.ofNullable(epic.getPortfolio()).isPresent()) {
+                completion.setEpic(epicService.updateByIdForPortfolio(epic.getId()));
+            }
+            updateCompletionWithGitlabEpic(completion, epic);
         }, () -> completion.setEpic(null));
 
     }

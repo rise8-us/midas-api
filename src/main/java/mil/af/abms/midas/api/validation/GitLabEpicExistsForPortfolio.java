@@ -12,9 +12,9 @@ import java.lang.annotation.Target;
 
 @Target({ TYPE_USE })
 @Retention(RUNTIME)
-@Constraint(validatedBy = GitLabEpicExistsValidator.class)
+@Constraint(validatedBy = GitLabEpicExistsWithPortfolioValidator.class)
 @Documented
-public @interface GitLabEpicExists {
+public @interface GitLabEpicExistsForPortfolio {
 
     String message() default "GitLab epic does not exist or cannot be found";
 

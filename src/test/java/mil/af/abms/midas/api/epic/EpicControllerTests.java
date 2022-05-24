@@ -24,10 +24,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
-import mil.af.abms.midas.api.dtos.AddGitLabEpicDTO;
+import mil.af.abms.midas.api.dtos.AddGitLabEpicWithPortfolioDTO;
+import mil.af.abms.midas.api.dtos.AddGitLabEpicWithProductDTO;
 import mil.af.abms.midas.api.dtos.IsHiddenDTO;
-import mil.af.abms.midas.api.epic.dto.EpicDTO;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.portfolio.Portfolio;
+import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
@@ -40,6 +42,8 @@ public class EpicControllerTests extends ControllerTestHarness {
 
     @MockBean
     private ProductService productService;
+    @MockBean
+    private PortfolioService portfolioService;
 
     SourceControl sourceControl = Builder.build(SourceControl.class)
             .with(sc -> sc.setBaseUrl("fake_url"))
@@ -52,7 +56,13 @@ public class EpicControllerTests extends ControllerTestHarness {
             .with(p -> p.setSourceControl(sourceControl))
             .get();
 
-    Epic epic = Builder.build(Epic.class)
+    Portfolio portfolio = Builder.build(Portfolio.class)
+            .with(p -> p.setName("name"))
+            .with(p -> p.setId(2L))
+            .with(p -> p.setSourceControl(sourceControl))
+            .get();
+
+    Epic epicWithProduct = Builder.build(Epic.class)
             .with(e -> e.setId(1L))
             .with(e -> e.setCreationDate(LocalDateTime.now()))
             .with(e -> e.setProduct(product))
@@ -60,11 +70,12 @@ public class EpicControllerTests extends ControllerTestHarness {
             .with(e -> e.setEpicIid(1))
             .get();
 
-    EpicDTO epicDTO = Builder.build(EpicDTO.class)
+    Epic epicWithPortfolio = Builder.build(Epic.class)
             .with(e -> e.setId(1L))
-            .with(e -> e.setCreationDate(epic.getCreationDate()))
-            .with(e -> e.setProductId(product.getId()))
+            .with(e -> e.setCreationDate(LocalDateTime.now()))
+            .with(e -> e.setPortfolio(portfolio))
             .with(e -> e.setTitle("title"))
+            .with(e -> e.setEpicIid(1))
             .get();
 
     @BeforeEach
@@ -73,13 +84,13 @@ public class EpicControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    void throw_should_create_epic_gitLab_not_found() throws Exception {
+    void throw_should_create_epic_gitLab_not_found_for_product() throws Exception {
         when(productService.findById(any())).thenReturn(product);
-        when(epicService.create(any(AddGitLabEpicDTO.class))).thenReturn(epic);
+        when(epicService.createForProduct(any(AddGitLabEpicWithProductDTO.class))).thenReturn(epicWithProduct);
 
-        mockMvc.perform(post("/api/epics")
+        mockMvc.perform(post("/api/epics/product")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(mapper.writeValueAsString(new AddGitLabEpicDTO(1, 2L)))
+                        .content(mapper.writeValueAsString(new AddGitLabEpicWithProductDTO(1, 2L)))
                 )
                 .andExpect(status().is(400))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -88,14 +99,29 @@ public class EpicControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    void should_create_epic() throws Exception {
-        when(productService.findById(any())).thenReturn(product);
-        when(epicService.canAddEpic(any(), any())).thenReturn(true);
-        when(epicService.create(any(AddGitLabEpicDTO.class))).thenReturn(epic);
+    void throw_should_create_epic_gitLab_not_found_for_portfolio() throws Exception {
+        when(portfolioService.findById(any())).thenReturn(portfolio);
+        when(epicService.createForPortfolio(any(AddGitLabEpicWithPortfolioDTO.class))).thenReturn(epicWithPortfolio);
 
-        mockMvc.perform(post("/api/epics")
+        mockMvc.perform(post("/api/epics/portfolio")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(mapper.writeValueAsString(new AddGitLabEpicDTO(1, 2L)))
+                        .content(mapper.writeValueAsString(new AddGitLabEpicWithPortfolioDTO(1, 2L)))
+                )
+                .andExpect(status().is(400))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.message").value("Validation failed. 1 error(s)"))
+                .andExpect(jsonPath("$.errors[0]").value("GitLab epic does not exist or cannot be found"));
+    }
+
+    @Test
+    void should_create_epic_for_product() throws Exception {
+        when(productService.findById(any())).thenReturn(product);
+        when(epicService.canAddEpicWithProduct(any(), any())).thenReturn(true);
+        when(epicService.createForProduct(any(AddGitLabEpicWithProductDTO.class))).thenReturn(epicWithProduct);
+
+        mockMvc.perform(post("/api/epics/product")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapper.writeValueAsString(new AddGitLabEpicWithProductDTO(1, 2L)))
                 )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -103,19 +129,44 @@ public class EpicControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    void should_update_epic_by_id() throws Exception {
-        when(epicService.updateById(anyLong())).thenReturn(epic);
+    void should_create_epic_for_portfolio() throws Exception {
+        when(portfolioService.findById(any())).thenReturn(portfolio);
+        when(epicService.canAddEpicWithPortfolio(any(), any())).thenReturn(true);
+        when(epicService.createForPortfolio(any(AddGitLabEpicWithPortfolioDTO.class))).thenReturn(epicWithPortfolio);
 
-        mockMvc.perform(get("/api/epics/sync/2"))
+        mockMvc.perform(post("/api/epics/portfolio")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapper.writeValueAsString(new AddGitLabEpicWithPortfolioDTO(1, 2L)))
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.portfolioId").value(portfolio.getId()));
+    }
+
+    @Test
+    void should_update_epic_by_id_for_product() throws Exception {
+        when(epicService.updateByIdForProduct(anyLong())).thenReturn(epicWithProduct);
+
+        mockMvc.perform(get("/api/epics/sync/product/2"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.productId").value(product.getId()));
     }
 
     @Test
+    void should_update_epic_by_id_for_portfolio() throws Exception {
+        when(epicService.updateByIdForPortfolio(anyLong())).thenReturn(epicWithPortfolio);
+
+        mockMvc.perform(get("/api/epics/sync/portfolio/2"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.portfolioId").value(portfolio.getId()));
+    }
+
+    @Test
     public void should_update_epic_is_hidden_true() throws Exception {
         Epic hidden = new Epic();
-        BeanUtils.copyProperties(epic, hidden);
+        BeanUtils.copyProperties(epicWithProduct, hidden);
         hidden.setIsHidden(true);
 
         IsHiddenDTO hiddenDTO = new IsHiddenDTO(true);
@@ -132,11 +183,22 @@ public class EpicControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    void should_get_all_epics_by_project_id() throws Exception {
-        Set<Epic> epics = Set.of(epic);
+    void should_get_all_epics_by_product_id() throws Exception {
+        Set<Epic> epics = Set.of(epicWithProduct);
         when(epicService.getAllGitlabEpicsForProduct(anyLong())).thenReturn(epics);
 
-        mockMvc.perform(get("/api/epics/all/2"))
+        mockMvc.perform(get("/api/epics/all/product/2"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$", hasSize(1)));
+    }
+
+    @Test
+    void should_get_all_epics_by_portfolio_id() throws Exception {
+        Set<Epic> epics = Set.of(epicWithPortfolio);
+        when(epicService.getAllGitlabEpicsForPortfolio(anyLong())).thenReturn(epics);
+
+        mockMvc.perform(get("/api/epics/all/portfolio/2"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$", hasSize(1)));

@@ -28,6 +28,7 @@ import lombok.Setter;
 import mil.af.abms.midas.api.AbstractTimeConstrainedEntity;
 import mil.af.abms.midas.api.completion.Completion;
 import mil.af.abms.midas.api.epic.dto.EpicDTO;
+import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.product.Product;
 
 @Entity @Setter @Getter
@@ -82,8 +83,12 @@ public class Epic extends AbstractTimeConstrainedEntity<EpicDTO> {
     private Long completedWeight = 0L;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
+    @JoinColumn(name = "product_id")
     private Product product;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "portfolio_id")
+    private Portfolio portfolio;
 
     @OneToMany
     @JoinTable(
@@ -111,13 +116,14 @@ public class Epic extends AbstractTimeConstrainedEntity<EpicDTO> {
             epicUid,
             totalWeight,
             completedWeight,
-            getIdOrNull(product)
+            getIdOrNull(product),
+            getIdOrNull(portfolio)
         );
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hashCode(creationDate);
+        return java.util.Objects.hashCode(id);
     }
 
     @Override
