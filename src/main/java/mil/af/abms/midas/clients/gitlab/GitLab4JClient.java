@@ -154,12 +154,12 @@ public class GitLab4JClient {
     }
 
     public List<GitLabEpic> getEpicsFromGroup(Integer groupId) {
-        String url = String.format("%s/api/v4/groups/%d/epics?include_descendant_groups=false", this.baseUrl, groupId);
+        String url = String.format("%s/api/v4/groups/%d/epics?include_descendant_groups=false&pagination=keyset&per_page=100", this.baseUrl, groupId);
         return getGitLabEpics(url);
     }
 
     public List<GitLabEpic> getSubEpicsFromEpicAndGroup(Integer groupId, Integer iid) {
-        String url = String.format("%s/api/v4/groups/%d/epics/%d/epics", this.baseUrl, groupId, iid);
+        String url = String.format("%s/api/v4/groups/%d/epics/%d/epics?pagination=keyset&per_page=100", this.baseUrl, groupId, iid);
         return getGitLabEpics(url);
     }
 
@@ -183,12 +183,12 @@ public class GitLab4JClient {
     }
 
     public List<GitLabIssue> getIssuesFromEpic(Integer groupId, Integer epicIid) {
-        String url = String.format("%s/api/v4/groups/%d/epics/%d/issues", this.baseUrl, groupId, epicIid);
+        String url = String.format("%s/api/v4/groups/%d/epics/%d/issues?pagination=keyset&per_page=100", this.baseUrl, groupId, epicIid);
         return getGitLabIssues(url);
     }
 
     public List<GitLabIssue> getIssuesFromProject(Integer projectId) {
-        String url = String.format("%s/api/v4/projects/%d/issues", this.baseUrl, projectId);
+        String url = String.format("%s/api/v4/projects/%d/issues?pagination=keyset&per_page=100", this.baseUrl, projectId);
         return getGitLabIssues(url);
     }
 
