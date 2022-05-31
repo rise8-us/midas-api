@@ -24,6 +24,7 @@ import mil.af.abms.midas.api.AbstractEntity;
 import mil.af.abms.midas.api.capability.Capability;
 import mil.af.abms.midas.api.completion.Completion;
 import mil.af.abms.midas.api.deliverable.dto.DeliverableDTO;
+import mil.af.abms.midas.api.gantt.target.Target;
 import mil.af.abms.midas.api.performancemeasure.PerformanceMeasure;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.release.Release;
@@ -94,6 +95,14 @@ public class Deliverable extends AbstractEntity<DeliverableDTO> {
             inverseJoinColumns = @JoinColumn(name = "completion_id", referencedColumnName = "id"))
     private Completion completion;
 
+    @ManyToMany
+    @JoinTable(
+            name = "gantt_target_deliverables",
+            joinColumns = @JoinColumn(name = "deliverable_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "target_id", referencedColumnName = "id")
+    )
+    private Set<Target> targets = new HashSet<>();
+
     public DeliverableDTO toDto() {
         return new DeliverableDTO(
                 id,
@@ -106,6 +115,7 @@ public class Deliverable extends AbstractEntity<DeliverableDTO> {
                 children.stream().map(Deliverable::toDto).collect(Collectors.toList()),
                 getIdOrNull(parent),
                 getIdOrNull(product),
+                getIds(targets),
                 getIdOrNull(performanceMeasure),
                 getIdOrNull(capability),
                 getIdOrNull(assignedTo),

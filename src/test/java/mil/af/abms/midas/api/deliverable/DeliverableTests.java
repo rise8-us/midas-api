@@ -36,6 +36,7 @@ class DeliverableTests {
             .with(d -> d.setReleases(releases))
             .with(d -> d.setPerformanceMeasure(null))
             .with(d -> d.setAssignedTo(assignedTo))
+            .with(d -> d.setTargets(Set.of()))
             .get();
     private final DeliverableDTO deliverableDTOExpected = Builder.build(DeliverableDTO.class)
             .with(d -> d.setId(1L))
@@ -49,6 +50,7 @@ class DeliverableTests {
             .with(d -> d.setPerformanceMeasureId(null))
             .with(d -> d.setAssignedToId(assignedTo.getId()))
             .with(d -> d.setIsArchived(false))
+            .with(d -> d.setTargetIds(Set.of()))
             .get();
 
     @Test

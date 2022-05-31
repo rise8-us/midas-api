@@ -27,6 +27,7 @@ public class DeliverableDTO implements AbstractDTO {
     private List<DeliverableDTO> children;
     private Long parentId;
     private Long productId;
+    private Set<Long> targetIds;
     private Long performanceMeasureId;
     private Long capabilityId;
     private Long assignedToId;
