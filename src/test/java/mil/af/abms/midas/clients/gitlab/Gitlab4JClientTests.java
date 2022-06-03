@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -16,9 +17,15 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -32,17 +39,35 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 
+import mil.af.abms.midas.api.epic.Epic;
+import mil.af.abms.midas.api.epic.EpicRepository;
+import mil.af.abms.midas.api.epic.EpicService;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
+import mil.af.abms.midas.config.SpringContext;
 import mil.af.abms.midas.exception.GitApiException;
 
 @ExtendWith(SpringExtension.class)
+@Import(SpringContext.class)
 class Gitlab4JClientTests {
 
+    @Autowired
+    SpringContext springContext;
+    @MockBean
+    SimpMessageSendingOperations websocket;
+    @MockBean
+    private EpicRepository repository;
+    @MockBean
+    private EpicService epicService;
+    private static EpicService epicService() { return SpringContext.getBean(EpicService.class); }
+
+    SimpMessageSendingOperations websocketMock = Mockito.mock(SimpMessageSendingOperations.class);
     @Spy
-    GitLab4JClient gitClient = new GitLab4JClient("http://localhost", "token");
+    GitLab4JClient gitClient = new GitLab4JClient("http://localhost", "token", websocketMock);
 
     User user = Builder.build(User.class)
             .with(u -> u.setUsername("fizzBang"))
@@ -64,6 +89,22 @@ class Gitlab4JClientTests {
             .with(sc -> sc.setToken("fake_token"))
             .with(sc -> sc.setBaseUrl("http://localhost:80"))
             .get();
+    Product foundProduct = Builder.build(Product.class)
+            .with(p -> p.setId(1L))
+            .with(p -> p.setGitlabGroupId(42))
+            .with(p -> p.setSourceControl(sourceControl))
+            .with(p -> p.setIsArchived(false))
+            .get();
+    Epic foundEpicForProduct = Builder.build(Epic.class)
+            .with(e -> e.setId(6L))
+            .with(e -> e.setTitle("title"))
+            .with(e -> e.setEpicUid("3-42-42"))
+            .with(e -> e.setEpicIid(42))
+            .with(e -> e.setCompletedWeight(0L))
+            .with(e -> e.setTotalWeight(0L))
+            .with(e -> e.setProduct(foundProduct))
+            .with((e -> e.setCompletions(Set.of())))
+            .get();
 
     private static final String SONAR_URL = "foo\nyou can browse https://sonarqube";
 
@@ -72,8 +113,8 @@ class Gitlab4JClientTests {
         var sc = new SourceControl();
         sc.setToken("fake token");
 
-        assertThrows(IllegalArgumentException.class, () -> new GitLab4JClient(sc));
-        assertThrows(IllegalArgumentException.class, () -> new GitLab4JClient(sc.getBaseUrl(), sc.getToken()));
+        assertThrows(IllegalArgumentException.class, () -> new GitLab4JClient(sc, websocket));
+        assertThrows(IllegalArgumentException.class, () -> new GitLab4JClient(sc.getBaseUrl(), sc.getToken(), websocket));
     }
 
     @Test
@@ -81,13 +122,13 @@ class Gitlab4JClientTests {
         var sc = new SourceControl();
         sc.setBaseUrl("fake url");
 
-        assertThrows(IllegalArgumentException.class, () -> new GitLab4JClient(sc));
-        assertThrows(IllegalArgumentException.class, () -> new GitLab4JClient(sc.getBaseUrl(), sc.getToken()));
+        assertThrows(IllegalArgumentException.class, () -> new GitLab4JClient(sc, websocket));
+        assertThrows(IllegalArgumentException.class, () -> new GitLab4JClient(sc.getBaseUrl(), sc.getToken(), websocket));
     }
 
     @Test
     void should_create_with_source_control() {
-        var testClient = new GitLab4JClient(sourceControl);
+        var testClient = new GitLab4JClient(sourceControl, websocket);
 
         assertThat(testClient).hasFieldOrProperty("client");
     }
@@ -239,15 +280,20 @@ class Gitlab4JClientTests {
     @ParameterizedTest
     @CsvSource(value = { "OK; [{\"iid\":42}]", "BAD_REQUEST; [{}]", "OK; ---" }, delimiter = ';')
     void should_get_Epics_from_Api(String status, String response) {
-        ResponseEntity<String> testResponse = new ResponseEntity<>(response, HttpStatus.valueOf(status));
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("x-total-pages", "1");
+
+        ResponseEntity<String> testResponse = new ResponseEntity<>(response, headers, HttpStatus.valueOf(status));
         doReturn(testResponse).when(gitClient).requestGet(anyString());
+        when(repository.findByEpicUid("3-42-42")).thenReturn(Optional.of(foundEpicForProduct));
+        doReturn(Set.of(foundEpicForProduct)).when(epicService()).processProductEpics(any(), any());
 
         if (response.equals("[{\"iid\":42}]")) {
-            assertThat(gitClient.getEpicsFromGroup(1).get(0).getEpicIid()).isEqualTo(42);
+            assertThat(gitClient.getEpicsFromGroup(1, foundProduct).iterator().next().getEpicIid()).isEqualTo(42);
         } else if (response.equals("---")) {
-            assertThrows(GitApiException.class, () ->  gitClient.getEpicsFromGroup(1));
+            assertThrows(GitApiException.class, () ->  gitClient.getEpicsFromGroup(1, foundProduct));
         } else {
-            assertThrows(HttpClientErrorException.class, () -> gitClient.getEpicsFromGroup(1));
+            assertThrows(HttpClientErrorException.class, () -> gitClient.getEpicsFromGroup(1, foundProduct));
         }
     }
 

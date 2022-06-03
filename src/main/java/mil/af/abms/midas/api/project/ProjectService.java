@@ -221,7 +221,7 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
     }
 
     protected GitLab4JClient getGitlabClient(SourceControl sourceControl) {
-        return new GitLab4JClient(sourceControl);
+        return new GitLab4JClient(sourceControl, websocket);
     }
 
 }

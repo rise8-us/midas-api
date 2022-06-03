@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,8 @@ import mil.af.abms.midas.enums.SonarqubeSecurity;
 @Import(CoverageService.class)
 class CoverageServiceTests {
 
+    @MockBean
+    SimpMessageSendingOperations websocket;
     @SpyBean
     CoverageService coverageService;
     @MockBean

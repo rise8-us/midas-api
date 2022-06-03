@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,7 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
 
     private ProjectService projectService;
     private CompletionService completionService;
+    private final SimpMessageSendingOperations websocket;
 
     @Autowired
     public void setProjectService(ProjectService projectService) {
@@ -38,8 +40,9 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
         this.completionService = completionService;
     }
 
-    public IssueService(IssueRepository repository) {
+    public IssueService(IssueRepository repository, SimpMessageSendingOperations websocket) {
         super(repository, Issue.class, IssueDTO.class);
+        this.websocket = websocket;
     }
 
     public Issue create(AddGitLabIssueWithProductDTO dto) {
@@ -120,7 +123,7 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
     }
 
     protected GitLab4JClient getGitlabClient(Project project) {
-        return new GitLab4JClient(project.getSourceControl());
+        return new GitLab4JClient(project.getSourceControl(), websocket);
     }
 
     protected Issue convertToIssue(GitLabIssue gitLabIssue, Project project) {

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
@@ -17,10 +18,12 @@ import mil.af.abms.midas.clients.gitlab.models.GitLabProject;
 @Service
 public class SourceControlService extends AbstractCRUDService<SourceControl, SourceControlDTO, SourceControlRepository> {
 
+    private final SimpMessageSendingOperations websocket;
 
     @Autowired
-    public SourceControlService(SourceControlRepository repository) {
+    public SourceControlService(SourceControlRepository repository, SimpMessageSendingOperations websocket) {
         super(repository, SourceControl.class, SourceControlDTO.class);
+        this.websocket = websocket;
     }
 
     @Transactional
@@ -56,7 +59,7 @@ public class SourceControlService extends AbstractCRUDService<SourceControl, Sou
     }
 
     protected GitLab4JClient getGitlabClient(SourceControl sourceControl) {
-        return new GitLab4JClient(sourceControl);
+        return new GitLab4JClient(sourceControl, websocket);
     }
 
 }
