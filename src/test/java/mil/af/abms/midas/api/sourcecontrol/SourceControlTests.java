@@ -9,6 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.util.ReflectionUtils;
 
 import org.junit.jupiter.api.Test;
@@ -19,6 +21,9 @@ import mil.af.abms.midas.api.sourcecontrol.dto.SourceControlDTO;
 import mil.af.abms.midas.api.user.User;
 
 class SourceControlTests {
+
+    @MockBean
+    SimpMessageSendingOperations websocket;
 
     private final SourceControl sourceControl = Builder.build(SourceControl.class)
             .with(g -> g.setId(1L))

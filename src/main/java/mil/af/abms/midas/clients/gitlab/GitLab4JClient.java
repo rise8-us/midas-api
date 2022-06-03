@@ -8,9 +8,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpEntity;
@@ -18,22 +20,28 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import lombok.extern.slf4j.Slf4j;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.GitLabApiException;
-import org.gitlab4j.api.models.Epic;
 import org.gitlab4j.api.models.Job;
 import org.gitlab4j.api.models.Project;
 
+import mil.af.abms.midas.api.AbstractProductPortfolio;
+import mil.af.abms.midas.api.epic.EpicService;
 import mil.af.abms.midas.api.helper.JsonMapper;
 import mil.af.abms.midas.api.issue.Issue;
+import mil.af.abms.midas.api.epic.Epic;
+import mil.af.abms.midas.api.portfolio.Portfolio;
+import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.clients.gitlab.models.GitLabEpic;
 import mil.af.abms.midas.clients.gitlab.models.GitLabIssue;
 import mil.af.abms.midas.clients.gitlab.models.GitLabProject;
+import mil.af.abms.midas.config.SpringContext;
 import mil.af.abms.midas.exception.GitApiException;
 
 @Slf4j
@@ -45,17 +53,22 @@ public class GitLab4JClient {
     private final String baseUrl;
     private final String token;
     private final GitLabApi client;
+    private final SimpMessageSendingOperations websocket;
 
-    public GitLab4JClient(String url, String token) {
+    private static EpicService epicService() { return SpringContext.getBean(EpicService.class); }
+
+    public GitLab4JClient(String url, String token, SimpMessageSendingOperations websocket) {
         this.baseUrl = Optional.ofNullable(url).orElseThrow(() -> new IllegalArgumentException("A gitlab url must be provided"));
         this.token = Optional.ofNullable(token).orElseThrow(() -> new IllegalArgumentException("a gitlab token must be provided"));
         this.client = new GitLabApi(this.baseUrl, this.token);
+        this.websocket = websocket;
     }
 
-    public GitLab4JClient(SourceControl sourceControl) {
+    public GitLab4JClient(SourceControl sourceControl, SimpMessageSendingOperations websocket) {
         this.baseUrl = Optional.ofNullable(sourceControl.getBaseUrl()).orElseThrow(() -> new IllegalArgumentException("A gitlab url must be provided"));
         this.token = Optional.ofNullable(sourceControl.getToken()).orElseThrow(() -> new IllegalArgumentException("a gitlab token must be provided"));
         this.client = new GitLabApi(this.baseUrl, this.token);
+        this.websocket = websocket;
     }
 
     public Optional<Project> findProjectById(Integer id) {
@@ -153,33 +166,67 @@ public class GitLab4JClient {
                 .orElse("url unknown");
     }
 
-    public List<GitLabEpic> getEpicsFromGroup(Integer groupId) {
-        String url = String.format("%s/api/v4/groups/%d/epics?include_descendant_groups=false&pagination=keyset&per_page=100", this.baseUrl, groupId);
-        return getGitLabEpics(url);
+    public Set<Epic> getEpicsFromGroup(Integer groupId, AbstractProductPortfolio p) {
+        String url = String.format("%s/api/v4/groups/%d/epics?include_descendant_groups=false&pagination=keyset&per_page=20", this.baseUrl, groupId);
+        return getGitLabEpics(url, p);
     }
 
     public List<GitLabEpic> getSubEpicsFromEpicAndGroup(Integer groupId, Integer iid) {
-        String url = String.format("%s/api/v4/groups/%d/epics/%d/epics?pagination=keyset&per_page=100", this.baseUrl, groupId, iid);
+        String url = String.format("%s/api/v4/groups/%d/epics/%d/epics", this.baseUrl, groupId, iid);
         return getGitLabEpics(url);
+    }
+
+    private void fetchGitLabEpics(ArrayList<GitLabEpic> epics, ResponseEntity<String> response) throws Exception {
+        var epicArray = JsonMapper.dateMapper().readTree(response.getBody());
+        for (var epic : epicArray) {
+            epics.add(mapEpicFromJson(epic.toString()));
+        }
+    }
+
+    private Set<Epic> getGitLabEpics(String url, AbstractProductPortfolio p) {
+        Set<Epic> returnList = new HashSet<>();
+        ResponseEntity<String> response = requestGet(url);
+        if (response.getStatusCode().equals(HttpStatus.OK)) {
+            try {
+                var totalPages = Integer.parseInt(response.getHeaders().get("x-total-pages").get(0));
+                int currPage = 1;
+
+                while (currPage <= totalPages) {
+                    var epics = new ArrayList<GitLabEpic>();
+                    fetchGitLabEpics(epics, response);
+
+                    returnList.addAll((p.getClass().getSimpleName().equals("Product")) ?
+                            epicService().processProductEpics(epics, (Product) p) :
+                            epicService().processPortfolioEpics(epics, (Portfolio) p));
+
+                    websocket.convertAndSend("/topic/epictest", new Integer[]{currPage, totalPages});
+                    response = requestGet(url + "&page=" + ++currPage);
+                }
+            } catch (Exception e) {
+                throw new GitApiException("Unable to map Gitlab Epic Json to Midas Epic");
+            }
+
+        } else {
+            throw new HttpClientErrorException(response.getStatusCode());
+        }
+        return returnList;
     }
 
     private List<GitLabEpic> getGitLabEpics(String url) {
         ResponseEntity<String> response = requestGet(url);
         var epics = new ArrayList<GitLabEpic>();
 
-        if (response.getStatusCode().equals(HttpStatus.OK))
+        if (response.getStatusCode().equals(HttpStatus.OK)) {
             try {
-                var epicArray = JsonMapper.dateMapper().readTree(response.getBody());
-                for (var epic : epicArray) {
-                    epics.add(mapEpicFromJson(epic.toString()));
-                }
-                return epics;
-            } catch (IOException e) {
+                fetchGitLabEpics(epics, response);
+            } catch (Exception e) {
                 throw new GitApiException("Unable to map Gitlab Epic Json to Midas Epic");
             }
-        else {
-            throw new HttpClientErrorException(response.getStatusCode());
+        } else {
+            throw new HttpClientErrorException((response.getStatusCode()));
         }
+
+        return epics;
     }
 
     public List<GitLabIssue> getIssuesFromEpic(Integer groupId, Integer epicIid) {

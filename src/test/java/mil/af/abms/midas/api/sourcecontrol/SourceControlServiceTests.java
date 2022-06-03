@@ -12,6 +12,7 @@ import java.util.List;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,8 @@ import mil.af.abms.midas.clients.gitlab.models.GitLabProject;
 @Import(SourceControlService.class)
 class SourceControlServiceTests {
 
+    @MockBean
+    SimpMessageSendingOperations websocket;
     @SpyBean
     SourceControlService sourceControlService;
     @MockBean

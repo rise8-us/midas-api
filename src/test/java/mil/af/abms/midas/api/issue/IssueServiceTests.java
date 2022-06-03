@@ -21,6 +21,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,8 @@ import mil.af.abms.midas.clients.gitlab.models.GitLabIssue;
 @Import(IssueService.class)
 public class IssueServiceTests {
 
+    @MockBean
+    SimpMessageSendingOperations websocket;
     @SpyBean
     private IssueService issueService;
     @MockBean
