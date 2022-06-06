@@ -195,9 +195,9 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
     }
 
     public Set<Epic> processProductEpics(List<GitLabEpic> epics, Product product) {
-
         var sourceControlId = product.getSourceControl().getId();
         var groupId = product.getGitlabGroupId();
+
         return epics.stream()
                 .map(e ->
                     repository.findByEpicUid(generateUniqueId(sourceControlId, groupId, e.getEpicIid()))
