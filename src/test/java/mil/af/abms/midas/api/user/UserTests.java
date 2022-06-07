@@ -16,10 +16,13 @@ import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.team.Team;
+import mil.af.abms.midas.api.user.dto.BasicUserDTO;
 import mil.af.abms.midas.api.user.dto.UserDTO;
 import mil.af.abms.midas.enums.UserType;
 
 public class UserTests {
+
+    private static final int ENTITY_DTO_FIELD_OFFSET = 6;
 
     private final Team team = Builder.build(Team.class)
             .with(t -> t.setId(1L))
@@ -36,6 +39,15 @@ public class UserTests {
             .with(u -> u.setRoles(0L))
             .with(u -> u.setUserType(UserType.ACTIVE))
             .with(u -> u.setIsDisabled(false)).get();
+
+    private final User basicUser = Builder.build(User.class)
+            .with(u -> u.setId(1L))
+            .with(u -> u.setUsername("grogu"))
+            .with(u -> u.setEmail("a.b@c"))
+            .with(u -> u.setDisplayName("baby yoda"))
+            .with(u -> u.setTeams(Set.of(team)))
+            .with(u -> u.setUserType(UserType.ACTIVE))
+            .get();
     private final UserDTO userDTO = Builder.build(UserDTO.class)
             .with(d -> d.setId(1L))
             .with(d -> d.setKeycloakUid("abc-123"))
@@ -47,7 +59,19 @@ public class UserTests {
             .with(d -> d.setTeamIds(Set.of(1L)))
             .with(d -> d.setRoles(0L))
             .with(d -> d.setUserType(UserType.ACTIVE))
-            .with(d -> d.setIsDisabled(false)).get();
+            .with(d -> d.setIsDisabled(false))
+            .get();
+
+    private final BasicUserDTO basicUserDTO = Builder.build(BasicUserDTO.class)
+            .with(d -> d.setId(1L))
+            .with(d -> d.setUsername("grogu"))
+            .with(d -> d.setDisplayName("baby yoda"))
+            .with(d -> d.setUserType(UserType.ACTIVE))
+            .with(d -> d.setTeamIds(Set.of(1L)))
+            .with(d -> d.setEmail("a.b@c"))
+            .with(d -> d.setPhone(null))
+            .with(d -> d.setCompany(null))
+            .get();
 
     @Test
     public void should_have_all_userDTO_fields() {
@@ -55,6 +79,14 @@ public class UserTests {
         ReflectionUtils.doWithFields(User.class, fields::add);
 
         assertThat(fields.size()).isEqualTo(UserDTO.class.getDeclaredFields().length);
+    }
+
+    @Test
+    public void should_have_all_basicUserDTO_fields() {
+        List<Field> fields = new LinkedList<>();
+        ReflectionUtils.doWithFields(User.class, fields::add);
+
+        assertThat(fields.size()).isEqualTo(BasicUserDTO.class.getDeclaredFields().length + ENTITY_DTO_FIELD_OFFSET);
     }
 
     @Test
@@ -74,6 +106,11 @@ public class UserTests {
     @Test
     public void should_return_dto() {
         assertThat(user.toDto()).isEqualTo(userDTO);
+    }
+
+    @Test
+    public void should_return_basicUserDTO() {
+        assertThat(basicUser.toBasicDto()).isEqualTo(basicUserDTO);
     }
 
     @Test

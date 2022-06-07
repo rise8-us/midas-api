@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import mil.af.abms.midas.api.AbstractDTO;
 import mil.af.abms.midas.api.capability.dto.CapabilityDTO;
 import mil.af.abms.midas.api.personnel.dto.PersonnelDTO;
+import mil.af.abms.midas.api.user.dto.BasicUserDTO;
 
 @Data
 @AllArgsConstructor
@@ -31,4 +32,7 @@ public class PortfolioDTO implements AbstractDTO {
     private String mission;
     private String problemStatement;
     private List<CapabilityDTO> capabilities;
+    private String ganttNote;
+    private LocalDateTime ganttNoteModifiedAt;
+    private BasicUserDTO ganttNoteModifiedBy;
 }
