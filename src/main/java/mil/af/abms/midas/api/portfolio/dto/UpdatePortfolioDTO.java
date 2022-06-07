@@ -24,6 +24,7 @@ public class UpdatePortfolioDTO implements PortfolioInterfaceDTO {
     private String mission;
     private String problemStatement;
     private UpdatePersonnelDTO personnel;
+    private String ganttNote;
 
     @ProductsExist
     private Set<Long> productIds;

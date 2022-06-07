@@ -2,7 +2,9 @@ package mil.af.abms.midas.api.portfolio;
 
 import javax.transaction.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -23,6 +25,7 @@ import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioDTO;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
+import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @Service
@@ -32,6 +35,7 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
     private ProductService productService;
     private SourceControlService sourceControlService;
     private CapabilityService capabilityService;
+    private UserService userService;
 
     public PortfolioService(PortfolioRepository repository) {
         super(repository, Portfolio.class, PortfolioDTO.class);
@@ -48,6 +52,9 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
 
     @Autowired
     public void setCapabilityService(CapabilityService capabilityService) { this.capabilityService = capabilityService; }
+
+    @Autowired
+    public void setUserService(UserService userService) { this.userService = userService; }
 
     @Transactional
     public Portfolio create(CreatePortfolioDTO dto) {
@@ -73,6 +80,14 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
         Optional.ofNullable(dto.getPersonnel()).ifPresent(updatePersonnelDTO -> {
             Personnel personnel = personnelService.updateById(foundPortfolio.getPersonnel().getId(), dto.getPersonnel());
             foundPortfolio.setPersonnel(personnel);
+        });
+
+        Optional.ofNullable(dto.getGanttNote()).ifPresent(ganttNote -> {
+            if (!Objects.equals(ganttNote, foundPortfolio.getGanttNote())) {
+                foundPortfolio.setGanttNote(ganttNote);
+                foundPortfolio.setGanttNoteModifiedAt(LocalDateTime.now());
+                foundPortfolio.setGanttNoteModifiedBy(userService.getUserBySecContext());
+            }
         });
 
         updateCommonFields(dto, foundPortfolio);

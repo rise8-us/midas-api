@@ -25,6 +25,7 @@ import org.hibernate.annotations.NaturalId;
 
 import mil.af.abms.midas.api.AbstractEntity;
 import mil.af.abms.midas.api.team.Team;
+import mil.af.abms.midas.api.user.dto.BasicUserDTO;
 import mil.af.abms.midas.api.user.dto.UserDTO;
 import mil.af.abms.midas.enums.UserType;
 
@@ -85,6 +86,10 @@ public class User extends AbstractEntity<UserDTO> {
     public UserDTO toDto() {
         return new UserDTO(id, keycloakUid, username, email, displayName,
             creationDate, dodId, userType, isDisabled, roles, lastLogin, getTeamIds(), phone, company);
+    }
+
+    public BasicUserDTO toBasicDto() {
+        return new BasicUserDTO(id, username, displayName, userType, getTeamIds(), email, phone, company);
     }
 
     public Set<Long> getTeamIds() {
