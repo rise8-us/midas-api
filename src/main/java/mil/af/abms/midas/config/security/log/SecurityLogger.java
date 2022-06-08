@@ -36,6 +36,7 @@ public class SecurityLogger {
         Object principal = event.getAuthentication().getPrincipal();
         String message = event.getAccessDeniedException().getMessage();
         String source = "unknown";
+
         try {
             source = RequestParser.getRemoteAddress(((FilterInvocation) event.getSource()).getRequest());
         } catch (ClassCastException e) {

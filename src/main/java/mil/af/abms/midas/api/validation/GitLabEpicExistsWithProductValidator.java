@@ -21,7 +21,7 @@ public class GitLabEpicExistsWithProductValidator implements ConstraintValidator
     public boolean isValid(AddGitLabEpicWithProductDTO dto, ConstraintValidatorContext constraintContext) {
         try {
             var product = productService.findById(dto.getProductId());
-            return epicService.canAddEpicWithProduct(dto.getIId(), product);
+            return epicService.canAddEpic(dto.getIId(), product);
         } catch (Exception e) {
             return false;
         }

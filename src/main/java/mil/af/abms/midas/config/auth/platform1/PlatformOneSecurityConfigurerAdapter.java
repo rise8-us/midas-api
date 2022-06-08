@@ -27,7 +27,6 @@ public class PlatformOneSecurityConfigurerAdapter extends WebSecurityConfigurerA
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         var platformOneAuthenticationFilter = new PlatformOneAuthenticationFilter();
-
         if (env.equals("local")) {
             platformOneAuthenticationFilter.setLocalKeycloakUid(localKeycloakUid);
         }

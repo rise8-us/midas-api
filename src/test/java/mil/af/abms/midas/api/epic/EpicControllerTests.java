@@ -3,6 +3,8 @@ package mil.af.abms.midas.api.epic;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -39,7 +41,6 @@ public class EpicControllerTests extends ControllerTestHarness {
 
     @MockBean
     private EpicService epicService;
-
     @MockBean
     private ProductService productService;
     @MockBean
@@ -116,7 +117,7 @@ public class EpicControllerTests extends ControllerTestHarness {
     @Test
     void should_create_epic_for_product() throws Exception {
         when(productService.findById(any())).thenReturn(product);
-        when(epicService.canAddEpicWithProduct(any(), any())).thenReturn(true);
+        when(epicService.canAddEpic(any(), any())).thenReturn(true);
         when(epicService.createForProduct(any(AddGitLabEpicWithProductDTO.class))).thenReturn(epicWithProduct);
 
         mockMvc.perform(post("/api/epics/product")
@@ -131,7 +132,7 @@ public class EpicControllerTests extends ControllerTestHarness {
     @Test
     void should_create_epic_for_portfolio() throws Exception {
         when(portfolioService.findById(any())).thenReturn(portfolio);
-        when(epicService.canAddEpicWithPortfolio(any(), any())).thenReturn(true);
+        when(epicService.canAddEpic(any(), any())).thenReturn(true);
         when(epicService.createForPortfolio(any(AddGitLabEpicWithPortfolioDTO.class))).thenReturn(epicWithPortfolio);
 
         mockMvc.perform(post("/api/epics/portfolio")
@@ -185,23 +186,31 @@ public class EpicControllerTests extends ControllerTestHarness {
     @Test
     void should_get_all_epics_by_product_id() throws Exception {
         Set<Epic> epics = Set.of(epicWithProduct);
-        when(epicService.getAllGitlabEpicsForProduct(anyLong())).thenReturn(epics);
+
+        when(epicService.gitlabEpicSync(any())).thenReturn(epics);
+        when(epicService.getProductById(2L)).thenReturn(product);
 
         mockMvc.perform(get("/api/epics/all/product/2"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$", hasSize(1)));
+
+        verify(epicService, times(1)).gitlabEpicSync(product);
     }
 
     @Test
     void should_get_all_epics_by_portfolio_id() throws Exception {
         Set<Epic> epics = Set.of(epicWithPortfolio);
-        when(epicService.getAllGitlabEpicsForPortfolio(anyLong())).thenReturn(epics);
+
+        when(epicService.gitlabEpicSync(any())).thenReturn(epics);
+        when(epicService.getPortfolioById(2L)).thenReturn(portfolio);
 
         mockMvc.perform(get("/api/epics/all/portfolio/2"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$", hasSize(1)));
+
+        verify(epicService, times(1)).gitlabEpicSync(portfolio);
     }
 
 }
