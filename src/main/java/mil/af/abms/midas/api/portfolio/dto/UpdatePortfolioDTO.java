@@ -2,6 +2,7 @@ package mil.af.abms.midas.api.portfolio.dto;
 
 import javax.validation.constraints.NotBlank;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 import lombok.Data;
@@ -25,6 +26,8 @@ public class UpdatePortfolioDTO implements PortfolioInterfaceDTO {
     private String problemStatement;
     private UpdatePersonnelDTO personnel;
     private String ganttNote;
+    private LocalDate sprintStartDate;
+    private Integer sprintDurationInDays;
 
     @ProductsExist
     private Set<Long> productIds;

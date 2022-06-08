@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public interface CapabilityInterfaceDTO extends Serializable {
 
-    public String getDescription();
-    public Integer getReferenceId();
-    public Long getPortfolioId();
+    String getDescription();
+    Integer getReferenceId();
+    Long getPortfolioId();
 }

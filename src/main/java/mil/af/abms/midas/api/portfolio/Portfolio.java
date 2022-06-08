@@ -10,11 +10,17 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -40,6 +46,15 @@ public class Portfolio extends AbstractProductPortfolio<PortfolioDTO> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "gantt_note_modified_by")
     private User ganttNoteModifiedBy;
+
+    @Column(columnDefinition = "DATE DEFAULT CURRENT_TIMESTAMP")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
+    private LocalDate sprintStartDate = LocalDate.now();
+
+    @Column(columnDefinition = "INT")
+    private Integer sprintDurationInDays = 7;
 
     @OneToMany
     @JoinTable(
@@ -81,7 +96,9 @@ public class Portfolio extends AbstractProductPortfolio<PortfolioDTO> {
                 capabilities.stream().map(Capability::toDto).collect(Collectors.toList()),
                 ganttNote,
                 ganttNoteModifiedAt,
-                userDTO
+                userDTO,
+                sprintStartDate,
+                sprintDurationInDays
         );
     }
 

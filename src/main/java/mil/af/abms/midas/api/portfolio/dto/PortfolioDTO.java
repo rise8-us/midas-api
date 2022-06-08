@@ -1,6 +1,7 @@
 package mil.af.abms.midas.api.portfolio.dto;
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -35,4 +36,6 @@ public class PortfolioDTO implements AbstractDTO {
     private String ganttNote;
     private LocalDateTime ganttNoteModifiedAt;
     private BasicUserDTO ganttNoteModifiedBy;
+    private LocalDate sprintStartDate;
+    private Integer sprintDurationInDays;
 }

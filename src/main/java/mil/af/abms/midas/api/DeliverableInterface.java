@@ -6,8 +6,8 @@ import mil.af.abms.midas.api.deliverable.Deliverable;
 
 public interface DeliverableInterface {
 
-    public Set<Deliverable> getDeliverables();
-    public void setDeliverables(Set<Deliverable> comments);
-    public AbstractDTO toDto();
-    public String getLowercaseClassName();
+    Set<Deliverable> getDeliverables();
+    void setDeliverables(Set<Deliverable> comments);
+    AbstractDTO toDto();
+    String getLowercaseClassName();
 }

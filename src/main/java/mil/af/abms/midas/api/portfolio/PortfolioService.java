@@ -2,6 +2,7 @@ package mil.af.abms.midas.api.portfolio;
 
 import javax.transaction.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -65,6 +66,8 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
         Portfolio newPortfolio = Builder.build(Portfolio.class)
                 .with(p -> p.setName(dto.getName()))
                 .with(p -> p.setPersonnel(personnel))
+                .with(p -> p.setSprintStartDate(Optional.ofNullable(dto.getSprintStartDate()).orElse(LocalDate.now())))
+                .with(p -> p.setSprintDurationInDays(Optional.ofNullable(dto.getSprintDurationInDays()).orElse(7)))
                 .get();
 
         updateCommonFields(dto, newPortfolio);
@@ -102,6 +105,8 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
         portfolio.setVision(dto.getVision());
         portfolio.setMission(dto.getMission());
         portfolio.setProblemStatement(dto.getProblemStatement());
+        Optional.ofNullable(dto.getSprintStartDate()).ifPresent(portfolio::setSprintStartDate);
+        Optional.ofNullable(dto.getSprintDurationInDays()).ifPresent(portfolio::setSprintDurationInDays);
 
         Optional.ofNullable(dto.getProductIds()).ifPresent(productIds ->
                 portfolio.setProducts(productIds.stream().map(productService::findById).collect(Collectors.toSet())));
