@@ -52,12 +52,14 @@ public class EpicController extends AbstractCRUDController<Epic, EpicDTO, EpicSe
 
     @GetMapping("/all/product/{productId}")
     public List<EpicDTO> getAllGroupEpicsForProducts(@PathVariable Long productId) {
-        return service.getAllGitlabEpicsForProduct(productId).stream().map(Epic::toDto).collect(Collectors.toList());
+        var product = service.getProductById(productId);
+        return service.gitlabEpicSync(product).stream().map(Epic::toDto).collect(Collectors.toList());
     }
 
     @GetMapping("/all/portfolio/{portfolioId}")
     public List<EpicDTO> getAllGroupEpicsForPortfolios(@PathVariable Long portfolioId) {
-        return service.getAllGitlabEpicsForPortfolio(portfolioId).stream().map(Epic::toDto).collect(Collectors.toList());
+        var portfolio = service.getPortfolioById(portfolioId);
+        return service.gitlabEpicSync(portfolio).stream().map(Epic::toDto).collect(Collectors.toList());
     }
 
     @PutMapping("/{id}/hide")

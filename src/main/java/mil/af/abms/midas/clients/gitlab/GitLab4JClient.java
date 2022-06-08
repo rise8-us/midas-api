@@ -8,11 +8,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpEntity;
@@ -30,12 +29,11 @@ import org.gitlab4j.api.GitLabApiException;
 import org.gitlab4j.api.models.Job;
 import org.gitlab4j.api.models.Project;
 
+import mil.af.abms.midas.api.AppGroup;
 import mil.af.abms.midas.api.epic.Epic;
 import mil.af.abms.midas.api.epic.EpicService;
 import mil.af.abms.midas.api.helper.JsonMapper;
 import mil.af.abms.midas.api.issue.Issue;
-import mil.af.abms.midas.api.portfolio.Portfolio;
-import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.clients.gitlab.models.GitLabEpic;
 import mil.af.abms.midas.clients.gitlab.models.GitLabIssue;
@@ -167,9 +165,19 @@ public class GitLab4JClient {
                 .orElse("url unknown");
     }
 
-    public Set<Epic> getEpicsFromGroup(Integer groupId, Object p) {
+    public int getTotalEpicsPages(AppGroup appGroup) {
+        Integer groupId = appGroup.getGitlabGroupId();
         String url = String.format("%s/api/v4/groups/%d/epics?include_descendant_groups=false&pagination=keyset&per_page=20", this.baseUrl, groupId);
-        return getGitLabEpics(url, p);
+        ResponseEntity<String> response = requestGet(url);
+        if (response.getStatusCode().equals(HttpStatus.OK)) {
+            try {
+                return Integer.parseInt(Objects.requireNonNull(response.getHeaders().get("x-total-pages")).get(0));
+            }
+            catch (Exception e) {
+                throw new GitApiException(GET_EPICS_ERROR_MESSAGE);
+            }
+        }
+        return -1;
     }
 
     public List<GitLabEpic> getSubEpicsFromEpicAndGroup(Integer groupId, Integer iid) {
@@ -184,38 +192,25 @@ public class GitLab4JClient {
         }
     }
 
-    private Set<Epic> getGitLabEpics(String url, Object p) {
-        Set<Epic> returnList = new HashSet<>();
+    public List<GitLabEpic> fetchGitLabEpicByPage(AppGroup appGroup, Integer page) {
+        Integer groupId = appGroup.getGitlabGroupId();
+        String url = String.format("%s/api/v4/groups/%d/epics?include_descendant_groups=false&pagination=keyset&per_page=20&page=%d", this.baseUrl, groupId, page);
         ResponseEntity<String> response = requestGet(url);
+        var epics = new ArrayList<GitLabEpic>();
         if (response.getStatusCode().equals(HttpStatus.OK)) {
             try {
-                var totalPages = Integer.parseInt(response.getHeaders().get("x-total-pages").get(0));
-                int currPage = 1;
-
-                while (currPage <= totalPages) {
-                    var epics = new ArrayList<GitLabEpic>();
-                    fetchGitLabEpics(epics, response);
-
-                    returnList.addAll((p instanceof Product) ?
-                            epicService().processProductEpics(epics, (Product) p) :
-                            epicService().processPortfolioEpics(epics, (Portfolio) p));
-
-                    websocket.convertAndSend("/topic/fetchEpicsPagination", new Integer[]{currPage, totalPages});
-
-                    currPage++;
-                    if (currPage > totalPages) {
-                        break;
-                    }
-                    response = requestGet(url + "&page=" + currPage);
+                var jsonEpicNode = JsonMapper.dateMapper().readTree(response.getBody());
+                for (var epic : jsonEpicNode) {
+                    epics.add(mapEpicFromJson(epic.toString()));
                 }
-            } catch (Exception e) {
+            }
+            catch (IOException e) {
                 throw new GitApiException(GET_EPICS_ERROR_MESSAGE);
             }
-
         } else {
             throw new HttpClientErrorException(response.getStatusCode());
         }
-        return returnList;
+        return epics;
     }
 
     private List<GitLabEpic> getGitLabEpics(String url) {
@@ -370,11 +365,6 @@ public class GitLab4JClient {
     @FunctionalInterface
     protected interface GitLabApiThunk<T> {
         T call() throws GitLabApiException, GitApiException;
-    }
-
-    @FunctionalInterface
-    protected interface GitLabApiThunkOptional<T> {
-        T call();
     }
 
     protected Object makeRequest(GitLabApiThunk<?> request) {

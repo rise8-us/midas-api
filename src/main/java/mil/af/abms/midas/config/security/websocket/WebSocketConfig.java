@@ -15,7 +15,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     public static final String SOCKET_ROOT = "/midas-websocket";  // path on which socket is opened
-    public static final String MESSAGE_TOPIC = "/topic";         // used to send messages to all clients
+    public static final String MESSAGE_TOPIC = "/topic";    // used to send messages to all clients
     public static final String MESSAGE_APP = "/app";             // used to filter incoming messages from an app instance
 
     @Value("${custom.allowedOrigin}")

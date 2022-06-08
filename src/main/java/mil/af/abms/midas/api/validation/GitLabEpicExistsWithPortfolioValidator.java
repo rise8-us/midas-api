@@ -21,7 +21,7 @@ public class GitLabEpicExistsWithPortfolioValidator implements ConstraintValidat
     public boolean isValid(AddGitLabEpicWithPortfolioDTO dto, ConstraintValidatorContext constraintContext) {
         try {
             var portfolio = portfolioService.findById(dto.getPortfolioId());
-            return epicService.canAddEpicWithPortfolio(dto.getIId(), portfolio);
+            return epicService.canAddEpic(dto.getIId(), portfolio);
         } catch (Exception e) {
             return false;
         }

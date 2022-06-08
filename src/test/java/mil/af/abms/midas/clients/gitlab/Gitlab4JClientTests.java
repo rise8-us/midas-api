@@ -279,21 +279,21 @@ class Gitlab4JClientTests {
 
     @ParameterizedTest
     @CsvSource(value = { "OK; [{\"iid\":42}]", "BAD_REQUEST; [{}]", "OK; ---" }, delimiter = ';')
-    void should_get_Epics_from_Api(String status, String response) {
+    void should_get_page_of_Epics_from_Api(String status, String response) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("x-total-pages", "1");
 
         ResponseEntity<String> testResponse = new ResponseEntity<>(response, headers, HttpStatus.valueOf(status));
         doReturn(testResponse).when(gitClient).requestGet(anyString());
         when(repository.findByEpicUid("3-42-42")).thenReturn(Optional.of(foundEpicForProduct));
-        doReturn(Set.of(foundEpicForProduct)).when(epicService()).processProductEpics(any(), any());
+        doReturn(Set.of(foundEpicForProduct)).when(epicService()).processEpics(any(), any());
 
         if (response.equals("[{\"iid\":42}]")) {
-            assertThat(gitClient.getEpicsFromGroup(1, foundProduct).iterator().next().getEpicIid()).isEqualTo(42);
+            assertThat(gitClient.fetchGitLabEpicByPage(foundProduct, 1).iterator().next().getEpicIid()).isEqualTo(42);
         } else if (response.equals("---")) {
-            assertThrows(GitApiException.class, () ->  gitClient.getEpicsFromGroup(1, foundProduct));
+            assertThrows(GitApiException.class, () ->  gitClient.fetchGitLabEpicByPage(foundProduct, 1));
         } else {
-            assertThrows(HttpClientErrorException.class, () -> gitClient.getEpicsFromGroup(1, foundProduct));
+            assertThrows(HttpClientErrorException.class, () -> gitClient.fetchGitLabEpicByPage(foundProduct, 1));
         }
     }
 

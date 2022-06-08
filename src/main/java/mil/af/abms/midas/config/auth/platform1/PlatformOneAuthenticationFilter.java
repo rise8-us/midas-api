@@ -76,7 +76,6 @@ public class PlatformOneAuthenticationFilter extends OncePerRequestFilter {
                 if (certSplit.length >= 3) {
                     dodIdStr = certSplit[certSplit.length - 1];
                 }
-
             } catch (JWTDecodeException e) {
                 throw new AuthenticationCredentialsNotFoundException("Invalid JWT");
             }

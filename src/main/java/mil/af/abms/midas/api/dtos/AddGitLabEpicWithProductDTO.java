@@ -17,5 +17,4 @@ public class AddGitLabEpicWithProductDTO {
 
     @NotNull(message = "productId cannot be null")
     private Long productId;
-
 }

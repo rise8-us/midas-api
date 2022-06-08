@@ -16,7 +16,6 @@ public class HttpLoggerInterceptor implements HandlerInterceptor {
             throws Exception {
 
         String user = RequestParser.getUser(request);
-
         if (response.getStatus() == HttpStatus.OK.value()) {
             log.info(
                 "{} {}, USER: {}, SOURCE: {}, CONTENT_TYPE: {}, ENCODING: {}, LENGTH: {}",

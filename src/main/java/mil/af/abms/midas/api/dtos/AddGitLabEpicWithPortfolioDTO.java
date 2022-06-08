@@ -17,5 +17,4 @@ public class AddGitLabEpicWithPortfolioDTO {
 
     @NotNull(message = "portfolioId cannot be null")
     private Long portfolioId;
-
 }
