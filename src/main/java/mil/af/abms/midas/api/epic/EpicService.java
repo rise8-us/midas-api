@@ -230,7 +230,7 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
     }
 
     protected GitLab4JClient getGitlabClient(AppGroup appGroup) {
-        return new GitLab4JClient(appGroup.getSourceControl(), websocket);
+        return new GitLab4JClient(appGroup.getSourceControl());
     }
 
     protected Epic convertToEpic(GitLabEpic gitLabEpic, AppGroup appGroup) {

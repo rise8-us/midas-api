@@ -123,7 +123,7 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
     }
 
     protected GitLab4JClient getGitlabClient(Project project) {
-        return new GitLab4JClient(project.getSourceControl(), websocket);
+        return new GitLab4JClient(project.getSourceControl());
     }
 
     protected Issue convertToIssue(GitLabIssue gitLabIssue, Project project) {
