@@ -1,15 +1,18 @@
 package mil.af.abms.midas.api.portfolio.dto;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Set;
 
 public interface PortfolioInterfaceDTO extends Serializable {
-    public Set<Long> getCapabilityIds();
-    public Set<Long> getProductIds();
-    public String getDescription();
-    public String getVision();
-    public String getMission();
-    public String getProblemStatement();
-    public Integer getGitlabGroupId();
-    public Long getSourceControlId();
+    Set<Long> getCapabilityIds();
+    Set<Long> getProductIds();
+    String getDescription();
+    String getVision();
+    String getMission();
+    String getProblemStatement();
+    Integer getGitlabGroupId();
+    Long getSourceControlId();
+    LocalDate getSprintStartDate();
+    Integer getSprintDurationInDays();
 }

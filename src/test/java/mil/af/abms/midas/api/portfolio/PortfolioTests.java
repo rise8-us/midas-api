@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.lang.reflect.Field;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -29,6 +30,7 @@ import mil.af.abms.midas.enums.UserType;
 public class PortfolioTests {
 
     private final LocalDateTime today = LocalDateTime.now();
+    private final LocalDate currentDate = LocalDate.now();
 
     private final PersonnelDTO personnelDTO = Builder.build(PersonnelDTO.class)
             .with(d -> d.setTeamIds(Set.of()))
@@ -63,6 +65,8 @@ public class PortfolioTests {
             .with(p -> p.setGanttNote("TEST NOTE"))
             .with(p -> p.setGanttNoteModifiedAt(today))
             .with(p -> p.setGanttNoteModifiedBy(basicUser))
+            .with(p -> p.setSprintStartDate(currentDate))
+            .with(p -> p.setSprintDurationInDays(7))
             .get();
 
     private final PortfolioDTO portfolioDTO = Builder.build(PortfolioDTO.class)
@@ -82,6 +86,8 @@ public class PortfolioTests {
             .with(d -> d.setGanttNote("TEST NOTE"))
             .with(d -> d.setGanttNoteModifiedAt(today))
             .with(d -> d.setGanttNoteModifiedBy(basicUserDTO))
+            .with(p -> p.setSprintStartDate(currentDate))
+            .with(p -> p.setSprintDurationInDays(7))
             .get();
 
     @Test

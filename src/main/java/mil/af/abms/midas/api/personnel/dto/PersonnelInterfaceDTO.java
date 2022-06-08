@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Set;
 
 public interface PersonnelInterfaceDTO extends Serializable {
-    public Long getOwnerId();
-    public Set<Long> getTeamIds();
-    public Set<Long> getAdminIds();
+    Long getOwnerId();
+    Set<Long> getTeamIds();
+    Set<Long> getAdminIds();
 }

@@ -11,6 +11,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
@@ -68,6 +69,7 @@ public class PortfolioServiceTests {
     ArgumentCaptor<Portfolio> portfolioCaptor;
 
     private final LocalDateTime today = LocalDateTime.now();
+    private final LocalDate currentDate = LocalDate.now();
     private final User user = Builder.build(User.class).with(u -> u.setId(1L)).get();
     private final User user2 = Builder.build(User.class).with(u -> u.setId(10L)).get();
     private final Product product = Builder.build(Product.class).with(p -> p.setId(2L)).get();
@@ -78,6 +80,8 @@ public class PortfolioServiceTests {
             .with(p -> p.setGanttNote("Gantt Note"))
             .with(p -> p.setGanttNoteModifiedAt(today))
             .with(p -> p.setGanttNoteModifiedBy(user))
+            .with(p -> p.setSprintStartDate(currentDate))
+            .with(p -> p.setSprintDurationInDays(7))
             .get();
     private final Personnel personnel = Builder.build(Personnel.class)
             .with(p -> p.setId(4L))
@@ -120,16 +124,22 @@ public class PortfolioServiceTests {
         assertThat(portfolioSaved.getProblemStatement()).isEqualTo(createPortfolioDTO.getProblemStatement());
         assertThat(portfolioSaved.getSourceControl()).isEqualTo(null);
         assertThat(portfolioSaved.getCapabilities()).isEqualTo(Set.of(capability));
+        assertThat(portfolioSaved.getSprintStartDate()).isEqualTo(currentDate);
+        assertThat(portfolioSaved.getSprintDurationInDays()).isEqualTo(7);
+
 
     }
     @Test
     void should_create_portfolio_with_personnel() {
+        LocalDate newDate = currentDate.plusDays(1);
         CreatePersonnelDTO createPersonnelDTO = Builder.build(CreatePersonnelDTO.class)
                 .with(d -> d.setOwnerId(1L))
                 .get();
         CreatePortfolioDTO createPortfolioDTO = Builder.build(CreatePortfolioDTO.class)
                 .with(d -> d.setName("ABMS"))
                 .with(d -> d.setPersonnel(createPersonnelDTO))
+                .with(d -> d.setSprintStartDate(newDate))
+                .with(d -> d.setSprintDurationInDays(14))
                 .get();
         portfolio.setPersonnel(personnel);
 
@@ -142,10 +152,13 @@ public class PortfolioServiceTests {
         Portfolio portfolioSaved = portfolioCaptor.getValue();
 
         assertThat(portfolioSaved.getPersonnel()).isEqualTo(personnel);
+        assertThat(portfolioSaved.getSprintStartDate()).isEqualTo(newDate);
+        assertThat(portfolioSaved.getSprintDurationInDays()).isEqualTo(14);
     }
 
     @Test
     void should_update_portfolio_by_id() {
+        LocalDate newDate = currentDate.plusDays(3);
         UpdatePersonnelDTO updatePersonnelDTO = Builder.build(UpdatePersonnelDTO.class)
                 .with(d -> d.setOwnerId(10L))
                 .get();
@@ -156,6 +169,8 @@ public class PortfolioServiceTests {
                 .with(p -> p.setProductIds(Set.of(4L)))
                 .with(p -> p.setCapabilityIds(Set.of(5L)))
                 .with(p -> p.setGanttNote("Test Gantt Note"))
+                .with(d -> d.setSprintStartDate(newDate))
+                .with(d -> d.setSprintDurationInDays(28))
                 .get();
         personnel.setOwner(user2);
         portfolio.setPersonnel(personnel);
@@ -181,6 +196,8 @@ public class PortfolioServiceTests {
         assertThat(portfolioSaved.getProblemStatement()).isEqualTo(updatePortfolioDTO.getProblemStatement());
         assertThat(portfolioSaved.getCapabilities()).isEqualTo((Set.of(capability)));
         assertThat(portfolioSaved.getGanttNote()).isEqualTo(updatePortfolioDTO.getGanttNote());
+        assertThat(portfolioSaved.getSprintStartDate()).isEqualTo(updatePortfolioDTO.getSprintStartDate());
+        assertThat(portfolioSaved.getSprintDurationInDays()).isEqualTo(updatePortfolioDTO.getSprintDurationInDays());
     }
 
     @Test
