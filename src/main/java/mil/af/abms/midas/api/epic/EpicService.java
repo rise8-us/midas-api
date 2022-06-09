@@ -183,11 +183,12 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
     }
 
     public Set<Epic> gitlabEpicSync(AppGroup appGroup) {
-        if(!hasGitlabDetails(appGroup)) {
+        if (!hasGitlabDetails(appGroup)) {
             return Set.of();
         }
 
-        String keycloakId = userService.getUserBySecContext().getKeycloakUid();
+        String keycloakId = Optional.ofNullable(userService.getUserBySecContext()).isPresent() ?
+                userService.getUserBySecContext().getKeycloakUid() : "";
         GitLab4JClient client = getGitlabClient(appGroup);
         int totalPageCount = client.getTotalEpicsPages(appGroup);
         ProcessEpicsDTO processEpicsDTO = new ProcessEpicsDTO();
@@ -197,8 +198,10 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
         for (int i = 1; i <= totalPageCount; i++) {
             allEpics.addAll(processEpics(client.fetchGitLabEpicByPage(appGroup, i), appGroup));
 
-            processEpicsDTO.setValue((double) i / totalPageCount);
-            websocket.convertAndSendToUser(keycloakId, "/queue/fetchGitlabEpicsPagination", processEpicsDTO);
+            if (!keycloakId.equals("")) {
+                processEpicsDTO.setValue((double) i / totalPageCount);
+                websocket.convertAndSendToUser(keycloakId, "/queue/fetchGitlabEpicsPagination", processEpicsDTO);
+            }
         }
 
         if (appGroup instanceof Product) {

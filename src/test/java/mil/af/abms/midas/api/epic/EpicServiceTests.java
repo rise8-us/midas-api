@@ -45,6 +45,7 @@ import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
+import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
 import mil.af.abms.midas.clients.gitlab.models.GitLabEpic;
 import mil.af.abms.midas.clients.gitlab.models.GitLabIssue;
@@ -65,6 +66,8 @@ class EpicServiceTests {
     private PortfolioService portfolioService;
     @MockBean
     private CompletionService completionService;
+    @MockBean
+    private UserService userService;
     @MockBean
     private GitLab4JClient client;
 
