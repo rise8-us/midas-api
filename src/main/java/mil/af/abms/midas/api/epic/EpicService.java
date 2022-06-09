@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -26,10 +27,12 @@ import mil.af.abms.midas.api.dtos.AddGitLabEpicWithPortfolioDTO;
 import mil.af.abms.midas.api.dtos.AddGitLabEpicWithProductDTO;
 import mil.af.abms.midas.api.dtos.IsHiddenDTO;
 import mil.af.abms.midas.api.epic.dto.EpicDTO;
+import mil.af.abms.midas.api.epic.dto.ProcessEpicsDTO;
 import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
+import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
 import mil.af.abms.midas.clients.gitlab.models.GitLabEpic;
 import mil.af.abms.midas.clients.gitlab.models.GitLabIssue;
@@ -41,12 +44,15 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
     private ProductService productService;
     private PortfolioService portfolioService;
     private CompletionService completionService;
+    private UserService userService;
+    private final SimpMessageSendingOperations websocket;
 
     private static final String TOTAL = "total";
     private static final String COMPLETED = "completed";
 
-    public EpicService(EpicRepository repository) {
+    public EpicService(EpicRepository repository, SimpMessageSendingOperations websocket) {
         super(repository, Epic.class, EpicDTO.class);
+        this.websocket = websocket;
     }
 
     @Autowired
@@ -62,6 +68,11 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
     @Autowired
     public void setCompletionService(CompletionService completionService) {
         this.completionService = completionService;
+    }
+
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     public Epic createForProduct(AddGitLabEpicWithProductDTO dto) {
@@ -172,13 +183,22 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
     }
 
     public Set<Epic> gitlabEpicSync(AppGroup appGroup) {
+        if(!hasGitlabDetails(appGroup)) {
+            return Set.of();
+        }
+
+        String keycloakId = userService.getUserBySecContext().getKeycloakUid();
         GitLab4JClient client = getGitlabClient(appGroup);
         int totalPageCount = client.getTotalEpicsPages(appGroup);
+        ProcessEpicsDTO processEpicsDTO = new ProcessEpicsDTO();
 
         Set<Epic> allEpics = new HashSet<>();
 
         for (int i = 1; i <= totalPageCount; i++) {
             allEpics.addAll(processEpics(client.fetchGitLabEpicByPage(appGroup, i), appGroup));
+
+            processEpicsDTO.setValue((double) i / totalPageCount);
+            websocket.convertAndSendToUser(keycloakId, "/queue/fetchGitlabEpicsPagination", processEpicsDTO);
         }
 
         if (appGroup instanceof Product) {
