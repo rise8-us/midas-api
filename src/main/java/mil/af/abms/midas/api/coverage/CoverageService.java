@@ -85,7 +85,7 @@ public class CoverageService extends AbstractCRUDService<Coverage, CoverageDTO, 
     protected GitLab4JClient getGitlabClient(Project project) {
         var url = Optional.ofNullable(project.getSourceControl()).map(SourceControl::getBaseUrl).orElse(null);
         var token = Optional.ofNullable(project.getSourceControl()).map(SourceControl::getToken).orElse(null);
-        return new GitLab4JClient(url, token, websocket);
+        return new GitLab4JClient(url, token);
     }
 
 }

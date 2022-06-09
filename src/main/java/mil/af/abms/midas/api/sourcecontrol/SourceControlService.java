@@ -59,7 +59,7 @@ public class SourceControlService extends AbstractCRUDService<SourceControl, Sou
     }
 
     protected GitLab4JClient getGitlabClient(SourceControl sourceControl) {
-        return new GitLab4JClient(sourceControl, websocket);
+        return new GitLab4JClient(sourceControl);
     }
 
 }

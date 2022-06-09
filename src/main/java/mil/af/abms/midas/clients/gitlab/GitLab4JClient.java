@@ -19,7 +19,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -31,14 +30,12 @@ import org.gitlab4j.api.models.Project;
 
 import mil.af.abms.midas.api.AppGroup;
 import mil.af.abms.midas.api.epic.Epic;
-import mil.af.abms.midas.api.epic.EpicService;
 import mil.af.abms.midas.api.helper.JsonMapper;
 import mil.af.abms.midas.api.issue.Issue;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.clients.gitlab.models.GitLabEpic;
 import mil.af.abms.midas.clients.gitlab.models.GitLabIssue;
 import mil.af.abms.midas.clients.gitlab.models.GitLabProject;
-import mil.af.abms.midas.config.SpringContext;
 import mil.af.abms.midas.exception.GitApiException;
 
 @Slf4j
@@ -47,27 +44,22 @@ public class GitLab4JClient {
 
     private static final String QUALITY_GATE_PATH = ".ci_artifacts/sonarqube/report_qualitygate_status.json";
     private static final String SONAR_LOG_PATH = ".ci_artifacts/sonarqube/sonar-scanner.log";
-
     private static final String GET_EPICS_ERROR_MESSAGE = "Unable to map Gitlab Epic Json to Midas Epic";
+
     private final String baseUrl;
     private final String token;
     private final GitLabApi client;
-    private final SimpMessageSendingOperations websocket;
 
-    private static EpicService epicService() { return SpringContext.getBean(EpicService.class); }
-
-    public GitLab4JClient(String url, String token, SimpMessageSendingOperations websocket) {
+    public GitLab4JClient(String url, String token) {
         this.baseUrl = Optional.ofNullable(url).orElseThrow(() -> new IllegalArgumentException("A gitlab url must be provided"));
         this.token = Optional.ofNullable(token).orElseThrow(() -> new IllegalArgumentException("a gitlab token must be provided"));
         this.client = new GitLabApi(this.baseUrl, this.token);
-        this.websocket = websocket;
     }
 
-    public GitLab4JClient(SourceControl sourceControl, SimpMessageSendingOperations websocket) {
+    public GitLab4JClient(SourceControl sourceControl) {
         this.baseUrl = Optional.ofNullable(sourceControl.getBaseUrl()).orElseThrow(() -> new IllegalArgumentException("A gitlab url must be provided"));
         this.token = Optional.ofNullable(sourceControl.getToken()).orElseThrow(() -> new IllegalArgumentException("a gitlab token must be provided"));
         this.client = new GitLabApi(this.baseUrl, this.token);
-        this.websocket = websocket;
     }
 
     public Optional<Project> findProjectById(Integer id) {

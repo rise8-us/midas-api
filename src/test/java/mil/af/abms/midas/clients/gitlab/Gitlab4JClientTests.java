@@ -67,7 +67,7 @@ class Gitlab4JClientTests {
 
     SimpMessageSendingOperations websocketMock = Mockito.mock(SimpMessageSendingOperations.class);
     @Spy
-    GitLab4JClient gitClient = new GitLab4JClient("http://localhost", "token", websocketMock);
+    GitLab4JClient gitClient = new GitLab4JClient("http://localhost", "token");
 
     User user = Builder.build(User.class)
             .with(u -> u.setUsername("fizzBang"))
@@ -113,8 +113,8 @@ class Gitlab4JClientTests {
         var sc = new SourceControl();
         sc.setToken("fake token");
 
-        assertThrows(IllegalArgumentException.class, () -> new GitLab4JClient(sc, websocket));
-        assertThrows(IllegalArgumentException.class, () -> new GitLab4JClient(sc.getBaseUrl(), sc.getToken(), websocket));
+        assertThrows(IllegalArgumentException.class, () -> new GitLab4JClient(sc));
+        assertThrows(IllegalArgumentException.class, () -> new GitLab4JClient(sc.getBaseUrl(), sc.getToken()));
     }
 
     @Test
@@ -122,13 +122,13 @@ class Gitlab4JClientTests {
         var sc = new SourceControl();
         sc.setBaseUrl("fake url");
 
-        assertThrows(IllegalArgumentException.class, () -> new GitLab4JClient(sc, websocket));
-        assertThrows(IllegalArgumentException.class, () -> new GitLab4JClient(sc.getBaseUrl(), sc.getToken(), websocket));
+        assertThrows(IllegalArgumentException.class, () -> new GitLab4JClient(sc));
+        assertThrows(IllegalArgumentException.class, () -> new GitLab4JClient(sc.getBaseUrl(), sc.getToken()));
     }
 
     @Test
     void should_create_with_source_control() {
-        var testClient = new GitLab4JClient(sourceControl, websocket);
+        var testClient = new GitLab4JClient(sourceControl);
 
         assertThat(testClient).hasFieldOrProperty("client");
     }
