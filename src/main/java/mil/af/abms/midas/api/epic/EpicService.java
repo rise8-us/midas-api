@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -42,14 +41,12 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
     private ProductService productService;
     private PortfolioService portfolioService;
     private CompletionService completionService;
-    private final SimpMessageSendingOperations websocket;
 
     private static final String TOTAL = "total";
     private static final String COMPLETED = "completed";
 
-    public EpicService(EpicRepository repository, SimpMessageSendingOperations websocket) {
+    public EpicService(EpicRepository repository) {
         super(repository, Epic.class, EpicDTO.class);
-        this.websocket = websocket;
     }
 
     @Autowired

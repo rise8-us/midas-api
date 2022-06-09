@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
@@ -28,12 +27,10 @@ public class CoverageService extends AbstractCRUDService<Coverage, CoverageDTO, 
     private static final String JOB_ID = "jobId";
 
     private ProjectService projectService;
-    private final SimpMessageSendingOperations websocket;
 
     @Autowired
-    public CoverageService(CoverageRepository repository, SimpMessageSendingOperations websocket) {
+    public CoverageService(CoverageRepository repository) {
         super(repository, Coverage.class, CoverageDTO.class);
-        this.websocket = websocket;
     }
 
     @Autowired
