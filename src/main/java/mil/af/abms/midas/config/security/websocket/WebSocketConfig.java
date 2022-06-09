@@ -16,6 +16,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     public static final String SOCKET_ROOT = "/midas-websocket";  // path on which socket is opened
     public static final String MESSAGE_TOPIC = "/topic";    // used to send messages to all clients
+    public static final String SPECIFIC_USER = "/user";
+    public static final String QUEUE = "/queue";
     public static final String MESSAGE_APP = "/app";             // used to filter incoming messages from an app instance
 
     @Value("${custom.allowedOrigin}")
@@ -29,7 +31,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes(MESSAGE_APP);
-        registry.enableSimpleBroker(MESSAGE_TOPIC)
+        registry.enableSimpleBroker(MESSAGE_TOPIC, QUEUE, SPECIFIC_USER)
                 .setTaskScheduler(taskScheduler())
                 .setHeartbeatValue(new long[] {10000L, 10000L});
     }
