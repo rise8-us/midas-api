@@ -22,6 +22,15 @@ services:
     ports:
       - "8181:8080"
 
+  sonarqube:
+    image: sonarqube:9.4.0-community
+    # Authentication is turned off for out of the box experience while trying out SonarQube
+    # For real use cases delete sonar.forceAuthentication variable or set sonar.forceAuthentication=true
+    environment:
+      - sonar.forceAuthentication=false
+    ports:
+      - "127.0.0.1:9002:9000"
+
   minio:
     container_name: minio
     image: minio/minio
