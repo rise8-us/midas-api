@@ -1,7 +1,9 @@
 package mil.af.abms.midas.api.issue;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -43,11 +45,11 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
     }
 
     public Issue create(AddGitLabIssueWithProductDTO dto) {
-        var project = projectService.findById(dto.getProjectId());
-        var sourceControlId = project.getSourceControl().getId();
-        var gitlabProjectId = project.getGitlabProjectId();
-        var issueConversion = getIssueFromClient(project, dto.getIId());
-        var uId = generateUniqueId(sourceControlId, gitlabProjectId, dto.getIId());
+        Project project = projectService.findById(dto.getProjectId());
+        Long sourceControlId = project.getSourceControl().getId();
+        Integer gitlabProjectId = project.getGitlabProjectId();
+        GitLabIssue issueConversion = getIssueFromClient(project, dto.getIId());
+        String uId = generateUniqueId(sourceControlId, gitlabProjectId, dto.getIId());
 
         return repository.findByIssueUid(uId)
                 .map(issue -> syncIssue(issueConversion, issue))
@@ -56,84 +58,89 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
     }
 
     public Issue updateById(Long id) {
-        var foundIssue = findById(id);
-        var project = foundIssue.getProject();
-        var gitLabIssue = getIssueFromClient(project, foundIssue.getIssueIid());
-
-        return syncIssue(gitLabIssue, foundIssue);
+        Issue foundIssue = findById(id);
+        Project project = foundIssue.getProject();
+        return syncOrDeleteIssue(foundIssue, getIssueFromClient(project, foundIssue.getIssueIid()));
     }
 
-    public void removeAllUntrackedIssues(Long projectId, List<GitLabIssue> gitLabIssueList) {
-        var issueIids = gitLabIssueList.stream().map(GitLabIssue::getIssueIid).collect(Collectors.toSet());
-        var midasProjectIssues = getAllIssuesByProjectId(projectId);
-        var midasProjectIssuesIids = midasProjectIssues.stream().map(Issue::getIssueIid).collect(Collectors.toSet());
+    private Issue syncOrDeleteIssue(Issue foundIssue, GitLabIssue issueFromClient) {
+        try {
+            return syncIssue(issueFromClient, foundIssue);
+        } catch (Exception e) {
+            foundIssue.getCompletions().forEach(c -> completionService.setCompletionTypeToFailure(c.getId()));
 
-        midasProjectIssuesIids.removeAll(issueIids);
-        midasProjectIssues.removeIf(issue -> !midasProjectIssuesIids.contains(issue.getIssueIid()));
-        midasProjectIssues.forEach((this::updateCompletionType));
-        repository.deleteAll(midasProjectIssues);
-    }
-
-    private void updateCompletionType(Issue issue) {
-        issue.getCompletions().forEach(c -> {
-            completionService.setCompletionTypeToFailure(c.getId());
-        });
+            repository.delete(foundIssue);
+            return null;
+        }
     }
 
     public List<Issue> getAllIssuesByProjectId(Long projectId) {
         return repository.findAllIssuesByProjectId(projectId).orElse(List.of());
     }
 
-    public Set<Issue> getAllGitlabIssuesForProject(Long projectId) {
-        var project = projectService.findById(projectId);
-        if (hasGitlabDetails(project)) {
-            var allIssuesInGitLab = getGitlabClient(project)
-                    .getIssuesFromProject(project.getGitlabProjectId());
-            var sourceControlId = project.getSourceControl().getId();
-            var gitlabProjectId = project.getGitlabProjectId();
+    public void removeAllUntrackedIssues(Long projectId, Set<Issue> fetchedIssueSet) {
+        Set<Integer> issueIids = fetchedIssueSet.stream().map(Issue::getIssueIid).collect(Collectors.toSet());
+        List<Issue> midasProjectIssues = getAllIssuesByProjectId(projectId);
+        Set<Integer> midasProjectIssuesIids = midasProjectIssues.stream().map(Issue::getIssueIid).collect(Collectors.toSet());
 
-            removeAllUntrackedIssues(projectId, allIssuesInGitLab);
+        midasProjectIssuesIids.removeAll(issueIids);
+        midasProjectIssues.removeIf(issue -> !midasProjectIssuesIids.contains(issue.getIssueIid()));
+        midasProjectIssues.forEach((this::updateCompletionType));
 
-            return allIssuesInGitLab.stream()
-                    .map(i ->
-                            repository.findByIssueUid(generateUniqueId(sourceControlId, gitlabProjectId, i.getIssueIid()))
-                                    .map(issue -> syncIssue(i, issue))
-                                    .orElseGet(() -> convertToIssue(i, project))
-                    ).collect(Collectors.toSet());
+        repository.deleteAll(midasProjectIssues);
+    }
+
+    private void updateCompletionType(Issue issue) {
+        Optional.ofNullable(issue.getCompletions()).ifPresent(completions -> completions.forEach(c ->
+                completionService.setCompletionTypeToFailure(c.getId())
+        ));
+    }
+
+    public Project getProjectById(Long projectId) {
+        return projectService.findById(projectId);
+    }
+
+    public Set<Issue> gitlabIssueSync(Project project) {
+        if (!hasGitlabDetails(project)) { return Set.of(); }
+
+        GitLab4JClient client = getGitlabClient(project);
+        int totalPageCount = client.getTotalIssuesPages(project);
+
+        Set<Issue> allIssues = new HashSet<>();
+
+        for (int i = 1; i <= totalPageCount; i++) {
+            allIssues.addAll(processIssues(client.fetchGitLabIssueByPage(project, i), project));
         }
 
-        return Set.of();
+        removeAllUntrackedIssues(project.getId(), allIssues);
+
+        return allIssues;
+    }
+
+    public Set<Issue> processIssues(List<GitLabIssue> issues, Project project) {
+        Long sourceControlId = project.getSourceControl().getId();
+        Integer gitlabProjectId = project.getGitlabProjectId();
+
+        return issues.stream()
+                .map(e ->
+                        repository.findByIssueUid(generateUniqueId(sourceControlId, gitlabProjectId, e.getIssueIid()))
+                                .map(epic -> syncIssue(e, epic))
+                                .orElseGet(() -> convertToIssue(e, project))
+                ).collect(Collectors.toSet());
     }
 
     @Scheduled(cron = "0 0 0 * * *")
     public void runScheduledIssueSync() {
         for (Project project : projectService.getAll()) {
             if (project.getIsArchived() == Boolean.FALSE) {
-                getAllGitlabIssuesForProject(project.getId());
+                gitlabIssueSync(project);
             }
         }
     }
 
     public boolean canAddIssue(Integer iid, Project project) {
-        var client = getGitlabClient(project);
+        GitLab4JClient client = getGitlabClient(project);
         return client.issueExistsByIdAndProjectId(iid, project.getGitlabProjectId());
-    }
-
-    protected GitLab4JClient getGitlabClient(Project project) {
-        return new GitLab4JClient(project.getSourceControl());
-    }
-
-    protected Issue convertToIssue(GitLabIssue gitLabIssue, Project project) {
-        var sourceControlId = project.getSourceControl().getId();
-        var gitlabProjectId = project.getGitlabProjectId();
-        var uId = generateUniqueId(sourceControlId, gitlabProjectId, gitLabIssue.getIssueIid());
-        var newIssue = new Issue();
-        BeanUtils.copyProperties(gitLabIssue, newIssue);
-        updateWeight(newIssue);
-        newIssue.setSyncedAt(LocalDateTime.now());
-        newIssue.setIssueUid(uId);
-        newIssue.setProject(project);
-        return repository.save(newIssue);
     }
 
     protected String generateUniqueId(Long sourceControlId, Integer gitlabProjectId, Integer issueIid) {
@@ -141,24 +148,35 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
     }
 
     protected GitLabIssue getIssueFromClient(Project project, Integer issueIid) {
-        var client = getGitlabClient(project);
+        GitLab4JClient client = getGitlabClient(project);
         return client.getIssueFromProject(project.getGitlabProjectId(), issueIid);
+    }
+
+    protected GitLab4JClient getGitlabClient(Project project) {
+        return new GitLab4JClient(project.getSourceControl());
+    }
+
+    protected Issue convertToIssue(GitLabIssue gitLabIssue, Project project) {
+        String uId = generateUniqueId(project.getSourceControl().getId(), project.getGitlabProjectId(), gitLabIssue.getIssueIid());
+        Issue newIssue = new Issue();
+        BeanUtils.copyProperties(gitLabIssue, newIssue);
+        newIssue.setSyncedAt(LocalDateTime.now());
+        newIssue.setIssueUid(uId);
+        newIssue.setProject(project);
+
+        Issue updatedIssue = setWeight(newIssue);
+
+        return repository.save(updatedIssue);
     }
 
     protected Issue syncIssue(GitLabIssue gitLabIssue, Issue issue) {
         BeanUtils.copyProperties(gitLabIssue, issue);
 
-        updateWeight(issue);
-        completionService.updateLinkedIssue(issue);
-        issue.setSyncedAt(LocalDateTime.now());
+        Issue updatedIssue = setWeight(issue);
+        completionService.updateLinkedIssue(updatedIssue);
+        updatedIssue.setSyncedAt(LocalDateTime.now());
 
-        return repository.save(issue);
-    }
-
-    protected void updateWeight(Issue issue) {
-        if (issue.getWeight() == null) {
-            issue.setWeight(0L);
-        }
+        return repository.save(updatedIssue);
     }
 
     private boolean hasGitlabDetails(Project project) {
@@ -167,6 +185,14 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
                 project.getSourceControl() != null &&
                 project.getSourceControl().getToken() != null &&
                 project.getSourceControl().getBaseUrl() != null;
+    }
+
+    protected Issue setWeight(Issue issue) {
+        if (issue.getWeight() == null) {
+            issue.setWeight(0L);
+        }
+
+        return issue;
     }
 
 }

@@ -3,6 +3,7 @@ package mil.af.abms.midas.clients.gitlab.models;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -39,7 +40,7 @@ public class GitLabIssue {
 
     @JsonProperty("epic")
     private void unpackNestedEpic(Map<String, Object> epic) {
-        this.epicIid = (Integer) epic.get("iid");
+        Optional.ofNullable(epic).ifPresentOrElse(e -> { this.epicIid = (Integer) e.get("iid"); }, () -> this.epicIid = null);
     }
 
 }

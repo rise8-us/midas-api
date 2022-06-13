@@ -189,9 +189,9 @@ class ProductServiceTests {
     }
 
     @Test
-    void should_get_all_product_ids() {
+    void should_get_all_products() {
         when(productRepository.findAll()).thenReturn(List.of(product));
 
-        assertThat(productService.getAllProductIds()).isEqualTo(List.of(product.getId()));
+        assertThat(productService.getAll()).isEqualTo(List.of(product));
     }
 }

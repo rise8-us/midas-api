@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import mil.af.abms.midas.api.AbstractCRUDController;
 import mil.af.abms.midas.api.dtos.AddGitLabIssueWithProductDTO;
 import mil.af.abms.midas.api.issue.dto.IssueDTO;
+import mil.af.abms.midas.api.project.Project;
 
 @RestController
 @RequestMapping("/api/issues")
@@ -38,7 +39,8 @@ public class IssueController extends AbstractCRUDController<Issue, IssueDTO, Iss
 
     @GetMapping("/all/{projectId}")
     public List<IssueDTO> getAllIssuesForProject(@PathVariable Long projectId) {
-        return service.getAllGitlabIssuesForProject(projectId).stream().map(Issue::toDto).collect(Collectors.toList());
+        Project project = service.getProjectById(projectId);
+        return service.gitlabIssueSync(project).stream().map(Issue::toDto).collect(Collectors.toList());
     }
 
 }

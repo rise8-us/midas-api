@@ -22,16 +22,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.GitLabApiException;
 import org.gitlab4j.api.models.Job;
-import org.gitlab4j.api.models.Project;
 
 import mil.af.abms.midas.api.AppGroup;
 import mil.af.abms.midas.api.epic.Epic;
 import mil.af.abms.midas.api.helper.JsonMapper;
 import mil.af.abms.midas.api.issue.Issue;
+import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.clients.gitlab.models.GitLabEpic;
 import mil.af.abms.midas.clients.gitlab.models.GitLabIssue;
@@ -45,6 +46,7 @@ public class GitLab4JClient {
     private static final String QUALITY_GATE_PATH = ".ci_artifacts/sonarqube/report_qualitygate_status.json";
     private static final String SONAR_LOG_PATH = ".ci_artifacts/sonarqube/sonar-scanner.log";
     private static final String GET_EPICS_ERROR_MESSAGE = "Unable to map Gitlab Epic Json to Midas Epic";
+    private static final String GET_ISSUES_ERROR_MESSAGE = "Unable to map Gitlab Issue Json to Midas Issue";
 
     private final String baseUrl;
     private final String token;
@@ -184,15 +186,22 @@ public class GitLab4JClient {
         }
     }
 
+    private void fetchGitLabIssues(ArrayList<GitLabIssue> issues, ResponseEntity<String> response) throws IOException {
+        var issueArray = JsonMapper.dateMapper().readTree(response.getBody());
+        for (var issue : issueArray) {
+            issues.add(mapIssueFromJson(issue.toString()));
+        }
+    }
+
     public List<GitLabEpic> fetchGitLabEpicByPage(AppGroup appGroup, Integer page) {
         Integer groupId = appGroup.getGitlabGroupId();
         String url = String.format("%s/api/v4/groups/%d/epics?include_descendant_groups=false&pagination=keyset&per_page=20&page=%d", this.baseUrl, groupId, page);
         ResponseEntity<String> response = requestGet(url);
-        var epics = new ArrayList<GitLabEpic>();
+        ArrayList<GitLabEpic> epics = new ArrayList<>();
         if (response.getStatusCode().equals(HttpStatus.OK)) {
             try {
-                var jsonEpicNode = JsonMapper.dateMapper().readTree(response.getBody());
-                for (var epic : jsonEpicNode) {
+                JsonNode jsonEpicNode = JsonMapper.dateMapper().readTree(response.getBody());
+                for (JsonNode epic : jsonEpicNode) {
                     epics.add(mapEpicFromJson(epic.toString()));
                 }
             }
@@ -203,6 +212,27 @@ public class GitLab4JClient {
             throw new HttpClientErrorException(response.getStatusCode());
         }
         return epics;
+    }
+
+    public List<GitLabIssue> fetchGitLabIssueByPage(Project project, Integer page) {
+        Integer gitlabProjectId = project.getGitlabProjectId();
+        String url = String.format("%s/api/v4/projects/%d/issues?pagination=keyset&per_page=20&page=%d", this.baseUrl, gitlabProjectId, page);
+        ResponseEntity<String> response = requestGet(url);
+        ArrayList<GitLabIssue> issues = new ArrayList<>();
+        if (response.getStatusCode().equals(HttpStatus.OK)) {
+            try {
+                JsonNode jsonIssueNode = JsonMapper.dateMapper().readTree(response.getBody());
+                for (JsonNode issue : jsonIssueNode) {
+                    issues.add(mapIssueFromJson(issue.toString()));
+                }
+            }
+            catch (IOException e) {
+                throw new GitApiException(GET_ISSUES_ERROR_MESSAGE);
+            }
+        } else {
+            throw new HttpClientErrorException(response.getStatusCode());
+        }
+        return issues;
     }
 
     private List<GitLabEpic> getGitLabEpics(String url) {
@@ -222,6 +252,22 @@ public class GitLab4JClient {
         return epics;
     }
 
+    private List<GitLabIssue> getGitLabIssues(String url) {
+        ResponseEntity<String> response = requestGet(url);
+        var issues = new ArrayList<GitLabIssue>();
+        if (response.getStatusCode().equals(HttpStatus.OK)) {
+            try {
+                fetchGitLabIssues(issues, response);
+            } catch (Exception e) {
+                throw new GitApiException(GET_ISSUES_ERROR_MESSAGE);
+            }
+        } else {
+            throw new HttpClientErrorException(response.getStatusCode());
+        }
+
+        return issues;
+    }
+
     public List<GitLabIssue> getIssuesFromEpic(Integer groupId, Integer epicIid) {
         String url = String.format("%s/api/v4/groups/%d/epics/%d/issues?pagination=keyset&per_page=100", this.baseUrl, groupId, epicIid);
         return getGitLabIssues(url);
@@ -230,25 +276,6 @@ public class GitLab4JClient {
     public List<GitLabIssue> getIssuesFromProject(Integer projectId) {
         String url = String.format("%s/api/v4/projects/%d/issues?pagination=keyset&per_page=100", this.baseUrl, projectId);
         return getGitLabIssues(url);
-    }
-
-    private List<GitLabIssue> getGitLabIssues(String url) {
-        ResponseEntity<String> response = requestGet(url);
-        var issues = new ArrayList<GitLabIssue>();
-
-        if (response.getStatusCode().equals(HttpStatus.OK))
-            try {
-                var issueArray = JsonMapper.dateMapper().readTree(response.getBody());
-                for (var issue : issueArray) {
-                    issues.add(mapIssueFromJson(issue.toString()));
-                }
-                return issues;
-            } catch (IOException e) {
-                throw new GitApiException("Unable to map Gitlab Issue Json to Midas Issue");
-            }
-        else {
-            throw new HttpClientErrorException(response.getStatusCode());
-        }
     }
 
     public GitLabEpic getEpicFromGroup(Integer groupId, Integer iid) {
@@ -279,7 +306,7 @@ public class GitLab4JClient {
                     .readerFor(GitLabIssue.class)
                     .readValue(body);
         } catch (IOException e) {
-            throw new GitApiException("Unable to map Gitlab Issue Json to Midas Issue");
+            throw new GitApiException(GET_ISSUES_ERROR_MESSAGE);
         }
 
     }
@@ -353,6 +380,23 @@ public class GitLab4JClient {
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
+
+    public int getTotalIssuesPages(Project project) {
+        Integer gitlabProjectId = project.getGitlabProjectId();
+        String url = String.format("%s/api/v4/projects/%d/issues?pagination=keyset&per_page=20", this.baseUrl, gitlabProjectId);
+        ResponseEntity<String> response = requestGet(url);
+        if (response.getStatusCode().equals(HttpStatus.OK)) {
+            try {
+                return Integer.parseInt(Objects.requireNonNull(response.getHeaders().get("x-total-pages")).get(0));
+            }
+            catch (Exception e) {
+                throw new GitApiException(GET_ISSUES_ERROR_MESSAGE);
+            }
+        }
+        return -1;
+    }
+
+
 
     @FunctionalInterface
     protected interface GitLabApiThunk<T> {

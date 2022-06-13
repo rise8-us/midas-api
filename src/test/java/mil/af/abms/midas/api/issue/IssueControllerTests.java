@@ -103,7 +103,7 @@ public class IssueControllerTests extends ControllerTestHarness {
     @Test
     void should_get_all_issues_by_project_id() throws Exception {
         Set<Issue> issues = Set.of(issue);
-        when(issueService.getAllGitlabIssuesForProject(anyLong())).thenReturn(issues);
+        when(issueService.gitlabIssueSync(any())).thenReturn(issues);
 
         mockMvc.perform(get("/api/issues/all/2"))
                 .andExpect(status().isOk())
