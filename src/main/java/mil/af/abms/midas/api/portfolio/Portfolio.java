@@ -80,6 +80,7 @@ public class Portfolio extends AbstractProductPortfolio<PortfolioDTO> {
     public PortfolioDTO toDto() {
         PersonnelDTO personnelDTO = personnel != null ? personnel.toDto() : new PersonnelDTO();
         BasicUserDTO userDTO = ganttNoteModifiedBy != null ? ganttNoteModifiedBy.toBasicDto() : null;
+
         return new PortfolioDTO(
                 id,
                 name,

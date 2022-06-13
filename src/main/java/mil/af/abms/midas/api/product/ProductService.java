@@ -124,8 +124,8 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
                 () -> new EntityNotFoundException(Product.class.getSimpleName(), "name", name));
     }
 
-    public List<Long> getAllProductIds() {
-        return repository.findAll().stream().map(Product::getId).collect(Collectors.toList());
+    public List<Product> getAll() {
+        return repository.findAll();
     }
 
 }

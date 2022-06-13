@@ -76,11 +76,11 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
     }
 
     public Epic createForProduct(AddGitLabEpicWithProductDTO dto) {
-        var product = productService.findById(dto.getProductId());
-        var sourceControlId = product.getSourceControl().getId();
-        var groupId = product.getGitlabGroupId();
-        var epicConversion = getEpicFromClient(product, dto.getIId());
-        var uId = generateUniqueId(sourceControlId, groupId, dto.getIId());
+        Product product = productService.findById(dto.getProductId());
+        Long sourceControlId = product.getSourceControl().getId();
+        Integer groupId = product.getGitlabGroupId();
+        GitLabEpic epicConversion = getEpicFromClient(product, dto.getIId());
+        String uId = generateUniqueId(sourceControlId, groupId, dto.getIId());
 
         return repository.findByEpicUid(uId)
                 .map(epic -> syncEpic(epicConversion, epic))
@@ -89,11 +89,11 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
     }
 
     public Epic createForPortfolio(AddGitLabEpicWithPortfolioDTO dto) {
-        var portfolio = portfolioService.findById(dto.getPortfolioId());
-        var sourceControlId = portfolio.getSourceControl().getId();
-        var groupId = portfolio.getGitlabGroupId();
-        var epicConversion = getEpicFromClient(portfolio, dto.getIId());
-        var uId = generateUniqueId(sourceControlId, groupId, dto.getIId());
+        Portfolio portfolio = portfolioService.findById(dto.getPortfolioId());
+        Long sourceControlId = portfolio.getSourceControl().getId();
+        Integer groupId = portfolio.getGitlabGroupId();
+        GitLabEpic epicConversion = getEpicFromClient(portfolio, dto.getIId());
+        String uId = generateUniqueId(sourceControlId, groupId, dto.getIId());
 
         return repository.findByEpicUid(uId)
                 .map(epic -> syncEpic(epicConversion, epic))
@@ -141,10 +141,10 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
         return repository.findAllEpicsByPortfolioId(portfolioId).orElse(List.of());
     }
 
-    public void removeAllUntrackedEpicsForProducts(Long productId, Set<Epic> gitlabEpicsList) {
-        var epicIids = gitlabEpicsList.stream().map(Epic::getEpicIid).collect(Collectors.toSet());
-        var midasProductEpics = getAllEpicsByProductId(productId);
-        var midasProductEpicIids = getEpicIids(midasProductEpics);
+    public void removeAllUntrackedEpicsForProducts(Long productId, Set<Epic> fetchedEpicsSet) {
+        Set<Integer> epicIids = fetchedEpicsSet.stream().map(Epic::getEpicIid).collect(Collectors.toSet());
+        List<Epic> midasProductEpics = getAllEpicsByProductId(productId);
+        Set<Integer> midasProductEpicIids = getEpicIids(midasProductEpics);
 
         midasProductEpicIids.removeAll(epicIids);
         midasProductEpics.removeIf(epic -> !midasProductEpicIids.contains(epic.getEpicIid()));
@@ -153,10 +153,10 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
         repository.deleteAll(midasProductEpics);
     }
 
-    public void removeAllUntrackedEpicsForPortfolios(Long portfolioId, Set<Epic> gitlabEpicsList) {
-        var epicIids = gitlabEpicsList.stream().map(Epic::getEpicIid).collect(Collectors.toSet());
-        var midasPortfolioEpics = getAllEpicsByPortfolioId(portfolioId);
-        var midasPortfolioEpicIids = getEpicIids(midasPortfolioEpics);
+    public void removeAllUntrackedEpicsForPortfolios(Long portfolioId, Set<Epic> fetchedEpicsSet) {
+        Set<Integer> epicIids = fetchedEpicsSet.stream().map(Epic::getEpicIid).collect(Collectors.toSet());
+        List<Epic> midasPortfolioEpics = getAllEpicsByPortfolioId(portfolioId);
+        Set<Integer> midasPortfolioEpicIids = getEpicIids(midasPortfolioEpics);
 
         midasPortfolioEpicIids.removeAll(epicIids);
         midasPortfolioEpics.removeIf(epic -> !midasPortfolioEpicIids.contains(epic.getEpicIid()));
@@ -189,6 +189,7 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
 
         String keycloakId = Optional.ofNullable(userService.getUserBySecContext()).isPresent() ?
                 userService.getUserBySecContext().getKeycloakUid() : "";
+
         GitLab4JClient client = getGitlabClient(appGroup);
         int totalPageCount = client.getTotalEpicsPages(appGroup);
         ProcessEpicsDTO processEpicsDTO = new ProcessEpicsDTO();
@@ -214,8 +215,8 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
     }
 
     public Set<Epic> processEpics(List<GitLabEpic> epics, AppGroup appGroup) {
-        var sourceControlId = appGroup.getSourceControl().getId();
-        var groupId = appGroup.getGitlabGroupId();
+        Long sourceControlId = appGroup.getSourceControl().getId();
+        Integer groupId = appGroup.getGitlabGroupId();
 
         return epics.stream()
                 .map(e ->
@@ -227,16 +228,20 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
 
     @Scheduled(cron = "0 0 0 * * *")
     public void runScheduledEpicSync() {
-        for (Long productId : productService.getAllProductIds()) {
-            gitlabEpicSync(getProductById(productId));
+        for (Product product : productService.getAll()) {
+            if (product.getIsArchived() == Boolean.FALSE) {
+                gitlabEpicSync(product);
+            }
         }
-        for (Long portfolioId : portfolioService.getAllPortfolioIds()) {
-            gitlabEpicSync(getPortfolioById(portfolioId));
+        for (Portfolio portfolio : portfolioService.getAll()) {
+            if (portfolio.getIsArchived() == Boolean.FALSE) {
+                gitlabEpicSync(portfolio);
+            }
         }
     }
 
     public boolean canAddEpic(Integer iid, AppGroup appGroup) {
-        var client = getGitlabClient(appGroup);
+        GitLab4JClient client = getGitlabClient(appGroup);
         return client.epicExistsByIdAndGroupId(iid, appGroup.getGitlabGroupId());
     }
 
@@ -245,7 +250,7 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
     }
 
     protected GitLabEpic getEpicFromClient(AppGroup appGroup, Integer epicIid) {
-        var client = getGitlabClient(appGroup);
+        GitLab4JClient client = getGitlabClient(appGroup);
         return client.getEpicFromGroup(appGroup.getGitlabGroupId(), epicIid);
     }
 
@@ -254,8 +259,8 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
     }
 
     protected Epic convertToEpic(GitLabEpic gitLabEpic, AppGroup appGroup) {
-        var uId = generateUniqueId(appGroup.getSourceControl().getId(), appGroup.getGitlabGroupId(), gitLabEpic.getEpicIid());
-        var newEpic = new Epic();
+        String uId = generateUniqueId(appGroup.getSourceControl().getId(), appGroup.getGitlabGroupId(), gitLabEpic.getEpicIid());
+        Epic newEpic = new Epic();
         BeanUtils.copyProperties(gitLabEpic, newEpic);
         newEpic.setSyncedAt(LocalDateTime.now());
         newEpic.setEpicUid(uId);
@@ -275,8 +280,8 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
         BeanUtils.copyProperties(gitLabEpic, epic);
 
         Epic updatedEpic = setWeights(epic);
-        completionService.updateLinkedEpic(epic);
-        epic.setSyncedAt(LocalDateTime.now());
+        completionService.updateLinkedEpic(updatedEpic);
+        updatedEpic.setSyncedAt(LocalDateTime.now());
 
         return repository.save(updatedEpic);
     }
@@ -292,10 +297,10 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
     protected Epic setWeights(Epic epic) {
         AppGroup appGroup = epic.getProduct() == null ? epic.getPortfolio() : epic.getProduct();
 
-        var client = getGitlabClient(appGroup);
+        GitLab4JClient client = getGitlabClient(appGroup);
         Optional<GitLabEpic> foundEpic = Optional.of(client.getEpicFromGroup(appGroup.getGitlabGroupId(), epic.getEpicIid()));
 
-        var weights = getAllEpicWeights(client, foundEpic);
+        Map<String, Integer> weights = getAllEpicWeights(client, foundEpic);
         epic.setTotalWeight(weights.get(TOTAL).longValue());
         epic.setCompletedWeight(weights.get(COMPLETED).longValue());
         return epic;
@@ -308,7 +313,7 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
                 Map.entry(COMPLETED, 0)
         ));
         epic.ifPresent(e -> {
-            var subEpics = client.getSubEpicsFromEpicAndGroup(e.getGroupId(), e.getEpicIid());
+            List<GitLabEpic> subEpics = client.getSubEpicsFromEpicAndGroup(e.getGroupId(), e.getEpicIid());
 
             for (GitLabEpic subEpic : subEpics) {
                 var subWeights = getAllEpicWeights(client, Optional.of(subEpic));
@@ -317,12 +322,12 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
                 base.put(COMPLETED, subWeights.get(COMPLETED) + base.get(COMPLETED));
             }
 
-            var issues = client.getIssuesFromEpic(e.getGroupId(), e.getEpicIid());
-            var totalWeight = 0;
-            var completedWeight = 0;
+            List<GitLabIssue> issues = client.getIssuesFromEpic(e.getGroupId(), e.getEpicIid());
+            int totalWeight = 0;
+            int completedWeight = 0;
 
             for (GitLabIssue issue : issues) {
-                var weightToAdd = issue.getWeight() == null ? 1 : issue.getWeight();
+                long weightToAdd = issue.getWeight() == null ? 1 : issue.getWeight();
                 totalWeight += weightToAdd;
                 if (Objects.equals(issue.getState(), "closed")) {
                     completedWeight += weightToAdd;

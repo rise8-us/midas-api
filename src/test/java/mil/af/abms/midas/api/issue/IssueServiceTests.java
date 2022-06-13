@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -71,6 +73,7 @@ public class IssueServiceTests {
             .with(p -> p.setId(1L))
             .with(p -> p.setGitlabProjectId(42))
             .with(p -> p.setSourceControl(sourceControl))
+            .with(p -> p.setIsArchived(false))
             .get();
     private final Issue foundIssue = Builder.build(Issue.class)
             .with(i -> i.setId(6L))
@@ -155,30 +158,12 @@ public class IssueServiceTests {
 
         doReturn(expectedIssue).when(repository).save(any(Issue.class));
         when(issueService.getGitlabClient(foundProject)).thenReturn(gitLab4JClient);
-        when(projectService.findById(foundProject.getId())).thenReturn(foundProject);
-        doReturn(Optional.of(foundIssue)).when(repository).findByIssueUid(any());
-        doNothing().when(issueService).removeAllUntrackedIssues(foundProject.getId(), List.of(gitLabIssue));
-        when(gitLab4JClient.getIssuesFromProject(foundProject.getGitlabProjectId())).thenReturn(List.of(gitLabIssue));
+        doReturn(1).when(gitLab4JClient).getTotalIssuesPages(foundProject);
+        doReturn(Set.of(expectedIssue)).when(issueService).processIssues(List.of(), foundProject);
+        doNothing().when(issueService).removeAllUntrackedIssues(anyLong(), anySet());
+        doReturn(foundIssue).when(issueService).convertToIssue(any(), any());
 
-        assertThat(issueService.getAllGitlabIssuesForProject(foundProject.getId())).isEqualTo(Set.of(expectedIssue));
-    }
-
-    @Test
-    void should_get_all_issues_for_gitlab_project_when_unable_to_findByIssueUid() {
-        var gitLab4JClient = Mockito.mock(GitLab4JClient.class);
-        var expectedIssue = new Issue();
-        BeanUtils.copyProperties(foundIssue, expectedIssue);
-        expectedIssue.setTitle(gitLabIssue.getTitle());
-        expectedIssue.setId(6L);
-
-        doReturn(expectedIssue).when(repository).save(any(Issue.class));
-        when(issueService.getGitlabClient(foundProject)).thenReturn(gitLab4JClient);
-        when(projectService.findById(foundProject.getId())).thenReturn(foundProject);
-        doReturn(Optional.empty()).when(repository).findByIssueUid(any());
-        doNothing().when(issueService).removeAllUntrackedIssues(foundProject.getId(), List.of(gitLabIssue));
-        when(gitLab4JClient.getIssuesFromProject(foundProject.getGitlabProjectId())).thenReturn(List.of(gitLabIssue));
-
-        assertThat(issueService.getAllGitlabIssuesForProject(foundProject.getId())).isEqualTo(Set.of(expectedIssue));
+        assertThat(issueService.gitlabIssueSync(foundProject)).isEqualTo(Set.of(expectedIssue));
     }
 
     @Test
@@ -187,7 +172,7 @@ public class IssueServiceTests {
 
         when(projectService.findById(foundProject.getId())).thenReturn(foundProject);
 
-        assertThat(issueService.getAllGitlabIssuesForProject(foundProject.getId())).isEqualTo(Set.of());
+        assertThat(issueService.gitlabIssueSync(foundProject)).isEqualTo(Set.of());
     }
 
     @Test
@@ -197,7 +182,7 @@ public class IssueServiceTests {
 
         newIssue.setWeight(5L);
 
-        issueService.updateWeight(newIssue);
+        issueService.setWeight(newIssue);
 
         assertThat(newIssue.getWeight()).isEqualTo(5L);
     }
@@ -208,7 +193,7 @@ public class IssueServiceTests {
 
         when(projectService.findById(foundProject.getId())).thenReturn(foundProject);
 
-        assertThat(issueService.getAllGitlabIssuesForProject(foundProject.getId())).isEqualTo(Set.of());
+        assertThat(issueService.gitlabIssueSync(foundProject)).isEqualTo(Set.of());
     }
 
     @Test
@@ -217,7 +202,7 @@ public class IssueServiceTests {
 
         when(projectService.findById(foundProject.getId())).thenReturn(foundProject);
 
-        assertThat(issueService.getAllGitlabIssuesForProject(foundProject.getId())).isEqualTo(Set.of());
+        assertThat(issueService.gitlabIssueSync(foundProject)).isEqualTo(Set.of());
     }
 
     @Test
@@ -227,7 +212,7 @@ public class IssueServiceTests {
 
         when(projectService.findById(foundProject.getId())).thenReturn(foundProject);
 
-        assertThat(issueService.getAllGitlabIssuesForProject(foundProject.getId())).isEqualTo(Set.of());
+        assertThat(issueService.gitlabIssueSync(foundProject)).isEqualTo(Set.of());
     }
 
     @Test
@@ -237,7 +222,7 @@ public class IssueServiceTests {
 
         when(projectService.findById(foundProject.getId())).thenReturn(foundProject);
 
-        assertThat(issueService.getAllGitlabIssuesForProject(foundProject.getId())).isEqualTo(Set.of());
+        assertThat(issueService.gitlabIssueSync(foundProject)).isEqualTo(Set.of());
     }
 
     @Test
@@ -251,21 +236,14 @@ public class IssueServiceTests {
         BeanUtils.copyProperties(foundProject, archivedProject);
         archivedProject.setIsArchived(true);
 
-        doReturn(List.of(foundProject.getId())).when(projectService).getAll();
-        when(projectService.findById(foundProject.getId())).thenReturn(foundProject);
-        when(projectService.getAll()).thenReturn(List.of(foundProject, archivedProject));
+        doReturn(List.of(foundProject, archivedProject)).when(projectService).getAll();
+        doReturn(foundProject).when(projectService).findById(foundProject.getId());
         doReturn(gitLab4JClient).when(issueService).getGitlabClient(any());
-        doNothing().when(issueService).removeAllUntrackedIssues(foundProject.getId(), List.of(gitLabIssue));
-        when(gitLab4JClient.getIssuesFromProject(foundProject.getGitlabProjectId())).thenReturn(List.of(gitLabIssue));
+        doNothing().when(issueService).removeAllUntrackedIssues(anyLong(), anySet());
 
         issueService.runScheduledIssueSync();
 
-        verify(repository, times(1)).save(captor.capture());
-        Issue issueSaved = captor.getValue();
-        issueSaved.setCreationDate(CREATED_AT);
-
-        assertThat(issueSaved).isEqualTo(expectedIssue);
-        assertThat(gitLabIssue.getCompletedAt()).isEqualTo(issueSaved.getCompletedAt());
+        verify(issueService, times(1)).gitlabIssueSync(foundProject);
     }
 
     @Test
@@ -284,7 +262,7 @@ public class IssueServiceTests {
         doNothing().when(repository).deleteAll(anyList());
         doReturn(new ArrayList<>(List.of(foundIssue))).when(issueService).getAllIssuesByProjectId(foundProject.getId());
 
-        issueService.removeAllUntrackedIssues(foundProject.getId(), List.of(gitLabIssue));
+        issueService.removeAllUntrackedIssues(foundProject.getId(), Set.of(foundIssue));
 
         verify(repository, times(1)).deleteAll(any());
 

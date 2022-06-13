@@ -491,7 +491,7 @@ class EpicServiceTests {
         BeanUtils.copyProperties(gitLabEpic, expectedEpic);
         expectedEpic.setCreationDate(CREATED_AT);
 
-        doReturn(List.of(foundProduct.getId())).when(productService).getAllProductIds();
+        doReturn(List.of(foundProduct)).when(productService).getAll();
         when(productService.findById(foundProduct.getId())).thenReturn(foundProduct);
         doReturn(gitLab4JClient).when(epicService).getGitlabClient(any());
         doNothing().when(epicService).removeAllUntrackedEpicsForProducts(anyLong(), anySet());
@@ -508,7 +508,7 @@ class EpicServiceTests {
         BeanUtils.copyProperties(epic, expectedEpic);
         expectedEpic.setCreationDate(CREATED_AT);
 
-        doReturn(List.of(foundPortfolio.getId())).when(portfolioService).getAllPortfolioIds();
+        doReturn(List.of(foundPortfolio)).when(portfolioService).getAll();
         when(portfolioService.findById(foundPortfolio.getId())).thenReturn(foundPortfolio);
         doReturn(gitLab4JClient).when(epicService).getGitlabClient(any());
         doNothing().when(epicService).removeAllUntrackedEpicsForPortfolios(anyLong(), anySet());

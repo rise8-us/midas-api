@@ -128,8 +128,8 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
                 () -> new EntityNotFoundException(Product.class.getSimpleName(), "name", name));
     }
 
-    public List<Long> getAllPortfolioIds() {
-        return repository.findAll().stream().map(Portfolio::getId).collect(Collectors.toList());
+    public List<Portfolio> getAll() {
+        return repository.findAll();
     }
 
 }
