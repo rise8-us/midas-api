@@ -12,7 +12,10 @@ import javax.persistence.Table;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -105,6 +108,12 @@ public class Portfolio extends AbstractProductPortfolio<PortfolioDTO> {
     @Override
     public int hashCode() {
         return java.util.Objects.hashCode(name);
+    }
+
+    public List<Long> getSortedProductIds(Set<Product> products) {
+        Set<Product> sortedProducts = products.stream().sorted(Comparator.comparing(AbstractProductPortfolio::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
+
+        return sortedProducts.stream().map(Product::getId).collect(Collectors.toList());
     }
 
     @Override
