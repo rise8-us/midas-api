@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +18,11 @@ import lombok.extern.slf4j.Slf4j;
 import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.completion.CompletionService;
 import mil.af.abms.midas.api.dtos.AddGitLabIssueWithProductDTO;
+import mil.af.abms.midas.api.dtos.PaginationProgressDTO;
 import mil.af.abms.midas.api.issue.dto.IssueDTO;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
+import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
 import mil.af.abms.midas.clients.gitlab.models.GitLabIssue;
 
@@ -29,6 +32,8 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
 
     private ProjectService projectService;
     private CompletionService completionService;
+    private UserService userService;
+    private final SimpMessageSendingOperations websocket;
 
     @Autowired
     public void setProjectService(ProjectService projectService) {
@@ -40,8 +45,14 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
         this.completionService = completionService;
     }
 
-    public IssueService(IssueRepository repository) {
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    public IssueService(IssueRepository repository, SimpMessageSendingOperations websocket) {
         super(repository, Issue.class, IssueDTO.class);
+        this.websocket = websocket;
     }
 
     public Issue create(AddGitLabIssueWithProductDTO dto) {
@@ -103,13 +114,22 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
     public Set<Issue> gitlabIssueSync(Project project) {
         if (!hasGitlabDetails(project)) { return Set.of(); }
 
+        String keycloakId = Optional.ofNullable(userService.getUserBySecContext()).isPresent() ?
+                userService.getUserBySecContext().getKeycloakUid() : "";
+
         GitLab4JClient client = getGitlabClient(project);
         int totalPageCount = client.getTotalIssuesPages(project);
+        PaginationProgressDTO paginationProgressDTO = new PaginationProgressDTO();
 
         Set<Issue> allIssues = new HashSet<>();
 
         for (int i = 1; i <= totalPageCount; i++) {
             allIssues.addAll(processIssues(client.fetchGitLabIssueByPage(project, i), project));
+
+            if (!keycloakId.equals("")) {
+                paginationProgressDTO.setValue((double) i / totalPageCount);
+                websocket.convertAndSendToUser(keycloakId, "/queue/fetchGitlabIssuesPagination", paginationProgressDTO);
+            }
         }
 
         removeAllUntrackedIssues(project.getId(), allIssues);
