@@ -27,7 +27,7 @@ import mil.af.abms.midas.api.dtos.AddGitLabEpicWithPortfolioDTO;
 import mil.af.abms.midas.api.dtos.AddGitLabEpicWithProductDTO;
 import mil.af.abms.midas.api.dtos.IsHiddenDTO;
 import mil.af.abms.midas.api.epic.dto.EpicDTO;
-import mil.af.abms.midas.api.epic.dto.ProcessEpicsDTO;
+import mil.af.abms.midas.api.dtos.PaginationProgressDTO;
 import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.product.Product;
@@ -192,7 +192,7 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
 
         GitLab4JClient client = getGitlabClient(appGroup);
         int totalPageCount = client.getTotalEpicsPages(appGroup);
-        ProcessEpicsDTO processEpicsDTO = new ProcessEpicsDTO();
+        PaginationProgressDTO paginationProgressDTO = new PaginationProgressDTO();
 
         Set<Epic> allEpics = new HashSet<>();
 
@@ -200,8 +200,8 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
             allEpics.addAll(processEpics(client.fetchGitLabEpicByPage(appGroup, i), appGroup));
 
             if (!keycloakId.equals("")) {
-                processEpicsDTO.setValue((double) i / totalPageCount);
-                websocket.convertAndSendToUser(keycloakId, "/queue/fetchGitlabEpicsPagination", processEpicsDTO);
+                paginationProgressDTO.setValue((double) i / totalPageCount);
+                websocket.convertAndSendToUser(keycloakId, "/queue/fetchGitlabEpicsPagination", paginationProgressDTO);
             }
         }
 

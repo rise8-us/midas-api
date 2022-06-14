@@ -38,6 +38,7 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
+import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
 import mil.af.abms.midas.clients.gitlab.models.GitLabIssue;
 
@@ -57,6 +58,8 @@ public class IssueServiceTests {
     private CompletionService completionService;
     @MockBean
     private  GitLab4JClient gitLab4JClient;
+    @MockBean
+    private UserService userService;
 
     @Captor
     ArgumentCaptor<Issue> captor;

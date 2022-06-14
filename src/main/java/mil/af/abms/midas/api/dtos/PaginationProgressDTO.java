@@ -1,4 +1,4 @@
-package mil.af.abms.midas.api.epic.dto;
+package mil.af.abms.midas.api.dtos;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,7 +7,7 @@ import mil.af.abms.midas.api.AbstractDTO;
 
 @Data
 @NoArgsConstructor
-public class ProcessEpicsDTO implements AbstractDTO {
+public class PaginationProgressDTO implements AbstractDTO {
 
     private Double value;
 
