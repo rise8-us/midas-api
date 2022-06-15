@@ -14,11 +14,13 @@ import mil.af.abms.midas.api.product.validation.UniqueProductName;
 import mil.af.abms.midas.api.validation.ProjectsCanBeAssignedToProduct;
 import mil.af.abms.midas.api.validation.ProjectsExist;
 import mil.af.abms.midas.api.validation.TagsExist;
+import mil.af.abms.midas.api.validation.UniqueGroupIdAndSourceControl;
 import mil.af.abms.midas.enums.RoadmapType;
 
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@UniqueGroupIdAndSourceControl
 public class UpdateProductDTO implements ProductInterfaceDTO {
 
     @NotBlank(message = "product name must not be blank")
