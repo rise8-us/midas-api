@@ -2,6 +2,7 @@ package mil.af.abms.midas.api.issue.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,4 +29,5 @@ public class IssueDTO implements AbstractDTO {
     private String webUrl;
     private Long weight;
     private Long projectId;
+    private List<String> labels;
 }

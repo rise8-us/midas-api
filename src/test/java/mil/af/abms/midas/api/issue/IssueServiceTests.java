@@ -92,6 +92,7 @@ public class IssueServiceTests {
             .with(i -> i.setIssueIid(2))
             .with(i -> i.setCreationDate(CREATED_AT))
             .with(i -> i.setCompletedAt(CLOSED_AT))
+            .with(i -> i.setLabels(""))
             .get();
 
     @Test

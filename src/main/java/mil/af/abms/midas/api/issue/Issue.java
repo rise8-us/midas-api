@@ -10,7 +10,10 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -77,6 +80,9 @@ public class Issue extends AbstractTimeConstrainedEntity<IssueDTO> {
             inverseJoinColumns = @JoinColumn(name = "completion_id", referencedColumnName = "id"))
     private Set<Completion> completions;
 
+    @Column(columnDefinition = "VARCHAR(255)")
+    private String labels = "";
+
     public IssueDTO toDto() {
         return new IssueDTO(
                 id,
@@ -93,13 +99,14 @@ public class Issue extends AbstractTimeConstrainedEntity<IssueDTO> {
                 state,
                 webUrl,
                 weight,
-                getIdOrNull(project)
+                getIdOrNull(project),
+                convertLabelsToArray(labels)
         );
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hashCode(creationDate);
+        return java.util.Objects.hashCode(id);
     }
 
     @Override
@@ -110,4 +117,8 @@ public class Issue extends AbstractTimeConstrainedEntity<IssueDTO> {
         return this.hashCode() == that.hashCode();
     }
 
+    private List<String> convertLabelsToArray(String labels) {
+        if (labels == null || labels.length() == 0) { return List.of(); }
+        return Arrays.stream(labels.split(",")).collect(Collectors.toList());
+    }
 }
