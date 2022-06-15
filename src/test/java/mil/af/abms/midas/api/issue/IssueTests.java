@@ -2,7 +2,6 @@ package mil.af.abms.midas.api.issue;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.lang.reflect.Field;
@@ -32,12 +31,14 @@ public class IssueTests {
             .with(i -> i.setId(1L))
             .with(i -> i.setCreationDate(LocalDateTime.now()))
             .with(i -> i.setProject(project))
+            .with(i -> i.setLabels(""))
             .get();
 
     private final IssueDTO expectedDTO = Builder.build(IssueDTO.class)
             .with(i -> i.setId(1L))
             .with(i -> i.setCreationDate(issue.getCreationDate()))
             .with(i -> i.setProjectId(project.getId()))
+            .with(i -> i.setLabels(List.of()))
             .get();
 
     @Test
@@ -57,7 +58,6 @@ public class IssueTests {
         assertNotEquals(issue, new User());
         assertNotEquals(issue, new Issue());
         assertEquals(issue, issue2);
-        assertFalse(issue.equals(null));
     }
 
     @Test
@@ -67,6 +67,15 @@ public class IssueTests {
 
     @Test
     void can_return_dto() {
+        Issue issue2 = new Issue();
+        IssueDTO expectedDTO2 = new IssueDTO();
+        BeanUtils.copyProperties(issue, issue2);
+        BeanUtils.copyProperties(expectedDTO, expectedDTO2);
+        issue2.setLabels("foo");
+        expectedDTO2.setLabels(List.of("foo"));
+
         assertThat(issue.toDto()).isEqualTo(expectedDTO);
+        assertThat(issue2.toDto()).isEqualTo(expectedDTO2);
+
     }
 }

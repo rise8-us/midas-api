@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -36,11 +37,18 @@ public class GitLabIssue {
     @JsonProperty("project_id")
     private Long projectId;
 
+    private String labels;
     private Integer epicIid;
 
     @JsonProperty("epic")
     private void unpackNestedEpic(Map<String, Object> epic) {
         Optional.ofNullable(epic).ifPresentOrElse(e -> { this.epicIid = (Integer) e.get("iid"); }, () -> this.epicIid = null);
+    }
+
+    @JsonProperty("labels")
+    private void convertLabelsToString(Set<String> labels) {
+        String labelsString = labels.toString();
+        this.labels = labelsString.substring(1, labelsString.length() - 1);
     }
 
 }
