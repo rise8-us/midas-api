@@ -306,7 +306,6 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
         return epic;
     }
 
-
     public Map<String, Integer> getAllEpicWeights(GitLab4JClient client, Optional<GitLabEpic> epic) {
         var base = new HashMap<>(Map.ofEntries(
                 Map.entry(TOTAL, 0),

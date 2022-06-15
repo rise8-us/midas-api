@@ -118,8 +118,9 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
                 userService.getUserBySecContext().getKeycloakUid() : "";
 
         GitLab4JClient client = getGitlabClient(project);
-        int totalPageCount = client.getTotalIssuesPages(project);
+
         PaginationProgressDTO paginationProgressDTO = new PaginationProgressDTO();
+        int totalPageCount = client.getTotalIssuesPages(project.getGitlabProjectId());
 
         Set<Issue> allIssues = new HashSet<>();
 
@@ -142,10 +143,10 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
         Integer gitlabProjectId = project.getGitlabProjectId();
 
         return issues.stream()
-                .map(e ->
-                        repository.findByIssueUid(generateUniqueId(sourceControlId, gitlabProjectId, e.getIssueIid()))
-                                .map(epic -> syncIssue(e, epic))
-                                .orElseGet(() -> convertToIssue(e, project))
+                .map(i ->
+                        repository.findByIssueUid(generateUniqueId(sourceControlId, gitlabProjectId, i.getIssueIid()))
+                                .map(issue -> syncIssue(i, issue))
+                                .orElseGet(() -> convertToIssue(i, project))
                 ).collect(Collectors.toSet());
     }
 

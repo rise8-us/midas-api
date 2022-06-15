@@ -118,6 +118,12 @@ Database: midas_db
 #### Notes:
 - *These procedures are only required in the event you are restoring to a different database version*
 
+# Running sonarqube locally
+
+#### Steps:
+1. From the root of the project run, `./gradlew sonarqube`
+2. Navigate to `http://localhost:9002`
+
 #### Steps:
 1. Navigate to the appropriate environment Kustomization file
   1. For Staging: [Kustomization Staging Manifest File](https://code.il2.dso.mil/abms/products/rise8/midas/midas-manifests/-/blob/master/il2/overlays/staging/kustomization.yaml)

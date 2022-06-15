@@ -27,7 +27,6 @@ import mil.af.abms.midas.api.deliverable.dto.DeliverableDTO;
 import mil.af.abms.midas.api.gantt.target.Target;
 import mil.af.abms.midas.api.performancemeasure.PerformanceMeasure;
 import mil.af.abms.midas.api.product.Product;
-import mil.af.abms.midas.api.release.Release;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.enums.ProgressionStatus;
 
@@ -61,14 +60,6 @@ public class Deliverable extends AbstractEntity<DeliverableDTO> {
 
     @OneToMany(mappedBy = "parent")
     private Set<Deliverable> children = new HashSet<>();
-
-    @ManyToMany
-    @JoinTable(
-            name = "release_deliverable",
-            joinColumns = @JoinColumn(name = "release_id", referencedColumnName = "id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "deliverable_id", referencedColumnName = "id", nullable = false)
-    )
-    private Set<Release> releases = new HashSet<>();
 
     @ManyToOne
     @JoinTable(
@@ -111,7 +102,6 @@ public class Deliverable extends AbstractEntity<DeliverableDTO> {
                 status,
                 position,
                 referenceId,
-                getIds(releases),
                 children.stream().map(Deliverable::toDto).collect(Collectors.toList()),
                 getIdOrNull(parent),
                 getIdOrNull(product),

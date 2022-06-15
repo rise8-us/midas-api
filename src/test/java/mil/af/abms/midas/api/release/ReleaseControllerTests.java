@@ -1,18 +1,18 @@
 package mil.af.abms.midas.api.release;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -21,11 +21,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.ControllerTestHarness;
-import mil.af.abms.midas.api.dtos.IsArchivedDTO;
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.release.dto.CreateReleaseDTO;
-import mil.af.abms.midas.api.release.dto.UpdateReleaseDTO;
-import mil.af.abms.midas.enums.ProgressionStatus;
+import mil.af.abms.midas.api.project.Project;
+import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 
 @WebMvcTest({ReleaseController.class})
 public class ReleaseControllerTests extends ControllerTestHarness {
@@ -33,72 +31,67 @@ public class ReleaseControllerTests extends ControllerTestHarness {
     @MockBean
     private ReleaseService releaseService;
 
-    private final CreateReleaseDTO createReleaseDTO = new CreateReleaseDTO(
-            "title", "2021-11-10"
-    );
-    private final UpdateReleaseDTO updateReleaseDTO = new UpdateReleaseDTO(
-            "new title", "11-10-2021", ProgressionStatus.COMPLETED, Set.of()
-    );
-
-    private final Release createRelease = Builder.build(Release.class)
-            .with(r -> r.setTitle(createReleaseDTO.getTitle()))
-            .with(r -> r.setIsArchived(false))
+    SourceControl sourceControl = Builder.build(SourceControl.class)
+            .with(sc -> sc.setBaseUrl("fake_url"))
+            .with(sc -> sc.setToken("fake_token"))
             .get();
 
-    private final Release updateRelease = Builder.build(Release.class)
-            .with(r -> r.setId(2L))
-            .with(r -> r.setTitle(updateReleaseDTO.getTitle()))
+    Project project = Builder.build(Project.class)
+            .with(p -> p.setName("name"))
+            .with(p -> p.setId(2L))
+            .with(p -> p.setSourceControl(sourceControl))
+            .get();
+
+    Release release = Builder.build(Release.class)
+            .with(e -> e.setId(1L))
+            .with(e -> e.setCreationDate(LocalDateTime.now()))
+            .with(e -> e.setProject(project))
+            .with(e -> e.setName("name"))
             .get();
 
     @BeforeEach
-    void init() throws Exception {
+    void init() {
         when(userService.findByKeycloakUid(any())).thenReturn(Optional.of(authUser));
     }
 
     @Test
-    void should_create_release() throws Exception {
-        when(releaseService.create(any(CreateReleaseDTO.class))).thenReturn(createRelease);
+    void should_sync_all_releases_by_project_id() throws Exception {
+        when(releaseService.syncGitlabReleaseForProject(any())).thenReturn(Set.of(release));
 
-        mockMvc.perform(post("/api/releases")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(mapper.writeValueAsString(createReleaseDTO))
-        )
+        mockMvc.perform(get("/api/releases/sync/project/2"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.title").value(createRelease.getTitle()));
+                .andExpect(jsonPath("$", hasSize(1)));
     }
 
     @Test
-    public void should_update_release() throws Exception {
-        when(releaseService.updateById(anyLong(), any(UpdateReleaseDTO.class))).thenReturn(updateRelease);
+    void should_get_all_releases_by_project_id() throws Exception {
+        when(releaseService.getAllReleasesByProjectId(any())).thenReturn(List.of(release));
 
-        mockMvc.perform(put("/api/releases/1")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(mapper.writeValueAsString(updateReleaseDTO))
-        )
+        mockMvc.perform(get("/api/releases/project/2"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.title").value(updateRelease.getTitle()));
-
+                .andExpect(jsonPath("$", hasSize(1)));
     }
 
     @Test
-    public void should_update_release_is_archived_true() throws Exception {
-        Release archived = new Release();
-        BeanUtils.copyProperties(createRelease, archived);
-        archived.setIsArchived(true);
+    void should_get_all_releases_by_product_id() throws Exception {
+        when(releaseService.getAllReleasesByProductId(any())).thenReturn(List.of(release));
 
-        IsArchivedDTO archiveDTO = new IsArchivedDTO(true);
-
-        when(releaseService.updateIsArchived(1L, archiveDTO)).thenReturn(archived);
-
-        mockMvc.perform(put("/api/releases/1/archive")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(mapper.writeValueAsString(archiveDTO))
-                )
+        mockMvc.perform(get("/api/releases/product/2"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.isArchived").value(true));
+                .andExpect(jsonPath("$", hasSize(1)));
+    }
+
+    @Test
+    void should_sync_all_releases_by_product_id() throws Exception {
+        when(releaseService.syncGitlabReleaseForProduct(any())).thenReturn(Set.of(release));
+
+        mockMvc.perform(get("/api/releases/sync/product/2"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$", hasSize(1)));
     }
 
 }

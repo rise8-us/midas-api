@@ -44,9 +44,9 @@ class DeliverableControllerTests extends ControllerTestHarness {
     private final UpdateCompletionDTO updateCompletionDTO = new UpdateCompletionDTO();
     private final CreateCompletionDTO createCompletionDTO = new CreateCompletionDTO();
     private final UpdateDeliverableDTO updateDeliverableDTO = new UpdateDeliverableDTO(
-            1L, "title", 1, 0, List.of(), ProgressionStatus.COMPLETED, 2L, updateCompletionDTO);
+            1L, "title", 1, 0, ProgressionStatus.COMPLETED, 2L, updateCompletionDTO);
     private final CreateDeliverableDTO createDeliverableDTO = new CreateDeliverableDTO(
-            "title", 1, 0, 2L, 3L, List.of(), List.of(10L),  9L, 5L, 2L, createCompletionDTO
+            "title", 1, 0, 2L, 3L, List.of(), 9L, 5L, 2L, createCompletionDTO
     );
 
     private final Product product = Builder.build(Product.class)
@@ -67,7 +67,6 @@ class DeliverableControllerTests extends ControllerTestHarness {
             .with(t -> t.setTitle(createDeliverableDTO.getTitle()))
             .with(t -> t.setProduct(product))
             .with(t -> t.setChildren(Set.of()))
-            .with(t -> t.setReleases(Set.of(release)))
             .with(t -> t.setIsArchived(false))
             .get();
 

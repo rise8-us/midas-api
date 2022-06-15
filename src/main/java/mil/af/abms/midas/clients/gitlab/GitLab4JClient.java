@@ -37,6 +37,7 @@ import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.clients.gitlab.models.GitLabEpic;
 import mil.af.abms.midas.clients.gitlab.models.GitLabIssue;
 import mil.af.abms.midas.clients.gitlab.models.GitLabProject;
+import mil.af.abms.midas.clients.gitlab.models.GitLabRelease;
 import mil.af.abms.midas.exception.GitApiException;
 
 @Slf4j
@@ -47,6 +48,7 @@ public class GitLab4JClient {
     private static final String SONAR_LOG_PATH = ".ci_artifacts/sonarqube/sonar-scanner.log";
     private static final String GET_EPICS_ERROR_MESSAGE = "Unable to map Gitlab Epic Json to Midas Epic";
     private static final String GET_ISSUES_ERROR_MESSAGE = "Unable to map Gitlab Issue Json to Midas Issue";
+    private static final String GET_RELEASES_ERROR_MESSAGE = "Unable to map Gitlab Release Json to Midas Release";
 
     private final String baseUrl;
     private final String token;
@@ -162,16 +164,7 @@ public class GitLab4JClient {
     public int getTotalEpicsPages(AppGroup appGroup) {
         Integer groupId = appGroup.getGitlabGroupId();
         String url = String.format("%s/api/v4/groups/%d/epics?include_descendant_groups=false&pagination=keyset&per_page=20", this.baseUrl, groupId);
-        ResponseEntity<String> response = requestGet(url);
-        if (response.getStatusCode().equals(HttpStatus.OK)) {
-            try {
-                return Integer.parseInt(Objects.requireNonNull(response.getHeaders().get("x-total-pages")).get(0));
-            }
-            catch (Exception e) {
-                throw new GitApiException(GET_EPICS_ERROR_MESSAGE);
-            }
-        }
-        return -1;
+        return getTotalPagesForResponse(url, GET_EPICS_ERROR_MESSAGE);
     }
 
     public List<GitLabEpic> getSubEpicsFromEpicAndGroup(Integer groupId, Integer iid) {
@@ -362,6 +355,54 @@ public class GitLab4JClient {
         }
     }
 
+    protected GitLabRelease mapReleaseFromJson(String body) {
+        try {
+            return JsonMapper.dateMapper()
+                    .readerFor(GitLabRelease.class)
+                    .readValue(body);
+        } catch (IOException e) {
+            throw new GitApiException("Unable to map GitLab Release Json to Midas Release");
+        }
+    }
+
+    public List<GitLabRelease> fetchGitLabReleasesByPage(Integer projectId, Integer page) {
+        String url = String.format("%s/api/v4/projects/%d/releases?pagination=keyset&per_page=20&page=%d", this.baseUrl, projectId, page);
+        ResponseEntity<String> response = requestGet(url);
+        var releases = new ArrayList<GitLabRelease>();
+        if (response.getStatusCode().equals(HttpStatus.OK)) {
+            try {
+                var jsonEpicNode = JsonMapper.dateMapper().readTree(response.getBody());
+                for (var release : jsonEpicNode) {
+                    releases.add(mapReleaseFromJson(release.toString()));
+                }
+            }
+            catch (IOException e) {
+                throw new GitApiException(GET_RELEASES_ERROR_MESSAGE);
+            }
+        } else {
+            throw new HttpClientErrorException(response.getStatusCode());
+        }
+        return releases;
+    }
+
+    public int getTotalReleasesPages(Integer projectId) {
+        String url = String.format("%s/api/v4/projects/%d/releases?pagination=keyset&per_page=20", this.baseUrl, projectId);
+        return getTotalPagesForResponse(url, GET_RELEASES_ERROR_MESSAGE);
+    }
+
+    protected int getTotalPagesForResponse(String url, String error) {
+        ResponseEntity<String> response = requestGet(url);
+        if (response.getStatusCode().equals(HttpStatus.OK)) {
+            try {
+                return Integer.parseInt(Objects.requireNonNull(response.getHeaders().get("x-total-pages")).get(0));
+            }
+            catch (Exception e) {
+                throw new GitApiException(error);
+            }
+        }
+        return -1;
+    }
+
     protected ResponseEntity<String> requestGet(String endpoint) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -381,22 +422,10 @@ public class GitLab4JClient {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    public int getTotalIssuesPages(Project project) {
-        Integer gitlabProjectId = project.getGitlabProjectId();
-        String url = String.format("%s/api/v4/projects/%d/issues?pagination=keyset&per_page=20", this.baseUrl, gitlabProjectId);
-        ResponseEntity<String> response = requestGet(url);
-        if (response.getStatusCode().equals(HttpStatus.OK)) {
-            try {
-                return Integer.parseInt(Objects.requireNonNull(response.getHeaders().get("x-total-pages")).get(0));
-            }
-            catch (Exception e) {
-                throw new GitApiException(GET_ISSUES_ERROR_MESSAGE);
-            }
-        }
-        return -1;
+    public int getTotalIssuesPages(Integer projectId) {
+        String url = String.format("%s/api/v4/projects/%d/issues?pagination=keyset&per_page=20", this.baseUrl, projectId);
+        return getTotalPagesForResponse(url, GET_ISSUES_ERROR_MESSAGE);
     }
-
-
 
     @FunctionalInterface
     protected interface GitLabApiThunk<T> {

@@ -28,7 +28,6 @@ public class CreateDeliverableDTO implements Serializable {
     private Long productId;
     private Long parentId;
     private List<CreateDeliverableDTO> children;
-    private List<Long> releaseIds;
     private Long performanceMeasureId;
     private Long capabilityId;
     private Long assignedToId;

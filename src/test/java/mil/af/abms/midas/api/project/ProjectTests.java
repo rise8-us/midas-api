@@ -19,10 +19,12 @@ import mil.af.abms.midas.api.coverage.Coverage;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.project.dto.ProjectDTO;
+import mil.af.abms.midas.api.release.dto.ReleaseDTO;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.user.User;
+import mil.af.abms.midas.enums.SyncStatus;
 
 public class ProjectTests {
 
@@ -63,19 +65,22 @@ public class ProjectTests {
             .get();
 
     ProjectDTO expectedProjectDTO = Builder.build(ProjectDTO.class)
-            .with(p -> p.setId(1L))
-            .with(p -> p.setName("MIDAS"))
-            .with(p -> p.setDescription("testDescription"))
-            .with(p -> p.setIsArchived(true))
-            .with(p -> p.setTeamId(3L))
-            .with(p -> p.setGitlabProjectId(2))
-            .with(p -> p.setProjectJourneyMap(0L))
-            .with(p -> p.setTagIds(Set.of(2L)))
-            .with(p -> p.setWebUrl("web.url"))
-            .with(p -> p.setProductId(product.getId()))
-            .with(p -> p.setCoverage(coverage.toDto()))
+            .with(d -> d.setId(1L))
+            .with(d -> d.setName("MIDAS"))
+            .with(d -> d.setDescription("testDescription"))
+            .with(d -> d.setIsArchived(true))
+            .with(d -> d.setTeamId(3L))
+            .with(d -> d.setGitlabProjectId(2))
+            .with(d -> d.setProjectJourneyMap(0L))
+            .with(d -> d.setTagIds(Set.of(2L)))
+            .with(d -> d.setWebUrl("web.url"))
+            .with(d -> d.setProductId(product.getId()))
+            .with(d -> d.setCoverage(coverage.toDto()))
             .with(d -> d.setSourceControlId(sourceControl.getId()))
-            .with(p -> p.setCreationDate(CREATION_DATE))
+            .with(d -> d.setCreationDate(CREATION_DATE))
+            .with(d -> d.setIssueSyncStatus(SyncStatus.SYNCED))
+            .with(d -> d.setReleaseSyncStatus(SyncStatus.SYNCED))
+            .with(d -> d.setLatestRelease(new ReleaseDTO()))
             .get();
 
     @Test
