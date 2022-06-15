@@ -27,6 +27,7 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.personnel.Personnel;
 import mil.af.abms.midas.api.personnel.dto.CreatePersonnelDTO;
 import mil.af.abms.midas.api.personnel.dto.UpdatePersonnelDTO;
+import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
 import mil.af.abms.midas.api.project.Project;
@@ -41,6 +42,8 @@ class ProductControllerTests extends ControllerTestHarness {
     
     @MockBean
     ProductService productService;
+    @MockBean
+    PortfolioService portfolioService;
     @MockBean
     TagService tagService;
     @MockBean

@@ -11,8 +11,10 @@ import mil.af.abms.midas.api.personnel.dto.CreatePersonnelDTO;
 import mil.af.abms.midas.api.portfolio.validation.UniquePortfolioName;
 import mil.af.abms.midas.api.validation.CapabilitiesExist;
 import mil.af.abms.midas.api.validation.ProductsExist;
+import mil.af.abms.midas.api.validation.UniqueGroupIdAndSourceControl;
 
 @Data
+@UniqueGroupIdAndSourceControl
 public class CreatePortfolioDTO implements PortfolioInterfaceDTO {
 
     @NotBlank(message = "name must not be blank")
