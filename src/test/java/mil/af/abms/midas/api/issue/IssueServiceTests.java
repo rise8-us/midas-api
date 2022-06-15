@@ -161,7 +161,7 @@ public class IssueServiceTests {
 
         doReturn(expectedIssue).when(repository).save(any(Issue.class));
         when(issueService.getGitlabClient(foundProject)).thenReturn(gitLab4JClient);
-        doReturn(1).when(gitLab4JClient).getTotalIssuesPages(foundProject);
+        doReturn(1).when(gitLab4JClient).getTotalIssuesPages(foundProject.getGitlabProjectId());
         doReturn(Set.of(expectedIssue)).when(issueService).processIssues(List.of(), foundProject);
         doNothing().when(issueService).removeAllUntrackedIssues(anyLong(), anySet());
         doReturn(foundIssue).when(issueService).convertToIssue(any(), any());

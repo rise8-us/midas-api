@@ -24,7 +24,6 @@ import mil.af.abms.midas.api.dtos.IsArchivedDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.performancemeasure.PerformanceMeasureService;
 import mil.af.abms.midas.api.product.ProductService;
-import mil.af.abms.midas.api.release.ReleaseService;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
 
@@ -33,7 +32,6 @@ public class DeliverableService extends AbstractCRUDService<Deliverable, Deliver
 
     private UserService userService;
     private ProductService productService;
-    private ReleaseService releaseService;
     private PerformanceMeasureService performanceMeasureService;
     private CapabilityService capabilityService;
     private CompletionService completionService;
@@ -52,11 +50,6 @@ public class DeliverableService extends AbstractCRUDService<Deliverable, Deliver
     @Autowired
     public void setProductService(ProductService productService) {
         this.productService = productService;
-    }
-
-    @Autowired
-    public void setReleaseService(ReleaseService releaseService) {
-        this.releaseService = releaseService;
     }
 
     @Autowired
@@ -94,7 +87,6 @@ public class DeliverableService extends AbstractCRUDService<Deliverable, Deliver
                 .with(d -> d.setAssignedTo(assignedTo))
                 .with(d -> d.setCapability(capabilityService.findByIdOrNull(dto.getCapabilityId())))
                 .get();
-        setReleasesFromIds(dto.getReleaseIds(), newDeliverable);
         updateParentCompletion(dto.getParentId(), 1F);
 
         newDeliverable = repository.save(newDeliverable);
@@ -119,12 +111,6 @@ public class DeliverableService extends AbstractCRUDService<Deliverable, Deliver
         });
     }
 
-    private void setReleasesFromIds(List<Long> releaseIds, Deliverable deliverable) {
-        Optional.ofNullable(releaseIds).ifPresent(ids ->
-                deliverable.setReleases(ids.stream().map(releaseService::findById).collect(Collectors.toSet()))
-        );
-    }
-
     @Transactional
     public Deliverable updateById(Long id, UpdateDeliverableDTO dto) {
         Deliverable deliverable = findById(id);
@@ -136,8 +122,6 @@ public class DeliverableService extends AbstractCRUDService<Deliverable, Deliver
         deliverable.setReferenceId(dto.getReferenceId());
         deliverable.setPosition(dto.getIndex());
         deliverable.setAssignedTo(userService.findByIdOrNull(dto.getAssignedToId()));
-
-        setReleasesFromIds(dto.getReleaseIds(), deliverable);
 
         return repository.save(deliverable);
     }

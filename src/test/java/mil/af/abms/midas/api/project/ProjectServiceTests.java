@@ -48,6 +48,7 @@ import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
 import mil.af.abms.midas.clients.gitlab.models.GitLabProject;
 import mil.af.abms.midas.config.CustomProperty;
+import mil.af.abms.midas.enums.SyncStatus;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @ExtendWith(SpringExtension.class)
@@ -103,6 +104,8 @@ class ProjectServiceTests {
             .with(p -> p.setId(1L))
             .with(p -> p.setGitlabProjectId(2))
             .with(p -> p.setSourceControl(sourceControl))
+            .with(p -> p.setReleaseSyncStatus(SyncStatus.SYNCED))
+            .with(p -> p.setIssueSyncStatus(SyncStatus.SYNCED))
             .get();
     private final Tag tag = Builder.build(Tag.class)
             .with(t -> t.setId(3L))
@@ -431,5 +434,25 @@ class ProjectServiceTests {
         verify(coverageService, times(0)).updateCoverageForProject(p2);
         verify(websocket, times(0)).convertAndSend("/topic/update_project", p2.toDto());
 
+    }
+
+    @Test
+    void should_update_release_sync_status() {
+        doReturn(project).when(projectService).findById(1L);
+
+        projectService.updateReleaseSyncStatus(1L, SyncStatus.SYNC_ERROR);
+
+        verify(repository, times(1)).save(project);
+        assertThat(project.getReleaseSyncStatus()).isEqualTo(SyncStatus.SYNC_ERROR);
+    }
+
+    @Test
+    void should_update_issue_sync_status() {
+        doReturn(project).when(projectService).findById(1L);
+
+        projectService.updateIssueSyncStatus(1L, SyncStatus.SYNC_ERROR);
+
+        verify(repository, times(1)).save(project);
+        assertThat(project.getIssueSyncStatus()).isEqualTo(SyncStatus.SYNC_ERROR);
     }
 }

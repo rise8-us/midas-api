@@ -23,7 +23,6 @@ public class DeliverableDTO implements AbstractDTO {
     private ProgressionStatus status;
     private Integer index;
     private Integer referenceId;
-    private Set<Long> releaseIds;
     private List<DeliverableDTO> children;
     private Long parentId;
     private Long productId;

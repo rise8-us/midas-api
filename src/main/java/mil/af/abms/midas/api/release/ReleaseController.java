@@ -1,19 +1,15 @@
 package mil.af.abms.midas.api.release;
 
-import javax.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import mil.af.abms.midas.api.AbstractCRUDController;
-import mil.af.abms.midas.api.dtos.IsArchivedDTO;
-import mil.af.abms.midas.api.release.dto.CreateReleaseDTO;
 import mil.af.abms.midas.api.release.dto.ReleaseDTO;
-import mil.af.abms.midas.api.release.dto.UpdateReleaseDTO;
 
 @RestController
 @RequestMapping("/api/releases")
@@ -21,19 +17,24 @@ public class ReleaseController extends AbstractCRUDController<Release, ReleaseDT
 
     public ReleaseController(ReleaseService service) { super(service); }
 
-    @PostMapping
-    public ReleaseDTO create(@Valid @RequestBody CreateReleaseDTO createReleaseDTO) {
-        return service.create(createReleaseDTO).toDto();
+    @GetMapping("/sync/project/{projectId}")
+    public List<ReleaseDTO> syncAllReleasesForProject(@PathVariable Long projectId) {
+        return service.syncGitlabReleaseForProject(projectId).stream().map(Release::toDto).collect(Collectors.toList());
     }
 
-    @PutMapping("/{id}")
-    public ReleaseDTO updateById(@Valid @RequestBody UpdateReleaseDTO updateReleaseDTO, @PathVariable Long id) {
-        return service.updateById(id, updateReleaseDTO).toDto();
+    @GetMapping("/project/{projectId}")
+    public List<ReleaseDTO> getAllReleasesForProject(@PathVariable Long projectId) {
+        return service.getAllReleasesByProjectId(projectId).stream().map(Release::toDto).collect(Collectors.toList());
     }
 
-    @PutMapping("/{id}/archive")
-    public ReleaseDTO updateIsArchived(@Valid @RequestBody IsArchivedDTO isArchivedDTO, @PathVariable Long id) {
-        return service.updateIsArchived(id, isArchivedDTO).toDto();
+    @GetMapping("/sync/product/{productId}")
+    public List<ReleaseDTO> syncAllReleasesForProduct(@PathVariable Long productId) {
+        return service.syncGitlabReleaseForProduct(productId).stream().map(Release::toDto).collect(Collectors.toList());
+    }
+
+    @GetMapping("/product/{productId}")
+    public List<ReleaseDTO> getAllReleasesForProduct(@PathVariable Long productId) {
+        return service.getAllReleasesByProductId(productId).stream().map(Release::toDto).collect(Collectors.toList());
     }
 
 }

@@ -17,14 +17,12 @@ import org.junit.jupiter.api.Test;
 import mil.af.abms.midas.api.deliverable.dto.DeliverableDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
-import mil.af.abms.midas.api.release.Release;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.enums.ProgressionStatus;
 
 class DeliverableTests {
 
     private final User assignedTo = Builder.build(User.class).with(u -> u.setId(2L)).get();
-    private final Set<Release> releases = Set.of(Builder.build(Release.class).with(p -> p.setId(3L)).get());
     private final Product product = Builder.build(Product.class).with(p -> p.setId(4L)).get();
     private final Deliverable deliverable = Builder.build(Deliverable.class)
             .with(d -> d.setId(1L))
@@ -33,7 +31,6 @@ class DeliverableTests {
             .with(d -> d.setChildren(Set.of()))
             .with(d -> d.setStatus(ProgressionStatus.NOT_STARTED))
             .with(d -> d.setPosition(0))
-            .with(d -> d.setReleases(releases))
             .with(d -> d.setPerformanceMeasure(null))
             .with(d -> d.setAssignedTo(assignedTo))
             .with(d -> d.setTargets(Set.of()))
@@ -45,7 +42,6 @@ class DeliverableTests {
             .with(d -> d.setChildren(List.of()))
             .with(d -> d.setStatus(ProgressionStatus.NOT_STARTED))
             .with(d -> d.setIndex(0))
-            .with(d -> d.setReleaseIds(Set.of(3L)))
             .with(d -> d.setCreationDate(deliverable.getCreationDate()))
             .with(d -> d.setPerformanceMeasureId(null))
             .with(d -> d.setAssignedToId(assignedTo.getId()))

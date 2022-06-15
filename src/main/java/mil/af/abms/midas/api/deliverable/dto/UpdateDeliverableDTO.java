@@ -4,7 +4,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import java.io.Serializable;
-import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,7 +27,6 @@ public class UpdateDeliverableDTO implements Serializable {
     private Integer referenceId;
 
     private Integer index;
-    private List<Long> releaseIds;
     private ProgressionStatus status;
     private Long assignedToId;
     

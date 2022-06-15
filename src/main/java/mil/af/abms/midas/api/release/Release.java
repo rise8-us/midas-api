@@ -2,16 +2,12 @@ package mil.af.abms.midas.api.release;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -22,48 +18,55 @@ import lombok.Getter;
 import lombok.Setter;
 
 import mil.af.abms.midas.api.AbstractEntity;
-import mil.af.abms.midas.api.deliverable.Deliverable;
+import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.release.dto.ReleaseDTO;
-import mil.af.abms.midas.enums.ProgressionStatus;
 
 @Entity @Getter @Setter
 @Table(name = "releases")
 public class Release extends AbstractEntity<ReleaseDTO> {
 
-    @Column(columnDefinition = "BIT(1) DEFAULT 0", nullable = false)
-    private Boolean isArchived = false;
+    @Column(columnDefinition = "VARCHAR(120)", nullable = false)
+    private String name;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
-    private String title;
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(columnDefinition = "VARCHAR(120)")
+    private String tagName;
+
+    @Column(columnDefinition = "VARCHAR(255)")
+    private String uid;
 
     @Column(columnDefinition = "DATETIME")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime targetDate;
+    protected LocalDateTime releasedAt;
 
-    @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "VARCHAR(70) DEFAULT 'NOT_STARTED'", nullable = false)
-    private ProgressionStatus status = ProgressionStatus.NOT_STARTED;
-
-    @ManyToMany
-    @JoinTable(
-            name = "release_deliverable",
-            joinColumns = @JoinColumn(name = "release_id", referencedColumnName = "id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "deliverable_id", referencedColumnName = "id", nullable = false)
-    )
-    private Set<Deliverable> deliverables = new HashSet<>();
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    private Project project;
 
     public ReleaseDTO toDto() {
         return new ReleaseDTO(
             id,
-            title,
-            creationDate,
-            targetDate,
-            status,
-            getIds(deliverables),
-                isArchived
+            name,
+            description,
+            tagName,
+            releasedAt
         );
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(name + creationDate);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Release that = (Release) o;
+        return this.hashCode() == that.hashCode();
+    }
 }

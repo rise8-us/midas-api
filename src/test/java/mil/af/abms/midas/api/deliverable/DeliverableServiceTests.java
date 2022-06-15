@@ -40,8 +40,6 @@ import mil.af.abms.midas.api.performancemeasure.PerformanceMeasure;
 import mil.af.abms.midas.api.performancemeasure.PerformanceMeasureService;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
-import mil.af.abms.midas.api.release.Release;
-import mil.af.abms.midas.api.release.ReleaseService;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.enums.CompletionType;
@@ -55,8 +53,6 @@ class DeliverableServiceTests {
     DeliverableService deliverableService;
     @MockBean
     ProductService productService;
-    @MockBean
-    ReleaseService releaseService;
     @MockBean
     UserService userService;
     @MockBean
@@ -75,7 +71,6 @@ class DeliverableServiceTests {
     SimpMessageSendingOperations websocket;
 
     private final User assignedTo = Builder.build(User.class).with(u -> u.setId(2L)).get();
-    private final Release release = Builder.build(Release.class).with(p -> p.setId(3L)).get();
     private final Product product = Builder.build(Product.class).with(p -> p.setId(4L)).get();
     private final Capability capability = Builder.build(Capability.class)
             .with(c -> c.setId(5L))
@@ -107,7 +102,6 @@ class DeliverableServiceTests {
             .with(d -> d.setStatus(ProgressionStatus.NOT_STARTED))
             .with(d -> d.setPosition(0))
             .with(d -> d.setReferenceId(1))
-            .with(d -> d.setReleases(Set.of(release)))
             .with(d -> d.setPerformanceMeasure(performanceMeasure))
             .with(d -> d.setAssignedTo(assignedTo))
             .with(d -> d.setCapability(capability))
@@ -118,11 +112,10 @@ class DeliverableServiceTests {
     @Test
     void should_create_deliverable() {
         CreateDeliverableDTO createDeliverableDTO = new CreateDeliverableDTO(
-                "title", 1, 0, 4L, null, List.of(), List.of(10L), 9L, 5L, 2L, createCompletionDTO);
+                "title", 1, 0, 4L, null, List.of(), 9L, 5L, 2L, createCompletionDTO);
 
         when(productService.findByIdOrNull(createDeliverableDTO.getProductId())).thenReturn(product);
         when(performanceMeasureService.findByIdOrNull(createDeliverableDTO.getPerformanceMeasureId())).thenReturn(performanceMeasure);
-        when(releaseService.findById(release.getId())).thenReturn(release);
         when(deliverableRepository.save(deliverable)).thenReturn(new Deliverable());
         when(userService.findByIdOrNull(createDeliverableDTO.getAssignedToId())).thenReturn(assignedTo);
         when(capabilityService.findByIdOrNull(capability.getId())).thenReturn(capability);
@@ -141,7 +134,7 @@ class DeliverableServiceTests {
     @Test
     void should_update_deliverable_by_id() {
         UpdateDeliverableDTO updateDeliverableDTO = new UpdateDeliverableDTO(
-                1L, "title", 1, 0, List.of(), ProgressionStatus.COMPLETED, 2L, updateCompletionDTO);
+                1L, "title", 1, 0, ProgressionStatus.COMPLETED, 2L, updateCompletionDTO);
 
         when(deliverableRepository.findById(1L)).thenReturn(Optional.of(deliverable));
         when(deliverableRepository.save(deliverable)).thenReturn(deliverable);
@@ -161,7 +154,7 @@ class DeliverableServiceTests {
     @Test
     void should_bulk_update_deliverable() {
         UpdateDeliverableDTO updateDeliverableDTO = new UpdateDeliverableDTO(
-                1L, "title", 1, 0, List.of(), ProgressionStatus.COMPLETED, 2L, updateCompletionDTO);
+                1L, "title", 1, 0, ProgressionStatus.COMPLETED, 2L, updateCompletionDTO);
 
         doReturn(deliverable).when(deliverableService).updateById(1L, updateDeliverableDTO);
 

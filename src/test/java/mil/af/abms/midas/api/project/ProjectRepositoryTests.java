@@ -29,7 +29,6 @@ public class ProjectRepositoryTests extends RepositoryTestHarness {
     void beforeEach() {
         Team team = Builder.build(Team.class)
                 .with(t -> t.setName("team"))
-                .with(t -> t.setGitlabGroupId(1L))
                 .with(t -> t.setDescription("for testing"))
                 .get();
 
