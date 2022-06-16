@@ -98,9 +98,7 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
         target.setDueDate(dto.getDueDate());
         target.setTitle(dto.getTitle());
         target.setDescription(dto.getDescription());
-        Optional.ofNullable(dto.getIsPriority()).ifPresent(value -> {
-            target.setIsPriority(dto.getIsPriority());
-        });
+        Optional.ofNullable(dto.getIsPriority()).ifPresent(value -> target.setIsPriority(dto.getIsPriority()));
     }
 
     protected void updateChildrenDates(TargetInterfaceDTO dto, Target target) {
@@ -158,12 +156,9 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
             idsToAdd.removeAll(idsToRemove);
             idsToRemove.removeAll(ids);
 
-            idsToRemove.forEach(id -> {
-                target.setEpics(target.getEpics().stream().filter(e -> !Objects.equals(e.getId(), id)).collect(Collectors.toSet()));
-            });
-            idsToAdd.forEach(id -> {
-                linkGitlabEpic(id, target);
-            });
+            idsToRemove.forEach(id -> target.setEpics(target.getEpics().stream()
+                    .filter(e -> !Objects.equals(e.getId(), id)).collect(Collectors.toSet())));
+            idsToAdd.forEach(id -> linkGitlabEpic(id, target));
         });
     }
 
@@ -174,12 +169,9 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
             idsToAdd.removeAll(idsToRemove);
             idsToRemove.removeAll(ids);
 
-            idsToRemove.forEach(id -> {
-                target.setDeliverables(target.getDeliverables().stream().filter(e -> !Objects.equals(e.getId(), id)).collect(Collectors.toSet()));
-            });
-            idsToAdd.forEach(id -> {
-                linkDeliverable(id, target);
-            });
+            idsToRemove.forEach(id -> target.setDeliverables(target.getDeliverables().stream()
+                    .filter(e -> !Objects.equals(e.getId(), id)).collect(Collectors.toSet())));
+            idsToAdd.forEach(id -> linkDeliverable(id, target));
         });
     }
 
