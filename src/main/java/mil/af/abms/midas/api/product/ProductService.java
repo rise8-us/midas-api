@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
+import mil.af.abms.midas.api.dtos.AppGroupDTO;
 import mil.af.abms.midas.api.dtos.IsArchivedDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.personnel.Personnel;
@@ -22,6 +23,7 @@ import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.product.dto.ProductInterfaceDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
 import mil.af.abms.midas.api.project.ProjectService;
+import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
 import mil.af.abms.midas.api.tag.TagService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
@@ -126,6 +128,24 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
 
     public List<Product> getAll() {
         return repository.findAll();
+    }
+
+    public boolean validateUniqueSourceControlAndGitlabGroup(AppGroupDTO appGroupDTO) {
+        Integer gitlabGroupIdToCheck = appGroupDTO.getGitlabGroupId();
+        Long sourceControlIdToCheck = appGroupDTO.getSourceControlId();
+        String nameToCheck = appGroupDTO.getName();
+        List<Product> allProducts = getAll().stream()
+                .filter(p ->
+                        !p.getName().equals(nameToCheck) && p.getGitlabGroupId() != null && p.getSourceControl() != null
+                ).collect(Collectors.toList());
+
+        for (Product product : allProducts) {
+            Integer groupId = product.getGitlabGroupId();
+            SourceControl sourceControl = product.getSourceControl();
+            boolean isDuplicate = gitlabGroupIdToCheck.equals(groupId) && sourceControlIdToCheck.equals(sourceControl.getId());
+            if (isDuplicate) return false;
+        }
+        return true;
     }
 
 }
