@@ -35,6 +35,8 @@ import org.mockito.Mockito;
 import mil.af.abms.midas.api.completion.CompletionService;
 import mil.af.abms.midas.api.dtos.AddGitLabIssueWithProductDTO;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.product.Product;
+import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
@@ -54,6 +56,8 @@ public class IssueServiceTests {
     private IssueRepository repository;
     @MockBean
     private ProjectService projectService;
+    @MockBean
+    private ProductService productService;
     @MockBean
     private CompletionService completionService;
     @MockBean
@@ -77,6 +81,13 @@ public class IssueServiceTests {
             .with(p -> p.setGitlabProjectId(42))
             .with(p -> p.setSourceControl(sourceControl))
             .with(p -> p.setIsArchived(false))
+            .get();
+    private final Product foundProduct = Builder.build(Product.class)
+            .with(p -> p.setId(1L))
+            .with(p -> p.setName("Product Name"))
+            .with(p -> p.setSourceControl(sourceControl))
+            .with(p -> p.setIsArchived(false))
+            .with(p -> p.setProjects(Set.of(foundProject)))
             .get();
     private final Issue foundIssue = Builder.build(Issue.class)
             .with(i -> i.setId(6L))
@@ -168,6 +179,30 @@ public class IssueServiceTests {
         doReturn(foundIssue).when(issueService).convertToIssue(any(), any());
 
         assertThat(issueService.gitlabIssueSync(foundProject)).isEqualTo(Set.of(expectedIssue));
+    }
+
+    @Test
+    void Should_Get_All_Issue_By_ProductId() {
+        when(productService.findById(anyLong())).thenReturn(foundProduct);
+        doReturn(new ArrayList<>(List.of(foundIssue))).when(issueService).getAllIssuesByProjectId(foundProject.getId());
+
+        assertThat(issueService.getAllIssuesByProductId(2L)).isEqualTo(List.of((foundIssue)));
+    }
+
+    @Test
+    void Should_Sync_Gitlab_Issue_For_Product() {
+        when(productService.findById(anyLong())).thenReturn(foundProduct);
+        doReturn(Set.of(foundIssue)).when(issueService).gitlabIssueSync(any());
+        doReturn(true).when(issueService).hasGitlabDetails(any());
+        doNothing().when(projectService).updateIssueSyncStatus(anyLong(), any());
+        doReturn(gitLab4JClient).when(issueService).getGitlabClient(any());
+        doReturn(1).when(gitLab4JClient).getTotalIssuesPages(anyInt());
+        doReturn(Set.of(foundIssue)).when(issueService).processIssues(anyList(), any());
+        doNothing().when(issueService).removeAllUntrackedIssues(anyLong(), anySet());
+
+        issueService.syncGitlabIssueForProject(1L);
+
+        assertThat(issueService.syncGitlabIssueForProduct(2L)).isEqualTo(Set.of((foundIssue)));
     }
 
     @Test

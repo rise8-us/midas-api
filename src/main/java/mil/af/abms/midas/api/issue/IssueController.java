@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import mil.af.abms.midas.api.AbstractCRUDController;
 import mil.af.abms.midas.api.dtos.AddGitLabIssueWithProductDTO;
 import mil.af.abms.midas.api.issue.dto.IssueDTO;
-import mil.af.abms.midas.api.project.Project;
 
 @RestController
 @RequestMapping("/api/issues")
@@ -37,10 +36,24 @@ public class IssueController extends AbstractCRUDController<Issue, IssueDTO, Iss
         return service.updateById(id).toDto();
     }
 
-    @GetMapping("/all/{projectId}")
+    @GetMapping("/sync/project/{projectId}")
+    public List<IssueDTO> syncAllIssuesForProject(@PathVariable Long projectId) {
+        return service.syncGitlabIssueForProject(projectId).stream().map(Issue::toDto).collect(Collectors.toList());
+    }
+
+    @GetMapping("/project/{projectId}")
     public List<IssueDTO> getAllIssuesForProject(@PathVariable Long projectId) {
-        Project project = service.getProjectById(projectId);
-        return service.gitlabIssueSync(project).stream().map(Issue::toDto).collect(Collectors.toList());
+        return service.getAllIssuesByProjectId(projectId).stream().map(Issue::toDto).collect(Collectors.toList());
+    }
+
+    @GetMapping("/sync/product/{productId}")
+    public List<IssueDTO> syncAllIssuesForProduct(@PathVariable Long productId) {
+        return service.syncGitlabIssueForProduct(productId).stream().map(Issue::toDto).collect(Collectors.toList());
+    }
+
+    @GetMapping("/product/{productId}")
+    public List<IssueDTO> getAllIssuesForProduct(@PathVariable Long productId) {
+        return service.getAllIssuesByProductId(productId).stream().map(Issue::toDto).collect(Collectors.toList());
     }
 
 }

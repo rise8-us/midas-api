@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -101,11 +102,40 @@ public class IssueControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    void should_get_all_issues_by_project_id() throws Exception {
-        Set<Issue> issues = Set.of(issue);
-        when(issueService.gitlabIssueSync(any())).thenReturn(issues);
+    void should_sync_all_issues_by_project_id() throws Exception {
+        when(issueService.syncGitlabIssueForProject(any())).thenReturn(Set.of(issue));
 
-        mockMvc.perform(get("/api/issues/all/2"))
+        mockMvc.perform(get("/api/issues/sync/project/2"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$", hasSize(1)));
+    }
+
+    @Test
+    void should_get_all_issues_by_project_id() throws Exception {
+        when(issueService.getAllIssuesByProjectId(any())).thenReturn(List.of(issue));
+
+        mockMvc.perform(get("/api/issues/project/2"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$", hasSize(1)));
+    }
+
+    @Test
+    void should_get_all_issues_by_product_id() throws Exception {
+        when(issueService.getAllIssuesByProductId(any())).thenReturn(List.of(issue));
+
+        mockMvc.perform(get("/api/issues/product/2"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$", hasSize(1)));
+    }
+
+    @Test
+    void should_sync_all_issues_by_product_id() throws Exception {
+        when(issueService.syncGitlabIssueForProduct(any())).thenReturn(Set.of(issue));
+
+        mockMvc.perform(get("/api/issues/sync/product/2"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$", hasSize(1)));

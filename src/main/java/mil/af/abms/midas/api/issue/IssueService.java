@@ -1,6 +1,7 @@
 package mil.af.abms.midas.api.issue;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -20,11 +21,14 @@ import mil.af.abms.midas.api.completion.CompletionService;
 import mil.af.abms.midas.api.dtos.AddGitLabIssueWithProductDTO;
 import mil.af.abms.midas.api.dtos.PaginationProgressDTO;
 import mil.af.abms.midas.api.issue.dto.IssueDTO;
+import mil.af.abms.midas.api.product.Product;
+import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
 import mil.af.abms.midas.clients.gitlab.models.GitLabIssue;
+import mil.af.abms.midas.enums.SyncStatus;
 
 @Slf4j
 @Service
@@ -33,6 +37,7 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
     private ProjectService projectService;
     private CompletionService completionService;
     private UserService userService;
+    private ProductService productService;
     private final SimpMessageSendingOperations websocket;
 
     @Autowired
@@ -50,9 +55,37 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
         this.userService = userService;
     }
 
+    @Autowired
+    public void setProductService(ProductService productService) {
+        this.productService = productService;
+    }
+
     public IssueService(IssueRepository repository, SimpMessageSendingOperations websocket) {
         super(repository, Issue.class, IssueDTO.class);
         this.websocket = websocket;
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void runScheduledIssueSync() {
+        for (Project project : projectService.getAll()) {
+            if (project.getIsArchived() == Boolean.FALSE) {
+                gitlabIssueSync(project);
+            }
+        }
+    }
+
+    public List<Issue> getAllIssuesByProductId(Long productId) {
+        Product product = productService.findById(productId);
+        List<Issue> issues = new ArrayList<>();
+        product.getProjects().forEach(p -> issues.addAll(getAllIssuesByProjectId(p.getId())));
+        return issues;
+    }
+
+    public Set<Issue> syncGitlabIssueForProduct(Long productId) {
+        Product product = productService.findById(productId);
+        Set<Issue> issues = new HashSet<>();
+        product.getProjects().forEach(p -> issues.addAll(gitlabIssueSync(p)));
+        return issues;
     }
 
     public Issue create(AddGitLabIssueWithProductDTO dto) {
@@ -66,6 +99,11 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
                 .map(issue -> syncIssue(issueConversion, issue))
                 .orElseGet(() -> convertToIssue(issueConversion, project));
 
+    }
+
+    public Set<Issue> syncGitlabIssueForProject(Long projectId) {
+        Project project = projectService.findById(projectId);
+        return gitlabIssueSync(project);
     }
 
     public Issue updateById(Long id) {
@@ -107,12 +145,10 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
         ));
     }
 
-    public Project getProjectById(Long projectId) {
-        return projectService.findById(projectId);
-    }
-
     public Set<Issue> gitlabIssueSync(Project project) {
         if (!hasGitlabDetails(project)) { return Set.of(); }
+
+        projectService.updateIssueSyncStatus(project.getId(), SyncStatus.SYNCING);
 
         String keycloakId = Optional.ofNullable(userService.getUserBySecContext()).isPresent() ?
                 userService.getUserBySecContext().getKeycloakUid() : "";
@@ -135,6 +171,8 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
 
         removeAllUntrackedIssues(project.getId(), allIssues);
 
+        projectService.updateIssueSyncStatus(project.getId(), SyncStatus.SYNCED);
+
         return allIssues;
     }
 
@@ -142,21 +180,11 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
         Long sourceControlId = project.getSourceControl().getId();
         Integer gitlabProjectId = project.getGitlabProjectId();
 
-        return issues.stream()
-                .map(i ->
-                        repository.findByIssueUid(generateUniqueId(sourceControlId, gitlabProjectId, i.getIssueIid()))
-                                .map(issue -> syncIssue(i, issue))
-                                .orElseGet(() -> convertToIssue(i, project))
-                ).collect(Collectors.toSet());
-    }
-
-    @Scheduled(cron = "0 0 0 * * *")
-    public void runScheduledIssueSync() {
-        for (Project project : projectService.getAll()) {
-            if (project.getIsArchived() == Boolean.FALSE) {
-                gitlabIssueSync(project);
-            }
-        }
+        return issues.stream().map(i ->
+                repository.findByIssueUid(generateUniqueId(sourceControlId, gitlabProjectId, i.getIssueIid()))
+                        .map(issue -> syncIssue(i, issue))
+                        .orElseGet(() -> convertToIssue(i, project))
+        ).collect(Collectors.toSet());
     }
 
     public boolean canAddIssue(Integer iid, Project project) {
@@ -200,7 +228,7 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
         return repository.save(updatedIssue);
     }
 
-    private boolean hasGitlabDetails(Project project) {
+    protected boolean hasGitlabDetails(Project project) {
         return !project.getIsArchived() &&
                 project.getGitlabProjectId() != null &&
                 project.getSourceControl() != null &&
