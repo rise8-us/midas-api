@@ -1,8 +1,8 @@
 package mil.af.abms.midas.api.release;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
@@ -20,7 +20,7 @@ import mil.af.abms.midas.api.user.User;
 
 public class ReleaseTests {
 
-    private static final int ENTITY_DTO_FIELD_OFFSET = 3;
+    private static final int ENTITY_DTO_FIELD_OFFSET = 2;
     private static final LocalDateTime TEST_TIME = LocalDateTime.now();
 
     private final Release release = Builder.build(Release.class)
@@ -53,11 +53,11 @@ public class ReleaseTests {
         Release release2 = new Release();
         BeanUtils.copyProperties(release, release2);
 
-        assertTrue(release.equals(release));
-        assertFalse(release.equals(null));
-        assertFalse(release.equals(new User()));
-        assertFalse(release.equals(new Release()));
-        assertTrue(release.equals(release2));
+        assertEquals(release, release);
+        assertNotEquals(null, release);
+        assertNotEquals(release, new User());
+        assertNotEquals(release, new Release());
+        assertEquals(release, release2);
     }
 
     @Test

@@ -18,5 +18,6 @@ public class ReleaseDTO implements AbstractDTO {
     private String description;
     private String tagName;
     private LocalDateTime releasedAt;
+    private Long projectId;
 
 }
