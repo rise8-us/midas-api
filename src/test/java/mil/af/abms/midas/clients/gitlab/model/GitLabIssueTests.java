@@ -40,7 +40,7 @@ class GitLabIssueTests {
        assertThat(issue.getWeight()).isNull();
        assertThat(issue.getProjectId()).isEqualTo(1);
        assertThat(issue.getEpicIid()).isEqualTo(5);
-       assertThat(issue.getLabels()).isEqualTo("bar, foo");
+       assertThat(issue.getLabels()).isEqualTo("bar,foo");
 
     }
 }

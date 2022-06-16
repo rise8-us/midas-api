@@ -53,7 +53,8 @@ public class Release extends AbstractEntity<ReleaseDTO> {
             name,
             description,
             tagName,
-            releasedAt
+            releasedAt,
+            getIdOrNull(project)
         );
     }
 
