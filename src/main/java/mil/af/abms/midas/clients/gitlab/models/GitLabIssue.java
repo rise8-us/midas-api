@@ -47,7 +47,7 @@ public class GitLabIssue {
 
     @JsonProperty("labels")
     private void convertLabelsToString(Set<String> labels) {
-        String labelsString = labels.toString().replaceAll(", ", ",");
+        String labelsString = labels.toString().replace(", ", ",");
         this.labels = labelsString.substring(1, labelsString.length() - 1);
     }
 
