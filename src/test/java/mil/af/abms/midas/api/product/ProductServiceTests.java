@@ -25,6 +25,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
@@ -75,31 +77,34 @@ class ProductServiceTests {
             .with(u -> u.setId(3L))
             .with(u -> u.setKeycloakUid("abc-123"))
             .with(u -> u.setUsername("Lambo")).get();
+    private final SourceControl sourceControl = Builder.build(SourceControl.class)
+            .with(g -> g.setId(42L))
+            .with(g -> g.setName("Mock IL2"))
+            .get();
     private final Project project = Builder.build(Project.class)
             .with(p -> p.setId(4L))
             .with(p -> p.setName("backend")).get();
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(5L))
             .with(p -> p.setGitlabGroupId(123))
-            .with(p -> p.setName("Midas")).get();
+            .with(p -> p.setName("Midas"))
+            .with(p -> p.setSourceControl(sourceControl))
+            .get();
     private final Product parent = Builder.build(Product.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setName("Metrics")).get();
     private final Product child = Builder.build(Product.class)
             .with(p -> p.setId(6L))
             .with(p -> p.setName("Metrics")).get();
-    private final SourceControl sourceControl = Builder.build(SourceControl.class)
-            .with(g -> g.setId(42L))
-            .with(g -> g.setName("Mock IL2"))
+    private final CreateProductDTO createProductDTO = Builder.build(CreateProductDTO.class)
+            .with(p -> p.setName("Midas"))
+            .with(p -> p.setDescription("description"))
+            .with(p -> p.setGitlabGroupId(123))
+            .with(p -> p.setSourceControlId(42L))
             .get();
 
     @Test
     void should_create_product() {
-        CreateProductDTO createProductDTO = Builder.build(CreateProductDTO.class)
-                .with(p -> p.setName("name"))
-                .with(p -> p.setDescription("description"))
-                .get();
-
         when(sourceControlService.findByIdOrNull(createProductDTO.getSourceControlId())).thenReturn(sourceControl);
         when(userService.findByIdOrNull(3L)).thenReturn(user);
         doReturn(child).when(productService).findById(child.getId());
@@ -193,5 +198,36 @@ class ProductServiceTests {
         when(productRepository.findAll()).thenReturn(List.of(product));
 
         assertThat(productService.getAll()).isEqualTo(List.of(product));
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {
+            "Midas : 5 : 6 : true",
+            "foo : 5 : 42 : true",
+            "foo : 123 : 42 : false",
+            "foo : 123 : 6 : true"
+    }, delimiter = ':')
+    void should_validate_Unique_Source_Control_And_Gitlab_Group(String name, Integer gitlabId, Long sourceControlId, boolean expected) {
+        doReturn(List.of(product)).when(productService).getAll();
+        createProductDTO.setName(name);
+        createProductDTO.setGitlabGroupId(gitlabId);
+        createProductDTO.setSourceControlId(sourceControlId);
+
+        assertThat(productService.validateUniqueSourceControlAndGitlabGroup(createProductDTO)).isEqualTo(expected);
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {
+            " : true",
+            "123 : false",
+    }, delimiter = ':')
+    void should_validate_Unique_Source_Control_And_Gitlab_Group_For_Null_Filters(Integer gitlabGroupId, boolean setSourceControl) {
+        Product newProduct = new Product();
+        newProduct.setName("foo");
+        newProduct.setGitlabGroupId(gitlabGroupId);
+        newProduct.setSourceControl(setSourceControl ? sourceControl : null);
+        doReturn(List.of(newProduct)).when(productService).getAll();
+
+        assertTrue(productService.validateUniqueSourceControlAndGitlabGroup(createProductDTO));
     }
 }

@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -25,6 +26,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
@@ -40,6 +43,7 @@ import mil.af.abms.midas.api.portfolio.dto.CreatePortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioDTO;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
+import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
 import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
@@ -73,6 +77,10 @@ public class PortfolioServiceTests {
     private final User user = Builder.build(User.class).with(u -> u.setId(1L)).get();
     private final User user2 = Builder.build(User.class).with(u -> u.setId(10L)).get();
     private final Product product = Builder.build(Product.class).with(p -> p.setId(2L)).get();
+    private final SourceControl sourceControl = Builder.build(SourceControl.class)
+            .with(g -> g.setId(42L))
+            .with(g -> g.setName("Mock IL2"))
+            .get();
     private final Portfolio portfolio = Builder.build(Portfolio.class)
             .with(p -> p.setId(3L))
             .with(p -> p.setPersonnel(new Personnel()))
@@ -82,6 +90,8 @@ public class PortfolioServiceTests {
             .with(p -> p.setGanttNoteModifiedBy(user))
             .with(p -> p.setSprintStartDate(currentDate))
             .with(p -> p.setSprintDurationInDays(7))
+            .with(p -> p.setSourceControl(sourceControl))
+            .with(p -> p.setGitlabGroupId(123))
             .get();
     private final Personnel personnel = Builder.build(Personnel.class)
             .with(p -> p.setId(4L))
@@ -97,14 +107,16 @@ public class PortfolioServiceTests {
             .with(c -> c.setReferenceId(0))
             .get();
 
+    private final CreatePortfolioDTO createPortfolioDTO = Builder.build(CreatePortfolioDTO.class)
+            .with(d -> d.setName("ABMS"))
+            .with(d -> d.setProductIds(Set.of(2L)))
+            .with(d -> d.setCapabilityIds(Set.of(5L)))
+            .with(p -> p.setGitlabGroupId(123))
+            .with(p -> p.setSourceControlId(42L))
+            .get();
+
     @Test
     void should_create_portfolio_no_personnel() {
-        CreatePortfolioDTO createPortfolioDTO = Builder.build(CreatePortfolioDTO.class)
-                .with(d -> d.setName("ABMS"))
-                .with(d -> d.setProductIds(Set.of(2L)))
-                .with(d -> d.setCapabilityIds(Set.of(5L)))
-                .get();
-
         when(personnelService.create(any(CreatePersonnelDTO.class))).thenReturn(new Personnel());
         when(productService.findById(anyLong())).thenReturn(product);
         when(capabilityService.findById(anyLong())).thenReturn(capability);
@@ -126,7 +138,6 @@ public class PortfolioServiceTests {
         assertThat(portfolioSaved.getCapabilities()).isEqualTo(Set.of(capability));
         assertThat(portfolioSaved.getSprintStartDate()).isEqualTo(currentDate);
         assertThat(portfolioSaved.getSprintDurationInDays()).isEqualTo(7);
-
 
     }
     @Test
@@ -261,5 +272,36 @@ public class PortfolioServiceTests {
     @Test
     void should_throw_error_find_by_name() throws EntityNotFoundException {
         assertThrows(EntityNotFoundException.class, () -> portfolioService.findByName("buffet"));
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {
+            "ABMS : 5 : 6 : true",
+            "foo : 5 : 42 : true",
+            "foo : 123 : 42 : false",
+            "foo : 123 : 6 : true"
+    }, delimiter = ':')
+    void should_validate_Unique_Source_Control_And_Gitlab_Group(String name, Integer gitlabId, Long sourceControlId, boolean expected) {
+        doReturn(List.of(portfolio)).when(portfolioService).getAll();
+        createPortfolioDTO.setName(name);
+        createPortfolioDTO.setGitlabGroupId(gitlabId);
+        createPortfolioDTO.setSourceControlId(sourceControlId);
+
+        assertThat(portfolioService.validateUniqueSourceControlAndGitlabGroup(createPortfolioDTO)).isEqualTo(expected);
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {
+            " : true",
+            "123 : false",
+    }, delimiter = ':')
+    void should_validate_Unique_Source_Control_And_Gitlab_Group_For_Null_Filters(Integer gitlabGroupId, boolean setSourceControl) {
+        Portfolio newPortfolio = new Portfolio();
+        newPortfolio.setName("foo");
+        newPortfolio.setGitlabGroupId(gitlabGroupId);
+        newPortfolio.setSourceControl(setSourceControl ? sourceControl : null);
+        doReturn(List.of(newPortfolio)).when(portfolioService).getAll();
+
+        assertTrue(portfolioService.validateUniqueSourceControlAndGitlabGroup(createPortfolioDTO));
     }
 }

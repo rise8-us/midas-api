@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.capability.CapabilityService;
+import mil.af.abms.midas.api.dtos.AppGroupDTO;
 import mil.af.abms.midas.api.dtos.IsArchivedDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.personnel.Personnel;
@@ -25,6 +26,7 @@ import mil.af.abms.midas.api.portfolio.dto.PortfolioInterfaceDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioDTO;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
+import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
@@ -132,4 +134,21 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
         return repository.findAll();
     }
 
+    public boolean validateUniqueSourceControlAndGitlabGroup(AppGroupDTO appGroupDTO) {
+        Integer gitlabGroupIdToCheck = appGroupDTO.getGitlabGroupId();
+        Long sourceControlIdToCheck = appGroupDTO.getSourceControlId();
+        String nameToCheck = appGroupDTO.getName();
+        List<Portfolio> allPortfolios = getAll().stream()
+                .filter(p ->
+                        !p.getName().equals(nameToCheck) && p.getGitlabGroupId() != null && p.getSourceControl() != null
+                ).collect(Collectors.toList());
+
+        for (Portfolio portfolio : allPortfolios) {
+            Integer groupId = portfolio.getGitlabGroupId();
+            SourceControl sourceControl = portfolio.getSourceControl();
+            boolean isDuplicate = gitlabGroupIdToCheck.equals(groupId) && sourceControlIdToCheck.equals(sourceControl.getId());
+            if (isDuplicate) return false;
+        }
+        return true;
+    }
 }
