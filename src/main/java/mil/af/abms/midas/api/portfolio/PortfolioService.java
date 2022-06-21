@@ -1,12 +1,16 @@
 package mil.af.abms.midas.api.portfolio;
 
+import static mil.af.abms.midas.api.helper.SprintDateHelper.getAllSprintDates;
+
 import javax.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +20,9 @@ import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.capability.CapabilityService;
 import mil.af.abms.midas.api.dtos.AppGroupDTO;
 import mil.af.abms.midas.api.dtos.IsArchivedDTO;
+import mil.af.abms.midas.api.dtos.SprintProductMetricsDTO;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.issue.IssueService;
 import mil.af.abms.midas.api.personnel.Personnel;
 import mil.af.abms.midas.api.personnel.PersonnelService;
 import mil.af.abms.midas.api.personnel.dto.CreatePersonnelDTO;
@@ -39,25 +45,41 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
     private SourceControlService sourceControlService;
     private CapabilityService capabilityService;
     private UserService userService;
+    private IssueService issueService;
 
     public PortfolioService(PortfolioRepository repository) {
         super(repository, Portfolio.class, PortfolioDTO.class);
     }
 
     @Autowired
-    public void setSourceControlService(SourceControlService sourceControlService) { this.sourceControlService = sourceControlService; }
+    public void setSourceControlService(SourceControlService sourceControlService) {
+        this.sourceControlService = sourceControlService;
+    }
 
     @Autowired
-    public void setPersonnelService(PersonnelService personnelService) { this.personnelService = personnelService; }
+    public void setPersonnelService(PersonnelService personnelService) {
+        this.personnelService = personnelService;
+    }
 
     @Autowired
-    public void setProductService(ProductService productService) { this.productService = productService; }
+    public void setProductService(ProductService productService) {
+        this.productService = productService;
+    }
 
     @Autowired
-    public void setCapabilityService(CapabilityService capabilityService) { this.capabilityService = capabilityService; }
+    public void setCapabilityService(CapabilityService capabilityService) {
+        this.capabilityService = capabilityService;
+    }
 
     @Autowired
-    public void setUserService(UserService userService) { this.userService = userService; }
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Autowired
+    public void setIssueService(IssueService issueService) {
+        this.issueService = issueService;
+    }
 
     @Transactional
     public Portfolio create(CreatePortfolioDTO dto) {
@@ -150,5 +172,22 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
             if (isDuplicate) return false;
         }
         return true;
+    }
+
+    public TreeMap<LocalDate, List<SprintProductMetricsDTO>> getSprintMetrics(Long id, LocalDate startDate, Integer duration, Integer sprints) {
+        TreeMap<LocalDate, List<SprintProductMetricsDTO>> metricsMap = new TreeMap<>();
+
+        Portfolio foundPortfolio = findById(id);
+        List<Product> allProducts = new ArrayList<>(foundPortfolio.getProducts());
+
+        List<LocalDate> allDates = getAllSprintDates(startDate, duration, sprints);
+
+        allDates.forEach(date -> {
+            List<SprintProductMetricsDTO> dtos = new ArrayList<>();
+            allProducts.forEach(product -> dtos.add(productService.populateProductMetrics(dtos, date, product, duration)));
+            metricsMap.put(date, dtos);
+        });
+
+        return metricsMap;
     }
 }

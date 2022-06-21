@@ -3,13 +3,17 @@ package mil.af.abms.midas.api.portfolio;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
+import java.util.TreeMap;
 
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -21,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.capability.CapabilityService;
 import mil.af.abms.midas.api.dtos.IsArchivedDTO;
+import mil.af.abms.midas.api.dtos.SprintProductMetricsDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.personnel.Personnel;
 import mil.af.abms.midas.api.personnel.PersonnelService;
@@ -133,5 +138,22 @@ public class PortfolioControllerTests extends ControllerTestHarness {
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
         .andExpect(jsonPath("$.isArchived").value(true));
+    }
+
+    @Test
+    public void should_get_sprint_metrics() throws Exception {
+        SprintProductMetricsDTO dto = new SprintProductMetricsDTO("MIDAS", 100L, 60);
+        TreeMap<LocalDate, List<SprintProductMetricsDTO>> metricsMap = new TreeMap<>();
+        metricsMap.put(LocalDate.parse("2022-06-16"), List.of(dto));
+
+        when(portfolioService.getSprintMetrics(any(), any(), any(), any())).thenReturn(metricsMap);
+
+        mockMvc.perform(get("/api/portfolios/1/sprint-metrics/2022-06-16?duration=14&sprints=1")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsString(metricsMap))
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$['2022-06-16'][0]['productName']").value("MIDAS"));
     }
 }
