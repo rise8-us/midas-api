@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -338,7 +337,7 @@ public class PortfolioServiceTests {
 
         doReturn(portfolio).when(portfolioService).findById(anyLong());
         when(issueService.getAllIssuesByProductId(anyLong())).thenReturn(List.of(issue, issueNotCompleted, issueBeforeDate));
-        doReturn(dto).when(productService).populateProductMetrics(anyList(), any(), any(), anyInt());
+        doReturn(dto).when(productService).populateProductMetrics(any(), any(), anyInt());
 
         assertThat(portfolioService.getSprintMetrics(91L, LocalDate.parse("2022-06-16"), 14, 2)).isEqualTo(metricsMap);
     }
