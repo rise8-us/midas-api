@@ -1,9 +1,14 @@
 package mil.af.abms.midas.api.product;
 
+import static mil.af.abms.midas.api.helper.SprintDateHelper.getAllSprintDates;
+
 import javax.transaction.Transactional;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
@@ -13,7 +18,10 @@ import org.springframework.stereotype.Service;
 import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.dtos.AppGroupDTO;
 import mil.af.abms.midas.api.dtos.IsArchivedDTO;
+import mil.af.abms.midas.api.dtos.SprintProductMetricsDTO;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.issue.Issue;
+import mil.af.abms.midas.api.issue.IssueService;
 import mil.af.abms.midas.api.personnel.Personnel;
 import mil.af.abms.midas.api.personnel.PersonnelService;
 import mil.af.abms.midas.api.personnel.dto.CreatePersonnelDTO;
@@ -36,6 +44,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
     private ProjectService projectService;
     private TagService tagService;
     private PersonnelService personnelService;
+    private IssueService issueService;
 
     public ProductService(ProductRepository repository, SourceControlService sourceControlService) {
         super(repository, Product.class, ProductDTO.class);
@@ -48,6 +57,8 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
     public void setTagService(TagService tagService) { this.tagService = tagService; }
     @Autowired
     public void setPersonnelService(PersonnelService personnelService) { this.personnelService = personnelService; }
+    @Autowired
+    public void setIssueService(IssueService issueService) { this.issueService = issueService; }
 
     @Transactional
     public Product create(CreateProductDTO dto) {
@@ -146,6 +157,37 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
             if (isDuplicate) return false;
         }
         return true;
+    }
+
+    public TreeMap<LocalDate, List<SprintProductMetricsDTO>> getSprintMetrics(Long id, LocalDate startDate, Integer duration, Integer sprints) {
+        TreeMap<LocalDate, List<SprintProductMetricsDTO>> metricsMap = new TreeMap<>();
+
+        Product foundProduct = findById(id);
+
+        List<LocalDate> allDates = getAllSprintDates(startDate, duration, sprints);
+
+        allDates.forEach(date -> {
+            List<SprintProductMetricsDTO> dtos = new ArrayList<>();
+            dtos.add(populateProductMetrics(dtos, date, foundProduct, duration));
+            metricsMap.put(date, dtos);
+        });
+
+        return metricsMap;
+    }
+
+    public SprintProductMetricsDTO populateProductMetrics(List<SprintProductMetricsDTO> dtos, LocalDate currentDate, Product product, int duration) {
+        List<Issue> allIssues = issueService.getAllIssuesByProductId(product.getId()).stream().filter(issue ->
+                Optional.ofNullable(issue.getCompletedAt()).isPresent() &&
+                        issue.getCompletedAt().toLocalDate().isBefore(currentDate.plusDays(duration)) && (issue.getCompletedAt().toLocalDate().isAfter(currentDate) || issue.getCompletedAt().toLocalDate().isEqual(currentDate))
+        ).collect(Collectors.toList());
+
+        long totalWeight = 0;
+        for (Issue issue : allIssues) {
+            totalWeight += issue.getWeight();
+        }
+
+        return new SprintProductMetricsDTO(product.getName(), totalWeight, allIssues.size());
+
     }
 
 }

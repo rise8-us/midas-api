@@ -12,9 +12,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -31,7 +33,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
 import mil.af.abms.midas.api.dtos.IsArchivedDTO;
+import mil.af.abms.midas.api.dtos.SprintProductMetricsDTO;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.issue.Issue;
+import mil.af.abms.midas.api.issue.IssueService;
 import mil.af.abms.midas.api.personnel.PersonnelService;
 import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.product.dto.CreateProductDTO;
@@ -69,6 +74,8 @@ class ProductServiceTests {
     @MockBean
     TeamService teamService;
     @MockBean
+    IssueService issueService;
+    @MockBean
     ProductRepository productRepository;
     @Captor
     ArgumentCaptor<Product> productCaptor;
@@ -101,6 +108,11 @@ class ProductServiceTests {
             .with(p -> p.setDescription("description"))
             .with(p -> p.setGitlabGroupId(123))
             .with(p -> p.setSourceControlId(42L))
+            .get();
+    private final Issue issue = Builder.build(Issue.class)
+            .with(i -> i.setId(6L))
+            .with(i -> i.setWeight(5L))
+            .with(i -> i.setCompletedAt(LocalDate.parse("2022-06-17").atStartOfDay()))
             .get();
 
     @Test
@@ -229,5 +241,26 @@ class ProductServiceTests {
         doReturn(List.of(newProduct)).when(productService).getAll();
 
         assertTrue(productService.validateUniqueSourceControlAndGitlabGroup(createProductDTO));
+    }
+
+    @Test
+    void should_get_sprint_metrics() {
+        SprintProductMetricsDTO dto = new SprintProductMetricsDTO("Midas", 5L, 1);
+        TreeMap<LocalDate, List<SprintProductMetricsDTO>> metricsMap = new TreeMap<>();
+        metricsMap.put(LocalDate.parse("2022-06-16"), List.of(dto));
+        metricsMap.put(LocalDate.parse("2022-06-02"), List.of(dto));
+
+        Issue issueNotCompleted = new Issue();
+        BeanUtils.copyProperties(issue, issueNotCompleted);
+        issueNotCompleted.setCompletedAt(null);
+
+        Issue issueBeforeDate = new Issue();
+        BeanUtils.copyProperties(issue, issueBeforeDate);
+        issueBeforeDate.setCompletedAt(LocalDate.parse("2022-06-02").atStartOfDay());
+
+        doReturn(product).when(productService).findById(anyLong());
+        when(issueService.getAllIssuesByProductId(anyLong())).thenReturn(List.of(issue, issueNotCompleted, issueBeforeDate));
+
+        assertThat(productService.getSprintMetrics(91L, LocalDate.parse("2022-06-16"), 14, 2)).isEqualTo(metricsMap);
     }
 }

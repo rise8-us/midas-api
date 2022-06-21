@@ -5,6 +5,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -16,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -34,7 +37,10 @@ import org.mockito.Captor;
 import mil.af.abms.midas.api.capability.Capability;
 import mil.af.abms.midas.api.capability.CapabilityService;
 import mil.af.abms.midas.api.dtos.IsArchivedDTO;
+import mil.af.abms.midas.api.dtos.SprintProductMetricsDTO;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.issue.Issue;
+import mil.af.abms.midas.api.issue.IssueService;
 import mil.af.abms.midas.api.personnel.Personnel;
 import mil.af.abms.midas.api.personnel.PersonnelService;
 import mil.af.abms.midas.api.personnel.dto.CreatePersonnelDTO;
@@ -68,6 +74,8 @@ public class PortfolioServiceTests {
     @MockBean
     SourceControlService sourceControlService;
     @MockBean
+    IssueService issueService;
+    @MockBean
     PortfolioRepository portfolioRepository;
     @Captor
     ArgumentCaptor<Portfolio> portfolioCaptor;
@@ -76,7 +84,10 @@ public class PortfolioServiceTests {
     private final LocalDate currentDate = LocalDate.now();
     private final User user = Builder.build(User.class).with(u -> u.setId(1L)).get();
     private final User user2 = Builder.build(User.class).with(u -> u.setId(10L)).get();
-    private final Product product = Builder.build(Product.class).with(p -> p.setId(2L)).get();
+    private final Product product = Builder.build(Product.class)
+            .with(p -> p.setId(2L))
+            .with(p -> p.setName("MIDAS"))
+            .get();
     private final SourceControl sourceControl = Builder.build(SourceControl.class)
             .with(g -> g.setId(42L))
             .with(g -> g.setName("Mock IL2"))
@@ -92,6 +103,7 @@ public class PortfolioServiceTests {
             .with(p -> p.setSprintDurationInDays(7))
             .with(p -> p.setSourceControl(sourceControl))
             .with(p -> p.setGitlabGroupId(123))
+            .with(p -> p.setProducts(Set.of(product)))
             .get();
     private final Personnel personnel = Builder.build(Personnel.class)
             .with(p -> p.setId(4L))
@@ -106,13 +118,17 @@ public class PortfolioServiceTests {
             .with(c -> c.setTitle("title"))
             .with(c -> c.setReferenceId(0))
             .get();
-
     private final CreatePortfolioDTO createPortfolioDTO = Builder.build(CreatePortfolioDTO.class)
             .with(d -> d.setName("ABMS"))
             .with(d -> d.setProductIds(Set.of(2L)))
             .with(d -> d.setCapabilityIds(Set.of(5L)))
             .with(p -> p.setGitlabGroupId(123))
             .with(p -> p.setSourceControlId(42L))
+            .get();
+    private final Issue issue = Builder.build(Issue.class)
+            .with(i -> i.setId(6L))
+            .with(i -> i.setWeight(5L))
+            .with(i -> i.setCompletedAt(LocalDate.parse("2022-06-17").atStartOfDay()))
             .get();
 
     @Test
@@ -303,5 +319,27 @@ public class PortfolioServiceTests {
         doReturn(List.of(newPortfolio)).when(portfolioService).getAll();
 
         assertTrue(portfolioService.validateUniqueSourceControlAndGitlabGroup(createPortfolioDTO));
+    }
+
+    @Test
+    void should_get_sprint_metrics() {
+        SprintProductMetricsDTO dto = new SprintProductMetricsDTO("MIDAS", 5L, 1);
+        TreeMap<LocalDate, List<SprintProductMetricsDTO>> metricsMap = new TreeMap<>();
+        metricsMap.put(LocalDate.parse("2022-06-02"), List.of(dto));
+        metricsMap.put(LocalDate.parse("2022-06-16"), List.of(dto));
+
+        Issue issueNotCompleted = new Issue();
+        BeanUtils.copyProperties(issue, issueNotCompleted);
+        issueNotCompleted.setCompletedAt(null);
+
+        Issue issueBeforeDate = new Issue();
+        BeanUtils.copyProperties(issue, issueBeforeDate);
+        issueBeforeDate.setCompletedAt(LocalDate.parse("2022-06-02").atStartOfDay());
+
+        doReturn(portfolio).when(portfolioService).findById(anyLong());
+        when(issueService.getAllIssuesByProductId(anyLong())).thenReturn(List.of(issue, issueNotCompleted, issueBeforeDate));
+        doReturn(dto).when(productService).populateProductMetrics(anyList(), any(), any(), anyInt());
+
+        assertThat(portfolioService.getSprintMetrics(91L, LocalDate.parse("2022-06-16"), 14, 2)).isEqualTo(metricsMap);
     }
 }
