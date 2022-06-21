@@ -6,6 +6,10 @@ import java.util.List;
 
 public final class SprintDateHelper {
 
+    private SprintDateHelper() {
+        throw new IllegalStateException("Utility Class");
+    }
+
     public static List<LocalDate> getAllSprintDates(LocalDate currentDate, int duration, int sprints) {
         List<LocalDate> allDates = new ArrayList<>(List.of(currentDate));
 

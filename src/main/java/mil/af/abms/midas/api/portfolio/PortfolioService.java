@@ -22,7 +22,6 @@ import mil.af.abms.midas.api.dtos.AppGroupDTO;
 import mil.af.abms.midas.api.dtos.IsArchivedDTO;
 import mil.af.abms.midas.api.dtos.SprintProductMetricsDTO;
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.issue.IssueService;
 import mil.af.abms.midas.api.personnel.Personnel;
 import mil.af.abms.midas.api.personnel.PersonnelService;
 import mil.af.abms.midas.api.personnel.dto.CreatePersonnelDTO;
@@ -45,7 +44,6 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
     private SourceControlService sourceControlService;
     private CapabilityService capabilityService;
     private UserService userService;
-    private IssueService issueService;
 
     public PortfolioService(PortfolioRepository repository) {
         super(repository, Portfolio.class, PortfolioDTO.class);
@@ -74,11 +72,6 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
     @Autowired
     public void setUserService(UserService userService) {
         this.userService = userService;
-    }
-
-    @Autowired
-    public void setIssueService(IssueService issueService) {
-        this.issueService = issueService;
     }
 
     @Transactional
@@ -184,7 +177,7 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
 
         allDates.forEach(date -> {
             List<SprintProductMetricsDTO> dtos = new ArrayList<>();
-            allProducts.forEach(product -> dtos.add(productService.populateProductMetrics(dtos, date, product, duration)));
+            allProducts.forEach(product -> dtos.add(productService.populateProductMetrics(date, product, duration)));
             metricsMap.put(date, dtos);
         });
 

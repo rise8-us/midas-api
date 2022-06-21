@@ -168,14 +168,14 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
 
         allDates.forEach(date -> {
             List<SprintProductMetricsDTO> dtos = new ArrayList<>();
-            dtos.add(populateProductMetrics(dtos, date, foundProduct, duration));
+            dtos.add(populateProductMetrics(date, foundProduct, duration));
             metricsMap.put(date, dtos);
         });
 
         return metricsMap;
     }
 
-    public SprintProductMetricsDTO populateProductMetrics(List<SprintProductMetricsDTO> dtos, LocalDate currentDate, Product product, int duration) {
+    public SprintProductMetricsDTO populateProductMetrics(LocalDate currentDate, Product product, int duration) {
         List<Issue> allIssues = issueService.getAllIssuesByProductId(product.getId()).stream().filter(issue ->
                 Optional.ofNullable(issue.getCompletedAt()).isPresent() &&
                         issue.getCompletedAt().toLocalDate().isBefore(currentDate.plusDays(duration)) && (issue.getCompletedAt().toLocalDate().isAfter(currentDate) || issue.getCompletedAt().toLocalDate().isEqual(currentDate))
