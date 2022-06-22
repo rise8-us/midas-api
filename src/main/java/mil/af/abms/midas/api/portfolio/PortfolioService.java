@@ -1,16 +1,14 @@
 package mil.af.abms.midas.api.portfolio;
 
-import static mil.af.abms.midas.api.helper.SprintDateHelper.getAllSprintDates;
-
 import javax.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -167,18 +165,14 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
         return true;
     }
 
-    public TreeMap<LocalDate, List<SprintProductMetricsDTO>> getSprintMetrics(Long id, LocalDate startDate, Integer duration, Integer sprints) {
-        TreeMap<LocalDate, List<SprintProductMetricsDTO>> metricsMap = new TreeMap<>();
-
+    public HashMap<Long, List<SprintProductMetricsDTO>> getSprintMetrics(Long id, LocalDate startDate, Integer duration, Integer sprints) {
         Portfolio foundPortfolio = findById(id);
         List<Product> allProducts = new ArrayList<>(foundPortfolio.getProducts());
+        HashMap<Long, List<SprintProductMetricsDTO>> metricsMap = new HashMap<>();
 
-        List<LocalDate> allDates = getAllSprintDates(startDate, duration, sprints);
-
-        allDates.forEach(date -> {
-            List<SprintProductMetricsDTO> dtos = new ArrayList<>();
-            allProducts.forEach(product -> dtos.add(productService.populateProductMetrics(date, product, duration)));
-            metricsMap.put(date, dtos);
+        allProducts.forEach(product -> {
+            List<SprintProductMetricsDTO> dtos = new ArrayList<>(productService.getSprintMetrics(product.getId(), startDate, duration, sprints));
+            metricsMap.put(product.getId(), dtos);
         });
 
         return metricsMap;

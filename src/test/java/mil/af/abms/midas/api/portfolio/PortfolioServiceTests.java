@@ -14,10 +14,10 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -322,10 +322,10 @@ public class PortfolioServiceTests {
 
     @Test
     void should_get_sprint_metrics() {
-        SprintProductMetricsDTO dto = new SprintProductMetricsDTO("MIDAS", 5L, 1);
-        TreeMap<LocalDate, List<SprintProductMetricsDTO>> metricsMap = new TreeMap<>();
-        metricsMap.put(LocalDate.parse("2022-06-02"), List.of(dto));
-        metricsMap.put(LocalDate.parse("2022-06-16"), List.of(dto));
+        SprintProductMetricsDTO dto1 = new SprintProductMetricsDTO(LocalDate.parse("2022-06-02"), 5L, 1);
+        SprintProductMetricsDTO dto2 = new SprintProductMetricsDTO(LocalDate.parse("2022-06-16"), 5L, 1);
+        HashMap<Long, List<SprintProductMetricsDTO>> metricsMap = new HashMap<>();
+        metricsMap.put(2L, List.of(dto1, dto2));
 
         Issue issueNotCompleted = new Issue();
         BeanUtils.copyProperties(issue, issueNotCompleted);
@@ -337,7 +337,7 @@ public class PortfolioServiceTests {
 
         doReturn(portfolio).when(portfolioService).findById(anyLong());
         when(issueService.getAllIssuesByProductId(anyLong())).thenReturn(List.of(issue, issueNotCompleted, issueBeforeDate));
-        doReturn(dto).when(productService).populateProductMetrics(any(), any(), anyInt());
+        doReturn(List.of(dto1, dto2)).when(productService).getSprintMetrics(anyLong(), any(), anyInt(), anyInt());
 
         assertThat(portfolioService.getSprintMetrics(91L, LocalDate.parse("2022-06-16"), 14, 2)).isEqualTo(metricsMap);
     }

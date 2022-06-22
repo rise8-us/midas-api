@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -199,19 +198,18 @@ class ProductControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_get_sprint_metrics() throws Exception {
-        SprintProductMetricsDTO dto = new SprintProductMetricsDTO("MIDAS", 100L, 60);
-        TreeMap<LocalDate, List<SprintProductMetricsDTO>> metricsMap = new TreeMap<>();
-        metricsMap.put(LocalDate.parse("2022-06-16"), List.of(dto));
+        SprintProductMetricsDTO dto = new SprintProductMetricsDTO(LocalDate.parse("2022-06-16"), 100L, 60);
+        List<SprintProductMetricsDTO> metricsList = List.of(dto);
 
-        when(productService.getSprintMetrics(any(), any(), any(), any())).thenReturn(metricsMap);
+        when(productService.getSprintMetrics(any(), any(), any(), any())).thenReturn(metricsList);
 
         mockMvc.perform(get("/api/products/1/sprint-metrics/2022-06-16?duration=14&sprints=1")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(mapper.writeValueAsString(metricsMap))
+                        .content(mapper.writeValueAsString(metricsList))
                 )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$['2022-06-16'][0]['productName']").value("MIDAS"));
+                .andExpect(jsonPath("$[0]['date']").value("2022-06-16"));
     }
 
 }
