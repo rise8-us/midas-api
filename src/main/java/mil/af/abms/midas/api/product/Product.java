@@ -103,8 +103,7 @@ public class Product extends AbstractProductPortfolio<ProductDTO> {
     }
 
     public Release getLatestRelease() {
-        Set<Project> projects = this.getProjects();
-        Set<Release> latestReleases = projects.stream().map(Project::getLatestRelease).collect(Collectors.toSet());
+        Set<Release> latestReleases = this.getProjects().stream().map(Project::getLatestRelease).collect(Collectors.toSet());
         return latestReleases.stream().max(Comparator.comparing(Release::getReleasedAt, Comparator.nullsFirst(Comparator.naturalOrder()))).orElse(null);
     }
 
