@@ -5,10 +5,8 @@ import static mil.af.abms.midas.api.helper.SprintDateHelper.getAllSprintDates;
 import javax.transaction.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
@@ -159,20 +157,11 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         return true;
     }
 
-    public TreeMap<LocalDate, List<SprintProductMetricsDTO>> getSprintMetrics(Long id, LocalDate startDate, Integer duration, Integer sprints) {
-        TreeMap<LocalDate, List<SprintProductMetricsDTO>> metricsMap = new TreeMap<>();
-
+    public List<SprintProductMetricsDTO> getSprintMetrics(Long id, LocalDate startDate, Integer duration, Integer sprints) {
         Product foundProduct = findById(id);
-
         List<LocalDate> allDates = getAllSprintDates(startDate, duration, sprints);
 
-        allDates.forEach(date -> {
-            List<SprintProductMetricsDTO> dtos = new ArrayList<>();
-            dtos.add(populateProductMetrics(date, foundProduct, duration));
-            metricsMap.put(date, dtos);
-        });
-
-        return metricsMap;
+        return allDates.stream().map(date -> populateProductMetrics(date, foundProduct, duration)).collect(Collectors.toList());
     }
 
     public SprintProductMetricsDTO populateProductMetrics(LocalDate currentDate, Product product, int duration) {
@@ -186,7 +175,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
             totalWeight += issue.getWeight();
         }
 
-        return new SprintProductMetricsDTO(product.getName(), totalWeight, allIssues.size());
+        return new SprintProductMetricsDTO(currentDate, totalWeight, allIssues.size());
 
     }
 

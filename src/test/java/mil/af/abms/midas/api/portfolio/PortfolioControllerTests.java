@@ -11,9 +11,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.TreeMap;
 
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -142,9 +142,9 @@ public class PortfolioControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_get_sprint_metrics() throws Exception {
-        SprintProductMetricsDTO dto = new SprintProductMetricsDTO("MIDAS", 100L, 60);
-        TreeMap<LocalDate, List<SprintProductMetricsDTO>> metricsMap = new TreeMap<>();
-        metricsMap.put(LocalDate.parse("2022-06-16"), List.of(dto));
+        SprintProductMetricsDTO dto = new SprintProductMetricsDTO(LocalDate.parse("2022-06-16"), 100L, 60);
+        HashMap<Long, List<SprintProductMetricsDTO>> metricsMap = new HashMap<>();
+        metricsMap.put(1L, List.of(dto));
 
         when(portfolioService.getSprintMetrics(any(), any(), any(), any())).thenReturn(metricsMap);
 
@@ -154,6 +154,6 @@ public class PortfolioControllerTests extends ControllerTestHarness {
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$['2022-06-16'][0]['productName']").value("MIDAS"));
+                .andExpect(jsonPath("$['1'][0]['date']").value("2022-06-16"));
     }
 }

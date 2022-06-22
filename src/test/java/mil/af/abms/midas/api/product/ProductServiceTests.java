@@ -16,7 +16,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -245,10 +244,8 @@ class ProductServiceTests {
 
     @Test
     void should_get_sprint_metrics() {
-        SprintProductMetricsDTO dto = new SprintProductMetricsDTO("Midas", 5L, 1);
-        TreeMap<LocalDate, List<SprintProductMetricsDTO>> metricsMap = new TreeMap<>();
-        metricsMap.put(LocalDate.parse("2022-06-16"), List.of(dto));
-        metricsMap.put(LocalDate.parse("2022-06-02"), List.of(dto));
+        SprintProductMetricsDTO dto1 = new SprintProductMetricsDTO(LocalDate.parse("2022-06-16"), 5L, 1);
+        SprintProductMetricsDTO dto2 = new SprintProductMetricsDTO(LocalDate.parse("2022-06-02"), 5L, 1);
 
         Issue issueNotCompleted = new Issue();
         BeanUtils.copyProperties(issue, issueNotCompleted);
@@ -261,6 +258,6 @@ class ProductServiceTests {
         doReturn(product).when(productService).findById(anyLong());
         when(issueService.getAllIssuesByProductId(anyLong())).thenReturn(List.of(issue, issueNotCompleted, issueBeforeDate));
 
-        assertThat(productService.getSprintMetrics(91L, LocalDate.parse("2022-06-16"), 14, 2)).isEqualTo(metricsMap);
+        assertThat(productService.getSprintMetrics(91L, LocalDate.parse("2022-06-16"), 14, 2)).isEqualTo(List.of(dto1, dto2));
     }
 }
