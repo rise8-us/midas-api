@@ -108,7 +108,7 @@ public class Project extends AbstractEntity<ProjectDTO> {
                 getCurrentCoverage().toDto(),
                 getIdOrNull(sourceControl),
                 getIdOrNull(owner),
-                getLatestRelease().toDto()
+                getDtoOrNull(getLatestRelease())
         );
     }
 
@@ -117,7 +117,7 @@ public class Project extends AbstractEntity<ProjectDTO> {
     }
 
     public Release getLatestRelease() {
-        return releases.stream().max(Comparator.comparing(Release::getId)).orElse(new Release());
+        return releases.stream().max(Comparator.comparing(Release::getReleasedAt)).orElse(new Release());
     }
 
     @Override

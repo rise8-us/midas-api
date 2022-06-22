@@ -13,6 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,6 +27,7 @@ import mil.af.abms.midas.api.personnel.dto.PersonnelDTO;
 import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.project.Project;
+import mil.af.abms.midas.api.release.Release;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.tag.dto.TagDTO;
 import mil.af.abms.midas.enums.RoadmapType;
@@ -82,7 +84,8 @@ public class Product extends AbstractProductPortfolio<ProductDTO> {
                 mission,
                 problemStatement,
                 roadmapType,
-                getIdOrNull(portfolio)
+                getIdOrNull(portfolio),
+                getDtoOrNull(getLatestRelease())
         );
     }
 
@@ -97,6 +100,12 @@ public class Product extends AbstractProductPortfolio<ProductDTO> {
         if (o == null || getClass() != o.getClass()) return false;
         Product that = (Product) o;
         return this.hashCode() == that.hashCode();
+    }
+
+    public Release getLatestRelease() {
+        Set<Project> projects = this.getProjects();
+        Set<Release> latestReleases = projects.stream().map(Project::getLatestRelease).collect(Collectors.toSet());
+        return latestReleases.stream().max(Comparator.comparing(Release::getReleasedAt, Comparator.nullsFirst(Comparator.naturalOrder()))).orElse(null);
     }
 
 }

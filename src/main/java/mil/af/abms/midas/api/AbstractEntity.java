@@ -62,7 +62,7 @@ public abstract class AbstractEntity<D extends AbstractDTO> implements Serializa
     }
 
     public <E extends AbstractEntity<D>, D extends AbstractDTO> D getDtoOrNull(E entity) {
-        return entity != null ? entity.toDto() : null;
+        return (entity != null && entity.getId() != null) ? entity.toDto() : null;
     }
 
     @Override
