@@ -19,7 +19,6 @@ import mil.af.abms.midas.api.coverage.Coverage;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.project.dto.ProjectDTO;
-import mil.af.abms.midas.api.release.dto.ReleaseDTO;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.team.Team;
@@ -80,7 +79,6 @@ public class ProjectTests {
             .with(d -> d.setCreationDate(CREATION_DATE))
             .with(d -> d.setIssueSyncStatus(SyncStatus.SYNCED))
             .with(d -> d.setReleaseSyncStatus(SyncStatus.SYNCED))
-            .with(d -> d.setLatestRelease(new ReleaseDTO()))
             .get();
 
     @Test

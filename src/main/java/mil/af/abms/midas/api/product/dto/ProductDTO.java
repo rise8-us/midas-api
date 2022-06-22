@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import mil.af.abms.midas.api.AbstractDTO;
 import mil.af.abms.midas.api.personnel.dto.PersonnelDTO;
+import mil.af.abms.midas.api.release.dto.ReleaseDTO;
 import mil.af.abms.midas.api.tag.dto.TagDTO;
 import mil.af.abms.midas.enums.RoadmapType;
 
@@ -32,5 +33,6 @@ public class ProductDTO implements AbstractDTO {
     private String problemStatement;
     private RoadmapType roadmapType;
     private Long portfolioId;
+    private ReleaseDTO latestRelease;
 
 }

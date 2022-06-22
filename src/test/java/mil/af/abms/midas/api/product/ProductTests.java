@@ -28,6 +28,7 @@ import mil.af.abms.midas.enums.RoadmapType;
 
 class ProductTests {
 
+    private static final int ENTITY_DTO_FIELD_OFFSET = 1;
     private final Set<Project> projects = Set.of(Builder.build(Project.class).with(p -> p.setId(3L)).get());
     private final PersonnelDTO personnelDTO = Builder.build(PersonnelDTO.class)
             .with(d -> d.setTeamIds(Set.of()))
@@ -74,7 +75,7 @@ class ProductTests {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Product.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(ProductDTO.class.getDeclaredFields().length);
+        assertThat(fields.size()).isEqualTo(ProductDTO.class.getDeclaredFields().length - ENTITY_DTO_FIELD_OFFSET);
     }
 
     @Test
