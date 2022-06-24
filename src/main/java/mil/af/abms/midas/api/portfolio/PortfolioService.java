@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
@@ -177,4 +178,21 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
 
         return metricsMap;
     }
+
+    protected void compareSprintStartDateWithCurrentDate(Portfolio portfolio) {
+        if (LocalDate.now().isAfter(portfolio.getSprintStartDate().plusDays(portfolio.getSprintDurationInDays() - 1))) {
+            portfolio.setSprintStartDate(portfolio.getSprintStartDate().plusDays(portfolio.getSprintDurationInDays() - 1));
+            repository.save(portfolio);
+        }
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void setSprintStartDate() {
+        for (Portfolio portfolio : getAll()) {
+            if (portfolio.getIsArchived() == Boolean.FALSE) {
+                compareSprintStartDateWithCurrentDate(portfolio);
+            }
+        }
+    }
+
 }
