@@ -180,8 +180,8 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
     }
 
     protected void compareSprintStartDateWithCurrentDate(Portfolio portfolio) {
-        if (LocalDate.now().isAfter(portfolio.getSprintStartDate().plusDays(portfolio.getSprintDurationInDays() - 1))) {
-            portfolio.setSprintStartDate(portfolio.getSprintStartDate().plusDays(portfolio.getSprintDurationInDays() - 1));
+        if (LocalDate.now().isAfter(portfolio.getSprintStartDate().plusDays(portfolio.getSprintDurationInDays() - 1L))) {
+            portfolio.setSprintStartDate(portfolio.getSprintStartDate().plusDays(portfolio.getSprintDurationInDays() - 1L));
             repository.save(portfolio);
         }
     }

@@ -370,7 +370,7 @@ public class PortfolioServiceTests {
 
         if (days == 15) {
             verify(portfolioRepository, times(1)).save(portfolioCaptor.capture());
-            assertThat(newPortfolio.getSprintStartDate()).isEqualTo(currentDate.minusDays(days).plusDays(newPortfolio.getSprintDurationInDays() - 1));
+            assertThat(newPortfolio.getSprintStartDate()).isEqualTo(currentDate.minusDays(days).plusDays(newPortfolio.getSprintDurationInDays() - 1L));
         } else {
             assertThat(newPortfolio.getSprintStartDate()).isEqualTo(currentDate.minusDays(days));
         }
