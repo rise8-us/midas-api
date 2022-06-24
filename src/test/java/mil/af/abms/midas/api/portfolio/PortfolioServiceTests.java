@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -340,5 +341,38 @@ public class PortfolioServiceTests {
         doReturn(List.of(dto1, dto2)).when(productService).getSprintMetrics(anyLong(), any(), anyInt(), anyInt());
 
         assertThat(portfolioService.getSprintMetrics(91L, LocalDate.parse("2022-06-16"), 14, 2)).isEqualTo(metricsMap);
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"true", "false"})
+    void should_run_scheduled_set_sprint_start_date(boolean isArchived) {
+        Portfolio newPortfolio = new Portfolio();
+        BeanUtils.copyProperties(portfolio, newPortfolio);
+        newPortfolio.setIsArchived(isArchived);
+
+        doReturn(List.of(newPortfolio)).when(portfolioService).getAll();
+        doNothing().when(portfolioService).compareSprintStartDateWithCurrentDate(any());
+
+        portfolioService.setSprintStartDate();
+
+        verify(portfolioService, times(1)).setSprintStartDate();
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"0", "15"})
+    void should_compare_sprint_start_date_with_current_date(Integer days) {
+        Portfolio newPortfolio = new Portfolio();
+        BeanUtils.copyProperties(portfolio, newPortfolio);
+        newPortfolio.setSprintDurationInDays(14);
+        newPortfolio.setSprintStartDate(currentDate.minusDays(days));
+
+        portfolioService.compareSprintStartDateWithCurrentDate(newPortfolio);
+
+        if (days == 15) {
+            verify(portfolioRepository, times(1)).save(portfolioCaptor.capture());
+            assertThat(newPortfolio.getSprintStartDate()).isEqualTo(currentDate.minusDays(days).plusDays(newPortfolio.getSprintDurationInDays() - 1));
+        } else {
+            assertThat(newPortfolio.getSprintStartDate()).isEqualTo(currentDate.minusDays(days));
+        }
     }
 }

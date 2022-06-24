@@ -73,9 +73,9 @@ public class UniqueGroupIdAndSourceControlTests {
 
     @ParameterizedTest
     @CsvSource(value = {
-            "true : true : false",
+            "true : true : true",
             "true : false : false",
-            "false : false : true",
+            "false : false : false",
             "false : true : false"
     }, delimiter = ':')
     void should_validate_is_duplicate_all_cases_for_product(boolean productDuplicate, boolean portfolioDuplicate, boolean expected) {

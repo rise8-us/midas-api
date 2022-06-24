@@ -20,10 +20,10 @@ public class UniqueGroupIdAndSourceControlValidator implements ConstraintValidat
     public boolean isValid(AppGroupDTO dto, ConstraintValidatorContext constraintContext) {
         if (dto.getGitlabGroupId() == null || dto.getSourceControlId() == null) { return true; }
 
-        boolean productDuplicate = productService.validateUniqueSourceControlAndGitlabGroup(dto);
-        boolean portfolioDuplicate = portfolioService.validateUniqueSourceControlAndGitlabGroup(dto);
+        boolean productUnique = productService.validateUniqueSourceControlAndGitlabGroup(dto);
+        boolean portfolioUnique = portfolioService.validateUniqueSourceControlAndGitlabGroup(dto);
 
-        return !(productDuplicate || portfolioDuplicate);
+        return productUnique && portfolioUnique;
     }
 
 }
