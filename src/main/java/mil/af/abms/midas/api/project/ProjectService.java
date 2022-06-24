@@ -2,7 +2,6 @@ package mil.af.abms.midas.api.project;
 
 import javax.transaction.Transactional;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -39,17 +38,32 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 @Service
 public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, ProjectRepository> {
 
+    private CoverageService coverageService;
+    private ProductService productService;
+    private SourceControlService sourceControlService;
+    private TagService tagService;
     private TeamService teamService;
     private UserService userService;
-    private TagService tagService;
-    private SourceControlService sourceControlService;
-    private ProductService productService;
-    private CoverageService coverageService;
     private final SimpMessageSendingOperations websocket;
 
-    public ProjectService(ProjectRepository repository, SimpMessageSendingOperations websocket) {
-        super(repository, Project.class, ProjectDTO.class);
-        this.websocket = websocket;
+    @Autowired
+    public void setCoverageService(CoverageService coverageService) {
+        this.coverageService = coverageService;
+    }
+
+    @Autowired
+    public void setProductService(ProductService productService) {
+        this.productService = productService;
+    }
+
+    @Autowired
+    public void setSourceControlService(SourceControlService sourceControlService) {
+        this.sourceControlService = sourceControlService;
+    }
+
+    @Autowired
+    public void setTagService(TagService tagService) {
+        this.tagService = tagService;
     }
 
     @Autowired
@@ -62,24 +76,9 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
         this.userService = userService;
     }
 
-    @Autowired
-    public void setTagService(TagService tagService) {
-        this.tagService = tagService;
-    }
-
-    @Autowired
-    public void setSourceControlService(SourceControlService sourceControlService) {
-        this.sourceControlService = sourceControlService;
-    }
-
-    @Autowired
-    public void setProductService(ProductService productService) {
-        this.productService = productService;
-    }
-
-    @Autowired
-    public void setCoverageService(CoverageService coverageService) {
-        this.coverageService = coverageService;
+    public ProjectService(ProjectRepository repository, SimpMessageSendingOperations websocket) {
+        super(repository, Project.class, ProjectDTO.class);
+        this.websocket = websocket;
     }
 
     @Transactional
@@ -113,10 +112,6 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
     public Project findByName(String name) {
         return repository.findByName(name).orElseThrow(
                 () -> new EntityNotFoundException(Project.class.getSimpleName(), "name", name));
-    }
-
-    public List<Project> getAll() {
-        return repository.findAll();
     }
 
     @Transactional

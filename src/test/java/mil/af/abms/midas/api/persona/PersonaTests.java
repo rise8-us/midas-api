@@ -1,8 +1,6 @@
 package mil.af.abms.midas.api.persona;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Field;
 import java.util.LinkedList;
@@ -38,7 +36,7 @@ class PersonaTests {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Persona.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(PersonaDTO.class.getDeclaredFields().length);
+        assertThat(fields).hasSize(PersonaDTO.class.getDeclaredFields().length);
     }
 
     @Test
@@ -46,18 +44,18 @@ class PersonaTests {
         Persona persona2 = new Persona();
         BeanUtils.copyProperties(persona, persona2);
 
-        assertTrue(persona.equals(persona));
-        assertFalse(persona.equals(null));
-        assertFalse(persona.equals(new User()));
-        assertFalse(persona.equals(new Persona()));
-        assertTrue(persona.equals(persona2));
+        assertThat(persona).isEqualTo(persona);
+        assertThat(persona).isNotNull();
+        assertThat(persona).isNotEqualTo(new User());
+        assertThat(persona).isNotSameAs(new Persona());
+        assertThat(persona).isEqualTo(persona2);
     }
 
     @Test
     void should_get_properties() {
         assertThat(persona.getId()).isEqualTo(1L);
         assertThat(persona.getTitle()).isEqualTo("title");
-        assertFalse(persona.getIsSupported());
+        assertThat(persona.getIsSupported()).isFalse();
         assertThat(persona.getDescription()).isEqualTo("dev persona");
     }
 

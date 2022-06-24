@@ -15,7 +15,6 @@ import org.springframework.util.ReflectionUtils;
 
 import org.junit.jupiter.api.Test;
 
-import mil.af.abms.midas.api.coverage.Coverage;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.sourcecontrol.dto.SourceControlDTO;
 import mil.af.abms.midas.api.user.User;
@@ -45,7 +44,7 @@ class SourceControlTests {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(SourceControl.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(SourceControlDTO.class.getDeclaredFields().length + 1);
+        assertThat(fields).hasSize(SourceControlDTO.class.getDeclaredFields().length + 1);
     }
 
     @Test
@@ -70,7 +69,7 @@ class SourceControlTests {
         assertEquals(sourceControl, sourceControl);
         assertNotEquals(sourceControl, null);
         assertNotEquals(sourceControl, new User());
-        assertNotEquals(sourceControl, new Coverage());
+        assertNotEquals(sourceControl, new SourceControl());
         assertEquals(sourceControl, sourceControl2);
 
         sourceControl2.setBaseUrl("http://fizz.bang");

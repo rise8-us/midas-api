@@ -135,18 +135,13 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
                 () -> new EntityNotFoundException(Product.class.getSimpleName(), "name", name));
     }
 
-    public List<Product> getAll() {
-        return repository.findAll();
-    }
-
     public boolean validateUniqueSourceControlAndGitlabGroup(AppGroupDTO appGroupDTO) {
         Integer gitlabGroupIdToCheck = appGroupDTO.getGitlabGroupId();
         Long sourceControlIdToCheck = appGroupDTO.getSourceControlId();
         String nameToCheck = appGroupDTO.getName();
-        List<Product> allProducts = getAll().stream()
-                .filter(p ->
-                        !p.getName().equals(nameToCheck) && p.getGitlabGroupId() != null && p.getSourceControl() != null
-                ).collect(Collectors.toList());
+        List<Product> allProducts = getAll().stream().filter(p ->
+                !p.getName().equals(nameToCheck) && p.getGitlabGroupId() != null && p.getSourceControl() != null
+        ).collect(Collectors.toList());
 
         for (Product product : allProducts) {
             Integer groupId = product.getGitlabGroupId();

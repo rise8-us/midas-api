@@ -1,9 +1,6 @@
 package mil.af.abms.midas.api.gantt.milestone;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
@@ -50,7 +47,7 @@ public class MilestoneTests {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Milestone.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(6);
+        assertThat(fields).hasSize(6);
     }
 
     @Test
@@ -67,12 +64,11 @@ public class MilestoneTests {
         Milestone milestone2 = new Milestone();
         BeanUtils.copyProperties(milestone, milestone2);
 
-        assertEquals(milestone, milestone);
-        assertNotEquals(null, milestone);
-        assertNotEquals(milestone, new User());
-        assertNotEquals(milestone, new Milestone());
-        assertEquals(milestone, milestone2);
-        assertFalse(milestone.equals(null));
+        assertThat(milestone).isEqualTo(milestone);
+        assertThat(milestone).isNotNull();
+        assertThat(milestone).isNotEqualTo(new User());
+        assertThat(milestone).isNotSameAs(new Milestone());
+        assertThat(milestone).isEqualTo(milestone2);
     }
 
     @Test

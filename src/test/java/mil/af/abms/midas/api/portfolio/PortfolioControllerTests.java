@@ -88,7 +88,7 @@ public class PortfolioControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_create() throws Exception {
+    void should_create() throws Exception {
         when(portfolioService.findByName(createPortfolioDTO.getName())).thenThrow(EntityNotFoundException.class);
         when(portfolioService.create(any(CreatePortfolioDTO.class))).thenReturn(portfolio);
         when(sourceControlService.findByIdOrNull(any())).thenReturn(null);
@@ -104,7 +104,7 @@ public class PortfolioControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_updateById() throws Exception {
+    void should_updateById() throws Exception {
         when(portfolioService.findByName(updatePortfolioDTO.getName())).thenReturn(portfolio);
         when(portfolioService.findById(anyLong())).thenReturn(portfolio);
         when(portfolioService.updateById(anyLong(), any(UpdatePortfolioDTO.class))).thenReturn(portfolio);
@@ -121,7 +121,7 @@ public class PortfolioControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_updateIsArchivedById() throws Exception {
+    void should_updateIsArchivedById() throws Exception {
         IsArchivedDTO isArchivedDTO = Builder.build(IsArchivedDTO.class)
                 .with(d -> d.setIsArchived(true))
                 .get();
@@ -141,7 +141,7 @@ public class PortfolioControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_get_sprint_metrics() throws Exception {
+    void should_get_sprint_metrics() throws Exception {
         SprintProductMetricsDTO dto = new SprintProductMetricsDTO(LocalDate.parse("2022-06-16"), 100L, 60);
         HashMap<Long, List<SprintProductMetricsDTO>> metricsMap = new HashMap<>();
         metricsMap.put(1L, List.of(dto));

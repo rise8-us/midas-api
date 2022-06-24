@@ -88,4 +88,8 @@ public abstract class AbstractCRUDService<E extends AbstractEntity<D>, D extends
         return entities.stream().map(AbstractEntity::toDto).collect(Collectors.toList());
     }
 
+    public List<E> getAll() {
+        return repository.findAll();
+    }
+
 }

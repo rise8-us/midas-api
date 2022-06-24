@@ -270,7 +270,7 @@ class ProjectServiceTests {
 
         when(repository.findById(1L)).thenReturn(Optional.of(this.project));
 
-        Project project = projectService.archive(1L, archiveProjectDTO);
+        projectService.archive(1L, archiveProjectDTO);
 
         verify(repository).save(captor.capture());
         Project projectCaptured = captor.getValue();
@@ -285,7 +285,7 @@ class ProjectServiceTests {
 
         when(repository.findById(1L)).thenReturn(Optional.of(this.project));
 
-        Project project = projectService.archive(1L, archiveProjectDTO);
+        projectService.archive(1L, archiveProjectDTO);
 
         verify(repository).save(captor.capture());
         Project projectCaptured = captor.getValue();

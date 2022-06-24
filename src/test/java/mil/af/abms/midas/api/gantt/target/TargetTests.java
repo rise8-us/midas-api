@@ -1,9 +1,6 @@
 package mil.af.abms.midas.api.gantt.target;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
@@ -53,7 +50,7 @@ class TargetTests {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Target.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(TargetDTO.class.getDeclaredFields().length + ENTITY_DTO_FIELD_OFFSET);
+        assertThat(fields).hasSize(TargetDTO.class.getDeclaredFields().length + ENTITY_DTO_FIELD_OFFSET);
     }
 
     @Test
@@ -71,12 +68,11 @@ class TargetTests {
         Target target2 = new Target();
         BeanUtils.copyProperties(target, target2);
 
-        assertEquals(target, target);
-        assertNotEquals(null, target);
-        assertNotEquals(target, new User());
-        assertNotEquals(target, new Target());
-        assertEquals(target, target2);
-        assertFalse(target.equals(null));
+        assertThat(target).isEqualTo(target);
+        assertThat(target).isNotNull();
+        assertThat(target).isNotEqualTo(new User());
+        assertThat(target).isNotSameAs(new Target());
+        assertThat(target).isEqualTo(target2);
     }
 
     @Test

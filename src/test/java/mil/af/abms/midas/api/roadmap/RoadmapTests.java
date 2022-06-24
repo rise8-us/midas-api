@@ -1,8 +1,6 @@
 package mil.af.abms.midas.api.roadmap;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
@@ -50,7 +48,7 @@ class RoadmapTests {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Roadmap.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(RoadmapDTO.class.getDeclaredFields().length);
+        assertThat(fields).hasSize(RoadmapDTO.class.getDeclaredFields().length);
     }
 
     @Test
@@ -58,11 +56,11 @@ class RoadmapTests {
         Roadmap roadmap2 = new Roadmap();
         BeanUtils.copyProperties(roadmap, roadmap2);
 
-        assertTrue(roadmap.equals(roadmap));
-        assertFalse(roadmap.equals(null));
-        assertFalse(roadmap.equals(new User()));
-        assertFalse(roadmap.equals(new Roadmap()));
-        assertTrue(roadmap.equals(roadmap2));
+        assertThat(roadmap).isEqualTo(roadmap);
+        assertThat(roadmap).isNotNull();
+        assertThat(roadmap).isNotEqualTo(new User());
+        assertThat(roadmap).isNotSameAs(new Roadmap());
+        assertThat(roadmap).isEqualTo(roadmap2);
     }
 
     @Test

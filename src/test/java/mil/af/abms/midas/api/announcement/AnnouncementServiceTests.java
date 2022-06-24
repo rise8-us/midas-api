@@ -28,7 +28,7 @@ import mil.af.abms.midas.api.user.UserRepository;
 
 @ExtendWith(SpringExtension.class)
 @Import(AnnouncementService.class)
-public class AnnouncementServiceTests {
+class AnnouncementServiceTests {
 
     @Autowired
     private AnnouncementService announcementService;
@@ -57,7 +57,7 @@ public class AnnouncementServiceTests {
             .with(a -> a.setCreationDate(LocalDateTime.now().minusDays(11L))).get();
 
     @Test
-    public void should_create_announcement() {
+    void should_create_announcement() {
         CreateAnnouncementDTO createAnnouncementDTO = Builder.build(CreateAnnouncementDTO.class)
                 .with(d -> d.setMessage("This is my announcement")).get();
 
@@ -70,7 +70,7 @@ public class AnnouncementServiceTests {
     }
 
     @Test
-    public void should_update_announcement() {
+    void should_update_announcement() {
         UpdateAnnouncementDTO updateAnnouncementDTO = Builder.build(UpdateAnnouncementDTO.class)
                 .with(d -> d.setMessage("updated announcement")).get();
 
@@ -84,7 +84,7 @@ public class AnnouncementServiceTests {
     }
 
     @Test
-    public void should_return_unseen_announcements() {
+    void should_return_unseen_announcements() {
         User user = Builder.build(User.class).with(u -> u.setId(1L)).get();
         when(userRepository.save(any())).thenReturn(new User());
         when(announcementRepository.findAnnouncementsNewerThan(any())).thenReturn(List.of(newAnnouncement));
@@ -101,7 +101,7 @@ public class AnnouncementServiceTests {
     }
 
     @Test
-    public void should_return_announcements_within_30_days() throws Exception {
+    void should_return_announcements_within_30_days() throws Exception {
         Class[] clazz = new Class[2];
         clazz[0] = LocalDateTime.class;
         clazz[1] = Long.class;

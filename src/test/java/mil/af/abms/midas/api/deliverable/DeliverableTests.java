@@ -1,8 +1,8 @@
 package mil.af.abms.midas.api.deliverable;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.lang.reflect.Field;
 import java.util.LinkedList;
@@ -53,7 +53,7 @@ class DeliverableTests {
     void should_have_all_deliverableDTO_fields() {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Deliverable.class, fields::add);
-        assertThat(fields.size()).isEqualTo(DeliverableDTO.class.getDeclaredFields().length);
+        assertThat(fields).hasSize(DeliverableDTO.class.getDeclaredFields().length);
     }
 
     @Test
@@ -61,11 +61,11 @@ class DeliverableTests {
         Deliverable deliverable2 = new Deliverable();
         BeanUtils.copyProperties(deliverable, deliverable2);
 
-        assertTrue(deliverable.equals(deliverable));
-        assertFalse(deliverable.equals(null));
-        assertFalse(deliverable.equals(new User()));
-        assertFalse(deliverable.equals(new Deliverable()));
-        assertTrue(deliverable.equals(deliverable2));
+        assertEquals(deliverable, deliverable);
+        assertNotEquals(deliverable, null);
+        assertNotEquals(deliverable, new User());
+        assertNotEquals(deliverable, new Deliverable());
+        assertEquals(deliverable, deliverable2);
     }
 
     @Test

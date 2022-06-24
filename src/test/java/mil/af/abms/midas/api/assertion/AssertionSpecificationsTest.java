@@ -1,6 +1,6 @@
 package mil.af.abms.midas.api.assertion;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.lang.reflect.Constructor;
@@ -62,12 +62,12 @@ class AssertionSpecificationsTest extends RepositoryTestHarness {
     @Test
     void should_find_by_product_id() throws EntityNotFoundException {
         List<Assertion> assertions = assertionRepository.findAll(AssertionSpecifications.hasProductId(savedProduct.getId()));
-        assertThat(assertions.size()).isEqualTo(1);
+        assertThat(assertions).hasSize(1);
     }
 
     @Test
     void should_find_by_status() throws EntityNotFoundException {
         List<Assertion> assertions = assertionRepository.findAll(AssertionSpecifications.hasStatus(ProgressionStatus.COMPLETED));
-        assertThat(assertions.size()).isEqualTo(1);
+        assertThat(assertions).hasSize(1);
     }
 }

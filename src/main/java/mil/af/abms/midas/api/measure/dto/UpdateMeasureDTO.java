@@ -7,13 +7,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import mil.af.abms.midas.api.AbstractDTO;
 import mil.af.abms.midas.api.completion.dto.UpdateCompletionDTO;
 import mil.af.abms.midas.enums.ProgressionStatus;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateMeasureDTO {
+public class UpdateMeasureDTO implements AbstractDTO {
 
     @NotBlank(message = "Text must not be blank")
     private String text;

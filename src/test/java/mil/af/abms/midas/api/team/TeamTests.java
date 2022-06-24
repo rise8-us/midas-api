@@ -1,6 +1,6 @@
 package mil.af.abms.midas.api.team;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -43,7 +43,7 @@ class TeamTests {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Team.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(TeamDTO.class.getDeclaredFields().length + 1);
+        assertThat(fields).hasSize(TeamDTO.class.getDeclaredFields().length + 1);
     }
 
     @Test

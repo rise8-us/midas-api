@@ -42,7 +42,7 @@ public class GitLabIssue {
 
     @JsonProperty("epic")
     private void unpackNestedEpic(Map<String, Object> epic) {
-        Optional.ofNullable(epic).ifPresentOrElse(e -> { this.epicIid = (Integer) e.get("iid"); }, () -> this.epicIid = null);
+        Optional.ofNullable(epic).ifPresentOrElse(e -> this.epicIid = (Integer) e.get("iid"), () -> this.epicIid = null);
     }
 
     @JsonProperty("labels")
