@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,19 +39,15 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 @Service
 public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDTO, PortfolioRepository> {
 
+    private CapabilityService capabilityService;
     private PersonnelService personnelService;
     private ProductService productService;
     private SourceControlService sourceControlService;
-    private CapabilityService capabilityService;
     private UserService userService;
 
-    public PortfolioService(PortfolioRepository repository) {
-        super(repository, Portfolio.class, PortfolioDTO.class);
-    }
-
     @Autowired
-    public void setSourceControlService(SourceControlService sourceControlService) {
-        this.sourceControlService = sourceControlService;
+    public void setCapabilityService(CapabilityService capabilityService) {
+        this.capabilityService = capabilityService;
     }
 
     @Autowired
@@ -64,13 +61,17 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
     }
 
     @Autowired
-    public void setCapabilityService(CapabilityService capabilityService) {
-        this.capabilityService = capabilityService;
+    public void setSourceControlService(SourceControlService sourceControlService) {
+        this.sourceControlService = sourceControlService;
     }
 
     @Autowired
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    public PortfolioService(PortfolioRepository repository) {
+        super(repository, Portfolio.class, PortfolioDTO.class);
     }
 
     @Transactional
@@ -144,10 +145,6 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
                 () -> new EntityNotFoundException(Product.class.getSimpleName(), "name", name));
     }
 
-    public List<Portfolio> getAll() {
-        return repository.findAll();
-    }
-
     public boolean validateUniqueSourceControlAndGitlabGroup(AppGroupDTO appGroupDTO) {
         Integer gitlabGroupIdToCheck = appGroupDTO.getGitlabGroupId();
         Long sourceControlIdToCheck = appGroupDTO.getSourceControlId();
@@ -166,7 +163,7 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
         return true;
     }
 
-    public HashMap<Long, List<SprintProductMetricsDTO>> getSprintMetrics(Long id, LocalDate startDate, Integer duration, Integer sprints) {
+    public Map<Long, List<SprintProductMetricsDTO>> getSprintMetrics(Long id, LocalDate startDate, Integer duration, Integer sprints) {
         Portfolio foundPortfolio = findById(id);
         List<Product> allProducts = new ArrayList<>(foundPortfolio.getProducts());
         HashMap<Long, List<SprintProductMetricsDTO>> metricsMap = new HashMap<>();

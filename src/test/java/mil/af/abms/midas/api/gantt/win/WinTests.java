@@ -1,9 +1,6 @@
 package mil.af.abms.midas.api.gantt.win;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
@@ -50,7 +47,7 @@ public class WinTests {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Win.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(6);
+        assertThat(fields).hasSize(6);
     }
 
     @Test
@@ -67,12 +64,11 @@ public class WinTests {
         Win win2 = new Win();
         BeanUtils.copyProperties(win, win2);
 
-        assertEquals(win, win);
-        assertNotEquals(null, win);
-        assertNotEquals(win, new User());
-        assertNotEquals(win, new Win());
-        assertEquals(win, win2);
-        assertFalse(win.equals(null));
+        assertThat(win).isEqualTo(win);
+        assertThat(win).isNotNull();
+        assertThat(win).isNotEqualTo(new User());
+        assertThat(win).isNotSameAs(new Win());
+        assertThat(win).isEqualTo(win2);
     }
 
     @Test

@@ -1,8 +1,7 @@
 package mil.af.abms.midas.api.assertion;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -57,7 +56,7 @@ class AssertionTests {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Assertion.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(AssertionDTO.class.getDeclaredFields().length);
+        assertThat(fields).hasSize(AssertionDTO.class.getDeclaredFields().length);
     }
 
     @Test
@@ -79,11 +78,10 @@ class AssertionTests {
         BeanUtils.copyProperties(assertion, assertion2);
 
         assertEquals(assertion, assertion);
-        assertNotEquals(null, assertion);
+        assertNotEquals(assertion, null);
         assertNotEquals(assertion, new User());
         assertNotEquals(assertion, new Assertion());
         assertEquals(assertion, assertion2);
-        assertFalse(assertion.equals(null));
     }
 
     @Test

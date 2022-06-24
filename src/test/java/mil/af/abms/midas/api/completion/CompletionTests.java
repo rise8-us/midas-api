@@ -1,8 +1,6 @@
 package mil.af.abms.midas.api.completion;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
@@ -13,6 +11,7 @@ import java.util.List;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.ReflectionUtils;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.completion.dto.CompletionDTO;
@@ -57,11 +56,11 @@ class CompletionTests {
         Completion completion2 = new Completion();
         BeanUtils.copyProperties(completion, completion2);
 
-        assertEquals(completion, completion);
-        assertNotEquals(completion, null);
-        assertNotEquals(completion, new User());
-        assertNotEquals(completion, new Completion());
-        assertEquals(completion, completion2);
+        Assertions.assertThat(completion).isEqualTo(completion);
+        Assertions.assertThat(completion).isNotNull();
+        Assertions.assertThat(completion).isNotEqualTo(new User());
+        Assertions.assertThat(completion).isNotSameAs(new Completion());
+        Assertions.assertThat(completion).isEqualTo(completion2);
     }
 
     @Test

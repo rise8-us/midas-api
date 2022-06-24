@@ -1,8 +1,6 @@
 package mil.af.abms.midas.api.announcement;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
@@ -15,10 +13,10 @@ import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.announcement.dto.AnnouncementDTO;
 import mil.af.abms.midas.api.helper.Builder;
-import mil.af.abms.midas.api.team.Team;
+import mil.af.abms.midas.api.user.User;
 
 
-public class AnnouncementTests {
+class AnnouncementTests {
 
     private static final LocalDateTime CREATION_DATE = LocalDateTime.now();
 
@@ -32,34 +30,34 @@ public class AnnouncementTests {
             .with(a -> a.setMessage("This is an announcement")).get();
 
     @Test
-    public void should_get_and_set_property() {
+    void should_get_and_set_property() {
         assertThat(announcement.getId()).isEqualTo(1L);
         assertThat(announcement.getCreationDate()).isEqualTo(CREATION_DATE);
         assertThat(announcement.getMessage()).isEqualTo("This is an announcement");
     }
 
     @Test
-    public void should_convert_to_dto() {
+    void should_convert_to_dto() {
         assertThat(announcement.toDto()).isEqualTo(announcementDTO);
     }
 
     @Test
-    public void should_be_equal() {
+    void should_be_equal() {
         Announcement announcement2 = Builder.build(Announcement.class)
                 .with(u -> u.setMessage("This is an announcement")).get();
 
-        assertTrue(announcement.equals(announcement));
-        assertFalse(announcement.equals(null));
-        assertFalse(announcement.equals(new Team()));
-        assertFalse(announcement.equals(new Announcement()));
-        assertTrue(announcement.equals(announcement2));
+        assertThat(announcement).isEqualTo(announcement);
+        assertThat(announcement).isNotNull();
+        assertThat(announcement).isNotEqualTo(new User());
+        assertThat(announcement).isNotSameAs(new Announcement());
+        assertThat(announcement).isEqualTo(announcement2);
     }
 
     @Test
-    public void should_contain_same_number_of_fields_as_dto() {
+    void should_contain_same_number_of_fields_as_dto() {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(announcement.getClass(), fields::add);
-        assertThat(fields.size()).isEqualTo(AnnouncementDTO.class.getDeclaredFields().length);
+        assertThat(fields).hasSize(AnnouncementDTO.class.getDeclaredFields().length);
     }
 
 }

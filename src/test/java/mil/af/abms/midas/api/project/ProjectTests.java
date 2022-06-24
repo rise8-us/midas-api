@@ -97,7 +97,7 @@ public class ProjectTests {
         assertThat(expectedProject.getDescription()).isEqualTo("testDescription");
         assertThat(expectedProject.getProjectJourneyMap()).isEqualTo(0L);
         assertTrue(expectedProject.getIsArchived());
-        assertThat(expectedProject.getGitlabProjectId()).isEqualTo(2L);
+        assertThat(expectedProject.getGitlabProjectId()).isEqualTo(2);
         assertThat(expectedProject.getSourceControl()).isEqualTo(sourceControl);
         assertThat(expectedProject.getCreationDate()).isEqualTo(CREATION_DATE);
     }

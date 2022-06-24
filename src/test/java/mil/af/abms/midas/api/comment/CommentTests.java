@@ -1,6 +1,6 @@
 package mil.af.abms.midas.api.comment;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -50,7 +50,7 @@ class CommentTests {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Comment.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(CommentDTO.class.getDeclaredFields().length + ENTITY_DTO_FIELD_OFFSET);
+        assertThat(fields).hasSize(CommentDTO.class.getDeclaredFields().length + ENTITY_DTO_FIELD_OFFSET);
     }
 
     @Test

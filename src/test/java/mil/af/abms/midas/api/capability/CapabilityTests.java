@@ -1,8 +1,7 @@
 package mil.af.abms.midas.api.capability;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.lang.reflect.Field;
@@ -44,7 +43,7 @@ public class CapabilityTests {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Capability.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(CapabilityDTO.class.getDeclaredFields().length);
+        assertThat(fields).hasSize(CapabilityDTO.class.getDeclaredFields().length);
     }
 
     @Test
@@ -53,11 +52,10 @@ public class CapabilityTests {
         BeanUtils.copyProperties(capability, capability2);
 
         assertEquals(capability, capability);
-        assertNotEquals(null, capability);
+        assertNotEquals(capability, null);
         assertNotEquals(capability, new User());
         assertNotEquals(capability, new Capability());
         assertEquals(capability, capability2);
-        assertFalse(capability.equals(null));
     }
 
     @Test
@@ -65,7 +63,7 @@ public class CapabilityTests {
         assertThat(capability.getId()).isEqualTo(1L);
         assertThat(capability.getTitle()).isEqualTo("title");
         assertThat(capability.getDescription()).isEqualTo("description");
-        assertThat(capability.getReferenceId()).isEqualTo(0);
+        assertThat(capability.getReferenceId()).isZero();
     }
 
     @Test

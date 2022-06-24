@@ -38,11 +38,6 @@ public class CommentService extends AbstractCRUDService<Comment, CommentDTO, Com
     private MeasureService measureService;
     private final SimpMessageSendingOperations websocket;
 
-    public CommentService(CommentRepository repository, SimpMessageSendingOperations websocket) {
-        super(repository, Comment.class, CommentDTO.class);
-        this.websocket = websocket;
-    }
-
     @Autowired
     public void setUserService(UserService userService) { this.userService = userService; }
 
@@ -51,6 +46,11 @@ public class CommentService extends AbstractCRUDService<Comment, CommentDTO, Com
 
     @Autowired
     public void setMeasureService(MeasureService measureService) { this.measureService = measureService; }
+
+    public CommentService(CommentRepository repository, SimpMessageSendingOperations websocket) {
+        super(repository, Comment.class, CommentDTO.class);
+        this.websocket = websocket;
+    }
 
     @Transactional
     public Comment create(CreateCommentDTO dto, Boolean isSystemGenerated) {
@@ -70,6 +70,7 @@ public class CommentService extends AbstractCRUDService<Comment, CommentDTO, Com
         return savedComment;
     }
 
+    @Transactional
     public void createSystemComment(Long assertionId, Long measureId, String text) {
         var userName = userService.getUserDisplayNameOrUsername();
         create(new CreateCommentDTO(

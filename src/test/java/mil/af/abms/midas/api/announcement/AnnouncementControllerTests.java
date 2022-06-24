@@ -25,7 +25,7 @@ import mil.af.abms.midas.api.announcement.dto.UpdateAnnouncementDTO;
 import mil.af.abms.midas.api.helper.Builder;
 
 @WebMvcTest({AnnouncementController.class})
-public class AnnouncementControllerTests extends ControllerTestHarness {
+class AnnouncementControllerTests extends ControllerTestHarness {
     
     @MockBean
     private AnnouncementService announcementService;
@@ -36,12 +36,12 @@ public class AnnouncementControllerTests extends ControllerTestHarness {
             .with(a -> a.setMessage("Test Me")).get();
     
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         when(userService.findByKeycloakUid(any())).thenReturn(Optional.of(authUser));
     }
 
     @Test
-    public void should_create_announcement() throws Exception {
+    void should_create_announcement() throws Exception {
         CreateAnnouncementDTO createAnnouncementDTO = Builder.build(CreateAnnouncementDTO.class)
                 .with(c -> c.setMessage("Test Me")).get();
 
@@ -57,7 +57,7 @@ public class AnnouncementControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_throw_error_when_message_is_empty_on_create_announcement() throws Exception {
+    void should_throw_error_when_message_is_empty_on_create_announcement() throws Exception {
         mockMvc.perform(post("/api/announcements")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(mapper.writeValueAsString(new CreateAnnouncementDTO()))
@@ -68,7 +68,7 @@ public class AnnouncementControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_update_announcement_by_id() throws Exception {
+    void should_update_announcement_by_id() throws Exception {
         UpdateAnnouncementDTO updateAnnouncementDTO = Builder.build(UpdateAnnouncementDTO.class)
                 .with(d -> d.setMessage("Diff test")).get();
         Announcement expectedAnnouncement = new Announcement();
@@ -87,7 +87,7 @@ public class AnnouncementControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_throw_error_when_message_is_empty_on_update_announcement() throws Exception {
+    void should_throw_error_when_message_is_empty_on_update_announcement() throws Exception {
         mockMvc.perform(put("/api/announcements/1")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(mapper.writeValueAsString(new UpdateAnnouncementDTO()))

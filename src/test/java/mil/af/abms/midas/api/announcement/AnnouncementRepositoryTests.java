@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import mil.af.abms.midas.api.RepositoryTestHarness;
 import mil.af.abms.midas.api.helper.Builder;
 
-public class AnnouncementRepositoryTests extends RepositoryTestHarness {
+class AnnouncementRepositoryTests extends RepositoryTestHarness {
 
     @Autowired
     AnnouncementRepository announcementRepository;
@@ -20,7 +20,7 @@ public class AnnouncementRepositoryTests extends RepositoryTestHarness {
     private static final LocalDateTime NOW = LocalDateTime.now();
 
     @Test
-    public void should_find_unseen_announcements_for_user() {
+    void should_find_unseen_announcements_for_user() {
         Announcement announcement1 = Builder.build(Announcement.class)
                 .with(a -> a.setMessage("foo"))
                 .with(a -> a.setCreationDate(NOW))
@@ -35,6 +35,6 @@ public class AnnouncementRepositoryTests extends RepositoryTestHarness {
         entityManager.flush();
 
         List<Announcement> a = announcementRepository.findAnnouncementsNewerThan(NOW.minusDays(10L));
-        assertThat(a.size()).isEqualTo(1L);
+        assertThat(a).hasSize(1);
     }
 }

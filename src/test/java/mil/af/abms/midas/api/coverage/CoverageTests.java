@@ -1,8 +1,6 @@
 package mil.af.abms.midas.api.coverage;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.lang.reflect.Field;
 import java.util.LinkedList;
@@ -60,7 +58,7 @@ class CoverageTests {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Coverage.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(CoverageDTO.class.getDeclaredFields().length);
+        assertThat(fields).hasSize(CoverageDTO.class.getDeclaredFields().length);
     }
 
     @Test
@@ -83,11 +81,11 @@ class CoverageTests {
         Coverage coverage2 = new Coverage();
         BeanUtils.copyProperties(coverage, coverage2);
 
-        assertEquals(coverage, coverage);
-        assertNotEquals(coverage, null);
-        assertNotEquals(coverage, new User());
-        assertNotEquals(coverage, new Coverage());
-        assertEquals(coverage, coverage2);
+        assertThat(coverage).isEqualTo(coverage);
+        assertThat(coverage).isNotNull();
+        assertThat(coverage).isNotEqualTo(new User());
+        assertThat(coverage).isNotSameAs(new Coverage());
+        assertThat(coverage).isEqualTo(coverage2);
     }
 
 }

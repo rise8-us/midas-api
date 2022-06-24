@@ -1,6 +1,6 @@
 package mil.af.abms.midas.api.tag;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.util.ReflectionUtils;
 
 import org.junit.jupiter.api.Test;
@@ -43,7 +44,7 @@ public class TagTests {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Tag.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(TagDTO.class.getDeclaredFields().length + ENTITY_DTO_FIELD_OFFSET);
+        assertThat(fields).hasSize(TagDTO.class.getDeclaredFields().length + ENTITY_DTO_FIELD_OFFSET);
     }
 
     @Test
@@ -62,8 +63,8 @@ public class TagTests {
 
     @Test
     public void should_be_equal() {
-        Tag tag2 = Builder.build(Tag.class)
-                .with(p -> p.setLabel("tag test")).get();
+        Tag tag2 = new Tag();
+        BeanUtils.copyProperties(tag, tag2);
 
         assertEquals(tag, tag);
         assertNotEquals(tag, null);
