@@ -37,7 +37,7 @@ import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @WebMvcTest({PortfolioController.class})
-public class PortfolioControllerTests extends ControllerTestHarness {
+class PortfolioControllerTests extends ControllerTestHarness {
 
     @MockBean
     PortfolioService portfolioService;

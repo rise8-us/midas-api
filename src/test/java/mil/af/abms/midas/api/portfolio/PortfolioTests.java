@@ -1,6 +1,6 @@
 package mil.af.abms.midas.api.portfolio;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -27,7 +27,7 @@ import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.dto.BasicUserDTO;
 import mil.af.abms.midas.enums.UserType;
 
-public class PortfolioTests {
+class PortfolioTests {
 
     private final LocalDateTime today = LocalDateTime.now();
     private final LocalDate currentDate = LocalDate.now();
@@ -95,7 +95,7 @@ public class PortfolioTests {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Portfolio.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(PortfolioDTO.class.getDeclaredFields().length);
+        assertThat(fields).hasSize(PortfolioDTO.class.getDeclaredFields().length);
     }
 
     @Test

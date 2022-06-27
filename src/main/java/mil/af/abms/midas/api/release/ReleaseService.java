@@ -8,10 +8,12 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
+import mil.af.abms.midas.api.dtos.PaginationProgressDTO;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.project.Project;
@@ -24,19 +26,18 @@ import mil.af.abms.midas.enums.SyncStatus;
 @Service
 public class ReleaseService extends AbstractCRUDService<Release, ReleaseDTO, ReleaseRepository> {
 
-    private ProjectService projectService;
     private ProductService productService;
-
-    @Autowired
-    public void setProjectService(ProjectService projectService) {
-        this.projectService = projectService;
-    }
+    private ProjectService projectService;
+    private final SimpMessageSendingOperations websocket;
 
     @Autowired
     public void setProductService(ProductService productService) { this.productService = productService; }
+    @Autowired
+    public void setProjectService(ProjectService projectService) { this.projectService = projectService; }
 
-    public ReleaseService(ReleaseRepository repository) {
+    public ReleaseService(ReleaseRepository repository, SimpMessageSendingOperations websocket) {
         super(repository, Release.class, ReleaseDTO.class);
+        this.websocket = websocket;
     }
 
     @Scheduled(cron = "0 0 0 * * *")
@@ -74,7 +75,8 @@ public class ReleaseService extends AbstractCRUDService<Release, ReleaseDTO, Rel
     public Set<Release> gitlabReleaseSync(Project project) {
         if (!hasGitlabDetails(project)) { return Set.of(); }
 
-        projectService.updateReleaseSyncStatus(project.getId(), SyncStatus.SYNCING);
+        PaginationProgressDTO paginationProgressDTO = new PaginationProgressDTO();
+        paginationProgressDTO.setId(project.getId());
 
         GitLab4JClient client = getGitlabClient(project);
         int totalPageCount = client.getTotalReleasesPages(project.getGitlabProjectId());
@@ -84,11 +86,12 @@ public class ReleaseService extends AbstractCRUDService<Release, ReleaseDTO, Rel
             List<GitLabRelease> pagedGitlabReleases = client.fetchGitLabReleasesByPage(project.getGitlabProjectId(), i);
             Set<Release> processedReleases = processReleases(pagedGitlabReleases, project);
             allReleases.addAll(processedReleases);
+
+            if (i == totalPageCount) { paginationProgressDTO.setStatus(SyncStatus.SYNCED); }
+            websocket.convertAndSend("/topic/fetchGitlabReleasesPagination", paginationProgressDTO);
         }
 
         removeAllUntrackedReleases(project.getId(), allReleases);
-
-        projectService.updateReleaseSyncStatus(project.getId(), SyncStatus.SYNCED);
 
         return allReleases;
     }

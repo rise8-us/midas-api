@@ -46,25 +46,17 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
     private UserService userService;
 
     @Autowired
-    public void setCapabilityService(CapabilityService capabilityService) {
-        this.capabilityService = capabilityService;
-    }
-
+    public void setCapabilityService(CapabilityService capabilityService) { this.capabilityService = capabilityService; }
     @Autowired
     public void setPersonnelService(PersonnelService personnelService) {
         this.personnelService = personnelService;
     }
-
     @Autowired
     public void setProductService(ProductService productService) {
         this.productService = productService;
     }
-
     @Autowired
-    public void setSourceControlService(SourceControlService sourceControlService) {
-        this.sourceControlService = sourceControlService;
-    }
-
+    public void setSourceControlService(SourceControlService sourceControlService) { this.sourceControlService = sourceControlService; }
     @Autowired
     public void setUserService(UserService userService) {
         this.userService = userService;
@@ -72,6 +64,15 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
 
     public PortfolioService(PortfolioRepository repository) {
         super(repository, Portfolio.class, PortfolioDTO.class);
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void setSprintStartDate() {
+        for (Portfolio portfolio : getAll()) {
+            if (portfolio.getIsArchived() == Boolean.FALSE) {
+                compareSprintStartDateWithCurrentDate(portfolio);
+            }
+        }
     }
 
     @Transactional
@@ -182,14 +183,4 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
             repository.save(portfolio);
         }
     }
-
-    @Scheduled(cron = "0 0 0 * * *")
-    public void setSprintStartDate() {
-        for (Portfolio portfolio : getAll()) {
-            if (portfolio.getIsArchived() == Boolean.FALSE) {
-                compareSprintStartDateWithCurrentDate(portfolio);
-            }
-        }
-    }
-
 }

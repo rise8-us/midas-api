@@ -39,7 +39,7 @@ import mil.af.abms.midas.clients.gitlab.models.GitLabProject;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @WebMvcTest({ProjectController.class})
-public class ProjectControllerTests extends ControllerTestHarness {
+class ProjectControllerTests extends ControllerTestHarness {
 
     @MockBean
     private ProjectService projectService;
@@ -86,12 +86,12 @@ public class ProjectControllerTests extends ControllerTestHarness {
             .get();
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         when(userService.findByKeycloakUid(any())).thenReturn(Optional.of(authUser));
     }
 
     @Test
-    public void should_create_project() throws Exception {
+    void should_create_project() throws Exception {
         CreateProjectDTO createProjectDTO = new CreateProjectDTO(NAME, GITLAB_PROJECT_ID, 33L, Set.of(3L), DESCRIPTION, null, 42L);
 
         when(projectService.findByName(NAME)).thenThrow(EntityNotFoundException.class);
@@ -110,7 +110,7 @@ public class ProjectControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_create_from_gitlab() throws Exception {
+    void should_create_from_gitlab() throws Exception {
         doReturn(project).when(projectService).createFromGitlab(any());
 
         mockMvc.perform(post("/api/projects/from_gitlab")
@@ -121,7 +121,7 @@ public class ProjectControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_sync_from_gitlab() throws Exception {
+    void should_sync_from_gitlab() throws Exception {
         doReturn(project).when(projectService).syncProjectWithGitlab(any());
 
         mockMvc.perform(get("/api/projects/sync/42")
@@ -132,7 +132,7 @@ public class ProjectControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_update_project() throws Exception {
+    void should_update_project() throws Exception {
         UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5, 0L, Set.of(tag.getId()), "", 1L, null);
 
         when(teamService.existsById(any())).thenReturn(true);
@@ -152,7 +152,7 @@ public class ProjectControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_throw_team_exists_exception_on_update_project_team() throws Exception {
+    void should_throw_team_exists_exception_on_update_project_team() throws Exception {
         UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5, 1L, Set.of(tag.getId()), "", 1L, null);
 
         when(projectService.findByName(NAME)).thenReturn(project);
@@ -170,7 +170,7 @@ public class ProjectControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_throw_unique_name_exception_on_project() throws Exception {
+    void should_throw_unique_name_exception_on_project() throws Exception {
         UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(NAME, 5, 0L, Set.of(tag.getId()), "false", 1L, null);
         Project diffProjectSameName = new Project();
         BeanUtils.copyProperties(project, diffProjectSameName);
@@ -191,7 +191,7 @@ public class ProjectControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_update_project_journey_map() throws Exception {
+    void should_update_project_journey_map() throws Exception {
         UpdateProjectJourneyMapDTO updateJourneyMapDTO = Builder.build(UpdateProjectJourneyMapDTO.class)
                 .with(p -> p.setProjectJourneyMap(1L)).get();
         ProjectDTO updateProjectDTO = project.toDto();
@@ -209,7 +209,7 @@ public class ProjectControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_update_project_is_archived_true() throws Exception {
+    void should_update_project_is_archived_true() throws Exception {
         Project projectArchived = new Project();
         BeanUtils.copyProperties(project, projectArchived);
         projectArchived.setIsArchived(true);
@@ -230,7 +230,7 @@ public class ProjectControllerTests extends ControllerTestHarness {
     }
 
     @Test
-    public void should_update_project_is_archived_false() throws Exception {
+    void should_update_project_is_archived_false() throws Exception {
         Project projectArchived = new Project();
         BeanUtils.copyProperties(project, projectArchived);
         projectArchived.setIsArchived(false);

@@ -194,7 +194,6 @@ public class IssueServiceTests {
         when(productService.findById(anyLong())).thenReturn(foundProduct);
         doReturn(Set.of(foundIssue)).when(issueService).gitlabIssueSync(any());
         doReturn(true).when(issueService).hasGitlabDetails(any());
-        doNothing().when(projectService).updateIssueSyncStatus(anyLong(), any());
         doReturn(gitLab4JClient).when(issueService).getGitlabClient(any());
         doReturn(1).when(gitLab4JClient).getTotalIssuesPages(anyInt());
         doReturn(Set.of(foundIssue)).when(issueService).processIssues(anyList(), any());

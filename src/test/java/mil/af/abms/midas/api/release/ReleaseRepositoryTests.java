@@ -11,7 +11,7 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
-public class ReleaseRepositoryTests extends RepositoryTestHarness {
+class ReleaseRepositoryTests extends RepositoryTestHarness {
 
     @Autowired
     ReleaseRepository releaseRepository;

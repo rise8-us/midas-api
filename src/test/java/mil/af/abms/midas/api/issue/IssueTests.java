@@ -1,6 +1,6 @@
 package mil.af.abms.midas.api.issue;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -19,7 +19,7 @@ import mil.af.abms.midas.api.issue.dto.IssueDTO;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.user.User;
 
-public class IssueTests {
+class IssueTests {
 
     private static final int ENTITY_DTO_FIELD_OFFSET = 1;
 
@@ -45,7 +45,7 @@ public class IssueTests {
     void should_have_all_issueDTO_fields() {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Issue.class, fields::add);
-        assertThat(fields.size()).isEqualTo(IssueDTO.class.getDeclaredFields().length + ENTITY_DTO_FIELD_OFFSET);
+        assertThat(fields).hasSize(IssueDTO.class.getDeclaredFields().length + ENTITY_DTO_FIELD_OFFSET);
     }
 
     @Test

@@ -2,8 +2,6 @@ package mil.af.abms.midas.api.project;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -29,7 +27,6 @@ import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.user.User;
-import mil.af.abms.midas.enums.SyncStatus;
 
 @Entity @Getter @Setter
 @Table(name = "project")
@@ -52,14 +49,6 @@ public class Project extends AbstractEntity<ProjectDTO> {
 
     @Column(columnDefinition = "TEXT")
     private String webUrl;
-
-    @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "VARCHAR(70) DEFAULT 'SYNCED'")
-    private SyncStatus releaseSyncStatus = SyncStatus.SYNCED;
-
-    @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "VARCHAR(70) DEFAULT 'SYNCED'")
-    private SyncStatus issueSyncStatus = SyncStatus.SYNCED;
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
@@ -99,8 +88,6 @@ public class Project extends AbstractEntity<ProjectDTO> {
                 creationDate,
                 gitlabProjectId,
                 webUrl,
-                releaseSyncStatus,
-                issueSyncStatus,
                 getTagIds(),
                 getIdOrNull(team),
                 projectJourneyMap,

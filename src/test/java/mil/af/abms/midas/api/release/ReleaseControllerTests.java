@@ -26,7 +26,7 @@ import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 
 @WebMvcTest({ReleaseController.class})
-public class ReleaseControllerTests extends ControllerTestHarness {
+class ReleaseControllerTests extends ControllerTestHarness {
 
     @MockBean
     private ReleaseService releaseService;
