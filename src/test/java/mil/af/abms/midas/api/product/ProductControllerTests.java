@@ -198,7 +198,11 @@ class ProductControllerTests extends ControllerTestHarness {
 
     @Test
     public void should_get_sprint_metrics() throws Exception {
-        SprintProductMetricsDTO dto = new SprintProductMetricsDTO(LocalDate.parse("2022-06-16"), 100L, 60);
+        SprintProductMetricsDTO dto = Builder.build(SprintProductMetricsDTO.class)
+                .with(d -> d.setDate(LocalDate.parse("2022-06-16")))
+                .with(d -> d.setDeliveredPoints(100L))
+                .with(d -> d.setDeliveredStories(60))
+                .get();
         List<SprintProductMetricsDTO> metricsList = List.of(dto);
 
         when(productService.getSprintMetrics(any(), any(), any(), any())).thenReturn(metricsList);

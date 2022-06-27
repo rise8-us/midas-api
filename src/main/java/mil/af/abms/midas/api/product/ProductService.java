@@ -7,6 +7,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
@@ -29,6 +30,7 @@ import mil.af.abms.midas.api.product.dto.ProductDTO;
 import mil.af.abms.midas.api.product.dto.ProductInterfaceDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
 import mil.af.abms.midas.api.project.ProjectService;
+import mil.af.abms.midas.api.release.Release;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
 import mil.af.abms.midas.api.tag.TagService;
@@ -160,18 +162,28 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
     }
 
     public SprintProductMetricsDTO populateProductMetrics(LocalDate currentDate, Product product, int duration) {
+        LocalDate endDate = currentDate.plusDays(duration);
+        long totalWeight = 0;
+
         List<Issue> allIssues = issueService.getAllIssuesByProductId(product.getId()).stream().filter(issue ->
                 Optional.ofNullable(issue.getCompletedAt()).isPresent() &&
-                        issue.getCompletedAt().toLocalDate().isBefore(currentDate.plusDays(duration)) && (issue.getCompletedAt().toLocalDate().isAfter(currentDate) || issue.getCompletedAt().toLocalDate().isEqual(currentDate))
+                        issue.getCompletedAt().toLocalDate().isBefore(endDate) && (issue.getCompletedAt().toLocalDate().isAfter(currentDate) || issue.getCompletedAt().toLocalDate().isEqual(currentDate))
         ).collect(Collectors.toList());
 
-        long totalWeight = 0;
-        for (Issue issue : allIssues) {
-            totalWeight += issue.getWeight();
-        }
+        for (Issue issue : allIssues) { totalWeight += issue.getWeight(); }
+        long finalTotalWeight = totalWeight;
 
-        return new SprintProductMetricsDTO(currentDate, totalWeight, allIssues.size());
+        Set<Release> releases = product.getReleases().stream().filter(release ->
+                release.getReleasedAt().isAfter(currentDate.atStartOfDay()) &&
+                release.getReleasedAt().isBefore(endDate.atTime(23, 59, 59))
+        ).collect(Collectors.toSet());
 
+        return Builder.build(SprintProductMetricsDTO.class)
+                .with(d -> d.setDate(currentDate))
+                .with(d -> d.setDeliveredPoints(finalTotalWeight))
+                .with(d -> d.setDeliveredStories(allIssues.size()))
+                .with(d -> d.setReleaseFrequency((float) releases.size() / duration))
+                .get();
     }
 
 }

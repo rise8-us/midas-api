@@ -13,6 +13,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -42,6 +43,7 @@ import mil.af.abms.midas.api.product.dto.CreateProductDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
+import mil.af.abms.midas.api.release.Release;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
 import mil.af.abms.midas.api.tag.TagService;
@@ -82,26 +84,36 @@ class ProductServiceTests {
     private final User user = Builder.build(User.class)
             .with(u -> u.setId(3L))
             .with(u -> u.setKeycloakUid("abc-123"))
-            .with(u -> u.setUsername("Lambo")).get();
+            .with(u -> u.setUsername("Lambo"))
+            .get();
     private final SourceControl sourceControl = Builder.build(SourceControl.class)
             .with(g -> g.setId(42L))
             .with(g -> g.setName("Mock IL2"))
             .get();
+    private final Release release = Builder.build(Release.class)
+            .with(r -> r.setId(100L))
+            .with(r -> r.setReleasedAt(LocalDateTime.parse("2022-06-10T12:00:00")))
+            .get();
     private final Project project = Builder.build(Project.class)
             .with(p -> p.setId(4L))
-            .with(p -> p.setName("backend")).get();
+            .with(p -> p.setName("backend"))
+            .with(p -> p.setReleases(Set.of(release)))
+            .get();
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(5L))
             .with(p -> p.setGitlabGroupId(123))
             .with(p -> p.setName("Midas"))
             .with(p -> p.setSourceControl(sourceControl))
+            .with(p -> p.setProjects(Set.of(project)))
             .get();
     private final Product parent = Builder.build(Product.class)
             .with(p -> p.setId(1L))
-            .with(p -> p.setName("Metrics")).get();
+            .with(p -> p.setName("Metrics"))
+            .get();
     private final Product child = Builder.build(Product.class)
             .with(p -> p.setId(6L))
-            .with(p -> p.setName("Metrics")).get();
+            .with(p -> p.setName("Metrics"))
+            .get();
     private final CreateProductDTO createProductDTO = Builder.build(CreateProductDTO.class)
             .with(p -> p.setName("Midas"))
             .with(p -> p.setDescription("description"))
@@ -244,8 +256,18 @@ class ProductServiceTests {
 
     @Test
     void should_get_sprint_metrics() {
-        SprintProductMetricsDTO dto1 = new SprintProductMetricsDTO(LocalDate.parse("2022-06-16"), 5L, 1);
-        SprintProductMetricsDTO dto2 = new SprintProductMetricsDTO(LocalDate.parse("2022-06-02"), 5L, 1);
+        SprintProductMetricsDTO dto1 = Builder.build(SprintProductMetricsDTO.class)
+                .with(d -> d.setDate(LocalDate.parse("2022-06-16")))
+                .with(d -> d.setDeliveredPoints(5L))
+                .with(d -> d.setDeliveredStories(1))
+                .with(d -> d.setReleaseFrequency(0.0F))
+                .get();
+        SprintProductMetricsDTO dto2 = Builder.build(SprintProductMetricsDTO.class)
+                .with(d -> d.setDate(LocalDate.parse("2022-06-02")))
+                .with(d -> d.setDeliveredPoints(5L))
+                .with(d -> d.setDeliveredStories(1))
+                .with(d -> d.setReleaseFrequency(1 / 14F))
+                .get();
 
         Issue issueNotCompleted = new Issue();
         BeanUtils.copyProperties(issue, issueNotCompleted);
