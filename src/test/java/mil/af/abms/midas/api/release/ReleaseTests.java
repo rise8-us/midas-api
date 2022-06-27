@@ -1,6 +1,6 @@
 package mil.af.abms.midas.api.release;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -18,7 +18,7 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.release.dto.ReleaseDTO;
 import mil.af.abms.midas.api.user.User;
 
-public class ReleaseTests {
+class ReleaseTests {
 
     private static final int ENTITY_DTO_FIELD_OFFSET = 2;
     private static final LocalDateTime TEST_TIME = LocalDateTime.now();
@@ -41,11 +41,11 @@ public class ReleaseTests {
             .get();
     
     @Test
-    public void should_have_all_releaseDTO_fields() {
+    void should_have_all_releaseDTO_fields() {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Release.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(ReleaseDTO.class.getDeclaredFields().length + ENTITY_DTO_FIELD_OFFSET);
+        assertThat(fields).hasSize(ReleaseDTO.class.getDeclaredFields().length + ENTITY_DTO_FIELD_OFFSET);
     }
 
     @Test

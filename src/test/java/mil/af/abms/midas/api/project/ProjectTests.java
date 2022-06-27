@@ -1,6 +1,6 @@
 package mil.af.abms.midas.api.project;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.util.ReflectionUtils;
 
 import org.junit.jupiter.api.Test;
@@ -23,9 +24,8 @@ import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.tag.Tag;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.api.user.User;
-import mil.af.abms.midas.enums.SyncStatus;
 
-public class ProjectTests {
+class ProjectTests {
 
     private final LocalDateTime CREATION_DATE = LocalDateTime.now();
 
@@ -77,8 +77,6 @@ public class ProjectTests {
             .with(d -> d.setCoverage(coverage.toDto()))
             .with(d -> d.setSourceControlId(sourceControl.getId()))
             .with(d -> d.setCreationDate(CREATION_DATE))
-            .with(d -> d.setIssueSyncStatus(SyncStatus.SYNCED))
-            .with(d -> d.setReleaseSyncStatus(SyncStatus.SYNCED))
             .get();
 
     @Test
@@ -86,7 +84,7 @@ public class ProjectTests {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Project.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(ProjectDTO.class.getDeclaredFields().length);
+        assertThat(fields).hasSize(ProjectDTO.class.getDeclaredFields().length);
     }
 
     @Test
@@ -121,14 +119,15 @@ public class ProjectTests {
         assertThat(expectedProject.toDto().getProductId()).isEqualTo(null);
     }
 
-    @Test public  void should_get_current_coverage() {
+    @Test
+    public void should_get_current_coverage() {
         assertThat(expectedProject.getCurrentCoverage()).isEqualTo(coverage);
     }
 
     @Test
     public void should_be_equal() {
-        Project project2 = Builder.build(Project.class)
-                .with(p -> p.setName("MIDAS")).get();
+        Project project2 = new Project();
+        BeanUtils.copyProperties(expectedProject, project2);
 
         assertEquals(expectedProject, project2);
         assertNotEquals(expectedProject, null);

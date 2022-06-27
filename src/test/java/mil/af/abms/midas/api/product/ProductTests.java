@@ -1,6 +1,6 @@
 package mil.af.abms.midas.api.product;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -75,7 +75,7 @@ class ProductTests {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Product.class, fields::add);
 
-        assertThat(fields.size()).isEqualTo(ProductDTO.class.getDeclaredFields().length - ENTITY_DTO_FIELD_OFFSET);
+        assertThat(fields).hasSize(ProductDTO.class.getDeclaredFields().length - ENTITY_DTO_FIELD_OFFSET);
     }
 
     @Test

@@ -57,7 +57,7 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @ExtendWith(SpringExtension.class)
 @Import(PortfolioService.class)
-public class PortfolioServiceTests {
+class PortfolioServiceTests {
 
     @SpyBean
     PortfolioService portfolioService;

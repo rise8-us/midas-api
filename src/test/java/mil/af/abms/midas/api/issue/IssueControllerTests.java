@@ -30,7 +30,7 @@ import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 
 @WebMvcTest({IssueController.class})
-public class IssueControllerTests extends ControllerTestHarness {
+class IssueControllerTests extends ControllerTestHarness {
 
     @MockBean
     private IssueService issueService;

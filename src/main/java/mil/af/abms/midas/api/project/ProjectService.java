@@ -31,7 +31,6 @@ import mil.af.abms.midas.api.team.TeamService;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
 import mil.af.abms.midas.clients.gitlab.models.GitLabProject;
-import mil.af.abms.midas.enums.SyncStatus;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @Slf4j
@@ -47,34 +46,17 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
     private final SimpMessageSendingOperations websocket;
 
     @Autowired
-    public void setCoverageService(CoverageService coverageService) {
-        this.coverageService = coverageService;
-    }
-
+    public void setCoverageService(CoverageService coverageService) { this.coverageService = coverageService; }
     @Autowired
-    public void setProductService(ProductService productService) {
-        this.productService = productService;
-    }
-
+    public void setProductService(ProductService productService) { this.productService = productService; }
     @Autowired
-    public void setSourceControlService(SourceControlService sourceControlService) {
-        this.sourceControlService = sourceControlService;
-    }
-
+    public void setSourceControlService(SourceControlService sourceControlService) { this.sourceControlService = sourceControlService; }
     @Autowired
-    public void setTagService(TagService tagService) {
-        this.tagService = tagService;
-    }
-
+    public void setTagService(TagService tagService) { this.tagService = tagService; }
     @Autowired
-    public void setTeamService(TeamService teamService) {
-        this.teamService = teamService;
-    }
-
+    public void setTeamService(TeamService teamService) { this.teamService = teamService; }
     @Autowired
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
+    public void setUserService(UserService userService) { this.userService = userService; }
 
     public ProjectService(ProjectRepository repository, SimpMessageSendingOperations websocket) {
         super(repository, Project.class, ProjectDTO.class);
@@ -218,18 +200,6 @@ public class ProjectService extends AbstractCRUDService<Project, ProjectDTO, Pro
 
     protected GitLab4JClient getGitlabClient(SourceControl sourceControl) {
         return new GitLab4JClient(sourceControl);
-    }
-
-    public void updateReleaseSyncStatus(Long id, SyncStatus status) {
-        Project project = findById(id);
-        project.setReleaseSyncStatus(status);
-        repository.save(project);
-    }
-
-    public void updateIssueSyncStatus(Long id, SyncStatus status) {
-        Project project = findById(id);
-        project.setIssueSyncStatus(status);
-        repository.save(project);
     }
 
 }

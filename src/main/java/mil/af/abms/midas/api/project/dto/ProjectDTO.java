@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 import mil.af.abms.midas.api.AbstractDTO;
 import mil.af.abms.midas.api.coverage.dto.CoverageDTO;
 import mil.af.abms.midas.api.release.dto.ReleaseDTO;
-import mil.af.abms.midas.enums.SyncStatus;
 
 @Data
 @AllArgsConstructor
@@ -25,8 +24,6 @@ public class ProjectDTO implements AbstractDTO {
     private LocalDateTime creationDate;
     private Integer gitlabProjectId;
     private String webUrl;
-    private SyncStatus releaseSyncStatus;
-    private SyncStatus issueSyncStatus;
     private Set<Long> tagIds =  new HashSet<>();
     private Long teamId;
     private Long projectJourneyMap;

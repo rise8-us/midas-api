@@ -23,6 +23,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.junit.jupiter.api.Test;
@@ -40,7 +41,7 @@ import mil.af.abms.midas.clients.gitlab.models.GitLabRelease;
 
 @ExtendWith(SpringExtension.class)
 @Import(ReleaseService.class)
-public class ReleaseServiceTests {
+class ReleaseServiceTests {
 
     @SpyBean
     private ReleaseService releaseService;
@@ -52,6 +53,8 @@ public class ReleaseServiceTests {
     private ProductService productService;
     @MockBean
     private GitLab4JClient gitLab4JClient;
+    @MockBean
+    SimpMessageSendingOperations websocket;
 
     private static final LocalDateTime CREATED_AT = LocalDateTime.now();
 
@@ -204,7 +207,6 @@ public class ReleaseServiceTests {
         when(productService.findById(anyLong())).thenReturn(foundProduct);
         doReturn(Set.of(foundRelease)).when(releaseService).gitlabReleaseSync(any());
         doReturn(true).when(releaseService).hasGitlabDetails(any());
-        doNothing().when(projectService).updateReleaseSyncStatus(anyLong(), any());
         doReturn(gitLab4JClient).when(releaseService).getGitlabClient(any());
         doReturn(1).when(gitLab4JClient).getTotalReleasesPages(anyInt());
         doReturn(Set.of(foundRelease)).when(releaseService).processReleases(anyList(), any());

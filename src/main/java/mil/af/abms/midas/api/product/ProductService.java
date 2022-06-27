@@ -37,26 +37,26 @@ import mil.af.abms.midas.exception.EntityNotFoundException;
 @Service
 public class ProductService extends AbstractCRUDService<Product, ProductDTO, ProductRepository> {
 
-    private final SourceControlService sourceControlService;
-
-    private ProjectService projectService;
-    private TagService tagService;
-    private PersonnelService personnelService;
     private IssueService issueService;
-
-    public ProductService(ProductRepository repository, SourceControlService sourceControlService) {
-        super(repository, Product.class, ProductDTO.class);
-        this.sourceControlService = sourceControlService;
-    }
+    private PersonnelService personnelService;
+    private ProjectService projectService;
+    private SourceControlService sourceControlService;
+    private TagService tagService;
 
     @Autowired
-    public void setProjectService(ProjectService projectService) { this.projectService = projectService; }
-    @Autowired
-    public void setTagService(TagService tagService) { this.tagService = tagService; }
+    public void setIssueService(IssueService issueService) { this.issueService = issueService; }
     @Autowired
     public void setPersonnelService(PersonnelService personnelService) { this.personnelService = personnelService; }
     @Autowired
-    public void setIssueService(IssueService issueService) { this.issueService = issueService; }
+    public void setProjectService(ProjectService projectService) { this.projectService = projectService; }
+    @Autowired
+    public void setSourceControlService(SourceControlService sourceControlService) { this.sourceControlService = sourceControlService; }
+    @Autowired
+    public void setTagService(TagService tagService) { this.tagService = tagService; }
+
+    public ProductService(ProductRepository repository) {
+        super(repository, Product.class, ProductDTO.class);
+    }
 
     @Transactional
     public Product create(CreateProductDTO dto) {

@@ -26,53 +26,55 @@ import mil.af.abms.midas.api.completion.CompletionService;
 import mil.af.abms.midas.api.dtos.AddGitLabEpicWithPortfolioDTO;
 import mil.af.abms.midas.api.dtos.AddGitLabEpicWithProductDTO;
 import mil.af.abms.midas.api.dtos.IsHiddenDTO;
-import mil.af.abms.midas.api.epic.dto.EpicDTO;
 import mil.af.abms.midas.api.dtos.PaginationProgressDTO;
+import mil.af.abms.midas.api.epic.dto.EpicDTO;
 import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
-import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
 import mil.af.abms.midas.clients.gitlab.models.GitLabEpic;
 import mil.af.abms.midas.clients.gitlab.models.GitLabIssue;
+import mil.af.abms.midas.enums.SyncStatus;
 
 @Slf4j
 @Service
 public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicRepository> {
 
-    private ProductService productService;
-    private PortfolioService portfolioService;
     private CompletionService completionService;
-    private UserService userService;
+    private PortfolioService portfolioService;
+    private ProductService productService;
     private final SimpMessageSendingOperations websocket;
 
     private static final String TOTAL = "total";
     private static final String COMPLETED = "completed";
+
+    @Autowired
+    public void setCompletionService(CompletionService completionService) { this.completionService = completionService; }
+    @Autowired
+    public void setPortfolioService(PortfolioService portfolioService) { this.portfolioService = portfolioService; }
+    @Autowired
+    public void setProductService(ProductService productService) {
+        this.productService = productService;
+    }
 
     public EpicService(EpicRepository repository, SimpMessageSendingOperations websocket) {
         super(repository, Epic.class, EpicDTO.class);
         this.websocket = websocket;
     }
 
-    @Autowired
-    public void setProductService(ProductService productService) {
-        this.productService = productService;
-    }
-
-    @Autowired
-    public void setPortfolioService(PortfolioService portfolioService) {
-        this.portfolioService = portfolioService;
-    }
-
-    @Autowired
-    public void setCompletionService(CompletionService completionService) {
-        this.completionService = completionService;
-    }
-
-    @Autowired
-    public void setUserService(UserService userService) {
-        this.userService = userService;
+    @Scheduled(cron = "0 0 0 * * *")
+    public void runScheduledEpicSync() {
+        for (Product product : productService.getAll()) {
+            if (product.getIsArchived() == Boolean.FALSE) {
+                gitlabEpicSync(product);
+            }
+        }
+        for (Portfolio portfolio : portfolioService.getAll()) {
+            if (portfolio.getIsArchived() == Boolean.FALSE) {
+                gitlabEpicSync(portfolio);
+            }
+        }
     }
 
     public Epic createForProduct(AddGitLabEpicWithProductDTO dto) {
@@ -186,23 +188,20 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
         if (!hasGitlabDetails(appGroup)) {
             return Set.of();
         }
-
-        String keycloakId = Optional.ofNullable(userService.getUserBySecContext()).isPresent() ?
-                userService.getUserBySecContext().getKeycloakUid() : "";
-
+        
+        PaginationProgressDTO paginationProgressDTO = new PaginationProgressDTO();
+        paginationProgressDTO.setId(appGroup.getId());
         GitLab4JClient client = getGitlabClient(appGroup);
         int totalPageCount = client.getTotalEpicsPages(appGroup);
-        PaginationProgressDTO paginationProgressDTO = new PaginationProgressDTO();
-
         Set<Epic> allEpics = new HashSet<>();
 
         for (int i = 1; i <= totalPageCount; i++) {
             allEpics.addAll(processEpics(client.fetchGitLabEpicByPage(appGroup, i), appGroup));
-
-            if (!keycloakId.equals("")) {
-                paginationProgressDTO.setValue((double) i / totalPageCount);
-                websocket.convertAndSendToUser(keycloakId, "/queue/fetchGitlabEpicsPagination", paginationProgressDTO);
+            paginationProgressDTO.setValue((double) i / totalPageCount);
+            if (i == totalPageCount) {
+                paginationProgressDTO.setStatus(SyncStatus.SYNCED);
             }
+            websocket.convertAndSend("/topic/fetchGitlabEpicsPagination", paginationProgressDTO);
         }
 
         if (appGroup instanceof Product) {
@@ -211,6 +210,7 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
         if (appGroup instanceof Portfolio) {
             removeAllUntrackedEpicsForPortfolios(appGroup.getId(), allEpics);
         }
+
         return allEpics;
     }
 
@@ -224,20 +224,6 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
                             .map(epic -> syncEpic(e, epic))
                             .orElseGet(() -> convertToEpic(e, appGroup))
                 ).collect(Collectors.toSet());
-    }
-
-    @Scheduled(cron = "0 0 0 * * *")
-    public void runScheduledEpicSync() {
-        for (Product product : productService.getAll()) {
-            if (product.getIsArchived() == Boolean.FALSE) {
-                gitlabEpicSync(product);
-            }
-        }
-        for (Portfolio portfolio : portfolioService.getAll()) {
-            if (portfolio.getIsArchived() == Boolean.FALSE) {
-                gitlabEpicSync(portfolio);
-            }
-        }
     }
 
     public boolean canAddEpic(Integer iid, AppGroup appGroup) {

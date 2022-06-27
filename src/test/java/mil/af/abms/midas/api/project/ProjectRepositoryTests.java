@@ -17,7 +17,7 @@ import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.team.Team;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
-public class ProjectRepositoryTests extends RepositoryTestHarness {
+class ProjectRepositoryTests extends RepositoryTestHarness {
 
     @Autowired
     ProjectRepository projectRepository;
@@ -45,7 +45,7 @@ public class ProjectRepositoryTests extends RepositoryTestHarness {
     }
 
     @Test
-    public void should_throw_error_if_private_constructor_is_called() {
+    void should_throw_error_if_private_constructor_is_called() {
         Class<?> clazz = ProjectSpecifications.class;
         Constructor<?> constructor = clazz.getDeclaredConstructors()[0];
         constructor.setAccessible(true);

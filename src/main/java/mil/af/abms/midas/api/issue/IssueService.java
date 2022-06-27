@@ -25,7 +25,6 @@ import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
-import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
 import mil.af.abms.midas.clients.gitlab.models.GitLabIssue;
 import mil.af.abms.midas.enums.SyncStatus;
@@ -34,30 +33,20 @@ import mil.af.abms.midas.enums.SyncStatus;
 @Service
 public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepository> {
 
-    private ProjectService projectService;
     private CompletionService completionService;
-    private UserService userService;
     private ProductService productService;
+    private ProjectService projectService;
     private final SimpMessageSendingOperations websocket;
 
     @Autowired
-    public void setProjectService(ProjectService projectService) {
-        this.projectService = projectService;
-    }
-
-    @Autowired
-    public void setCompletionService(CompletionService completionService) {
-        this.completionService = completionService;
-    }
-
-    @Autowired
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
+    public void setCompletionService(CompletionService completionService) { this.completionService = completionService; }
     @Autowired
     public void setProductService(ProductService productService) {
         this.productService = productService;
+    }
+    @Autowired
+    public void setProjectService(ProjectService projectService) {
+        this.projectService = projectService;
     }
 
     public IssueService(IssueRepository repository, SimpMessageSendingOperations websocket) {
@@ -148,30 +137,22 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
     public Set<Issue> gitlabIssueSync(Project project) {
         if (!hasGitlabDetails(project)) { return Set.of(); }
 
-        projectService.updateIssueSyncStatus(project.getId(), SyncStatus.SYNCING);
-
-        String keycloakId = Optional.ofNullable(userService.getUserBySecContext()).isPresent() ?
-                userService.getUserBySecContext().getKeycloakUid() : "";
+        PaginationProgressDTO paginationProgressDTO = new PaginationProgressDTO();
+        paginationProgressDTO.setId(project.getId());
 
         GitLab4JClient client = getGitlabClient(project);
-
-        PaginationProgressDTO paginationProgressDTO = new PaginationProgressDTO();
         int totalPageCount = client.getTotalIssuesPages(project.getGitlabProjectId());
 
         Set<Issue> allIssues = new HashSet<>();
-
         for (int i = 1; i <= totalPageCount; i++) {
             allIssues.addAll(processIssues(client.fetchGitLabIssueByPage(project, i), project));
+            paginationProgressDTO.setValue((double) i / totalPageCount);
 
-            if (!keycloakId.equals("")) {
-                paginationProgressDTO.setValue((double) i / totalPageCount);
-                websocket.convertAndSendToUser(keycloakId, "/queue/fetchGitlabIssuesPagination", paginationProgressDTO);
-            }
+            if (i == totalPageCount) { paginationProgressDTO.setStatus(SyncStatus.SYNCED); }
+            websocket.convertAndSend("/topic/fetchGitlabIssuesPagination", paginationProgressDTO);
         }
 
         removeAllUntrackedIssues(project.getId(), allIssues);
-
-        projectService.updateIssueSyncStatus(project.getId(), SyncStatus.SYNCED);
 
         return allIssues;
     }
