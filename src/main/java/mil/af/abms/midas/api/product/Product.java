@@ -107,4 +107,8 @@ public class Product extends AbstractProductPortfolio<ProductDTO> {
         return latestReleases.stream().max(Comparator.comparing(Release::getReleasedAt, Comparator.nullsFirst(Comparator.naturalOrder()))).orElse(null);
     }
 
+    public Set<Release> getReleases() {
+        return this.getProjects().stream().flatMap(project -> project.getReleases().stream()).collect(Collectors.toSet());
+    }
+
 }

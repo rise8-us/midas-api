@@ -323,8 +323,16 @@ class PortfolioServiceTests {
 
     @Test
     void should_get_sprint_metrics() {
-        SprintProductMetricsDTO dto1 = new SprintProductMetricsDTO(LocalDate.parse("2022-06-02"), 5L, 1);
-        SprintProductMetricsDTO dto2 = new SprintProductMetricsDTO(LocalDate.parse("2022-06-16"), 5L, 1);
+        SprintProductMetricsDTO dto1 = Builder.build(SprintProductMetricsDTO.class)
+                .with(d -> d.setDate(LocalDate.parse("2022-06-02")))
+                .with(d -> d.setDeliveredPoints(5L))
+                .with(d -> d.setDeliveredStories(1))
+                .get();
+        SprintProductMetricsDTO dto2 = Builder.build(SprintProductMetricsDTO.class)
+                .with(d -> d.setDate(LocalDate.parse("2022-06-16")))
+                .with(d -> d.setDeliveredPoints(5L))
+                .with(d -> d.setDeliveredStories(1))
+                .get();
         HashMap<Long, List<SprintProductMetricsDTO>> metricsMap = new HashMap<>();
         metricsMap.put(2L, List.of(dto1, dto2));
 
