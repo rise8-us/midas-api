@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.util.ReflectionUtils;
 
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import mil.af.abms.midas.api.announcement.dto.AnnouncementDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.user.User;
-
 
 class AnnouncementTests {
 
@@ -43,8 +43,8 @@ class AnnouncementTests {
 
     @Test
     void should_be_equal() {
-        Announcement announcement2 = Builder.build(Announcement.class)
-                .with(u -> u.setMessage("This is an announcement")).get();
+        Announcement announcement2 = new Announcement();
+        BeanUtils.copyProperties(announcement, announcement2);
 
         assertThat(announcement).isEqualTo(announcement);
         assertThat(announcement).isNotNull();

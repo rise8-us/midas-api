@@ -4,7 +4,6 @@ package mil.af.abms.midas.api.portfolio.dto;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,7 +24,7 @@ public class PortfolioDTO implements AbstractDTO {
     private String description;
     private Boolean isArchived;
     private LocalDateTime creationDate;
-    private Set<Long> productIds;
+    private List<Long> productIds;
     private Integer gitlabGroupId;
     private Long sourceControlId;
     private PersonnelDTO personnel;
