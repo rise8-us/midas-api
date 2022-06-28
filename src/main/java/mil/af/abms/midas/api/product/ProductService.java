@@ -5,6 +5,7 @@ import static mil.af.abms.midas.api.helper.SprintDateHelper.getAllSprintDates;
 import javax.transaction.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
@@ -178,7 +179,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
 
         Set<Release> releases = product.getReleases().stream().filter(release ->
                 release.getReleasedAt().isAfter(currentDate.atStartOfDay()) &&
-                release.getReleasedAt().isBefore(endDate.atTime(23, 59, 59))
+                release.getReleasedAt().isBefore(endDate.atTime(LocalTime.MAX))
         ).collect(Collectors.toSet());
 
         return Builder.build(SprintProductMetricsDTO.class)

@@ -4,7 +4,9 @@ import javax.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +23,10 @@ import mil.af.abms.midas.api.capability.CapabilityService;
 import mil.af.abms.midas.api.dtos.AppGroupDTO;
 import mil.af.abms.midas.api.dtos.IsArchivedDTO;
 import mil.af.abms.midas.api.dtos.SprintProductMetricsDTO;
+import mil.af.abms.midas.api.dtos.SprintSummaryPortfolioDTO;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.issue.Issue;
+import mil.af.abms.midas.api.issue.IssueService;
 import mil.af.abms.midas.api.personnel.Personnel;
 import mil.af.abms.midas.api.personnel.PersonnelService;
 import mil.af.abms.midas.api.personnel.dto.CreatePersonnelDTO;
@@ -31,6 +36,9 @@ import mil.af.abms.midas.api.portfolio.dto.PortfolioInterfaceDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioDTO;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
+import mil.af.abms.midas.api.project.Project;
+import mil.af.abms.midas.api.release.Release;
+import mil.af.abms.midas.api.release.ReleaseService;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
 import mil.af.abms.midas.api.user.UserService;
@@ -44,6 +52,8 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
     private ProductService productService;
     private SourceControlService sourceControlService;
     private UserService userService;
+    private ReleaseService releaseService;
+    private IssueService issueService;
 
     @Autowired
     public void setCapabilityService(CapabilityService capabilityService) { this.capabilityService = capabilityService; }
@@ -61,6 +71,10 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
+    @Autowired
+    public void setReleaseService(ReleaseService releaseService) { this.releaseService = releaseService; }
+    @Autowired
+    public void setIssueService(IssueService issueService) { this.issueService = issueService; }
 
     public PortfolioService(PortfolioRepository repository) {
         super(repository, Portfolio.class, PortfolioDTO.class);
@@ -183,4 +197,53 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
             repository.save(portfolio);
         }
     }
+
+    protected List<Issue> getAllIssuesDeployedToProdForSprint(Portfolio portfolio, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        List<Issue> issuesToProd = new ArrayList<>();
+        List<Project> allProjects = portfolio.getProducts().stream().flatMap(p -> p.getProjects().stream()).collect(Collectors.toList());
+
+        allProjects.forEach(project -> {
+            List<Release> releasesThisSprint = releaseService.filterReleasedAtByDateRange(new ArrayList<>(project.getReleases()), startDateTime, endDateTime);
+            Release latestReleaseThisSprint = releasesThisSprint.stream().max(Comparator.comparing(Release::getReleasedAt)).orElse(null);
+
+            if (latestReleaseThisSprint == null) { return; }
+            LocalDateTime latestReleaseDateTime = latestReleaseThisSprint.getReleasedAt();
+
+            List<Release> previousReleases = project.getReleases().stream()
+                    .filter(r -> r.getReleasedAt().isBefore(startDateTime)).collect(Collectors.toList());
+            Release latestPreviousRelease = previousReleases.stream().max(Comparator.comparing(Release::getReleasedAt)).orElse(null);
+
+            if (latestPreviousRelease == null) {
+                issuesToProd.addAll(issueService.filterCompletedAtByDateRange(
+                        issueService.getAllIssuesByProjectId(project.getId()),
+                        LocalDateTime.parse("1970-01-01T00:00"),
+                        latestReleaseDateTime
+                ));
+                return;
+            }
+
+            issuesToProd.addAll(issueService.filterCompletedAtByDateRange(
+                    issueService.getAllIssuesByProjectId(project.getId()),
+                    latestPreviousRelease.getReleasedAt(),
+                    latestReleaseDateTime
+            ));
+        });
+
+        return issuesToProd;
+    }
+
+    public SprintSummaryPortfolioDTO getSprintMetricsSummary(Long id, String startDateStr, Integer duration) {
+        Portfolio foundPortfolio = findById(id);
+        if (startDateStr.equals("")) { startDateStr = LocalDate.now().toString(); }
+
+        LocalDateTime startDateTime = LocalDate.parse(startDateStr).atStartOfDay();
+        LocalDateTime endDateTime = LocalDate.parse(startDateStr).plusDays(Math.max(0, duration - 1)).atTime(LocalTime.MAX);
+
+        List<Release> prodDeployments = releaseService.filterReleasedAtByDateRange(releaseService.getAllReleasesByPortfolioId(id), startDateTime, endDateTime);
+        List<Issue> issuesToStaging = issueService.filterCompletedAtByDateRange(issueService.getAllIssuesByPortfolioId(id), startDateTime, endDateTime);
+        List<Issue> issuesToProd = getAllIssuesDeployedToProdForSprint(foundPortfolio, startDateTime, endDateTime);
+
+        return new SprintSummaryPortfolioDTO(prodDeployments.size(), issuesToStaging.size(), issuesToProd.size());
+    }
+
 }

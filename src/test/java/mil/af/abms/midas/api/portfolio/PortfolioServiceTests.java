@@ -1,11 +1,12 @@
 package mil.af.abms.midas.api.portfolio;
 
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -38,6 +39,7 @@ import mil.af.abms.midas.api.capability.Capability;
 import mil.af.abms.midas.api.capability.CapabilityService;
 import mil.af.abms.midas.api.dtos.IsArchivedDTO;
 import mil.af.abms.midas.api.dtos.SprintProductMetricsDTO;
+import mil.af.abms.midas.api.dtos.SprintSummaryPortfolioDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.issue.Issue;
 import mil.af.abms.midas.api.issue.IssueService;
@@ -49,6 +51,9 @@ import mil.af.abms.midas.api.portfolio.dto.CreatePortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioDTO;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
+import mil.af.abms.midas.api.project.Project;
+import mil.af.abms.midas.api.release.Release;
+import mil.af.abms.midas.api.release.ReleaseService;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
 import mil.af.abms.midas.api.user.User;
@@ -76,17 +81,32 @@ class PortfolioServiceTests {
     @MockBean
     IssueService issueService;
     @MockBean
+    ReleaseService releaseService;
+    @MockBean
     PortfolioRepository portfolioRepository;
     @Captor
     ArgumentCaptor<Portfolio> portfolioCaptor;
 
     private final LocalDateTime today = LocalDateTime.now();
     private final LocalDate currentDate = LocalDate.now();
+    private final LocalDateTime startDate = LocalDate.parse("2022-06-05").atStartOfDay();
+    private final LocalDateTime endDate = LocalDate.parse("2022-06-20").atStartOfDay();
+
     private final User user = Builder.build(User.class).with(u -> u.setId(1L)).get();
     private final User user2 = Builder.build(User.class).with(u -> u.setId(10L)).get();
+    private final Release release = Builder.build(Release.class)
+            .with(r -> r.setCreationDate(today))
+            .with(r -> r.setName("Release"))
+            .with(r -> r.setReleasedAt(LocalDate.parse("2022-06-18").atStartOfDay()))
+            .get();
+    private final Project project = Builder.build(Project.class)
+            .with(p -> p.setId(7L))
+            .with(p -> p.setReleases(Set.of(release)))
+            .get();
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(2L))
             .with(p -> p.setName("MIDAS"))
+            .with(p -> p.setProjects(Set.of(project)))
             .get();
     private final SourceControl sourceControl = Builder.build(SourceControl.class)
             .with(g -> g.setId(42L))
@@ -129,6 +149,7 @@ class PortfolioServiceTests {
             .with(i -> i.setId(6L))
             .with(i -> i.setWeight(5L))
             .with(i -> i.setCompletedAt(LocalDate.parse("2022-06-17").atStartOfDay()))
+            .with(i -> i.setProject(project))
             .get();
 
     @Test
@@ -383,4 +404,63 @@ class PortfolioServiceTests {
             assertThat(newPortfolio.getSprintStartDate()).isEqualTo(currentDate.minusDays(days));
         }
     }
+
+    @ParameterizedTest
+    @CsvSource(value = {
+            "2022-06-05", "''"})
+    void should_get_sprint_metrics_summary(String dateStr) {
+        SprintSummaryPortfolioDTO dto = Builder.build(SprintSummaryPortfolioDTO.class)
+                .with(d -> d.setTotalReleases(1))
+                .with(d -> d.setTotalIssuesClosed(1))
+                .with(d -> d.setTotalIssuesDelivered(1))
+                .get();
+
+        doReturn(portfolio).when(portfolioService).findById(anyLong());
+        doReturn(List.of(issue)).when(issueService).filterCompletedAtByDateRange(any(), any(), any());
+        doReturn(List.of(release)).when(releaseService).filterReleasedAtByDateRange(any(), any(), any());
+        doReturn(List.of(issue)).when(portfolioService).getAllIssuesDeployedToProdForSprint(any(), any(), any());
+
+        assertThat(portfolioService.getSprintMetricsSummary(3L, dateStr, 14)).isEqualTo(dto);
+    }
+
+    @Test
+    void should_return_zero_issues_when_no_releases() {
+        doReturn(List.of()).when(releaseService).filterReleasedAtByDateRange(any(), any(), any());
+
+        assertThat(portfolioService.getAllIssuesDeployedToProdForSprint(portfolio, startDate, endDate)).hasSize(0);
+    }
+
+    @Test
+    void should_return_one_issue_when_no_previous_release() {
+        doReturn(List.of(release)).when(releaseService).filterReleasedAtByDateRange(any(), any(), any());
+        doReturn(List.of(issue)).when(issueService).filterCompletedAtByDateRange(anyList(), any(), any());
+
+        assertThat(portfolioService.getAllIssuesDeployedToProdForSprint(portfolio, startDate, endDate)).hasSize(1);
+    }
+
+    @Test
+    void should_get_all_issues_deployed_to_prod_for_sprint() {
+        Release r1 = new Release();
+        r1.setName("Another one");
+        r1.setCreationDate(today);
+        r1.setReleasedAt(LocalDate.parse("2022-06-01").atStartOfDay());
+
+        Project project1 = new Project();
+        BeanUtils.copyProperties(project, project1);
+        project1.setReleases(Set.of(release, r1));
+
+        Product product1 = new Product();
+        BeanUtils.copyProperties(product, product1);
+        product1.setProjects(Set.of(project1));
+
+        Portfolio portfolio1 = new Portfolio();
+        BeanUtils.copyProperties(portfolio, portfolio1);
+        portfolio1.setProducts(Set.of(product1));
+
+        doReturn(List.of(release)).when(releaseService).filterReleasedAtByDateRange(anyList(), any(), any());
+        doReturn(List.of(issue)).when(issueService).filterCompletedAtByDateRange(anyList(), any(), any());
+
+        assertThat(portfolioService.getAllIssuesDeployedToProdForSprint(portfolio1, startDate, endDate)).hasSize(1);
+    }
+
 }

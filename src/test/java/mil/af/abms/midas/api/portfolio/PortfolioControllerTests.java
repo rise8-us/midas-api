@@ -1,7 +1,10 @@
 package mil.af.abms.midas.api.portfolio;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -26,6 +29,7 @@ import mil.af.abms.midas.api.ControllerTestHarness;
 import mil.af.abms.midas.api.capability.CapabilityService;
 import mil.af.abms.midas.api.dtos.IsArchivedDTO;
 import mil.af.abms.midas.api.dtos.SprintProductMetricsDTO;
+import mil.af.abms.midas.api.dtos.SprintSummaryPortfolioDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.personnel.Personnel;
 import mil.af.abms.midas.api.personnel.PersonnelService;
@@ -160,5 +164,24 @@ class PortfolioControllerTests extends ControllerTestHarness {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$['1'][0]['date']").value("2022-06-16"));
+    }
+
+    @Test
+    void should_get_sprint_metrics_summary() throws Exception {
+        SprintSummaryPortfolioDTO dto = Builder.build(SprintSummaryPortfolioDTO.class)
+                .with(d -> d.setTotalIssuesClosed(1))
+                .with(d -> d.setTotalReleases(1))
+                .with(d -> d.setTotalIssuesDelivered(1))
+                .get();
+        
+        doReturn(dto).when(portfolioService).getSprintMetricsSummary(anyLong(), anyString(), anyInt());
+
+        mockMvc.perform(get("/api/portfolios/1/sprint-metrics/summary?duration=1")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapper.writeValueAsString(dto))
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$['totalReleases']").value("1"));
     }
 }
