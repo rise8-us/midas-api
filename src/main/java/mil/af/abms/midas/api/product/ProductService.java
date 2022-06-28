@@ -5,6 +5,7 @@ import static mil.af.abms.midas.api.helper.SprintDateHelper.getAllSprintDates;
 import javax.transaction.Transactional;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -161,8 +162,10 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         return allDates.stream().map(date -> populateProductMetrics(date, foundProduct, duration)).collect(Collectors.toList());
     }
 
-    public SprintProductMetricsDTO populateProductMetrics(LocalDate currentDate, Product product, int duration) {
-        LocalDate endDate = currentDate.plusDays(duration);
+    public SprintProductMetricsDTO populateProductMetrics(LocalDate currentDate, Product product, int potentialDuration) {
+        LocalDate theoreticEndDate = currentDate.plusDays(potentialDuration);
+        LocalDate endDate = theoreticEndDate.isAfter(LocalDate.now()) ? LocalDate.now() : theoreticEndDate;
+        long duration = ChronoUnit.DAYS.between(currentDate, endDate);
         long totalWeight = 0;
 
         List<Issue> allIssues = issueService.getAllIssuesByProductId(product.getId()).stream().filter(issue ->

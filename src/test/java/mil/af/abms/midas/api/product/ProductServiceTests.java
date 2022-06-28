@@ -282,4 +282,26 @@ class ProductServiceTests {
 
         assertThat(productService.getSprintMetrics(91L, LocalDate.parse("2022-06-16"), 14, 2)).isEqualTo(List.of(dto1, dto2));
     }
+
+    @Test
+    void should_get_current_sprint_metrics_into_future() {
+        Release r2= new Release();
+        r2.setId(100L);
+        r2.setReleasedAt(LocalDateTime.now().minusDays(2));
+
+        Project project2 = new Project();
+        BeanUtils.copyProperties(project, project2);
+        project2.setReleases(Set.of(r2));
+
+        Product product2 = new Product();
+        BeanUtils.copyProperties(product, product2);
+        product2.setProjects(Set.of(project2));
+
+        doReturn(product).when(productService).findById(anyLong());
+        when(issueService.getAllIssuesByProductId(anyLong())).thenReturn(List.of());
+        LocalDate todayMinusFive = LocalDate.now().minusDays(5L);
+        SprintProductMetricsDTO dto = productService.populateProductMetrics(todayMinusFive, product2, 14);
+
+        assertThat(dto.getReleaseFrequency()).isEqualTo(1 / 5F);
+    }
 }
