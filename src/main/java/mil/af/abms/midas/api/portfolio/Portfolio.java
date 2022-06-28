@@ -87,7 +87,7 @@ public class Portfolio extends AbstractProductPortfolio<PortfolioDTO> {
                 description,
                 isArchived,
                 creationDate,
-                getIds(products),
+                getIdsSortedBy(products, (p1, p2) -> p1.getName().compareToIgnoreCase(p2.getName())),
                 gitlabGroupId,
                 getIdOrNull(sourceControl),
                 personnelDTO,
