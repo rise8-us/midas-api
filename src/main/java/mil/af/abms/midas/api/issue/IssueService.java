@@ -1,7 +1,6 @@
 package mil.af.abms.midas.api.issue;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +20,8 @@ import mil.af.abms.midas.api.completion.CompletionService;
 import mil.af.abms.midas.api.dtos.AddGitLabIssueWithProductDTO;
 import mil.af.abms.midas.api.dtos.PaginationProgressDTO;
 import mil.af.abms.midas.api.issue.dto.IssueDTO;
+import mil.af.abms.midas.api.portfolio.Portfolio;
+import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.project.Project;
@@ -36,18 +37,17 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
     private CompletionService completionService;
     private ProductService productService;
     private ProjectService projectService;
+    private PortfolioService portfolioService;
     private final SimpMessageSendingOperations websocket;
 
     @Autowired
     public void setCompletionService(CompletionService completionService) { this.completionService = completionService; }
     @Autowired
-    public void setProductService(ProductService productService) {
-        this.productService = productService;
-    }
+    public void setProductService(ProductService productService) { this.productService = productService; }
     @Autowired
-    public void setProjectService(ProjectService projectService) {
-        this.projectService = projectService;
-    }
+    public void setProjectService(ProjectService projectService) { this.projectService = projectService; }
+    @Autowired
+    public void setPortfolioService(PortfolioService portfolioService) { this.portfolioService = portfolioService; }
 
     public IssueService(IssueRepository repository, SimpMessageSendingOperations websocket) {
         super(repository, Issue.class, IssueDTO.class);
@@ -63,18 +63,26 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
         }
     }
 
+    public List<Issue> getAllIssuesByPortfolioId(Long portfolioId) {
+        Portfolio portfolio = portfolioService.findById(portfolioId);
+        return portfolio.getProducts().stream()
+                .flatMap(p -> getAllIssuesByProductId(p.getId()).stream()).collect(Collectors.toList());
+    }
+
     public List<Issue> getAllIssuesByProductId(Long productId) {
         Product product = productService.findById(productId);
-        List<Issue> issues = new ArrayList<>();
-        product.getProjects().forEach(p -> issues.addAll(getAllIssuesByProjectId(p.getId())));
-        return issues;
+        return product.getProjects().stream()
+                .flatMap(p -> getAllIssuesByProjectId(p.getId()).stream()).collect(Collectors.toList());
+    }
+
+    public List<Issue> getAllIssuesByProjectId(Long projectId) {
+        return repository.findAllIssuesByProjectId(projectId).orElse(List.of());
     }
 
     public Set<Issue> syncGitlabIssueForProduct(Long productId) {
         Product product = productService.findById(productId);
-        Set<Issue> issues = new HashSet<>();
-        product.getProjects().forEach(p -> issues.addAll(gitlabIssueSync(p)));
-        return issues;
+        return product.getProjects().stream()
+                .flatMap(p -> gitlabIssueSync(p).stream()).collect(Collectors.toSet());
     }
 
     public Issue create(AddGitLabIssueWithProductDTO dto) {
@@ -110,10 +118,6 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
             repository.delete(foundIssue);
             return null;
         }
-    }
-
-    public List<Issue> getAllIssuesByProjectId(Long projectId) {
-        return repository.findAllIssuesByProjectId(projectId).orElse(List.of());
     }
 
     public void removeAllUntrackedIssues(Long projectId, Set<Issue> fetchedIssueSet) {
@@ -223,6 +227,14 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
         }
 
         return issue;
+    }
+
+    public List<Issue> filterCompletedAtByDateRange(List<Issue> issues, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        return issues.stream().filter(i ->
+                Optional.ofNullable(i.getCompletedAt()).isPresent() &&
+                        i.getCompletedAt().isAfter(startDateTime) &&
+                        i.getCompletedAt().isBefore(endDateTime)
+        ).collect(Collectors.toList());
     }
 
 }

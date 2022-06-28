@@ -1,6 +1,6 @@
 package mil.af.abms.midas.api.release;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import mil.af.abms.midas.api.AbstractCRUDService;
 import mil.af.abms.midas.api.dtos.PaginationProgressDTO;
+import mil.af.abms.midas.api.portfolio.Portfolio;
+import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.project.Project;
@@ -29,11 +31,14 @@ public class ReleaseService extends AbstractCRUDService<Release, ReleaseDTO, Rel
     private ProductService productService;
     private ProjectService projectService;
     private final SimpMessageSendingOperations websocket;
+    private PortfolioService portfolioService;
 
     @Autowired
     public void setProductService(ProductService productService) { this.productService = productService; }
     @Autowired
     public void setProjectService(ProjectService projectService) { this.projectService = projectService; }
+    @Autowired
+    public void setPortfolioService(PortfolioService portfolioService) { this.portfolioService = portfolioService; }
 
     public ReleaseService(ReleaseRepository repository, SimpMessageSendingOperations websocket) {
         super(repository, Release.class, ReleaseDTO.class);
@@ -49,22 +54,26 @@ public class ReleaseService extends AbstractCRUDService<Release, ReleaseDTO, Rel
         }
     }
 
-    public List<Release> getAllReleasesByProductId(Long productId) {
-        Product product = productService.findById(productId);
-        List<Release> releases = new ArrayList<>();
-        product.getProjects().forEach(p -> releases.addAll(getAllReleasesByProjectId(p.getId())));
-        return releases;
+    public List<Release> getAllReleasesByPortfolioId(Long portfolioId) {
+        Portfolio portfolio = portfolioService.findById(portfolioId);
+        return portfolio.getProducts().stream()
+                .flatMap(p -> getAllReleasesByProductId(p.getId()).stream()).collect(Collectors.toList());
     }
 
-    public Set<Release> syncGitlabReleaseForProduct(Long productId) {
+    public List<Release> getAllReleasesByProductId(Long productId) {
         Product product = productService.findById(productId);
-        Set<Release> releases = new HashSet<>();
-        product.getProjects().forEach(p -> releases.addAll(gitlabReleaseSync(p)));
-        return releases;
+        return product.getProjects().stream()
+                .flatMap(p -> getAllReleasesByProjectId(p.getId()).stream()).collect(Collectors.toList());
     }
 
     public List<Release> getAllReleasesByProjectId(Long projectId) {
         return repository.findAllReleasesByProjectId(projectId).orElse(List.of());
+    }
+
+    public Set<Release> syncGitlabReleaseForProduct(Long productId) {
+        Product product = productService.findById(productId);
+        return product.getProjects().stream()
+                .flatMap(p -> gitlabReleaseSync(p).stream()).collect(Collectors.toSet());
     }
 
     public Set<Release> syncGitlabReleaseForProject(Long projectId) {
@@ -148,6 +157,12 @@ public class ReleaseService extends AbstractCRUDService<Release, ReleaseDTO, Rel
 
     protected GitLab4JClient getGitlabClient(Project project) {
         return new GitLab4JClient(project.getSourceControl());
+    }
+
+    public List<Release> filterReleasedAtByDateRange(List<Release> releases, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        return releases.stream().filter(r ->
+                r.getReleasedAt().isAfter(startDateTime) && r.getReleasedAt().isBefore(endDateTime)
+        ).collect(Collectors.toList());
     }
 
 }

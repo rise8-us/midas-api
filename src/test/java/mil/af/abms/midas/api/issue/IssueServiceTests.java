@@ -13,6 +13,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -35,6 +37,8 @@ import org.mockito.Mockito;
 import mil.af.abms.midas.api.completion.CompletionService;
 import mil.af.abms.midas.api.dtos.AddGitLabIssueWithProductDTO;
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.portfolio.Portfolio;
+import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.project.Project;
@@ -60,6 +64,8 @@ public class IssueServiceTests {
     private ProductService productService;
     @MockBean
     private CompletionService completionService;
+    @MockBean
+    private PortfolioService portfolioService;
     @MockBean
     private  GitLab4JClient gitLab4JClient;
     @MockBean
@@ -89,6 +95,13 @@ public class IssueServiceTests {
             .with(p -> p.setIsArchived(false))
             .with(p -> p.setProjects(Set.of(foundProject)))
             .get();
+    private final Portfolio foundPortfolio = Builder.build(Portfolio.class)
+            .with(p -> p.setId(10L))
+            .with(p -> p.setName("Portfolio Name"))
+            .with(p -> p.setSourceControl(sourceControl))
+            .with(p -> p.setIsArchived(false))
+            .with(p -> p.setProducts(Set.of(foundProduct)))
+            .get();
     private final Issue foundIssue = Builder.build(Issue.class)
             .with(i -> i.setId(6L))
             .with(i -> i.setTitle("whoa this is issue"))
@@ -97,6 +110,7 @@ public class IssueServiceTests {
             .with(i -> i.setIssueIid(2))
             .with(i -> i.setProject(foundProject))
             .with(i -> i.setWeight(null))
+            .with(i -> i.setCompletedAt(LocalDate.parse("2022-06-15").atStartOfDay()))
             .get();
     private final GitLabIssue gitLabIssue = Builder.build(GitLabIssue.class)
             .with(i -> i.setTitle("title"))
@@ -154,6 +168,22 @@ public class IssueServiceTests {
 
         assertThat(issueSaved.getTitle()).isNotEqualTo(foundIssue.getTitle());
         assertThat(issueSaved.getTitle()).isEqualTo("title");
+    }
+
+    @Test
+    void should_get_all_issue_by_portfolio_id() {
+        doReturn(foundPortfolio).when(portfolioService).findById(anyLong());
+        doReturn(List.of(foundIssue)).when(issueService).getAllIssuesByProductId(anyLong());
+
+        Assertions.assertThat(issueService.getAllIssuesByPortfolioId(foundPortfolio.getId())).hasSize(1);
+    }
+
+    @Test
+    void should_get_all_issue_by_product_id() {
+        doReturn(foundProduct).when(productService).findById(anyLong());
+        doReturn(List.of(foundIssue)).when(issueService).getAllIssuesByProjectId(anyLong());
+
+        Assertions.assertThat(issueService.getAllIssuesByProductId(foundPortfolio.getId())).hasSize(1);
     }
 
     @Test
@@ -314,6 +344,25 @@ public class IssueServiceTests {
         issueService.getIssueFromClient(foundProject, 2);
 
         verify(issueService, times(1)).getIssueFromClient(any(), anyInt());
+    }
+
+    @Test
+    void Should_Filter_CompletedAt_By_Date_Range() {
+        Issue i1 = new Issue();
+        Issue i2 = new Issue();
+        Issue i3 = new Issue();
+        BeanUtils.copyProperties(foundIssue, i1);
+        BeanUtils.copyProperties(foundIssue, i2);
+        BeanUtils.copyProperties(foundIssue, i3);
+
+        i1.setCompletedAt(LocalDate.parse("2022-06-01").atStartOfDay());
+        i2.setCompletedAt(LocalDate.parse("2022-06-25").atStartOfDay());
+        i3.setCompletedAt(null);
+
+        LocalDateTime startDate = LocalDate.parse("2022-06-05").atStartOfDay();
+        LocalDateTime endDate = LocalDate.parse("2022-06-20").atStartOfDay();
+
+        Assertions.assertThat(issueService.filterCompletedAtByDateRange(List.of(foundIssue, i1, i2, i3), startDate, endDate)).hasSize(1);
     }
 
 }

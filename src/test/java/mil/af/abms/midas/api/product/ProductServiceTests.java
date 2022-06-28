@@ -285,7 +285,7 @@ class ProductServiceTests {
 
     @Test
     void should_get_current_sprint_metrics_into_future() {
-        Release r2= new Release();
+        Release r2 = new Release();
         r2.setId(100L);
         r2.setReleasedAt(LocalDateTime.now().minusDays(2));
 

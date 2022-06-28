@@ -1,6 +1,6 @@
 package mil.af.abms.midas.api.release;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -13,6 +13,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
 import mil.af.abms.midas.api.helper.Builder;
+import mil.af.abms.midas.api.portfolio.Portfolio;
+import mil.af.abms.midas.api.portfolio.PortfolioService;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.project.Project;
@@ -51,6 +54,8 @@ class ReleaseServiceTests {
     private ProjectService projectService;
     @MockBean
     private ProductService productService;
+    @MockBean
+    private PortfolioService portfolioService;
     @MockBean
     private GitLab4JClient gitLab4JClient;
     @MockBean
@@ -76,16 +81,40 @@ class ReleaseServiceTests {
             .with(p -> p.setIsArchived(false))
             .with(p -> p.setProjects(Set.of(foundProject)))
             .get();
+    private final Portfolio foundPortfolio = Builder.build(Portfolio.class)
+            .with(p -> p.setId(10L))
+            .with(p -> p.setName("Portfolio Name"))
+            .with(p -> p.setSourceControl(sourceControl))
+            .with(p -> p.setIsArchived(false))
+            .with(p -> p.setProducts(Set.of(foundProduct)))
+            .get();
     private final Release foundRelease = Builder.build(Release.class)
             .with(r -> r.setId(6L))
             .with(r -> r.setName("whoa this is release"))
             .with(r -> r.setCreationDate(CREATED_AT))
             .with(r -> r.setUid("3422"))
             .with(r -> r.setProject(foundProject))
+            .with(r -> r.setReleasedAt(LocalDate.parse("2022-06-15").atStartOfDay()))
             .get();
     private final GitLabRelease gitLabRelease = Builder.build(GitLabRelease.class)
             .with(gr -> gr.setName("whoa this is release"))
             .get();
+
+    @Test
+    void should_get_all_releases_by_portfolio_id() {
+        doReturn(foundPortfolio).when(portfolioService).findById(anyLong());
+        doReturn(List.of(foundRelease)).when(releaseService).getAllReleasesByProductId(anyLong());
+
+        assertThat(releaseService.getAllReleasesByPortfolioId(foundPortfolio.getId())).hasSize(1);
+    }
+
+    @Test
+    void should_get_all_releases_by_product_id() {
+        doReturn(foundProduct).when(productService).findById(anyLong());
+        doReturn(List.of(foundRelease)).when(releaseService).getAllReleasesByProjectId(anyLong());
+
+        assertThat(releaseService.getAllReleasesByProductId(foundProduct.getId())).hasSize(1);
+    }
 
     @Test
     void should_get_all_releases_by_project_id() {
@@ -239,5 +268,21 @@ class ReleaseServiceTests {
         when(repository.save(any())).thenReturn(foundRelease);
 
         assertThat(releaseService.convertGitlabReleaseToMidasRelease(gitLabRelease, foundProject)).isEqualTo(foundRelease);
+    }
+
+    @Test
+    void Should_Filter_ReleasedAt_By_Date_Range() {
+        Release r1 = new Release();
+        Release r2 = new Release();
+        BeanUtils.copyProperties(foundRelease, r1);
+        BeanUtils.copyProperties(foundRelease, r2);
+
+        r1.setReleasedAt(LocalDate.parse("2022-06-01").atStartOfDay());
+        r2.setReleasedAt(LocalDate.parse("2022-06-25").atStartOfDay());
+
+        LocalDateTime startDate = LocalDate.parse("2022-06-05").atStartOfDay();
+        LocalDateTime endDate = LocalDate.parse("2022-06-20").atStartOfDay();
+
+        assertThat(releaseService.filterReleasedAtByDateRange(List.of(foundRelease, r1, r2), startDate, endDate)).hasSize(1);
     }
 }

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import mil.af.abms.midas.api.AbstractCRUDController;
 import mil.af.abms.midas.api.dtos.IsArchivedDTO;
 import mil.af.abms.midas.api.dtos.SprintProductMetricsDTO;
+import mil.af.abms.midas.api.dtos.SprintSummaryPortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.CreatePortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.PortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioDTO;
@@ -55,5 +56,10 @@ public class PortfolioController extends AbstractCRUDController<Portfolio, Portf
     @GetMapping("/{id}/sprint-metrics/{startDate}")
     public Map<Long, List<SprintProductMetricsDTO>> getSprintMetrics(@PathVariable Long id, @PathVariable String startDate, @RequestParam(defaultValue = "14") Integer duration, @RequestParam(defaultValue = "10") Integer sprints) {
         return service.getSprintMetrics(id, LocalDate.parse(startDate), duration, sprints);
+    }
+
+    @GetMapping("{id}/sprint-metrics/summary")
+    public SprintSummaryPortfolioDTO getSprintMetricsSummary(@PathVariable Long id, @RequestParam(defaultValue = "") String startDate, @RequestParam(defaultValue = "1") Integer duration) {
+        return service.getSprintMetricsSummary(id, startDate, duration);
     }
 }
