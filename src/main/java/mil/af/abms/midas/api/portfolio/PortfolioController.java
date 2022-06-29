@@ -5,6 +5,7 @@ import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +25,7 @@ import mil.af.abms.midas.api.portfolio.dto.CreatePortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.PortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioDTO;
 import mil.af.abms.midas.api.release.Release;
+import mil.af.abms.midas.api.release.dto.ReleaseDTO;
 import mil.af.abms.midas.config.security.annotations.HasPortfolioAccess;
 import mil.af.abms.midas.config.security.annotations.IsPortfolioLeadershipOrAdmin;
 
@@ -65,7 +67,7 @@ public class PortfolioController extends AbstractCRUDController<Portfolio, Portf
     }
 
     @GetMapping("{id}/releases")
-    public List<Release> getPortfolioReleases(@PathVariable Long id) {
-        return service.getPortfolioReleases(id);
+    public List<ReleaseDTO> getPortfolioReleases(@PathVariable Long id) {
+        return service.getPortfolioReleases(id).stream().map(Release::toDto).collect(Collectors.toList());
     }
 }
