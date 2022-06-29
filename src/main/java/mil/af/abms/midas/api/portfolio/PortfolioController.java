@@ -23,6 +23,7 @@ import mil.af.abms.midas.api.dtos.SprintSummaryPortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.CreatePortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.PortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioDTO;
+import mil.af.abms.midas.api.release.Release;
 import mil.af.abms.midas.config.security.annotations.HasPortfolioAccess;
 import mil.af.abms.midas.config.security.annotations.IsPortfolioLeadershipOrAdmin;
 
@@ -61,5 +62,10 @@ public class PortfolioController extends AbstractCRUDController<Portfolio, Portf
     @GetMapping("{id}/sprint-metrics/summary")
     public SprintSummaryPortfolioDTO getSprintMetricsSummary(@PathVariable Long id, @RequestParam(defaultValue = "") String startDate, @RequestParam(defaultValue = "1") Integer duration) {
         return service.getSprintMetricsSummary(id, startDate, duration);
+    }
+
+    @GetMapping("{id}/releases")
+    public List<Release> getPortfolioReleases(@PathVariable Long id) {
+        return service.getPortfolioReleases(id);
     }
 }

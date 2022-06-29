@@ -37,6 +37,7 @@ import mil.af.abms.midas.api.personnel.dto.CreatePersonnelDTO;
 import mil.af.abms.midas.api.portfolio.dto.CreatePortfolioDTO;
 import mil.af.abms.midas.api.portfolio.dto.UpdatePortfolioDTO;
 import mil.af.abms.midas.api.product.ProductService;
+import mil.af.abms.midas.api.release.dto.ReleaseDTO;
 import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
@@ -183,5 +184,20 @@ class PortfolioControllerTests extends ControllerTestHarness {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$['totalReleases']").value("1"));
+    }
+
+    @Test
+    void should_get_all_portfolio_releases() throws Exception {
+        ReleaseDTO dto = new ReleaseDTO();
+
+        doReturn(List.of(dto)).when(portfolioService).getPortfolioReleases(anyLong());
+
+        mockMvc.perform(get("/api/portfolios/1/releases")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapper.writeValueAsString(dto))
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$").isArray());
     }
 }

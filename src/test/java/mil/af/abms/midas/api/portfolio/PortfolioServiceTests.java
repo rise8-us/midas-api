@@ -463,4 +463,11 @@ class PortfolioServiceTests {
         assertThat(portfolioService.getAllIssuesDeployedToProdForSprint(portfolio1, startDate, endDate)).hasSize(1);
     }
 
+    @Test
+    void should_get_all_portfolio_releases() {
+        doReturn(portfolio).when(portfolioService).findById(anyLong());
+
+        assertThat(portfolioService.getPortfolioReleases(4L)).hasSize(1);
+    }
+
 }

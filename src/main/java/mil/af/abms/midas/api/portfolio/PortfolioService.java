@@ -246,4 +246,11 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
         return new SprintSummaryPortfolioDTO(prodDeployments.size(), issuesToStaging.size(), issuesToProd.size());
     }
 
+    public List<Release> getPortfolioReleases(Long id) {
+        Portfolio portfolio = findById(id);
+
+        return portfolio.getProducts().stream()
+                .flatMap(product -> product.getReleases().stream())
+                .collect(Collectors.toList());
+    }
 }
