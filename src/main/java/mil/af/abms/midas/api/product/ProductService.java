@@ -5,6 +5,7 @@ import static mil.af.abms.midas.api.helper.SprintDateHelper.getAllSprintDates;
 import javax.transaction.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -33,6 +34,7 @@ import mil.af.abms.midas.api.product.dto.ProductInterfaceDTO;
 import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
 import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.release.Release;
+import mil.af.abms.midas.api.release.ReleaseService;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
 import mil.af.abms.midas.api.tag.TagService;
@@ -44,6 +46,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
     private IssueService issueService;
     private PersonnelService personnelService;
     private ProjectService projectService;
+    private ReleaseService releaseService;
     private SourceControlService sourceControlService;
     private TagService tagService;
 
@@ -53,6 +56,8 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
     public void setPersonnelService(PersonnelService personnelService) { this.personnelService = personnelService; }
     @Autowired
     public void setProjectService(ProjectService projectService) { this.projectService = projectService; }
+    @Autowired
+    public void setReleaseService(ReleaseService releaseService) { this.releaseService = releaseService; }
     @Autowired
     public void setSourceControlService(SourceControlService sourceControlService) { this.sourceControlService = sourceControlService; }
     @Autowired
@@ -182,12 +187,36 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
                 release.getReleasedAt().isBefore(endDate.atTime(LocalTime.MAX))
         ).collect(Collectors.toSet());
 
+        float averageIssueDuration = calculateLeadTimeForChange(releases);
+
         return Builder.build(SprintProductMetricsDTO.class)
                 .with(d -> d.setDate(currentDate))
                 .with(d -> d.setDeliveredPoints(finalTotalWeight))
                 .with(d -> d.setDeliveredStories(allIssues.size()))
                 .with(d -> d.setReleaseFrequency((float) releases.size() / duration))
+                .with(d -> d.setLeadTimeForChangeInMinutes(averageIssueDuration))
                 .get();
+    }
+
+    protected float calculateLeadTimeForChange(Set<Release> releases) {
+        long totalIssueDuration = 0;
+        long issuesCount = 0;
+
+        for (Release release : releases) {
+            Long projectId = release.getProject().getId();
+
+            Optional<Release> previousRelease = releaseService.getPreviousReleaseByProjectIdAndReleasedAt(projectId, release.getReleasedAt());
+            LocalDateTime previousReleasedAt = previousRelease.isPresent() ? previousRelease.get().getReleasedAt() : LocalDateTime.of(2000, 1, 1, 1, 0, 0);
+
+            List<Issue> issuesInRelease = issueService.findAllIssuesByProjectIdAndCompletedAtDateRange(projectId, previousReleasedAt, release.getReleasedAt());
+
+            totalIssueDuration += issuesInRelease.stream()
+                    .map(issue -> ChronoUnit.MINUTES.between(issue.getCompletedAt(), release.getReleasedAt()))
+                    .mapToLong(Long::longValue).sum();
+            issuesCount += issuesInRelease.size();
+        }
+
+        return issuesCount != 0 ? (float) totalIssueDuration / issuesCount : -1F;
     }
 
 }

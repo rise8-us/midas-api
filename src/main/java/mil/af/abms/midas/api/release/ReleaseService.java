@@ -3,6 +3,7 @@ package mil.af.abms.midas.api.release;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -163,6 +164,10 @@ public class ReleaseService extends AbstractCRUDService<Release, ReleaseDTO, Rel
         return releases.stream().filter(r ->
                 r.getReleasedAt().isAfter(startDateTime) && r.getReleasedAt().isBefore(endDateTime)
         ).collect(Collectors.toList());
+    }
+
+    public Optional<Release> getPreviousReleaseByProjectIdAndReleasedAt(Long projectId, LocalDateTime releasedAt) {
+        return repository.findPreviousReleaseByProjectIdAndReleasedAt(projectId, releasedAt);
     }
 
 }
