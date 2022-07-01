@@ -2,8 +2,11 @@ package mil.af.abms.midas.api.release;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import mil.af.abms.midas.api.RepositoryTestHarness;
@@ -16,27 +19,42 @@ class ReleaseRepositoryTests extends RepositoryTestHarness {
     @Autowired
     ReleaseRepository releaseRepository;
 
-    @Test
-    void should_find_by_releaseUid() throws EntityNotFoundException {
+    private Project savedProject;
+
+    @BeforeEach()
+    void beforeEach() {
         Project project = Builder.build(Project.class)
                 .with(p -> p.setName("name"))
                 .with(p -> p.setGitlabProjectId(1))
                 .get();
 
-        entityManager.persist(project);
-        entityManager.flush();
+        savedProject = entityManager.persist(project);
 
         Release release = Builder.build(Release.class)
                 .with(i -> i.setName("title"))
                 .with(i -> i.setUid("2-3-4"))
-                .with(i -> i.setProject(project))
+                .with(i -> i.setProject(savedProject))
+                .with(i -> i.setReleasedAt(LocalDateTime.of(2000, 1, 1, 1, 1)))
                 .get();
 
-        Release savedRelease = entityManager.persist(release);
+        entityManager.persist(release);
         entityManager.flush();
+    }
 
-        Release foundRelease = releaseRepository.findByUid(savedRelease.getUid()).orElseThrow(() ->
+    @Test
+    void should_find_by_releaseUid() throws EntityNotFoundException {
+        Release foundRelease = releaseRepository.findByUid("2-3-4").orElseThrow(() ->
                 new EntityNotFoundException("Not Found"));
+
+        assertThat(foundRelease.getUid()).isEqualTo("2-3-4");
+    }
+
+    @Test
+    void should_find_previous_release_by_project_id_and_date() throws EntityNotFoundException {
+        Release foundRelease = releaseRepository.findPreviousReleaseByProjectIdAndReleasedAt(
+                savedProject.getId(),
+                LocalDateTime.of(2001, 1, 1, 1, 1)
+        ).orElseThrow(() -> new EntityNotFoundException("Not Found"));
 
         assertThat(foundRelease.getUid()).isEqualTo("2-3-4");
     }

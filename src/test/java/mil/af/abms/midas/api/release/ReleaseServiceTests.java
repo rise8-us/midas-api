@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -41,6 +42,7 @@ import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
 import mil.af.abms.midas.clients.gitlab.models.GitLabRelease;
+import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @ExtendWith(SpringExtension.class)
 @Import(ReleaseService.class)
@@ -284,5 +286,16 @@ class ReleaseServiceTests {
         LocalDateTime endDate = LocalDate.parse("2022-06-20").atStartOfDay();
 
         assertThat(releaseService.filterReleasedAtByDateRange(List.of(foundRelease, r1, r2), startDate, endDate)).hasSize(1);
+    }
+
+    @Test
+    void should_get_previous_release_by_projectId_and_date() {
+        doReturn(Optional.of(foundRelease)).when(repository).findPreviousReleaseByProjectIdAndReleasedAt(anyLong(), any());
+        Release release = repository.findPreviousReleaseByProjectIdAndReleasedAt(
+                1L,
+                LocalDateTime.now()
+        ).orElseThrow(() -> new EntityNotFoundException("Not Found"));
+
+        Assertions.assertThat(release.getUid()).isEqualTo("3422");
     }
 }

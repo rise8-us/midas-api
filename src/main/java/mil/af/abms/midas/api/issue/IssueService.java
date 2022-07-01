@@ -237,4 +237,9 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
         ).collect(Collectors.toList());
     }
 
+    public List<Issue> findAllIssuesByProjectIdAndCompletedAtDateRange(Long projectId, LocalDateTime startDate, LocalDateTime endDate) {
+        Optional<List<Issue>> filteredIssues = repository.findAllIssuesByProjectIdAndCompletedAtDateRange(projectId, startDate, endDate);
+        return filteredIssues.orElseGet(List::of);
+    }
+
 }

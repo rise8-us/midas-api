@@ -44,9 +44,9 @@ import mil.af.abms.midas.api.product.ProductService;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
-import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
 import mil.af.abms.midas.clients.gitlab.models.GitLabIssue;
+import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @ExtendWith(SpringExtension.class)
 @Import(IssueService.class)
@@ -68,8 +68,6 @@ public class IssueServiceTests {
     private PortfolioService portfolioService;
     @MockBean
     private  GitLab4JClient gitLab4JClient;
-    @MockBean
-    private UserService userService;
 
     @Captor
     ArgumentCaptor<Issue> captor;
@@ -363,6 +361,30 @@ public class IssueServiceTests {
         LocalDateTime endDate = LocalDate.parse("2022-06-20").atStartOfDay();
 
         Assertions.assertThat(issueService.filterCompletedAtByDateRange(List.of(foundIssue, i1, i2, i3), startDate, endDate)).hasSize(1);
+    }
+
+    @Test
+    void should_get_issues_by_project_id_and_date_range() {
+        doReturn(Optional.of(List.of(foundIssue))).when(repository).findAllIssuesByProjectIdAndCompletedAtDateRange(anyLong(), any(), any());
+        List<Issue> foundIssues = repository.findAllIssuesByProjectIdAndCompletedAtDateRange(
+                1L,
+                LocalDate.parse("2022-01-01").atStartOfDay(),
+                LocalDateTime.now()
+        ).orElseThrow(() -> new EntityNotFoundException("Not Found"));
+
+        Assertions.assertThat(foundIssues).hasSize(1);
+    }
+
+    @Test
+    void should_get_no_issues_by_project_id_and_date_range() {
+        doReturn(Optional.of(List.of())).when(repository).findAllIssuesByProjectIdAndCompletedAtDateRange(anyLong(), any(), any());
+        List<Issue> noIssuesFound = repository.findAllIssuesByProjectIdAndCompletedAtDateRange(
+                1L,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        ).orElseThrow(() -> new EntityNotFoundException("Not Found"));
+
+        Assertions.assertThat(noIssuesFound).hasSize(0);
     }
 
 }

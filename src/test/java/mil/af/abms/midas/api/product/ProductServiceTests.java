@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -44,6 +45,7 @@ import mil.af.abms.midas.api.product.dto.UpdateProductDTO;
 import mil.af.abms.midas.api.project.Project;
 import mil.af.abms.midas.api.project.ProjectService;
 import mil.af.abms.midas.api.release.Release;
+import mil.af.abms.midas.api.release.ReleaseService;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
 import mil.af.abms.midas.api.tag.TagService;
@@ -58,6 +60,8 @@ class ProductServiceTests {
 
     @SpyBean
     ProductService productService;
+    @MockBean
+    ReleaseService releaseService;
     @MockBean
     SourceControlService sourceControlService;
     @MockBean
@@ -261,12 +265,14 @@ class ProductServiceTests {
                 .with(d -> d.setDeliveredPoints(5L))
                 .with(d -> d.setDeliveredStories(1))
                 .with(d -> d.setReleaseFrequency(0.0F))
+                .with(d -> d.setLeadTimeForChangeInMinutes(0.0F))
                 .get();
         SprintProductMetricsDTO dto2 = Builder.build(SprintProductMetricsDTO.class)
                 .with(d -> d.setDate(LocalDate.parse("2022-06-02")))
                 .with(d -> d.setDeliveredPoints(5L))
                 .with(d -> d.setDeliveredStories(1))
                 .with(d -> d.setReleaseFrequency(1 / 14F))
+                .with(d -> d.setLeadTimeForChangeInMinutes(0.0F))
                 .get();
 
         Issue issueNotCompleted = new Issue();
@@ -278,6 +284,7 @@ class ProductServiceTests {
         issueBeforeDate.setCompletedAt(LocalDate.parse("2022-06-02").atStartOfDay());
 
         doReturn(product).when(productService).findById(anyLong());
+        doReturn(0F).when(productService).calculateLeadTimeForChange(anySet());
         when(issueService.getAllIssuesByProductId(anyLong())).thenReturn(List.of(issue, issueNotCompleted, issueBeforeDate));
 
         assertThat(productService.getSprintMetrics(91L, LocalDate.parse("2022-06-16"), 14, 2)).isEqualTo(List.of(dto1, dto2));
@@ -298,10 +305,53 @@ class ProductServiceTests {
         product2.setProjects(Set.of(project2));
 
         doReturn(product).when(productService).findById(anyLong());
+        doReturn(0F).when(productService).calculateLeadTimeForChange(anySet());
         when(issueService.getAllIssuesByProductId(anyLong())).thenReturn(List.of());
         LocalDate todayMinusFive = LocalDate.now().minusDays(5L);
         SprintProductMetricsDTO dto = productService.populateProductMetrics(todayMinusFive, product2, 14);
 
         assertThat(dto.getReleaseFrequency()).isEqualTo(1 / 5F);
+    }
+
+    @Test
+    void should_calculate_lead_time_for_change() {
+        Release release2 = new Release();
+        BeanUtils.copyProperties(release, release2);
+        release2.setProject(project);
+        release2.setReleasedAt(LocalDateTime.parse("2022-06-18T12:00:00"));
+
+        Release previousRelease = new Release();
+        BeanUtils.copyProperties(release, previousRelease);
+        previousRelease.setProject(project);
+        previousRelease.setReleasedAt(LocalDateTime.parse("2022-01-01T12:00:00"));
+
+        doReturn(Optional.of(previousRelease)).when(releaseService).getPreviousReleaseByProjectIdAndReleasedAt(any(), any());
+        doReturn(List.of(issue)).when(issueService).findAllIssuesByProjectIdAndCompletedAtDateRange(any(), any(), any());
+
+        float leadTime = productService.calculateLeadTimeForChange(Set.of(release2));
+
+        assertThat(leadTime).isEqualTo(2160F);
+    }
+
+    @Test
+    void should_handle_no_previous_release_for_calculate_lead_time_for_change() {
+        Release release2 = new Release();
+        BeanUtils.copyProperties(release, release2);
+        release2.setProject(project);
+        release2.setReleasedAt(LocalDateTime.parse("2022-06-18T12:00:00"));
+
+        doReturn(Optional.empty()).when(releaseService).getPreviousReleaseByProjectIdAndReleasedAt(any(), any());
+        doReturn(List.of(issue)).when(issueService).findAllIssuesByProjectIdAndCompletedAtDateRange(any(), any(), any());
+
+        float leadTime = productService.calculateLeadTimeForChange(Set.of(release2));
+
+        assertThat(leadTime).isEqualTo(2160F);
+    }
+
+    @Test
+    void should_calculate_lead_time_for_change_for_no_issues_or_no_releases() {
+        float leadTime = productService.calculateLeadTimeForChange(Set.of());
+
+        assertThat(leadTime).isEqualTo(-1F);
     }
 }

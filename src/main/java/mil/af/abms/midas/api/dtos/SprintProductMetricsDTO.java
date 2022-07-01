@@ -17,5 +17,6 @@ public class SprintProductMetricsDTO implements AbstractDTO {
     private Long deliveredPoints;
     private Integer deliveredStories;
     private Float releaseFrequency;
+    private Float leadTimeForChangeInMinutes;
 
 }
