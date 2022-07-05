@@ -138,7 +138,6 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
 
     private void sendParentUpdatedWebsocketMessage(Target target, boolean isAdded) {
         Optional.ofNullable(target.getParent()).ifPresent(parent -> {
-            websocket.convertAndSend("/topic/update_target", parent.toDto());
             if (isAdded) { parent.getChildren().add(target); }
             else {
                 parent.setChildren(parent.getChildren().stream()
@@ -146,6 +145,7 @@ public class TargetService extends AbstractCRUDService<Target, TargetDTO, Target
                         .collect(Collectors.toList())
                 );
             }
+            websocket.convertAndSend("/topic/update_target", parent.toDto());
         });
     }
 
