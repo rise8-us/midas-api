@@ -1,16 +1,18 @@
 plugins {
-    id 'org.springframework.boot' version '2.6.6'
+    id 'org.springframework.boot' version '2.6.9'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
-    id 'org.flywaydb.flyway' version '8.3.0'
+    id 'org.flywaydb.flyway' version '8.5.13'
     id 'antlr'
     id 'checkstyle'
     id 'jacoco'
     id "com.gorylenko.gradle-git-properties" version "2.3.2"
     id "org.sonarqube" version "3.3"
+    id "org.owasp.dependencycheck" version "7.1.0.1"
 }
 
 apply from: "sonar.gradle"
+apply from: "dependency.gradle"
 
 group = 'mil.af.abms'
 version = '0.0.1-SNAPSHOT'
@@ -56,9 +58,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.security:spring-security-messaging'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.security:spring-security-core:5.7.2'
     implementation 'org.hibernate:hibernate-validator:7.0.2.Final'
-    implementation 'org.flywaydb:flyway-core:8.4.4'
-    implementation 'org.flywaydb:flyway-mysql:8.4.4'
+    implementation 'org.flywaydb:flyway-core:8.5.13'
+    implementation 'org.flywaydb:flyway-mysql:8.5.13'
     implementation 'com.auth0:java-jwt:3.18.3'
     implementation 'org.gitlab4j:gitlab4j-api:4.19.0'
     implementation 'com.amazonaws:aws-java-sdk-s3:1.12.153'
@@ -67,7 +70,6 @@ dependencies {
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'com.h2database:h2:1.4.200'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
@@ -75,8 +77,8 @@ dependencies {
 
 configurations.all {
     resolutionStrategy.dependencySubstitution {
-        substitute(module('org.apache.logging.log4j:log4j-api')).using(module('org.apache.logging.log4j:log4j-api:2.17.1'))
-        substitute(module('org.apache.logging.log4j:log4j-to-slf4j')).using(module('org.apache.logging.log4j:log4j-to-slf4j:2.17.1'))
+        substitute(module('org.apache.logging.log4j:log4j-api')).using(module('org.apache.logging.log4j:log4j-api:2.18.0'))
+        substitute(module('org.apache.logging.log4j:log4j-to-slf4j')).using(module('org.apache.logging.log4j:log4j-to-slf4j:2.18.0'))
         substitute(module('org.apache.tomcat.embed:tomcat-embed-core')).using(module('org.apache.tomcat.embed:tomcat-embed-core:9.0.63'))
         substitute(module('com.fasterxml.jackson.core:jackson-databind')).using(module('com.fasterxml.jackson.core:jackson-databind:2.13.2.1'))
     }
