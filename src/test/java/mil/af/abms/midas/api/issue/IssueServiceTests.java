@@ -30,6 +30,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
@@ -110,6 +112,16 @@ public class IssueServiceTests {
             .with(i -> i.setWeight(null))
             .with(i -> i.setCompletedAt(LocalDate.parse("2022-06-15").atStartOfDay()))
             .get();
+    private final Issue foundIssueNullCompleted = Builder.build(Issue.class)
+            .with(i -> i.setId(6L))
+            .with(i -> i.setTitle("whoa this is issue"))
+            .with(i -> i.setCreationDate(CREATED_AT))
+            .with(i -> i.setIssueUid("3422"))
+            .with(i -> i.setIssueIid(2))
+            .with(i -> i.setProject(foundProject))
+            .with(i -> i.setWeight(null))
+            .with(i -> i.setCompletedAt(null))
+            .get();
     private final GitLabIssue gitLabIssue = Builder.build(GitLabIssue.class)
             .with(i -> i.setTitle("title"))
             .with(i -> i.setIssueIid(2))
@@ -189,6 +201,18 @@ public class IssueServiceTests {
         issueService.getAllIssuesByProjectId(foundProject.getId());
 
         assertThat(issueService.getAllIssuesByProjectId(foundProject.getId())).isNotNull();
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {
+            "2000-01-01 : 2023-01-01 : 1",
+            "2023-01-01 : 2023-01-01 : 0",
+            "2000-01-01 : 2000-01-01 : 0"
+    }, delimiter = ':')
+    void should_get_all_issue_by_portfolio_id_and_date_range(String startDate, String endDate, Integer size) {
+        doReturn(List.of(foundIssue, foundIssueNullCompleted)).when(issueService).getAllIssuesByPortfolioId(anyLong());
+
+        Assertions.assertThat(issueService.getAllIssuesByPortfolioIdAndDateRange(foundPortfolio.getId(), LocalDate.parse(startDate), LocalDate.parse(endDate))).hasSize(size);
     }
 
     @Test

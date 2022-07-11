@@ -2,6 +2,7 @@ package mil.af.abms.midas.api.issue;
 
 import javax.validation.Valid;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,4 +57,8 @@ public class IssueController extends AbstractCRUDController<Issue, IssueDTO, Iss
         return service.getAllIssuesByProductId(productId).stream().map(Issue::toDto).collect(Collectors.toList());
     }
 
+    @GetMapping("/portfolio/{portfolioId}/{startDate}/{endDate}")
+    public List<IssueDTO> getAllIssuesForPortfolioAndDateRange(@PathVariable Long portfolioId, @PathVariable String startDate, @PathVariable String endDate) {
+        return service.getAllIssuesByPortfolioIdAndDateRange(portfolioId, LocalDate.parse(startDate), LocalDate.parse(endDate)).stream().map(Issue::toDto).collect(Collectors.toList());
+    }
 }
