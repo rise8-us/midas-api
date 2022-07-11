@@ -122,6 +122,16 @@ class IssueControllerTests extends ControllerTestHarness {
     }
 
     @Test
+    void should_get_all_issues_by_portfolioId_and_date_range() throws Exception {
+        when(issueService.getAllIssuesByPortfolioIdAndDateRange(any(), any(), any())).thenReturn(List.of(issue));
+
+        mockMvc.perform(get("/api/issues/portfolio/1/2000-01-01/2000-02-01"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$", hasSize(1)));
+    }
+
+    @Test
     void should_get_all_issues_by_product_id() throws Exception {
         when(issueService.getAllIssuesByProductId(any())).thenReturn(List.of(issue));
 

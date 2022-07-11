@@ -1,5 +1,6 @@
 package mil.af.abms.midas.api.issue;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -77,6 +78,15 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
 
     public List<Issue> getAllIssuesByProjectId(Long projectId) {
         return repository.findAllIssuesByProjectId(projectId).orElse(List.of());
+    }
+
+    public List<Issue> getAllIssuesByPortfolioIdAndDateRange(Long portfolioId, LocalDate startDate, LocalDate endDate) {
+        List<Issue> allIssues = getAllIssuesByPortfolioId(portfolioId);
+        return allIssues.stream().filter(
+                i -> i.getCompletedAt() != null &&
+                        i.getCompletedAt().isAfter(startDate.atStartOfDay()) &&
+                        i.getCompletedAt().isBefore(endDate.atStartOfDay())
+        ).collect(Collectors.toList());
     }
 
     public Set<Issue> syncGitlabIssueForProduct(Long productId) {
