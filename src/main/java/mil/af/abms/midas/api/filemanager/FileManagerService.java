@@ -1,11 +1,17 @@
 package mil.af.abms.midas.api.filemanager;
 
+import java.io.IOException;
+
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.util.IOUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import mil.af.abms.midas.clients.S3Client;
+import mil.af.abms.midas.exception.S3IOException;
 
 @Slf4j
 @Service
@@ -27,9 +33,21 @@ public class FileManagerService {
 //        }
 //    }
 
-    public void save(MultipartFile file) {
+    public void saveFile(MultipartFile file) {
         var actualName = String.format("%s/%s.gz", FILE_DIR, file.getName() + "-extra");
         s3Client.sendFileToBucketAsGzip(actualName, file);
+    }
+
+    public ByteArrayResource getFile(String fileName) throws S3IOException {
+        try {
+            S3ObjectInputStream s3ObjectStream = s3Client.getFileFromBucket(fileName);
+            ByteArrayResource s3ObjectBytes = new ByteArrayResource(IOUtils.toByteArray(s3ObjectStream));
+            s3ObjectStream.close();
+            return s3ObjectBytes;
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            throw new S3IOException("failed to retrieve file from s3");
+        }
     }
 
 //    public Stream<Path> loadAllFiles() {
