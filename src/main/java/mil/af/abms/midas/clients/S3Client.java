@@ -51,14 +51,13 @@ public class S3Client {
                 .build();
     }
 
-    public void sendFileToBucketAsGzip(String fileName, MultipartFile file) {
+    public void sendFileToBucket(String fileName, MultipartFile file) {
         try (InputStream compressedStream = new ByteArrayInputStream(file.getBytes())) {
             var length = IOHelper.getInputStreamSize(compressedStream);
 
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(MediaType.APPLICATION_OCTET_STREAM);
             metadata.addUserMetadata("title", fileName);
-            metadata.setContentEncoding("gzip");
             metadata.setContentLength(length);
 
             var request = new PutObjectRequest(this.bucketName, fileName, compressedStream, metadata);

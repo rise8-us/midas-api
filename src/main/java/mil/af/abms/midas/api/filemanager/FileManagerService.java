@@ -34,8 +34,8 @@ public class FileManagerService {
 //    }
 
     public void saveFile(MultipartFile file) {
-        var actualName = String.format("%s/%s.gz", FILE_DIR, file.getName() + "-extra");
-        s3Client.sendFileToBucketAsGzip(actualName, file);
+        var actualName = String.format("%s/%s", FILE_DIR, file.getOriginalFilename());
+        s3Client.sendFileToBucket(actualName, file);
     }
 
     public ByteArrayResource getFile(String fileName) throws S3IOException {
