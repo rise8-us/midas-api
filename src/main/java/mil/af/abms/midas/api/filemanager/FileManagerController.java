@@ -30,10 +30,9 @@ public class FileManagerController {
 //    }
 
     @PostMapping("/upload")
-    public ResponseEntity<String> save(@RequestParam("file")MultipartFile file) {
-        String message;
+    public ResponseEntity<String> save(@RequestParam("file") MultipartFile file) {
         service.save(file);
-        message = "success. File: " + file.getName();
-        return ResponseEntity.status(HttpStatus.OK).body(message);
+
+        return ResponseEntity.status(HttpStatus.OK).body("success. File: " + file.getName());
     }
 }

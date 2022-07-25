@@ -28,8 +28,7 @@ public class FileManagerService {
 //    }
 
     public void save(MultipartFile file) {
-        System.out.println(file.getName());
-        var actualName = String.format("%s/%s", FILE_DIR, file.getName());
+        var actualName = String.format("%s/%s.gz", FILE_DIR, file.getName() + "-extra");
         s3Client.sendFileToBucketAsGzip(actualName, file);
     }
 

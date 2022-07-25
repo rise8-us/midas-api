@@ -2,8 +2,9 @@ package mil.af.abms.midas.clients;
 
 import javax.ws.rs.core.MediaType;
 
-import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,17 +52,16 @@ public class S3Client {
     }
 
     public void sendFileToBucketAsGzip(String fileName, MultipartFile file) {
-        System.out.println("OF FILE: " + file.getOriginalFilename() + "CONTENT: " + file.getContentType() + "RESOURCE: " + file.getResource());
-        try {
-            var inputStream = file.getInputStream();
-            BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
-            var length = IOHelper.getInputStreamSize(bufferedInputStream);
+        try (InputStream compressedStream = new ByteArrayInputStream(file.getBytes())) {
+            var length = IOHelper.getInputStreamSize(compressedStream);
 
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            metadata.addUserMetadata("title", fileName);
+            metadata.setContentEncoding("gzip");
             metadata.setContentLength(length);
 
-            var request = new PutObjectRequest(this.bucketName, fileName, bufferedInputStream, metadata);
+            var request = new PutObjectRequest(this.bucketName, fileName, compressedStream, metadata);
 
             makeRequest(() -> s3.putObject(request));
         } catch (IOException | S3IOException e) {
