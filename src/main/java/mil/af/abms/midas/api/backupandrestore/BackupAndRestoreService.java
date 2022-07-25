@@ -60,8 +60,8 @@ public class BackupAndRestoreService {
         var dumpDate = LocalDateTime.now();
         var flywayVersion = mySQLClient.getLatestFlywayVersion();
 
-        var actualName = fileName != null ? String.format("backups/%s/%s.sql.gz", flywayVersion, fileName) : String.format("backups/%s/%s.sql.gz", flywayVersion, dumpDate);
-        s3Client.sendToBucketAsGzip(actualName, dump);
+        var actualName = fileName != null ? String.format("%s/%s/%s.sql.gz", BACKUP_DIR, flywayVersion, fileName) : String.format("%s/%s/%s.sql.gz", BACKUP_DIR, flywayVersion, dumpDate);
+        s3Client.sendStringToBucketAsGzip(actualName, dump);
     }
 
     @Scheduled(cron = "0 0 0 * * *")

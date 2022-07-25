@@ -67,11 +67,11 @@ class BackupAndRestoreServiceTests {
     void should_backup_to_s3(String fileName) {
         when(mySQLClient.exportToSql()).thenReturn(DATA);
         when(mySQLClient.getLatestFlywayVersion()).thenReturn(VERSION);
-        doNothing().when(s3Client).sendToBucketAsGzip(anyString(), anyString());
+        doNothing().when(s3Client).sendStringToBucketAsGzip(anyString(), anyString());
 
         service.backupToS3(fileName);
 
-        verify(s3Client, times(1)).sendToBucketAsGzip(stringCaptor.capture(), stringCaptor.capture());
+        verify(s3Client, times(1)).sendStringToBucketAsGzip(stringCaptor.capture(), stringCaptor.capture());
         var arg1 = stringCaptor.getAllValues().get(0);
         var arg2 = stringCaptor.getAllValues().get(1);
 

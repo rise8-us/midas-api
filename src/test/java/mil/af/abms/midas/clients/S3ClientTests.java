@@ -74,7 +74,7 @@ public class S3ClientTests {
     void should_send_gzip_to_bucket() {
         doReturn("foo").when(s3Client).makeRequest(any());
 
-        s3Client.sendToBucketAsGzip(FILE_NAME, DATA);
+        s3Client.sendStringToBucketAsGzip(FILE_NAME, DATA);
 
         verify(s3Client, times(1)).makeRequest(any());
     }
@@ -83,7 +83,7 @@ public class S3ClientTests {
     void should_fail_send_gzip_to_bucket_with_S3IOException() {
         doThrow(new S3IOException("fail")).when(s3Client).makeRequest(any());
 
-        assertThrows(S3IOException.class, () -> s3Client.sendToBucketAsGzip(FILE_NAME, DATA));
+        assertThrows(S3IOException.class, () -> s3Client.sendStringToBucketAsGzip(FILE_NAME, DATA));
     }
 
     @Test

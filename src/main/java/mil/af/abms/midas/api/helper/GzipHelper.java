@@ -43,4 +43,5 @@ public class GzipHelper {
             throw new IOException("Failed to read file");
         }
     }
+
 }
