@@ -11,4 +11,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class FileManagerDTO implements Serializable {
     String fileName;
+    String filePath;
 }

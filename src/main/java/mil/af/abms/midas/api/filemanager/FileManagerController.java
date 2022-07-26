@@ -37,7 +37,7 @@ public class FileManagerController {
 
     @PostMapping("download")
     public ResponseEntity<ByteArrayResource> downloadFile(@RequestBody FileManagerDTO dto) {
-        ByteArrayResource data = service.getFile(dto.getFileName());
+        ByteArrayResource data = service.getFile(dto.getFilePath());
 
         return ResponseEntity
                 .ok()
