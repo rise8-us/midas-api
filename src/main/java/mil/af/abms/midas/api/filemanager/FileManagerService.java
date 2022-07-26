@@ -1,6 +1,8 @@
 package mil.af.abms.midas.api.filemanager;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
@@ -25,16 +27,8 @@ public class FileManagerService {
         this.s3Client = s3Client;
     }
 
-//    public void init() {
-//        try {
-//            Files.createDirectory(root);
-//        } catch (IOException e) {
-//            throw new RuntimeException("Could not init");
-//        }
-//    }
-
-    public void saveFile(MultipartFile file) {
-        var actualName = String.format("%s/%s", FILE_DIR, file.getOriginalFilename());
+    public void saveFile(String productName, MultipartFile file) {
+        var actualName = String.format("%s/%s/%s", FILE_DIR, productName, file.getOriginalFilename());
         s3Client.sendFileToBucket(actualName, file);
     }
 
@@ -50,11 +44,9 @@ public class FileManagerService {
         }
     }
 
-//    public Stream<Path> loadAllFiles() {
-//        try {
-//            return Files.walk(this.root, 1).filter(path -> !path.equals(this.root));
-//        } catch (IOException e) {
-//            throw new RuntimeException("Load failed");
-//        }
-//    }
+    public List<String> getAllFileNamesByProduct(String productName) {
+        List<String> allFileNames = s3Client.getFileNamesFromBucket();
+        List<String> filteredFileNames = allFileNames.stream().filter(path -> path.contains("files/" + productName)).collect(Collectors.toList());
+        return filteredFileNames;
+    }
 }
