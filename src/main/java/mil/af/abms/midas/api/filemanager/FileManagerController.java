@@ -30,8 +30,8 @@ public class FileManagerController {
     }
 
     @PostMapping("upload")
-    public ResponseEntity<String> save(@RequestHeader("product") String productName, @RequestBody MultipartFile file) {
-        service.saveFile(productName, file);
+    public ResponseEntity<String> save(@RequestHeader("portfolio") String portfolioName, @RequestHeader("product") String productName, @RequestBody MultipartFile file) {
+        service.saveFile(portfolioName, productName, file);
         return ResponseEntity.status(HttpStatus.OK).body("success. File: " + file.getName());
     }
 
@@ -48,7 +48,8 @@ public class FileManagerController {
     }
 
     @GetMapping("files")
-    public List<String> getAllFileNamesByProduct(@RequestParam(name = "product") String productName) {
-        return service.getAllFileNamesByProduct(productName);
+    public List<String> getAllFileNamesByProduct(@RequestParam(name = "portfolio") String portfolioName, @RequestParam(name = "product") String productName) {
+        String pathStr = portfolioName.replace("/", " ") + "/" + productName.replace("/", " ");
+        return service.getAllFileNamesByPath(pathStr);
     }
 }

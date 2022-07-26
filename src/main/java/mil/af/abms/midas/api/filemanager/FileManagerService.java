@@ -19,7 +19,7 @@ import mil.af.abms.midas.exception.S3IOException;
 @Service
 public class FileManagerService {
 
-    private static final String FILE_DIR = "files";
+    private static final String FILE_DIR = "uploads";
 
     private final S3Client s3Client;
 
@@ -27,8 +27,10 @@ public class FileManagerService {
         this.s3Client = s3Client;
     }
 
-    public void saveFile(String productName, MultipartFile file) {
-        var actualName = String.format("%s/%s/%s", FILE_DIR, productName, file.getOriginalFilename());
+    public void saveFile(String portfolioName, String productName, MultipartFile file) {
+        String portfolio = portfolioName.replace("/", " ");
+        String product = productName.replace("/", " ");
+        var actualName = String.format("%s/%s/%s/%s", FILE_DIR, portfolio, product, file.getOriginalFilename());
         s3Client.sendFileToBucket(actualName, file);
     }
 
@@ -44,9 +46,9 @@ public class FileManagerService {
         }
     }
 
-    public List<String> getAllFileNamesByProduct(String productName) {
+    public List<String> getAllFileNamesByPath(String pathStr) {
         List<String> allFileNames = s3Client.getFileNamesFromBucket();
-        List<String> filteredFileNames = allFileNames.stream().filter(path -> path.contains("files/" + productName)).collect(Collectors.toList());
+        List<String> filteredFileNames = allFileNames.stream().filter(path -> path.contains("uploads/" + pathStr)).collect(Collectors.toList());
         return filteredFileNames;
     }
 }
