@@ -7,6 +7,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,6 +46,11 @@ public class FileManagerController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .header("Content-disposition", "attachment; filename=\"" + dto.getFileName() + "\"")
                 .body(data);
+    }
+
+    @DeleteMapping("delete")
+    public void delete(@RequestBody FileManagerDTO dto) {
+        service.deleteFile(dto.getFilePath());
     }
 
     @GetMapping("files")

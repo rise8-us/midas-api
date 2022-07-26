@@ -46,6 +46,15 @@ public class FileManagerService {
         }
     }
 
+    public void deleteFile(String fileName) throws S3IOException {
+        try {
+            s3Client.deleteFileFromBucket(fileName);
+        } catch (IOException e){
+            log.error(e.getMessage());
+            throw new S3IOException("failed to delete file from s3 or file does not exist");
+        }
+    }
+
     public List<String> getAllFileNamesByPath(String pathStr) {
         List<String> allFileNames = s3Client.getFileNamesFromBucket();
         List<String> filteredFileNames = allFileNames.stream().filter(path -> path.contains("uploads/" + pathStr)).collect(Collectors.toList());

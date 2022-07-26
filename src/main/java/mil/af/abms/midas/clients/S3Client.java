@@ -16,6 +16,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -97,6 +98,11 @@ public class S3Client {
     public S3ObjectInputStream getFileFromBucket(String fileName) throws IOException {
         var s3Object = (S3Object) makeRequest(() -> s3.getObject(this.bucketName, fileName));
         return s3Object.getObjectContent();
+    }
+
+    public void deleteFileFromBucket(String fileName) throws IOException {
+        DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(this.bucketName, fileName);
+        s3.deleteObject(deleteObjectRequest);
     }
 
     @FunctionalInterface
