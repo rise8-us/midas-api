@@ -62,7 +62,8 @@ class ProductTests {
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(1L))
             .with(p -> p.setName("Midas"))
-            .with(p -> p.setDescription("test product"))
+            .with(p -> p.setAcronym("test product"))
+            .with(p -> p.setCoreDomain("core domain"))
             .with(p -> p.setIsArchived(false))
             .with(p -> p.setSourceControl(sourceControl))
             .with(p -> p.setProjects(projects))
@@ -77,7 +78,8 @@ class ProductTests {
     private final ProductDTO productDTO = Builder.build(ProductDTO.class)
             .with(d -> d.setId(1L))
             .with(d -> d.setName("Midas"))
-            .with(d -> d.setDescription("test product"))
+            .with(d -> d.setAcronym("test product"))
+            .with(p -> p.setCoreDomain("core domain"))
             .with(d -> d.setCreationDate(product.getCreationDate()))
             .with(d -> d.setIsArchived(false))
             .with(d -> d.setTags(new HashSet<>()))
@@ -116,7 +118,8 @@ class ProductTests {
     void should_get_properties() {
         assertThat(product.getId()).isEqualTo(1L);
         assertThat(product.getName()).isEqualTo("Midas");
-        assertThat(product.getDescription()).isEqualTo("test product");
+        assertThat(product.getAcronym()).isEqualTo("test product");
+        assertThat(product.getCoreDomain()).isEqualTo("core domain");
         assertFalse(product.getIsArchived());
         assertThat(product.getProjects()).isEqualTo(projects);
     }

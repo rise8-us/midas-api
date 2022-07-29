@@ -11,6 +11,7 @@ import lombok.Setter;
 
 import mil.af.abms.midas.api.personnel.dto.CreatePersonnelDTO;
 import mil.af.abms.midas.api.product.validation.UniqueProductName;
+import mil.af.abms.midas.api.validation.IsValidStringLength;
 import mil.af.abms.midas.api.validation.ProjectsCanBeAssignedToProduct;
 import mil.af.abms.midas.api.validation.ProjectsExist;
 import mil.af.abms.midas.api.validation.TagsExist;
@@ -27,7 +28,10 @@ public class CreateProductDTO implements ProductInterfaceDTO {
     @UniqueProductName(isNew = true)
     private String name;
 
-    private String description;
+    private String acronym;
+
+    @IsValidStringLength(maxLength = 100)
+    private String coreDomain;
 
     @ProjectsExist
     @ProjectsCanBeAssignedToProduct

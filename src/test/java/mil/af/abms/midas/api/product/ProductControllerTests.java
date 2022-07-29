@@ -60,6 +60,7 @@ class ProductControllerTests extends ControllerTestHarness {
     private final UpdateProductDTO updateProductDTO = new UpdateProductDTO(
             "Midas",
             "Full Stack",
+            "Core Domain",
             Set.of(3L),
             Set.of(3L),
             null,
@@ -73,6 +74,7 @@ class ProductControllerTests extends ControllerTestHarness {
     private final CreateProductDTO createProductDTO = new CreateProductDTO(
             "Midas",
             "Full Stack",
+            "Core Domain",
             Set.of(3L),
             Set.of(3L),
             null,
@@ -86,7 +88,8 @@ class ProductControllerTests extends ControllerTestHarness {
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(5L))
             .with(p -> p.setName("Midas"))
-            .with(p -> p.setDescription("stack full"))
+            .with(p -> p.setAcronym("stack full"))
+            .with(p -> p.setCoreDomain("core domain"))
             .with(p -> p.setGitlabGroupId(123))
             .with(p -> p.setCreationDate(CREATION_DATE))
             .with(p -> p.setIsArchived(false))

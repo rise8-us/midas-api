@@ -40,6 +40,9 @@ public class Portfolio extends AbstractProductPortfolio<PortfolioDTO> {
     @Column(columnDefinition = "TEXT")
     private String ganttNote;
 
+    @Column(columnDefinition = "TEXT")
+    protected String description;
+
     @Column(columnDefinition = "DATETIME")
     private LocalDateTime ganttNoteModifiedAt;
 

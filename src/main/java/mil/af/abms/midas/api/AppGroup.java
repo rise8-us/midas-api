@@ -8,7 +8,6 @@ public interface AppGroup {
     String getMission();
     String getProblemStatement();
     String getName();
-    String getDescription();
     Boolean getIsArchived();
     Integer getGitlabGroupId();
     SourceControl getSourceControl();
