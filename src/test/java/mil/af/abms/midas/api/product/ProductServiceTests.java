@@ -120,7 +120,7 @@ class ProductServiceTests {
             .get();
     private final CreateProductDTO createProductDTO = Builder.build(CreateProductDTO.class)
             .with(p -> p.setName("Midas"))
-            .with(p -> p.setDescription("description"))
+            .with(p -> p.setAcronym("acronym"))
             .with(p -> p.setGitlabGroupId(123))
             .with(p -> p.setSourceControlId(42L))
             .get();
@@ -146,7 +146,8 @@ class ProductServiceTests {
         Product productSaved = productCaptor.getValue();
 
         assertThat(productSaved.getName()).isEqualTo(createProductDTO.getName());
-        assertThat(productSaved.getDescription()).isEqualTo(createProductDTO.getDescription());
+        assertThat(productSaved.getAcronym()).isEqualTo(createProductDTO.getAcronym());
+        assertThat(productSaved.getCoreDomain()).isEqualTo(createProductDTO.getCoreDomain());
         assertThat(productSaved.getGitlabGroupId()).isEqualTo(createProductDTO.getGitlabGroupId());
         assertThat(productSaved.getSourceControl()).isEqualTo(sourceControl);
         assertThat(productSaved.getVision()).isEqualTo(createProductDTO.getVision());
@@ -173,7 +174,7 @@ class ProductServiceTests {
     void should_update_product_by_id() {
         UpdateProductDTO updateProductDTO = Builder.build(UpdateProductDTO.class)
                 .with(p -> p.setName("new name"))
-                .with(p -> p.setDescription("new description"))
+                .with(p -> p.setAcronym("new acronym"))
                 .with(p -> p.setProjectIds(Set.of(4L)))
                 .get();
 
@@ -189,7 +190,8 @@ class ProductServiceTests {
         Product productSaved = productCaptor.getValue();
 
         assertThat(productSaved.getName()).isEqualTo(updateProductDTO.getName());
-        assertThat(productSaved.getDescription()).isEqualTo(updateProductDTO.getDescription());
+        assertThat(productSaved.getAcronym()).isEqualTo(updateProductDTO.getAcronym());
+        assertThat(productSaved.getCoreDomain()).isEqualTo(updateProductDTO.getCoreDomain());
         assertThat(productSaved.getProjects()).isEqualTo(Set.of(project));
         assertThat(productSaved.getGitlabGroupId()).isEqualTo(updateProductDTO.getGitlabGroupId());
         assertThat(productSaved.getVision()).isEqualTo(updateProductDTO.getVision());

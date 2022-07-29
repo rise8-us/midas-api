@@ -24,9 +24,6 @@ public abstract class AbstractProductPortfolio<D extends AbstractDTO> extends Ab
     @Column(columnDefinition = "VARCHAR(70)", nullable = false, unique = true)
     protected String name;
 
-    @Column(columnDefinition = "TEXT")
-    protected String description;
-
     @Column(columnDefinition = "BIT(1) DEFAULT 0", nullable = false)
     protected Boolean isArchived = false;
 
@@ -59,11 +56,6 @@ public abstract class AbstractProductPortfolio<D extends AbstractDTO> extends Ab
     @Override
     public String getName() {
         return this.name;
-    }
-
-    @Override
-    public String getDescription() {
-        return this.description;
     }
 
     @Override

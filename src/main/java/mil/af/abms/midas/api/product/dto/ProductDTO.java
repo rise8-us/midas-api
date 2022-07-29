@@ -20,7 +20,8 @@ public class ProductDTO implements AbstractDTO {
 
     private Long id;
     private String name;
-    private String description;
+    private String acronym;
+    private String coreDomain;
     private PersonnelDTO personnel;
     private Boolean isArchived;
     private LocalDateTime creationDate;

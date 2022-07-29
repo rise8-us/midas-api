@@ -39,7 +39,7 @@ public class ProductsExistValidatorTests {
     private final Product product = Builder.build(Product.class)
             .with(t -> t.setId(1L))
             .with(t -> t.setName("product test"))
-            .with(t -> t.setDescription("New product")).get();
+            .with(t -> t.setAcronym("New product")).get();
 
     @BeforeEach
     public void init() {

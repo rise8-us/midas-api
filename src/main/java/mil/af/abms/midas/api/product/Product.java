@@ -36,6 +36,12 @@ import mil.af.abms.midas.enums.RoadmapType;
 @Table(name = "product")
 public class Product extends AbstractProductPortfolio<ProductDTO> {
 
+    @Column(columnDefinition = "TEXT")
+    protected String acronym;
+
+    @Column(columnDefinition = "VARCHAR(100) DEFAULT ''")
+    private String coreDomain;
+
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(70) DEFAULT 'MANUAL'", nullable = false)
     private RoadmapType roadmapType = RoadmapType.MANUAL;
@@ -72,7 +78,8 @@ public class Product extends AbstractProductPortfolio<ProductDTO> {
         return new ProductDTO(
                 id,
                 name,
-                description,
+                acronym,
+                coreDomain,
                 personnelDTO,
                 isArchived,
                 creationDate,

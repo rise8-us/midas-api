@@ -75,7 +75,8 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
 
         Product newProduct = Builder.build(Product.class)
                 .with(p -> p.setName(dto.getName()))
-                .with(p -> p.setDescription(dto.getDescription()))
+                .with(p -> p.setAcronym(dto.getAcronym()))
+                .with(p -> p.setCoreDomain(dto.getCoreDomain()))
                 .with(p -> p.setVision(dto.getVision()))
                 .with(p -> p.setMission(dto.getMission()))
                 .with(p -> p.setProblemStatement(dto.getProblemStatement()))
@@ -102,7 +103,8 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         UpdatePersonnelDTO updatePersonnelDTO = dto.getPersonnel();
 
         product.setName(dto.getName());
-        product.setDescription(dto.getDescription());
+        product.setAcronym(dto.getAcronym());
+        product.setCoreDomain(dto.getCoreDomain());
         product.setVision(dto.getVision());
         product.setMission(dto.getMission());
         product.setProblemStatement(dto.getProblemStatement());
