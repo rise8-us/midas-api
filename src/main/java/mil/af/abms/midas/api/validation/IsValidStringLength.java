@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
 @Documented
 public @interface IsValidStringLength {
 
-    String message() default "Too many characters. Max length: ";
+    String message() default "Too many characters.";
 
     Class<?>[] groups() default {};
 
