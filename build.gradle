@@ -65,7 +65,7 @@ dependencies {
     implementation 'org.flywaydb:flyway-mysql:8.5.13'
     implementation 'com.auth0:java-jwt:3.18.3'
     implementation 'org.gitlab4j:gitlab4j-api:4.19.0'
-    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.153'
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.261'
     compileOnly 'org.projectlombok:lombok:1.18.22'
     runtimeOnly 'mysql:mysql-connector-java:8.0.28'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
