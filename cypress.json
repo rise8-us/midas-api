@@ -1,0 +1,5 @@
+{
+  "baseUrl": "https://midas.staging.dso.mil",
+  "video": false,
+  "screenshotOnRunFailure": false
+}
