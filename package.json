@@ -1,0 +1,24 @@
+{
+  "name": "e2etests",
+  "version": "1.0.0",
+  "description": "e2e tests",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:local": "npm install && npm run cypress:run --browser chrome",
+    "test:e2e-ci": "npm install && npm run cypress:run --browser chrome",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://code.il2.dso.mil/abms/products/rise8/midas/midas-api.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "cypress": "^9.7.0",
+    "caniuse-lite": "^1.0.30001361"
+  }
+}
+
