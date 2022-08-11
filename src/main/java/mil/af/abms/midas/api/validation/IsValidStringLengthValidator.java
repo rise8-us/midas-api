@@ -16,6 +16,7 @@ public class IsValidStringLengthValidator implements ConstraintValidator<IsValid
     @Override
     public boolean isValid(String string, ConstraintValidatorContext constraintContext) {
         constraintContext.buildConstraintViolationWithTemplate("Max characters: " + maxLength).addConstraintViolation();
-        return string.length() <= maxLength;
+
+        return string == null || string.length() <= maxLength;
     }
 }
