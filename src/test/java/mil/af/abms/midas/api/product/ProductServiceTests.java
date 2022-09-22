@@ -98,10 +98,14 @@ class ProductServiceTests {
             .with(r -> r.setId(100L))
             .with(r -> r.setReleasedAt(LocalDateTime.parse("2022-06-10T12:00:00")))
             .get();
+    private final Release earlierRelease = Builder.build(Release.class)
+            .with(r -> r.setId(101L))
+            .with(r -> r.setReleasedAt(LocalDateTime.parse("2022-06-01T12:00:00")))
+            .get();
     private final Project project = Builder.build(Project.class)
             .with(p -> p.setId(4L))
             .with(p -> p.setName("backend"))
-            .with(p -> p.setReleases(Set.of(release)))
+            .with(p -> p.setReleases(Set.of(release, earlierRelease)))
             .get();
     private final Product product = Builder.build(Product.class)
             .with(p -> p.setId(5L))
@@ -266,14 +270,21 @@ class ProductServiceTests {
                 .with(d -> d.setDate(LocalDate.parse("2022-06-16")))
                 .with(d -> d.setDeliveredPoints(5L))
                 .with(d -> d.setDeliveredStories(1))
-                .with(d -> d.setReleaseFrequency(0.0F))
+                .with(d -> d.setReleaseFrequencyThreeSprints(2 / 42F))
                 .with(d -> d.setLeadTimeForChangeInMinutes(0.0F))
                 .get();
         SprintProductMetricsDTO dto2 = Builder.build(SprintProductMetricsDTO.class)
                 .with(d -> d.setDate(LocalDate.parse("2022-06-02")))
                 .with(d -> d.setDeliveredPoints(5L))
                 .with(d -> d.setDeliveredStories(1))
-                .with(d -> d.setReleaseFrequency(1 / 14F))
+                .with(d -> d.setReleaseFrequencyThreeSprints(2 / 42F))
+                .with(d -> d.setLeadTimeForChangeInMinutes(0.0F))
+                .get();
+        SprintProductMetricsDTO dto3 = Builder.build(SprintProductMetricsDTO.class)
+                .with(d -> d.setDate(LocalDate.parse("2022-05-19")))
+                .with(d -> d.setDeliveredPoints(0L))
+                .with(d -> d.setDeliveredStories(0))
+                .with(d -> d.setReleaseFrequencyThreeSprints(1 / 42F))
                 .with(d -> d.setLeadTimeForChangeInMinutes(0.0F))
                 .get();
 
@@ -289,7 +300,7 @@ class ProductServiceTests {
         doReturn(0F).when(productService).calculateLeadTimeForChange(anySet());
         when(issueService.getAllIssuesByProductId(anyLong())).thenReturn(List.of(issue, issueNotCompleted, issueBeforeDate));
 
-        assertThat(productService.getSprintMetrics(91L, LocalDate.parse("2022-06-16"), 14, 2)).isEqualTo(List.of(dto1, dto2));
+        assertThat(productService.getSprintMetrics(91L, LocalDate.parse("2022-06-16"), 14, 3)).isEqualTo(List.of(dto1, dto2, dto3));
     }
 
     @Test
@@ -312,7 +323,7 @@ class ProductServiceTests {
         LocalDate todayMinusFive = LocalDate.now().minusDays(5L);
         SprintProductMetricsDTO dto = productService.populateProductMetrics(todayMinusFive, product2, 14);
 
-        assertThat(dto.getReleaseFrequency()).isEqualTo(1 / 5F);
+        assertThat(dto.getReleaseFrequencyThreeSprints()).isEqualTo(1 / 33F);
     }
 
     @Test
