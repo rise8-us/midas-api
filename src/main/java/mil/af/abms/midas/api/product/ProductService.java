@@ -51,17 +51,34 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
     private TagService tagService;
 
     @Autowired
-    public void setIssueService(IssueService issueService) { this.issueService = issueService; }
+    public void setIssueService(IssueService issueService) {
+        this.issueService = issueService;
+    }
+
     @Autowired
-    public void setPersonnelService(PersonnelService personnelService) { this.personnelService = personnelService; }
+    public void setPersonnelService(PersonnelService personnelService) {
+        this.personnelService = personnelService;
+    }
+
     @Autowired
-    public void setProjectService(ProjectService projectService) { this.projectService = projectService; }
+    public void setProjectService(ProjectService projectService) {
+        this.projectService = projectService;
+    }
+
     @Autowired
-    public void setReleaseService(ReleaseService releaseService) { this.releaseService = releaseService; }
+    public void setReleaseService(ReleaseService releaseService) {
+        this.releaseService = releaseService;
+    }
+
     @Autowired
-    public void setSourceControlService(SourceControlService sourceControlService) { this.sourceControlService = sourceControlService; }
+    public void setSourceControlService(SourceControlService sourceControlService) {
+        this.sourceControlService = sourceControlService;
+    }
+
     @Autowired
-    public void setTagService(TagService tagService) { this.tagService = tagService; }
+    public void setTagService(TagService tagService) {
+        this.tagService = tagService;
+    }
 
     public ProductService(ProductRepository repository) {
         super(repository, Product.class, ProductDTO.class);
@@ -130,7 +147,7 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         Optional.ofNullable(dto.getProjectIds()).ifPresent(projectIds ->
                 product.setProjects(projectIds.stream().map(projectService::findById).collect(Collectors.toSet())));
     }
-    
+
     @Transactional
     public Product updateIsArchivedById(Long id, IsArchivedDTO isArchivedDTO) {
         var product = findById(id);
@@ -167,35 +184,38 @@ public class ProductService extends AbstractCRUDService<Product, ProductDTO, Pro
         Product foundProduct = findById(id);
         List<LocalDate> allDates = getAllSprintDates(startDate, duration, sprints);
 
-        return allDates.stream().map(date -> populateProductMetrics(date, foundProduct, duration)).collect(Collectors.toList());
+        return allDates.stream().map(sprintStart -> populateProductMetrics(sprintStart, foundProduct, duration)).collect(Collectors.toList());
     }
 
-    public SprintProductMetricsDTO populateProductMetrics(LocalDate currentDate, Product product, int potentialDuration) {
-        LocalDate theoreticEndDate = currentDate.plusDays(potentialDuration);
+    public SprintProductMetricsDTO populateProductMetrics(LocalDate startDate, Product product, int sprintDuration) {
+        LocalDate theoreticEndDate = startDate.plusDays(sprintDuration);
         LocalDate endDate = theoreticEndDate.isAfter(LocalDate.now()) ? LocalDate.now() : theoreticEndDate;
-        long duration = ChronoUnit.DAYS.between(currentDate, endDate);
+        LocalDate threeSprintsAgo = startDate.minusDays(sprintDuration * 2L);
+        long duration = ChronoUnit.DAYS.between(threeSprintsAgo, endDate);
         long totalWeight = 0;
 
         List<Issue> allIssues = issueService.getAllIssuesByProductId(product.getId()).stream().filter(issue ->
                 Optional.ofNullable(issue.getCompletedAt()).isPresent() &&
-                        issue.getCompletedAt().toLocalDate().isBefore(endDate) && (issue.getCompletedAt().toLocalDate().isAfter(currentDate) || issue.getCompletedAt().toLocalDate().isEqual(currentDate))
+                        issue.getCompletedAt().toLocalDate().isBefore(endDate) && (issue.getCompletedAt().toLocalDate().isAfter(startDate) || issue.getCompletedAt().toLocalDate().isEqual(startDate))
         ).collect(Collectors.toList());
 
-        for (Issue issue : allIssues) { totalWeight += issue.getWeight(); }
+        for (Issue issue : allIssues) {
+            totalWeight += issue.getWeight();
+        }
         long finalTotalWeight = totalWeight;
 
         Set<Release> releases = product.getReleases().stream().filter(release ->
-                release.getReleasedAt().isAfter(currentDate.atStartOfDay()) &&
-                release.getReleasedAt().isBefore(endDate.atTime(LocalTime.MAX))
+                release.getReleasedAt().isAfter(threeSprintsAgo.atStartOfDay()) &&
+                        release.getReleasedAt().isBefore(endDate.atTime(LocalTime.MAX))
         ).collect(Collectors.toSet());
 
         float averageIssueDuration = calculateLeadTimeForChange(releases);
 
         return Builder.build(SprintProductMetricsDTO.class)
-                .with(d -> d.setDate(currentDate))
+                .with(d -> d.setDate(startDate))
                 .with(d -> d.setDeliveredPoints(finalTotalWeight))
                 .with(d -> d.setDeliveredStories(allIssues.size()))
-                .with(d -> d.setReleaseFrequency((float) releases.size() / duration))
+                .with(d -> d.setReleaseFrequencyThreeSprints((float) releases.size() / duration))
                 .with(d -> d.setLeadTimeForChangeInMinutes(averageIssueDuration))
                 .get();
     }
