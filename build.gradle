@@ -60,7 +60,7 @@ dependencies {
     implementation 'org.springframework.security:spring-security-messaging'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.security:spring-security-core:5.7.2'
-    implementation 'org.apache.tomcat.embed:tomcat-embed-core:9.0.64'
+    implementation 'org.apache.tomcat.embed:tomcat-embed-core:9.0.67'
     implementation 'org.hibernate:hibernate-validator:7.0.2.Final'
     implementation 'org.flywaydb:flyway-core:8.5.13'
     implementation 'org.flywaydb:flyway-mysql:8.5.13'
