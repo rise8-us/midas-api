@@ -1,7 +1,7 @@
-FROM registry.il2.dso.mil/platform-one/devops/pipeline-templates/base-image/harden-openjdk11-jre:11.0.11
+FROM registry1.dso.mil/ironbank/redhat/openjdk/openjdk11:1.11-fips-bc
 
-USER appuser
+USER 1001
 
 COPY build/libs/midasApi-0.0.1-SNAPSHOT.jar /app/
 
-ENTRYPOINT ["java", "-jar", "/app/midasApi-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-Dcom.redhat.fips=false", "-jar", "/app/midasApi-0.0.1-SNAPSHOT.jar"]
