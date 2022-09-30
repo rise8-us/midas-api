@@ -1,4 +1,4 @@
-FROM registry1.dso.mil/ironbank/redhat/openjdk/openjdk11:1.11-fips-bc
+FROM registry1.dso.mil/ironbank/redhat/openjdk/openjdk11:1.11
 
 USER 1001
 
