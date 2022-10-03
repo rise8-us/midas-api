@@ -13,14 +13,13 @@ import org.springframework.util.ReflectionUtils;
 
 import org.junit.jupiter.api.Test;
 
+import mil.af.abms.midas.api.epic.Epic;
 import mil.af.abms.midas.api.gantt.target.dto.TargetDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.user.User;
 
 class TargetTests {
-    private static final int ENTITY_DTO_FIELD_OFFSET = 1;
-
     private final Portfolio portfolio = Builder.build(Portfolio.class)
             .with(p -> p.setId(1L))
             .get();
@@ -40,6 +39,7 @@ class TargetTests {
             .with(t -> t.setDescription("This is the description"))
             .with(t -> t.setPortfolioId(portfolio.getId()))
             .with(t -> t.setChildrenIds(List.of()))
+            .with(t -> t.setChildrenEpicIds(Set.of()))
             .with(t -> t.setEpicIds(Set.of()))
             .with(t -> t.setDeliverableIds(Set.of()))
             .with(t -> t.setIsPriority(false))
@@ -50,7 +50,7 @@ class TargetTests {
         List<Field> fields = new LinkedList<>();
         ReflectionUtils.doWithFields(Target.class, fields::add);
 
-        assertThat(fields).hasSize(TargetDTO.class.getDeclaredFields().length + ENTITY_DTO_FIELD_OFFSET);
+        assertThat(fields).hasSize(TargetDTO.class.getDeclaredFields().length);
     }
 
     @Test
@@ -78,4 +78,22 @@ class TargetTests {
     @Test
     void can_return_dto() { assertThat(target.toDto()).isEqualTo(targetDTO); }
 
+    @Test
+    void can_return_child_epic_ids() {
+        Epic epic1 = Builder.build(Epic.class)
+                .with(e -> e.setId(200L))
+                .get();
+        Epic epic2 = Builder.build(Epic.class)
+                .with(e -> e.setId(201L))
+                .get();
+        Target child = Builder.build(Target.class)
+                .with(t -> t.setId(10L))
+                .with(t -> t.setEpics(Set.of(epic1, epic2)))
+                .get();
+        Target target2 = new Target();
+        BeanUtils.copyProperties(target, target2);
+        target2.setChildren(List.of(child));
+
+        assertThat(target2.toDto().getChildrenEpicIds()).isEqualTo(Set.of(200L, 201L));
+    }
 }
