@@ -40,7 +40,6 @@ import mil.af.abms.midas.api.release.Release;
 import mil.af.abms.midas.api.release.ReleaseService;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
-import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @Service
@@ -50,7 +49,6 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
     private PersonnelService personnelService;
     private ProductService productService;
     private SourceControlService sourceControlService;
-    private UserService userService;
     private ReleaseService releaseService;
     private IssueService issueService;
 
@@ -66,10 +64,6 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
     }
     @Autowired
     public void setSourceControlService(SourceControlService sourceControlService) { this.sourceControlService = sourceControlService; }
-    @Autowired
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
     @Autowired
     public void setReleaseService(ReleaseService releaseService) { this.releaseService = releaseService; }
     @Autowired
