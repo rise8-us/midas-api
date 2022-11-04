@@ -31,21 +31,23 @@ import mil.af.abms.midas.api.personnel.dto.PersonnelDTO;
 import mil.af.abms.midas.api.portfolio.dto.PortfolioDTO;
 import mil.af.abms.midas.api.product.Product;
 import mil.af.abms.midas.api.user.User;
-import mil.af.abms.midas.api.user.dto.BasicUserDTO;
 
 @Entity @Getter @Setter
 @Table(name = "portfolio")
 public class Portfolio extends AbstractProductPortfolio<PortfolioDTO> {
 
+    @Deprecated
     @Column(columnDefinition = "TEXT")
     private String ganttNote;
 
     @Column(columnDefinition = "TEXT")
     protected String description;
 
+    @Deprecated
     @Column(columnDefinition = "DATETIME")
     private LocalDateTime ganttNoteModifiedAt;
 
+    @Deprecated
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "gantt_note_modified_by")
     private User ganttNoteModifiedBy;
@@ -82,7 +84,6 @@ public class Portfolio extends AbstractProductPortfolio<PortfolioDTO> {
 
     public PortfolioDTO toDto() {
         PersonnelDTO personnelDTO = personnel != null ? personnel.toDto() : new PersonnelDTO();
-        BasicUserDTO userDTO = ganttNoteModifiedBy != null ? ganttNoteModifiedBy.toBasicDto() : null;
 
         return new PortfolioDTO(
                 id,
@@ -98,9 +99,6 @@ public class Portfolio extends AbstractProductPortfolio<PortfolioDTO> {
                 mission,
                 problemStatement,
                 capabilities.stream().map(Capability::toDto).collect(Collectors.toList()),
-                ganttNote,
-                ganttNoteModifiedAt,
-                userDTO,
                 sprintStartDate,
                 sprintDurationInDays
         );
