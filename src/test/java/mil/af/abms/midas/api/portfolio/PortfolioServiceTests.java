@@ -116,9 +116,6 @@ class PortfolioServiceTests {
             .with(p -> p.setId(3L))
             .with(p -> p.setPersonnel(new Personnel()))
             .with(p -> p.setName("ABMS"))
-            .with(p -> p.setGanttNote("Gantt Note"))
-            .with(p -> p.setGanttNoteModifiedAt(today))
-            .with(p -> p.setGanttNoteModifiedBy(user))
             .with(p -> p.setSprintStartDate(currentDate))
             .with(p -> p.setSprintDurationInDays(7))
             .with(p -> p.setSourceControl(sourceControl))
@@ -216,7 +213,6 @@ class PortfolioServiceTests {
                 .with(p -> p.setPersonnel(updatePersonnelDTO))
                 .with(p -> p.setProductIds(Set.of(4L)))
                 .with(p -> p.setCapabilityIds(Set.of(5L)))
-                .with(p -> p.setGanttNote("Test Gantt Note"))
                 .with(d -> d.setSprintStartDate(newDate))
                 .with(d -> d.setSprintDurationInDays(28))
                 .get();
@@ -243,40 +239,8 @@ class PortfolioServiceTests {
         assertThat(portfolioSaved.getMission()).isEqualTo(updatePortfolioDTO.getMission());
         assertThat(portfolioSaved.getProblemStatement()).isEqualTo(updatePortfolioDTO.getProblemStatement());
         assertThat(portfolioSaved.getCapabilities()).isEqualTo((Set.of(capability)));
-        assertThat(portfolioSaved.getGanttNote()).isEqualTo(updatePortfolioDTO.getGanttNote());
         assertThat(portfolioSaved.getSprintStartDate()).isEqualTo(updatePortfolioDTO.getSprintStartDate());
         assertThat(portfolioSaved.getSprintDurationInDays()).isEqualTo(updatePortfolioDTO.getSprintDurationInDays());
-    }
-
-    @Test
-    void should_update_portfolio_by_id_without_gantt_note_change() {
-        UpdatePersonnelDTO updatePersonnelDTO = Builder.build(UpdatePersonnelDTO.class)
-                .with(d -> d.setOwnerId(10L))
-                .get();
-        UpdatePortfolioDTO updatePortfolioDTO = Builder.build(UpdatePortfolioDTO.class)
-                .with(p -> p.setName("new name"))
-                .with(p -> p.setDescription("new description"))
-                .with(p -> p.setPersonnel(updatePersonnelDTO))
-                .with(p -> p.setProductIds(Set.of(4L)))
-                .with(p -> p.setCapabilityIds(Set.of(5L)))
-                .with(p -> p.setGanttNote("Gantt Note"))
-                .get();
-        personnel.setOwner(user2);
-        portfolio.setPersonnel(personnel);
-
-        doReturn(portfolio).when(portfolioService).findById(anyLong());
-        when(productService.findById(anyLong())).thenReturn(product);
-        when(capabilityService.findById(anyLong())).thenReturn(capability);
-        when(personnelService.updateById(anyLong(), any(UpdatePersonnelDTO.class))).thenReturn(personnel);
-        when(portfolioRepository.findById(anyLong())).thenReturn(Optional.of(portfolio));
-        when(portfolioRepository.save(portfolio)).thenReturn(portfolio);
-
-        portfolioService.updateById(3L, updatePortfolioDTO);
-
-        verify(portfolioRepository, times(1)).save(portfolioCaptor.capture());
-        Portfolio portfolioSaved = portfolioCaptor.getValue();
-
-        assertThat(portfolioSaved.getGanttNote()).isEqualTo("Gantt Note");
     }
 
     @Test

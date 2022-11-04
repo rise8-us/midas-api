@@ -27,7 +27,6 @@ public class UpdatePortfolioDTO implements PortfolioInterfaceDTO {
     private String mission;
     private String problemStatement;
     private UpdatePersonnelDTO personnel;
-    private String ganttNote;
     private LocalDate sprintStartDate;
     private Integer sprintDurationInDays;
 
