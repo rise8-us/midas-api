@@ -10,7 +10,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -115,14 +114,6 @@ public class PortfolioService extends AbstractCRUDService<Portfolio, PortfolioDT
         Optional.ofNullable(dto.getPersonnel()).ifPresent(updatePersonnelDTO -> {
             Personnel personnel = personnelService.updateById(foundPortfolio.getPersonnel().getId(), dto.getPersonnel());
             foundPortfolio.setPersonnel(personnel);
-        });
-
-        Optional.ofNullable(dto.getGanttNote()).ifPresent(ganttNote -> {
-            if (!Objects.equals(ganttNote, foundPortfolio.getGanttNote())) {
-                foundPortfolio.setGanttNote(ganttNote);
-                foundPortfolio.setGanttNoteModifiedAt(LocalDateTime.now());
-                foundPortfolio.setGanttNoteModifiedBy(userService.getUserBySecContext());
-            }
         });
 
         updateCommonFields(dto, foundPortfolio);

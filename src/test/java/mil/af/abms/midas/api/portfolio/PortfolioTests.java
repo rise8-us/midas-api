@@ -62,9 +62,6 @@ class PortfolioTests {
             .with(p -> p.setVision("vision"))
             .with(p -> p.setMission("mission"))
             .with(p -> p.setProblemStatement("problem"))
-            .with(p -> p.setGanttNote("TEST NOTE"))
-            .with(p -> p.setGanttNoteModifiedAt(today))
-            .with(p -> p.setGanttNoteModifiedBy(basicUser))
             .with(p -> p.setSprintStartDate(currentDate))
             .with(p -> p.setSprintDurationInDays(7))
             .get();
@@ -83,9 +80,6 @@ class PortfolioTests {
             .with(d -> d.setMission("mission"))
             .with(d -> d.setProblemStatement("problem"))
             .with(d -> d.setCapabilities(List.of()))
-            .with(d -> d.setGanttNote("TEST NOTE"))
-            .with(d -> d.setGanttNoteModifiedAt(today))
-            .with(d -> d.setGanttNoteModifiedBy(basicUserDTO))
             .with(p -> p.setSprintStartDate(currentDate))
             .with(p -> p.setSprintDurationInDays(7))
             .get();
@@ -93,7 +87,9 @@ class PortfolioTests {
     @Test
     void should_have_all_dto_fields() {
         List<Field> fields = new LinkedList<>();
-        ReflectionUtils.doWithFields(Portfolio.class, fields::add);
+        ReflectionUtils.doWithFields(Portfolio.class, (field -> {
+            if (!field.isAnnotationPresent(Deprecated.class)) fields.add(field);
+        }));
 
         assertThat(fields).hasSize(PortfolioDTO.class.getDeclaredFields().length);
     }
