@@ -51,16 +51,18 @@ sourceSets {
     }
 }
 
+ext['spring-security.version']='5.7.5'
+
 dependencies {
     antlr 'org.antlr:antlr4:4.9.3'
     implementation 'org.yaml:snakeyaml:1.33'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
-    implementation 'org.springframework.security:spring-security-messaging'
+    implementation 'org.springframework.security:spring-security-messaging:5.7.5'
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.security:spring-security-core:5.7.2'
-    implementation 'org.apache.tomcat.embed:tomcat-embed-core:9.0.67'
+    implementation 'org.apache.tomcat.embed:tomcat-embed-core:9.0.68'
+    implementation 'org.apache.tomcat.embed:tomcat-embed-websocket:9.0.68'
     implementation 'org.hibernate:hibernate-validator:7.0.2.Final'
     implementation 'org.flywaydb:flyway-core:8.5.13'
     implementation 'org.flywaydb:flyway-mysql:8.5.13'

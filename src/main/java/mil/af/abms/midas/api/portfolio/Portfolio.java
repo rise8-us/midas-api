@@ -36,6 +36,9 @@ import mil.af.abms.midas.api.user.User;
 @Table(name = "portfolio")
 public class Portfolio extends AbstractProductPortfolio<PortfolioDTO> {
 
+    /**
+     * @deprecated As of MIDAS-API v1.20.0, because no longer a need for Gantt notes
+     */
     @Deprecated
     @Column(columnDefinition = "TEXT")
     private String ganttNote;
@@ -43,10 +46,16 @@ public class Portfolio extends AbstractProductPortfolio<PortfolioDTO> {
     @Column(columnDefinition = "TEXT")
     protected String description;
 
+    /**
+     * @deprecated As of MIDAS-API v1.20.0, because no longer a need for Gantt notes
+     */
     @Deprecated
     @Column(columnDefinition = "DATETIME")
     private LocalDateTime ganttNoteModifiedAt;
 
+    /**
+     * @deprecated As of MIDAS-API v1.20.0, because no longer a need for Gantt notes
+     */
     @Deprecated
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "gantt_note_modified_by")

@@ -57,7 +57,6 @@ import mil.af.abms.midas.api.release.ReleaseService;
 import mil.af.abms.midas.api.sourcecontrol.SourceControl;
 import mil.af.abms.midas.api.sourcecontrol.SourceControlService;
 import mil.af.abms.midas.api.user.User;
-import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.exception.EntityNotFoundException;
 
 @ExtendWith(SpringExtension.class)
@@ -68,8 +67,6 @@ class PortfolioServiceTests {
     PortfolioService portfolioService;
     @MockBean
     SimpMessageSendingOperations websocket;
-    @MockBean
-    UserService userService;
     @MockBean
     PersonnelService personnelService;
     @MockBean
