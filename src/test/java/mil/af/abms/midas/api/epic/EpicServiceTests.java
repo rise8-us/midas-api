@@ -1,12 +1,15 @@
 package mil.af.abms.midas.api.epic;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -15,9 +18,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -49,7 +50,6 @@ import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
 import mil.af.abms.midas.clients.gitlab.models.GitLabEpic;
-import mil.af.abms.midas.clients.gitlab.models.GitLabIssue;
 
 @ExtendWith(SpringExtension.class)
 @Import(EpicService.class)
@@ -74,6 +74,8 @@ class EpicServiceTests {
 
     @Captor
     ArgumentCaptor<Epic> captor;
+    @Captor
+    ArgumentCaptor<Set<Epic>> setCaptor;
 
     private static final LocalDateTime CREATED_AT = LocalDateTime.now().minusDays(1L);
     private static final LocalDateTime CLOSED_AT = LocalDateTime.now();
@@ -105,8 +107,6 @@ class EpicServiceTests {
             .with(e -> e.setTitle("title"))
             .with(e -> e.setEpicUid("3-42-2"))
             .with(e -> e.setEpicIid(2))
-            .with(e -> e.setCompletedWeight(0L))
-            .with(e -> e.setTotalWeight(0L))
             .with(e -> e.setProduct(foundProduct))
             .with((e -> e.setCompletions(Set.of(completion))))
             .get();
@@ -116,8 +116,6 @@ class EpicServiceTests {
             .with(e -> e.setTitle("title"))
             .with(e -> e.setEpicUid("3-42-2"))
             .with(e -> e.setEpicIid(2))
-            .with(e -> e.setCompletedWeight(0L))
-            .with(e -> e.setTotalWeight(0L))
             .with(e -> e.setPortfolio(foundPortfolio))
             .with((e -> e.setCompletions(Set.of(completion))))
             .get();
@@ -131,91 +129,79 @@ class EpicServiceTests {
             .with(e -> e.setEpicIid(2))
             .with(e -> e.setCompletedAt(CLOSED_AT))
             .get();
-    private final GitLabIssue gitLabIssue = Builder.build(GitLabIssue.class)
-            .with(i -> i.setTitle("title"))
-            .with(i -> i.setIssueIid(2))
-            .with(i -> i.setCreationDate(CREATED_AT))
-            .with(i -> i.setCompletedAt(CLOSED_AT))
-            .get();
-    private final HashMap<String, Integer> base = new HashMap<>(Map.ofEntries(
-            Map.entry(TOTAL, 10),
-            Map.entry(COMPLETED, 5)
-    ));
 
     @Test
-    void can_create_Epic_for_product() {
+    void createOrUpdateForProduct_can_create_Epic_for_product() {
+        when(productService.findById(any())).thenReturn(foundProduct);
+        doReturn(gitLabEpic).when(epicService).getEpicFromClient(any(Product.class), anyInt());
+        when(repository.findByEpicUid("3-42-2")).thenReturn(Optional.empty());
+
+        epicService.createOrUpdateForProduct(new AddGitLabEpicWithProductDTO(2, 1L));
+        verify(repository, times(1)).save(captor.capture());
+        var epicSaved = captor.getValue();
+
+        assertThat(epicSaved.getId()).isEqualTo(null);
+        assertThat(epicSaved.getTitle()).isEqualTo("title");
+        assertThat(epicSaved.getEpicUid()).isEqualTo("3-42-2");
+        assertThat(epicSaved.getProduct()).isEqualTo(foundProduct);
+    }
+
+    @Test
+    void createOrUpdateForProduct_can_update_Epic_for_product() {
+        when(productService.findById(any())).thenReturn(foundProduct);
+        doReturn(gitLabEpic).when(epicService).getEpicFromClient(any(Product.class), anyInt());
         when(repository.findByEpicUid("3-42-2")).thenReturn(Optional.of(foundEpicForProduct));
-        doReturn(gitLabEpic).when(epicService).getEpicFromClient(any(Product.class), anyInt());
-        doReturn(foundEpicForProduct).when(epicService).setWeights(any());
-        when(productService.findById(any())).thenReturn(foundProduct);
 
-        epicService.createForProduct(new AddGitLabEpicWithProductDTO(2, 1L));
-        verify(repository, times(2)).save(captor.capture());
+        epicService.createOrUpdateForProduct(new AddGitLabEpicWithProductDTO(2, 1L));
+
+        verify(repository, times(1)).save(captor.capture());
         var epicSaved = captor.getValue();
 
+        assertThat(epicSaved.getId()).isEqualTo(6L);
         assertThat(epicSaved.getTitle()).isEqualTo("title");
         assertThat(epicSaved.getEpicUid()).isEqualTo("3-42-2");
         assertThat(epicSaved.getProduct()).isEqualTo(foundProduct);
     }
 
     @Test
-    void can_create_Epic_for_portfolio() {
+    void createOrUpdateForProduct_can_create_Epic_for_portfolio() {
+        when(portfolioService.findById(any())).thenReturn(foundPortfolio);
+        doReturn(gitLabEpic).when(epicService).getEpicFromClient(any(Portfolio.class), anyInt());
+        when(repository.findByEpicUid("3-42-2")).thenReturn(Optional.empty());
+
+        epicService.createOrUpdateForPortfolio(new AddGitLabEpicWithPortfolioDTO(2, 1L));
+        verify(repository, times(1)).save(captor.capture());
+        var epicSaved = captor.getValue();
+
+        assertThat(epicSaved.getId()).isEqualTo(null);
+        assertThat(epicSaved.getTitle()).isEqualTo("title");
+        assertThat(epicSaved.getEpicUid()).isEqualTo("3-42-2");
+        assertThat(epicSaved.getPortfolio()).isEqualTo(foundPortfolio);
+    }
+
+    @Test
+    void createOrUpdateForProduct_can_update_Epic_for_portfolio() {
+        when(portfolioService.findById(any())).thenReturn(foundPortfolio);
+        doReturn(gitLabEpic).when(epicService).getEpicFromClient(any(Portfolio.class), anyInt());
         when(repository.findByEpicUid("3-42-2")).thenReturn(Optional.of(foundEpicForPortfolio));
-        doReturn(gitLabEpic).when(epicService).getEpicFromClient(any(Portfolio.class), anyInt());
-        doReturn(foundEpicForPortfolio).when(epicService).setWeights(any());
-        when(portfolioService.findById(any())).thenReturn(foundPortfolio);
 
-        epicService.createForPortfolio(new AddGitLabEpicWithPortfolioDTO(2, 1L));
-        verify(repository, times(2)).save(captor.capture());
+        epicService.createOrUpdateForPortfolio(new AddGitLabEpicWithPortfolioDTO(2, 1L));
+
+        verify(repository, times(1)).save(captor.capture());
         var epicSaved = captor.getValue();
 
+        assertThat(epicSaved.getId()).isEqualTo(7L);
         assertThat(epicSaved.getTitle()).isEqualTo("title");
         assertThat(epicSaved.getEpicUid()).isEqualTo("3-42-2");
         assertThat(epicSaved.getPortfolio()).isEqualTo(foundPortfolio);
     }
 
     @Test
-    void can_create_Epic_exists_for_product() {
-
-        doReturn(gitLabEpic).when(epicService).getEpicFromClient(any(Product.class), anyInt());
-        doReturn(foundEpicForProduct).when(epicService).setWeights(any());
-        when(productService.findById(any())).thenReturn(foundProduct);
-        when(repository.findByEpicUid(foundEpicForProduct.getEpicUid())).thenReturn(Optional.of(foundEpicForProduct));
-
-        epicService.createForProduct(new AddGitLabEpicWithProductDTO(2, 1L));
-
-        verify(repository, times(2)).save(captor.capture());
-        var epicSaved = captor.getValue();
-
-        assertThat(epicSaved.getTitle()).isEqualTo("title");
-        assertThat(epicSaved.getEpicUid()).isEqualTo("3-42-2");
-        assertThat(epicSaved.getProduct()).isEqualTo(foundProduct);
-    }
-
-    @Test
-    void can_create_Epic_exists_for_portfolio() {
-        doReturn(gitLabEpic).when(epicService).getEpicFromClient(any(Portfolio.class), anyInt());
-        doReturn(foundEpicForPortfolio).when(epicService).setWeights(any());
-        when(portfolioService.findById(any())).thenReturn(foundPortfolio);
-        when(repository.findByEpicUid(foundEpicForPortfolio.getEpicUid())).thenReturn(Optional.of(foundEpicForPortfolio));
-
-        epicService.createForPortfolio(new AddGitLabEpicWithPortfolioDTO(2, 1L));
-
-        verify(repository, times(2)).save(captor.capture());
-        var epicSaved = captor.getValue();
-
-        assertThat(epicSaved.getTitle()).isEqualTo("title");
-        assertThat(epicSaved.getEpicUid()).isEqualTo("3-42-2");
-        assertThat(epicSaved.getPortfolio()).isEqualTo(foundPortfolio);
-    }
-
-    @Test
-    void can_update_Epic_for_Product() {
+    void updateByIdForProduct() {
         var epicDuplicate = new Epic();
         BeanUtils.copyProperties(foundEpicForProduct, epicDuplicate);
 
         doReturn(gitLabEpic).when(epicService).getEpicFromClient(any(Product.class), anyInt());
-        doReturn(foundEpicForProduct).when(epicService).setWeights(foundEpicForProduct);
         doReturn(gitLabEpic).when(client).getEpicFromGroup(anyInt(), anyInt());
         when(productService.findById(any())).thenReturn(foundProduct);
         when(repository.findById(anyLong())).thenReturn(Optional.of(foundEpicForProduct));
@@ -223,15 +209,15 @@ class EpicServiceTests {
         epicService.updateByIdForProduct(1L);
 
         verify(epicService, times(1)).syncEpic(any(), any());
+        verify(repository, times(1)).save(any());
     }
 
     @Test
-    void can_update_Epic_for_Portfolio() {
+    void updateByIdForPortfolio() {
         var epicDuplicate = new Epic();
         BeanUtils.copyProperties(foundEpicForPortfolio, epicDuplicate);
 
         doReturn(gitLabEpic).when(epicService).getEpicFromClient(any(Portfolio.class), anyInt());
-        doReturn(foundEpicForPortfolio).when(epicService).setWeights(foundEpicForPortfolio);
         doReturn(gitLabEpic).when(client).getEpicFromGroup(anyInt(), anyInt());
         when(portfolioService.findById(any())).thenReturn(foundPortfolio);
         when(repository.findById(anyLong())).thenReturn(Optional.of(foundEpicForPortfolio));
@@ -239,171 +225,107 @@ class EpicServiceTests {
         epicService.updateByIdForPortfolio(1L);
 
         verify(epicService, times(1)).syncEpic(any(), any());
+        verify(repository, times(1)).save(any());
     }
 
     @Test
-    void should_throw_exception_when_trying_to_update_by_id_for_product() {
-        var epicDuplicate = new Epic();
-        BeanUtils.copyProperties(foundEpicForProduct, epicDuplicate);
-
-        doReturn(gitLabEpic).when(epicService).getEpicFromClient(any(Product.class), anyInt());
-        when(productService.findById(any())).thenReturn(foundProduct);
-        when(repository.findById(anyLong())).thenReturn(Optional.of(foundEpicForProduct));
-        doNothing().when(completionService).setCompletionTypeToFailure(anyLong());
-
-        epicService.updateByIdForProduct(1L);
-
-        verify(epicService, times(1)).syncEpic(any(), any());
-
-    }
-
-    @Test
-    void should_throw_exception_when_trying_to_update_by_id_for_portfolio() {
-        var epicDuplicate = new Epic();
-        BeanUtils.copyProperties(foundEpicForPortfolio, epicDuplicate);
-
-        doReturn(gitLabEpic).when(epicService).getEpicFromClient(any(Portfolio.class), anyInt());
-        when(portfolioService.findById(any())).thenReturn(foundPortfolio);
-        when(repository.findById(anyLong())).thenReturn(Optional.of(foundEpicForPortfolio));
-        doNothing().when(completionService).setCompletionTypeToFailure(anyLong());
-
-        epicService.updateByIdForPortfolio(1L);
-
-        verify(epicService, times(1)).syncEpic(any(), any());
-
-    }
-
-    @Test
-    void should_get_weights_on_epics() {
-        GitLabEpic newGitlabEpic = new GitLabEpic();
-        BeanUtils.copyProperties(gitLabEpic, newGitlabEpic);
-
-        doReturn(List.of(newGitlabEpic, gitLabEpic)).when(client).getSubEpicsFromEpicAndGroup(anyInt(), anyInt());
-        doReturn(List.of(gitLabIssue)).when(client).getIssuesFromEpic(anyInt(), anyInt());
-
-        epicService.getAllEpicWeights(client, Optional.of(gitLabEpic));
-
-        verify(epicService, times(1)).getAllEpicWeights(client, Optional.of(gitLabEpic));
-    }
-
-    @Test
-    void should_set_weights_on_epics_for_product() {
-        doReturn(base).when(epicService).getAllEpicWeights(any(), any());
-        doReturn(gitLabEpic).when(client).getEpicFromGroup(anyInt(), anyInt());
-        doReturn(client).when(epicService).getGitlabClient(any());
-
-        epicService.setWeights(foundEpicForProduct);
-
-        verify(epicService, times(1)).setWeights(any());
-    }
-
-    @Test
-    void should_set_weights_on_epics_for_portfolio() {
-        doReturn(base).when(epicService).getAllEpicWeights(any(), any());
-        doReturn(gitLabEpic).when(client).getEpicFromGroup(anyInt(), anyInt());
-        doReturn(client).when(epicService).getGitlabClient(any());
-
-        epicService.setWeights(foundEpicForPortfolio);
-
-        verify(epicService, times(1)).setWeights(any());
-    }
-
-    @Test
-    void should_return_false_when_product_is_archived() {
+    void hasGitlabDetails_should_return_false_when_product_is_archived() {
         foundProduct.setIsArchived(true);
 
-        epicService.hasGitlabDetails(foundProduct);
-
-        verify(epicService, times(1)).hasGitlabDetails(foundProduct);
+        boolean hasGitlabDetails = epicService.hasGitlabDetails(foundProduct);
+        assertFalse(hasGitlabDetails);
     }
 
     @Test
-    void should_return_false_when_portfolio_is_archived() {
+    void hasGitlabDetails_should_return_false_when_portfolio_is_archived() {
         foundPortfolio.setIsArchived(true);
 
-        epicService.hasGitlabDetails(foundPortfolio);
-
-        verify(epicService, times(1)).hasGitlabDetails(foundPortfolio);
+        boolean hasGitlabDetails = epicService.hasGitlabDetails(foundPortfolio);
+        assertFalse(hasGitlabDetails);
     }
 
     @Test
-    void should_return_false_when_product_gitlab_group_id_is_null() {
+    void hasGitlabDetails_should_return_false_when_product_gitlab_group_id_is_null() {
         foundProduct.setGitlabGroupId(null);
 
-        epicService.hasGitlabDetails(foundProduct);
-
-        verify(epicService, times(1)).hasGitlabDetails(foundProduct);
+        boolean hasGitlabDetails = epicService.hasGitlabDetails(foundProduct);
+        assertFalse(hasGitlabDetails);
     }
 
     @Test
-    void should_return_false_when_portfolio_gitlab_group_id_is_null() {
+    void hasGitlabDetails_should_return_false_when_portfolio_gitlab_group_id_is_null() {
         foundPortfolio.setGitlabGroupId(null);
 
-        epicService.hasGitlabDetails(foundPortfolio);
-
-        verify(epicService, times(1)).hasGitlabDetails(foundPortfolio);
+        boolean hasGitlabDetails = epicService.hasGitlabDetails(foundPortfolio);
+        assertFalse(hasGitlabDetails);
     }
 
     @Test
-    void should_return_false_when_product_source_control_is_null() {
+    void hasGitlabDetails_should_return_false_when_product_source_control_is_null() {
         foundProduct.setSourceControl(null);
 
-        epicService.hasGitlabDetails(foundProduct);
-
-        verify(epicService, times(1)).hasGitlabDetails(foundProduct);
+        boolean hasGitlabDetails = epicService.hasGitlabDetails(foundProduct);
+        assertFalse(hasGitlabDetails);
     }
 
     @Test
-    void should_return_false_when_portfolio_source_control_is_null() {
+    void hasGitlabDetails_should_return_false_when_portfolio_source_control_is_null() {
         foundPortfolio.setSourceControl(null);
 
-        epicService.hasGitlabDetails(foundPortfolio);
-
-        verify(epicService, times(1)).hasGitlabDetails(foundPortfolio);
+        boolean hasGitlabDetails = epicService.hasGitlabDetails(foundPortfolio);
+        assertFalse(hasGitlabDetails);
     }
 
     @Test
-    void should_return_false_when_product_source_control_token_is_null() {
+    void hasGitlabDetails_should_return_false_when_product_source_control_token_is_null() {
         sourceControl.setToken(null);
         foundProduct.setSourceControl(sourceControl);
 
-        epicService.hasGitlabDetails(foundProduct);
-
-        verify(epicService, times(1)).hasGitlabDetails(foundProduct);
+        boolean hasGitlabDetails = epicService.hasGitlabDetails(foundProduct);
+        assertFalse(hasGitlabDetails);
     }
 
     @Test
-    void should_return_false_when_portfolio_source_control_token_is_null() {
+    void hasGitlabDetails_should_return_false_when_portfolio_source_control_token_is_null() {
         sourceControl.setToken(null);
         foundPortfolio.setSourceControl(sourceControl);
 
-        epicService.hasGitlabDetails(foundPortfolio);
-
-        verify(epicService, times(1)).hasGitlabDetails(foundPortfolio);
+        boolean hasGitlabDetails = epicService.hasGitlabDetails(foundPortfolio);
+        assertFalse(hasGitlabDetails);
     }
 
     @Test
-    void should_return_false_when_product_source_control_url_is_null() {
+    void hasGitlabDetails_should_return_false_when_product_source_control_url_is_null() {
         sourceControl.setBaseUrl(null);
         foundProduct.setSourceControl(sourceControl);
 
-        epicService.hasGitlabDetails(foundProduct);
-
-        verify(epicService, times(1)).hasGitlabDetails(foundProduct);
+        boolean hasGitlabDetails = epicService.hasGitlabDetails(foundProduct);
+        assertFalse(hasGitlabDetails);
     }
 
     @Test
-    void should_return_false_when_portfolio_source_control_url_is_null() {
+    void hasGitlabDetails_should_return_false_when_portfolio_source_control_url_is_null() {
         sourceControl.setBaseUrl(null);
         foundPortfolio.setSourceControl(sourceControl);
 
-        epicService.hasGitlabDetails(foundPortfolio);
-
-        verify(epicService, times(1)).hasGitlabDetails(foundPortfolio);
+        boolean hasGitlabDetails = epicService.hasGitlabDetails(foundPortfolio);
+        assertFalse(hasGitlabDetails);
     }
 
     @Test
-    void should_get_all_epics_for_gitlab_product() {
+    void hasGitlabDetails_should_return_true_when_all_product_details_are_populated() {
+        boolean hasGitlabDetails = epicService.hasGitlabDetails(foundProduct);
+        assertTrue(hasGitlabDetails);
+    }
+
+    @Test
+    void hasGitlabDetails_should_return_true_when_all_portfolio_details_are_populated() {
+        boolean hasGitlabDetails = epicService.hasGitlabDetails(foundPortfolio);
+        assertTrue(hasGitlabDetails);
+    }
+
+    @Test
+    void gitlabEpicSync_should_save_all_epics_for_gitlab_product() {
         var expectedEpic = new Epic();
         BeanUtils.copyProperties(foundEpicForProduct, expectedEpic);
         expectedEpic.setTitle(gitLabEpic.getTitle());
@@ -412,7 +334,6 @@ class EpicServiceTests {
         User user = new User();
         user.setKeycloakUid("localuser");
 
-        doReturn(expectedEpic).when(repository).save(any(Epic.class));
         when(epicService.getGitlabClient(foundProduct)).thenReturn(client);
         when(client.getTotalEpicsPages(foundProduct)).thenReturn(1);
         when(epicService.processEpics(List.of(), foundProduct)).thenReturn(Set.of(expectedEpic));
@@ -420,11 +341,16 @@ class EpicServiceTests {
         doReturn(foundEpicForProduct).when(epicService).convertToEpic(any(), any());
         doReturn(user).when(userService).getUserBySecContext();
 
-        assertThat(epicService.gitlabEpicSync(foundProduct)).isEqualTo(Set.of(expectedEpic));
+        epicService.gitlabEpicSync(foundProduct);
+        verify(repository, times(1)).saveAll(setCaptor.capture());
+        Set<Epic> epicsSaved = setCaptor.getValue();
+
+        assertThat(epicsSaved).hasSize(1);
+        assertThat(epicsSaved.stream().findFirst().get()).isEqualTo(expectedEpic);
     }
 
     @Test
-    void should_get_all_epics_for_gitlab_portfolio() {
+    void gitlabEpicSync_should_save_all_epics_for_gitlab_portfolio() {
         var expectedEpic = new Epic();
         BeanUtils.copyProperties(foundEpicForPortfolio, expectedEpic);
         expectedEpic.setTitle(gitLabEpic.getTitle());
@@ -437,133 +363,119 @@ class EpicServiceTests {
         doNothing().when(epicService).removeAllUntrackedEpicsForPortfolios(anyLong(), anySet());
         doReturn(foundEpicForPortfolio).when(epicService).convertToEpic(any(), any());
 
-        assertThat(epicService.gitlabEpicSync(foundPortfolio)).isEqualTo(Set.of(expectedEpic));
+        epicService.gitlabEpicSync(foundPortfolio);
+        verify(repository, times(1)).saveAll(setCaptor.capture());
+        Set<Epic> epicsSaved = setCaptor.getValue();
+
+        assertThat(epicsSaved).hasSize(1);
+        assertThat(epicsSaved.stream().findFirst().get()).isEqualTo(expectedEpic);
     }
 
     @Test
-    void should_return_empty_set_if_product_is_missing_gitlab_details() {
+    void gitlabEpicSync_should_return_empty_set_if_product_is_missing_gitlab_details() {
         Product productNoDetails = new Product();
         BeanUtils.copyProperties(foundProduct, productNoDetails);
         productNoDetails.setIsArchived(true);
 
-        assertThat(epicService.gitlabEpicSync(productNoDetails)).isEqualTo(Set.of());
+        List<Epic> emptyList = epicService.gitlabEpicSync(productNoDetails);
+        verify(repository, times(0)).saveAll(anyList());
+        assertThat(emptyList).hasSize(0);
     }
 
     @Test
-    void should_return_empty_set_if_portfolio_is_missing_gitlab_details() {
+    void gitlabEpicSync_should_return_empty_set_if_portfolio_is_missing_gitlab_details() {
         Portfolio portfolioNoDetails = new Portfolio();
         BeanUtils.copyProperties(foundPortfolio, portfolioNoDetails);
         portfolioNoDetails.setIsArchived(true);
 
-        assertThat(epicService.gitlabEpicSync(portfolioNoDetails)).isEqualTo(Set.of());
+        List<Epic> emptyList = epicService.gitlabEpicSync(portfolioNoDetails);
+        verify(repository, times(0)).saveAll(anyList());
+        assertThat(emptyList).hasSize(0);
     }
 
     @Test
-    void should_get_all_epics_by_product_id() {
+    void getAllEpicsByProductId_should_get_all_epics_by_product_id() {
         epicService.getAllEpicsByProductId(foundProduct.getId());
-
-        assertThat(epicService.getAllEpicsByProductId(foundProduct.getId())).isNotNull();
+        verify(repository, times(1)).findAllEpicsByProductId(1L);
     }
 
     @Test
-    void should_get_all_epics_by_portfolio_id() {
+    void getAllEpicsByProductId_should_return_empty_list_if_not_found() {
+        when(repository.findAllEpicsByProductId(100L)).thenReturn(Optional.empty());
+        List<Epic> epicList = epicService.getAllEpicsByProductId(100L);
+        assertThat(epicList).hasSize(0);
+    }
+
+    @Test
+    void getAllEpicsByPortfolioId_should_get_all_epics_by_portfolio_id() {
         epicService.getAllEpicsByPortfolioId(foundPortfolio.getId());
-
-        assertThat(epicService.getAllEpicsByPortfolioId(foundPortfolio.getId())).isNotNull();
+        verify(repository, times(1)).findAllEpicsByPortfolioId(1L);
     }
 
     @Test
-    void should_run_scheduled_epic_sync_for_product() {
+    void getAllEpicsByPortfolioId_should_return_empty_list_if_not_found() {
+        when(repository.findAllEpicsByPortfolioId(100L)).thenReturn(Optional.empty());
+        List<Epic> epicList = epicService.getAllEpicsByPortfolioId(100L);
+        assertThat(epicList).hasSize(0);
+    }
+
+    @Test
+    void runScheduledEpicSync_should_sync_unarchived_portfolios_and_products() {
+        Product archivedProduct = new Product();
+        archivedProduct.setIsArchived(true);
+        Portfolio archivedPortfolio = new Portfolio();
+        archivedPortfolio.setIsArchived(true);
         var gitLab4JClient = Mockito.mock(GitLab4JClient.class);
         var expectedEpic = new Epic();
         BeanUtils.copyProperties(gitLabEpic, expectedEpic);
         expectedEpic.setCreationDate(CREATED_AT);
 
-        doReturn(List.of(foundProduct)).when(productService).getAll();
+        doReturn(List.of(foundProduct, archivedProduct)).when(productService).getAll();
+        doReturn(List.of(foundPortfolio, archivedPortfolio)).when(portfolioService).getAll();
         when(productService.findById(foundProduct.getId())).thenReturn(foundProduct);
-        doReturn(gitLab4JClient).when(epicService).getGitlabClient(any());
-        doNothing().when(epicService).removeAllUntrackedEpicsForProducts(anyLong(), anySet());
-
-        epicService.runScheduledEpicSync();
-
-        verify(epicService, times(1)).gitlabEpicSync(foundProduct);
-    }
-
-    @Test
-    void should_run_scheduled_epic_sync_for_portfolio() {
-        var gitLab4JClient = Mockito.mock(GitLab4JClient.class);
-        var expectedEpic = new Epic();
-        BeanUtils.copyProperties(epic, expectedEpic);
-        expectedEpic.setCreationDate(CREATED_AT);
-
-        doReturn(List.of(foundPortfolio)).when(portfolioService).getAll();
         when(portfolioService.findById(foundPortfolio.getId())).thenReturn(foundPortfolio);
         doReturn(gitLab4JClient).when(epicService).getGitlabClient(any());
+        doNothing().when(epicService).removeAllUntrackedEpicsForProducts(anyLong(), anySet());
         doNothing().when(epicService).removeAllUntrackedEpicsForPortfolios(anyLong(), anySet());
 
         epicService.runScheduledEpicSync();
 
-        verify(epicService, times(1)).gitlabEpicSync(foundPortfolio);
+        verify(epicService, times(2)).gitlabEpicSync(or(eq(foundProduct), eq(foundPortfolio)));
     }
 
     @Test
-    void should_not_run_scheduled_epic_sync_for_archived_product() {
-        Product archivedProduct = new Product();
-        archivedProduct.setIsArchived(true);
-
-        doReturn(List.of(archivedProduct)).when(productService).getAll();
-
-        epicService.runScheduledEpicSync();
-
-        verify(epicService, times(0)).gitlabEpicSync(archivedProduct);
-    }
-
-    @Test
-    void should_not_run_scheduled_epic_sync_for_archived_portfolio() {
-        Portfolio archivedPortfolio = new Portfolio();
-        archivedPortfolio.setIsArchived(true);
-
-        doReturn(List.of(archivedPortfolio)).when(portfolioService).getAll();
-
-        epicService.runScheduledEpicSync();
-
-        verify(epicService, times(0)).gitlabEpicSync(archivedPortfolio);
-    }
-
-    @Test
-    void can_add_Epic_returns_false_for_product() {
+    void canAddEpic_returns_false_for_product_if_epic_doesnt_exist() {
+        when(client.findEpicByIdAndGroupId(2, 42)).thenReturn(Optional.empty());
         assertFalse(epicService.canAddEpic(foundEpicForProduct.getEpicIid(), foundProduct));
     }
 
     @Test
-    void can_add_Epic_returns_false_for_portfolio() {
+    void canAddEpic_returns_false_for_portfolio_if_epic_doesnt_exist() {
+        when(client.findEpicByIdAndGroupId(2, 42)).thenReturn(Optional.empty());
         assertFalse(epicService.canAddEpic(foundEpicForPortfolio.getEpicIid(), foundPortfolio));
     }
 
     @Test
-    void should_update_isHidden() {
+    void updateIsHidden_should_update_isHidden_to_match_dto() {
         IsHiddenDTO isHiddenDTO = new IsHiddenDTO(true);
 
         when(repository.findById(6L)).thenReturn(Optional.of(foundEpicForProduct));
-        when(repository.save(foundEpicForProduct)).thenReturn(foundEpicForProduct);
 
         epicService.updateIsHidden(6L, isHiddenDTO);
 
         verify(repository, times(1)).save(captor.capture());
         Epic epicSaved = captor.getValue();
-
-        assertThat(epicSaved.getIsHidden()).isEqualTo(isHiddenDTO.getIsHidden());
+        assertTrue(epicSaved.getIsHidden());
     }
 
     @Test
-    void should_remove_all_untracked_epics_for_product() {
+    void removeAllUntrackedEpicsForProducts() {
         var expectedEpic = new Epic();
         BeanUtils.copyProperties(foundEpicForProduct, expectedEpic);
         expectedEpic.setTitle(epic.getTitle());
         expectedEpic.setEpicIid(42);
 
         doReturn(new ArrayList<>(List.of(foundEpicForProduct, expectedEpic))).when(epicService).getAllEpicsByProductId(anyLong());
-        doNothing().when(repository).deleteAll(anyList());
 
         epicService.removeAllUntrackedEpicsForProducts(foundProduct.getId(), Set.of(epic));
 
@@ -572,14 +484,13 @@ class EpicServiceTests {
     }
 
     @Test
-    void should_remove_all_untracked_epics_for_portfolio() {
+    void removeAllUntrackedEpicsForPortfolios() {
         var expectedEpic = new Epic();
         BeanUtils.copyProperties(foundEpicForPortfolio, expectedEpic);
         expectedEpic.setTitle(epic.getTitle());
         expectedEpic.setEpicIid(42);
 
         doReturn(new ArrayList<>(List.of(foundEpicForPortfolio, expectedEpic))).when(epicService).getAllEpicsByPortfolioId(anyLong());
-        doNothing().when(repository).deleteAll(anyList());
 
         epicService.removeAllUntrackedEpicsForPortfolios(foundPortfolio.getId(), Set.of(epic));
 
@@ -588,62 +499,66 @@ class EpicServiceTests {
     }
 
     @Test
-    void should_get_epic_from_client_for_product() {
-        doReturn(gitLabEpic).when(client).getEpicFromGroup(anyInt(), anyInt());
+    void getEpicFromClient_for_product() {
         doReturn(client).when(epicService).getGitlabClient(any());
+        doReturn(gitLabEpic).when(client).getEpicFromGroup(anyInt(), anyInt());
 
-        epicService.getEpicFromClient(foundProduct, 2);
+        GitLabEpic foundEpic = epicService.getEpicFromClient(foundProduct, 2);
 
-        verify(epicService, times(1)).getEpicFromClient(any(), anyInt());
+        assertThat(foundEpic).isEqualTo(gitLabEpic);
     }
 
     @Test
-    void should_get_epic_from_client_for_portfolio() {
-        doReturn(gitLabEpic).when(client).getEpicFromGroup(anyInt(), anyInt());
+    void getEpicFromClient_for_portfolio() {
         doReturn(client).when(epicService).getGitlabClient(any());
+        doReturn(gitLabEpic).when(client).getEpicFromGroup(anyInt(), anyInt());
 
-        epicService.getEpicFromClient(foundPortfolio, 2);
+        GitLabEpic foundEpic = epicService.getEpicFromClient(foundPortfolio, 2);
 
-        verify(epicService, times(1)).getEpicFromClient(any(), anyInt());
+        assertThat(foundEpic).isEqualTo(gitLabEpic);
     }
 
     @Test
-    void should_process_product_epics() {
+    void processEpics_should_sync_product_epics() {
+        GitLabEpic unmatchedEpic = new GitLabEpic();
+        BeanUtils.copyProperties(gitLabEpic, unmatchedEpic);
+        unmatchedEpic.setEpicIid(500);
+
         when(repository.findByEpicUid("3-42-2")).thenReturn(Optional.of(foundEpicForProduct));
-        doReturn(foundEpicForProduct).when(epicService).setWeights(any());
+        when(repository.findByEpicUid("3-42-500")).thenReturn(Optional.empty());
 
-        epicService.processEpics(List.of(gitLabEpic), foundProduct);
+        Set<Epic> epics = epicService.processEpics(List.of(gitLabEpic, unmatchedEpic), foundProduct);
 
-        verify(repository, times(2)).save(captor.capture());
-
-        Epic epicSaved = captor.getValue();
-        assertThat(epicSaved).isEqualTo(foundEpicForProduct);
+        assertThat(epics).hasSize(2);
+        assertTrue(epics.contains(foundEpicForProduct));
     }
 
     @Test
-    void should_process_portfolio_epics() {
+    void processEpics_should_sync_portfolio_epics() {
+        GitLabEpic unmatchedEpic = new GitLabEpic();
+        BeanUtils.copyProperties(gitLabEpic, unmatchedEpic);
+        unmatchedEpic.setEpicIid(500);
+
         when(repository.findByEpicUid("3-42-2")).thenReturn(Optional.of(foundEpicForPortfolio));
-        doReturn(foundEpicForPortfolio).when(epicService).setWeights(any());
+        when(repository.findByEpicUid("3-42-500")).thenReturn(Optional.empty());
 
-        epicService.processEpics(List.of(gitLabEpic), foundPortfolio);
+        Set<Epic> epics = epicService.processEpics(List.of(gitLabEpic, unmatchedEpic), foundPortfolio);
 
-        verify(repository, times(2)).save(captor.capture());
-
-        Epic epicSaved = captor.getValue();
-        assertThat(epicSaved).isEqualTo(foundEpicForPortfolio);
+        assertThat(epics).hasSize(2);
+        assertTrue(epics.contains(foundEpicForPortfolio));
     }
 
     @Test
-    void should_get_product_by_id() {
+    void getProductById() {
         doReturn(foundProduct).when(productService).findById(anyLong());
 
-        assertThat(epicService.getProductById(anyLong())).isEqualTo(foundProduct);
+        assertThat(epicService.getProductById(1L)).isEqualTo(foundProduct);
     }
 
     @Test
-    void should_get_portfolio_by_id() {
+    void getPortfolioById() {
         doReturn(foundPortfolio).when(portfolioService).findById(anyLong());
 
-        assertThat(epicService.getPortfolioById(anyLong())).isEqualTo(foundPortfolio);
+        assertThat(epicService.getPortfolioById(1L)).isEqualTo(foundPortfolio);
     }
 }

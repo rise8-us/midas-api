@@ -87,7 +87,6 @@ public class DeliverableService extends AbstractCRUDService<Deliverable, Deliver
                 .with(d -> d.setAssignedTo(assignedTo))
                 .with(d -> d.setCapability(capabilityService.findByIdOrNull(dto.getCapabilityId())))
                 .get();
-        updateParentCompletion(dto.getParentId(), 1F);
 
         newDeliverable = repository.save(newDeliverable);
         Long parentId = newDeliverable.getId();
@@ -100,15 +99,6 @@ public class DeliverableService extends AbstractCRUDService<Deliverable, Deliver
         }
 
         return newDeliverable;
-    }
-
-    protected void updateParentCompletion(Long parentId, Float value) {
-        Deliverable foundDeliverable = findByIdOrNull(parentId);
-
-        Optional.ofNullable(foundDeliverable).ifPresent(deliverable -> {
-            completionService.updateTarget(deliverable.getCompletion().getId(), value);
-            websocket.convertAndSend(TOPIC.apply(deliverable.getLowercaseClassName()), deliverable.toDto());
-        });
     }
 
     @Transactional
@@ -144,7 +134,6 @@ public class DeliverableService extends AbstractCRUDService<Deliverable, Deliver
     public void deleteById(Long id) {
         Deliverable deliverable = findById(id);
         deliverable.getChildren().forEach(d -> repository.deleteById(d.getId()));
-        Optional.ofNullable(deliverable.getParent()).ifPresent(parent -> updateParentCompletion(parent.getId(), -1F));
         repository.deleteById(id);
         websocket.convertAndSend(TOPIC.apply(deliverable.getLowercaseClassName()), deliverable.toDto());
     }

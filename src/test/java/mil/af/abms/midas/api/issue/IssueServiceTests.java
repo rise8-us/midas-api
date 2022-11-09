@@ -1,13 +1,11 @@
 package mil.af.abms.midas.api.issue;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anySet;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -27,7 +25,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -69,10 +66,14 @@ public class IssueServiceTests {
     @MockBean
     private PortfolioService portfolioService;
     @MockBean
-    private  GitLab4JClient gitLab4JClient;
+    private GitLab4JClient gitLab4JClient;
 
     @Captor
     ArgumentCaptor<Issue> captor;
+    @Captor
+    ArgumentCaptor<List<Issue>> listCaptor;
+    @Captor
+    ArgumentCaptor<Set<Issue>> setCaptor;
 
     private static final LocalDateTime CREATED_AT = LocalDateTime.now().minusDays(1L);
     private static final LocalDateTime CLOSED_AT = LocalDateTime.now();
@@ -106,7 +107,7 @@ public class IssueServiceTests {
             .with(i -> i.setId(6L))
             .with(i -> i.setTitle("whoa this is issue"))
             .with(i -> i.setCreationDate(CREATED_AT))
-            .with(i -> i.setIssueUid("3422"))
+            .with(i -> i.setIssueUid("3-42-2"))
             .with(i -> i.setIssueIid(2))
             .with(i -> i.setProject(foundProject))
             .with(i -> i.setWeight(null))
@@ -116,7 +117,7 @@ public class IssueServiceTests {
             .with(i -> i.setId(6L))
             .with(i -> i.setTitle("whoa this is issue"))
             .with(i -> i.setCreationDate(CREATED_AT))
-            .with(i -> i.setIssueUid("3422"))
+            .with(i -> i.setIssueUid("3-42-2"))
             .with(i -> i.setIssueIid(2))
             .with(i -> i.setProject(foundProject))
             .with(i -> i.setWeight(null))
@@ -131,76 +132,86 @@ public class IssueServiceTests {
             .get();
 
     @Test
-    void can_create_issue_new() {
-        doReturn(gitLabIssue).when(issueService).getIssueFromClient(any(Project.class), anyInt());
+    void createOrUpdate_should_create_issue_if_doesnt_exist() {
         when(projectService.findById(any())).thenReturn(foundProject);
+        doReturn(gitLabIssue).when(issueService).getIssueFromClient(any(Project.class), anyInt());
 
-        issueService.create(new AddGitLabIssueWithProductDTO(2, 1L));
+        issueService.createOrUpdate(new AddGitLabIssueWithProductDTO(2, 1L));
         verify(repository, times(1)).save(captor.capture());
         var epicSaved = captor.getValue();
 
+        assertThat(epicSaved.getId()).isEqualTo(null);
         assertThat(epicSaved.getTitle()).isEqualTo("title");
         assertThat(epicSaved.getIssueUid()).isEqualTo("3-42-2");
         assertThat(epicSaved.getProject()).isEqualTo(foundProject);
     }
 
     @Test
-    void can_create_issue_exists() {
-
-        doReturn(gitLabIssue).when(issueService).getIssueFromClient(any(Project.class), anyInt());
+    void createOrUpdate_should_update_existing_issue() {
         when(projectService.findById(any())).thenReturn(foundProject);
-        when(repository.findByIssueUid(foundIssue.getIssueUid())).thenReturn(Optional.of(foundIssue));
+        doReturn(gitLabIssue).when(issueService).getIssueFromClient(any(Project.class), anyInt());
+        when(repository.findByIssueUid(any())).thenReturn(Optional.of(foundIssue));
 
-        issueService.create(new AddGitLabIssueWithProductDTO(2, 1L));
+        issueService.createOrUpdate(new AddGitLabIssueWithProductDTO(2, 1L));
 
         verify(repository, times(1)).save(captor.capture());
         var epicSaved = captor.getValue();
 
+        assertThat(epicSaved.getId()).isEqualTo(6L);
         assertThat(epicSaved.getTitle()).isEqualTo("title");
         assertThat(epicSaved.getIssueUid()).isEqualTo("3-42-2");
         assertThat(epicSaved.getProject()).isEqualTo(foundProject);
     }
 
     @Test
-    void can_update_issue() {
+    void updateById() {
         var issueDuplicate = new Issue();
         BeanUtils.copyProperties(foundIssue, issueDuplicate);
 
-        doReturn(gitLabIssue).when(issueService).getIssueFromClient(any(Project.class), anyInt());
-        when(projectService.findById(any())).thenReturn(foundProject);
         when(repository.findById(any())).thenReturn(Optional.of(issueDuplicate));
-        doNothing().when(completionService).updateLinkedIssue(any());
+        doReturn(gitLabIssue).when(issueService).getIssueFromClient(any(Project.class), anyInt());
 
         issueService.updateById(1L);
 
         verify(repository, times(1)).save(captor.capture());
         var issueSaved = captor.getValue();
 
-        assertThat(issueSaved.getTitle()).isNotEqualTo(foundIssue.getTitle());
         assertThat(issueSaved.getTitle()).isEqualTo("title");
     }
 
     @Test
-    void should_get_all_issue_by_portfolio_id() {
+    void updateById_throws_exception_if_issue_not_found() {
+        assertThrows(EntityNotFoundException.class, () -> issueService.updateById(1L));
+    }
+
+    @Test
+    void getAllIssuesByPortfolioId() {
         doReturn(foundPortfolio).when(portfolioService).findById(anyLong());
         doReturn(List.of(foundIssue)).when(issueService).getAllIssuesByProductId(anyLong());
 
-        Assertions.assertThat(issueService.getAllIssuesByPortfolioId(foundPortfolio.getId())).hasSize(1);
+        assertThat(issueService.getAllIssuesByPortfolioId(foundPortfolio.getId())).hasSize(1);
     }
 
     @Test
-    void should_get_all_issue_by_product_id() {
+    void getAllIssuesByProductId() {
         doReturn(foundProduct).when(productService).findById(anyLong());
         doReturn(List.of(foundIssue)).when(issueService).getAllIssuesByProjectId(anyLong());
 
-        Assertions.assertThat(issueService.getAllIssuesByProductId(foundPortfolio.getId())).hasSize(1);
+        assertThat(issueService.getAllIssuesByProductId(foundPortfolio.getId())).hasSize(1);
     }
 
     @Test
-    void should_get_all_issues_by_project_id() {
-        issueService.getAllIssuesByProjectId(foundProject.getId());
+    void getAllIssuesByProjectId() {
+        when(repository.findAllIssuesByProjectId(any())).thenReturn(Optional.of(List.of(foundIssue)));
 
-        assertThat(issueService.getAllIssuesByProjectId(foundProject.getId())).isNotNull();
+        assertThat(issueService.getAllIssuesByProjectId(1L)).hasSize(1);
+    }
+
+    @Test
+    void getAllIssuesByProjectId_should_return_empty_list_if_none_found() {
+        when(repository.findAllIssuesByProjectId(any())).thenReturn(Optional.empty());
+
+        assertThat(issueService.getAllIssuesByProjectId(1L)).hasSize(0);
     }
 
     @ParameterizedTest
@@ -209,114 +220,79 @@ public class IssueServiceTests {
             "2023-01-01 : 2023-01-01 : 0",
             "2000-01-01 : 2000-01-01 : 0"
     }, delimiter = ':')
-    void should_get_all_issue_by_portfolio_id_and_date_range(String startDate, String endDate, Integer size) {
+    void getAllIssuesByPortfolioIdAndDateRange(String startDate, String endDate, Integer size) {
         doReturn(List.of(foundIssue, foundIssueNullCompleted)).when(issueService).getAllIssuesByPortfolioId(anyLong());
 
-        Assertions.assertThat(issueService.getAllIssuesByPortfolioIdAndDateRange(foundPortfolio.getId(), LocalDate.parse(startDate), LocalDate.parse(endDate))).hasSize(size);
+        List<Issue> foundIssues = issueService.getAllIssuesByPortfolioIdAndDateRange(1L, LocalDate.parse(startDate), LocalDate.parse(endDate));
+        assertThat(foundIssues).hasSize(size);
     }
 
     @Test
-    void should_get_all_issues_for_gitlab_project() {
+    void gitlabIssueSync_should_save_all_issues_for_gitlab_project() {
         var gitLab4JClient = Mockito.mock(GitLab4JClient.class);
         var expectedIssue = new Issue();
         BeanUtils.copyProperties(foundIssue, expectedIssue);
         expectedIssue.setTitle(gitLabIssue.getTitle());
         expectedIssue.setId(6L);
 
-        doReturn(expectedIssue).when(repository).save(any(Issue.class));
         when(issueService.getGitlabClient(foundProject)).thenReturn(gitLab4JClient);
         doReturn(1).when(gitLab4JClient).getTotalIssuesPages(foundProject.getGitlabProjectId());
         doReturn(Set.of(expectedIssue)).when(issueService).processIssues(List.of(), foundProject);
-        doNothing().when(issueService).removeAllUntrackedIssues(anyLong(), anySet());
-        doReturn(foundIssue).when(issueService).convertToIssue(any(), any());
 
-        assertThat(issueService.gitlabIssueSync(foundProject)).isEqualTo(Set.of(expectedIssue));
+        issueService.gitlabIssueSync(foundProject);
+        verify(repository, times(1)).saveAll(setCaptor.capture());
+        Set<Issue> savedIssues = setCaptor.getValue();
+        assertThat(savedIssues).hasSize(1);
+        assertThat(savedIssues).isEqualTo(Set.of(expectedIssue));
     }
 
     @Test
-    void Should_Get_All_Issue_By_ProductId() {
+    void syncGitlabIssueForProduct() {
         when(productService.findById(anyLong())).thenReturn(foundProduct);
-        doReturn(new ArrayList<>(List.of(foundIssue))).when(issueService).getAllIssuesByProjectId(foundProject.getId());
-
-        assertThat(issueService.getAllIssuesByProductId(2L)).isEqualTo(List.of((foundIssue)));
-    }
-
-    @Test
-    void Should_Sync_Gitlab_Issue_For_Product() {
-        when(productService.findById(anyLong())).thenReturn(foundProduct);
-        doReturn(Set.of(foundIssue)).when(issueService).gitlabIssueSync(any());
-        doReturn(true).when(issueService).hasGitlabDetails(any());
-        doReturn(gitLab4JClient).when(issueService).getGitlabClient(any());
-        doReturn(1).when(gitLab4JClient).getTotalIssuesPages(anyInt());
-        doReturn(Set.of(foundIssue)).when(issueService).processIssues(anyList(), any());
-        doNothing().when(issueService).removeAllUntrackedIssues(anyLong(), anySet());
-
-        issueService.syncGitlabIssueForProject(1L);
+        doReturn(List.of(foundIssue)).when(issueService).gitlabIssueSync(any(Project.class));
 
         assertThat(issueService.syncGitlabIssueForProduct(2L)).isEqualTo(Set.of((foundIssue)));
     }
 
     @Test
-    void should_return_empty_set_when_project_is_archived() {
+    void gitlabIssueSync_should_return_empty_list_when_project_is_archived() {
         foundProject.setIsArchived(true);
 
-        when(projectService.findById(foundProject.getId())).thenReturn(foundProject);
-
-        assertThat(issueService.gitlabIssueSync(foundProject)).isEqualTo(Set.of());
+        assertThat(issueService.gitlabIssueSync(foundProject)).isEqualTo(List.of());
     }
 
     @Test
-    void should_update_issue_weight() {
-        var newIssue = new Issue();
-        BeanUtils.copyProperties(foundIssue, newIssue);
-
-        newIssue.setWeight(5L);
-
-        issueService.setWeight(newIssue);
-
-        assertThat(newIssue.getWeight()).isEqualTo(5L);
-    }
-
-    @Test
-    void should_return_empty_set_when_project_gitlab_id_is_null() {
+    void gitlabIssueSync_should_return_empty_list_when_project_gitlab_id_is_null() {
         foundProject.setGitlabProjectId(null);
 
-        when(projectService.findById(foundProject.getId())).thenReturn(foundProject);
-
-        assertThat(issueService.gitlabIssueSync(foundProject)).isEqualTo(Set.of());
+        assertThat(issueService.gitlabIssueSync(foundProject)).isEqualTo(List.of());
     }
 
     @Test
-    void should_return_empty_set_when_project_source_control_is_null() {
+    void gitlabIssueSync_should_return_empty_list_when_project_source_control_is_null() {
         foundProject.setSourceControl(null);
 
-        when(projectService.findById(foundProject.getId())).thenReturn(foundProject);
-
-        assertThat(issueService.gitlabIssueSync(foundProject)).isEqualTo(Set.of());
+        assertThat(issueService.gitlabIssueSync(foundProject)).isEqualTo(List.of());
     }
 
     @Test
-    void should_return_empty_set_when_project_source_control_token_is_null() {
+    void gitlabIssueSync_should_return_empty_list_when_project_source_control_token_is_null() {
         sourceControl.setToken(null);
         foundProject.setSourceControl(sourceControl);
 
-        when(projectService.findById(foundProject.getId())).thenReturn(foundProject);
-
-        assertThat(issueService.gitlabIssueSync(foundProject)).isEqualTo(Set.of());
+        assertThat(issueService.gitlabIssueSync(foundProject)).isEqualTo(List.of());
     }
 
     @Test
-    void should_return_empty_set_when_project_source_control_base_url_is_null() {
+    void gitlabIssueSync_should_return_empty_list_when_project_source_control_base_url_is_null() {
         sourceControl.setBaseUrl(null);
         foundProject.setSourceControl(sourceControl);
 
-        when(projectService.findById(foundProject.getId())).thenReturn(foundProject);
-
-        assertThat(issueService.gitlabIssueSync(foundProject)).isEqualTo(Set.of());
+        assertThat(issueService.gitlabIssueSync(foundProject)).isEqualTo(List.of());
     }
 
     @Test
-    void should_run_scheduled_issue_sync() {
+    void runScheduledIssueSync_should_sync_issues_for_all_unarchived_projects() {
         var gitLab4JClient = Mockito.mock(GitLab4JClient.class);
         var expectedIssue = new Issue();
         BeanUtils.copyProperties(gitLabIssue, expectedIssue);
@@ -327,9 +303,7 @@ public class IssueServiceTests {
         archivedProject.setIsArchived(true);
 
         doReturn(List.of(foundProject, archivedProject)).when(projectService).getAll();
-        doReturn(foundProject).when(projectService).findById(foundProject.getId());
         doReturn(gitLab4JClient).when(issueService).getGitlabClient(any());
-        doNothing().when(issueService).removeAllUntrackedIssues(anyLong(), anySet());
 
         issueService.runScheduledIssueSync();
 
@@ -337,78 +311,82 @@ public class IssueServiceTests {
     }
 
     @Test
-    void can_add_Issue_returns_false() {
+    void canAddIssue_returns_false_if_issue_not_found() {
+        when(gitLab4JClient.findIssueByIdAndProjectId(any(), any())).thenReturn(Optional.empty());
         assertFalse(issueService.canAddIssue(foundIssue.getIssueIid(), foundProject));
     }
 
     @Test
-    void should_remove_all_untracked_issues() {
+    void removeAllUntrackedIssues_should_delete_all_untracked_issues() {
+        Issue issueToKeep = new Issue();
+        Issue issueToRemove = new Issue();
+        BeanUtils.copyProperties(foundIssue, issueToKeep);
+        BeanUtils.copyProperties(foundIssue, issueToRemove);
+        issueToKeep.setTitle(gitLabIssue.getTitle());
+        issueToKeep.setIssueIid(2);
+        issueToRemove.setIssueIid(43);
 
-        var expectedIssue = new Issue();
-        BeanUtils.copyProperties(foundIssue, expectedIssue);
-        expectedIssue.setTitle(gitLabIssue.getTitle());
-        expectedIssue.setIssueIid(42);
-
-        doNothing().when(repository).deleteAll(anyList());
-        doReturn(new ArrayList<>(List.of(foundIssue))).when(issueService).getAllIssuesByProjectId(foundProject.getId());
+        doReturn(new ArrayList<>(List.of(issueToKeep, issueToRemove))).when(issueService).getAllIssuesByProjectId(foundProject.getId());
 
         issueService.removeAllUntrackedIssues(foundProject.getId(), Set.of(foundIssue));
 
-        verify(repository, times(1)).deleteAll(any());
-
+        verify(repository, times(1)).deleteAll(listCaptor.capture());
+        List<Issue> issuesDeleted = listCaptor.getValue();
+        assertThat(issuesDeleted).hasSize(1);
+        assertThat(issuesDeleted).isEqualTo(new ArrayList<>(List.of(issueToRemove)));
     }
 
     @Test
-    void should_get_issue_from_client() {
+    void getIssueFromClient() {
         doReturn(gitLabIssue).when(gitLab4JClient).getIssueFromProject(anyInt(), anyInt());
         doReturn(gitLab4JClient).when(issueService).getGitlabClient(any());
 
-        issueService.getIssueFromClient(foundProject, 2);
-
-        verify(issueService, times(1)).getIssueFromClient(any(), anyInt());
+        assertThat(issueService.getIssueFromClient(foundProject, 2)).isEqualTo(gitLabIssue);
     }
 
     @Test
-    void Should_Filter_CompletedAt_By_Date_Range() {
-        Issue i1 = new Issue();
-        Issue i2 = new Issue();
-        Issue i3 = new Issue();
-        BeanUtils.copyProperties(foundIssue, i1);
-        BeanUtils.copyProperties(foundIssue, i2);
-        BeanUtils.copyProperties(foundIssue, i3);
+    void filterCompletedAtByDateRange() {
+        Issue beforeIssue = new Issue();
+        Issue afterIssue = new Issue();
+        Issue incompleteIssue = new Issue();
+        Issue inRangeIssue = new Issue();
+        BeanUtils.copyProperties(foundIssue, beforeIssue);
+        BeanUtils.copyProperties(foundIssue, afterIssue);
+        BeanUtils.copyProperties(foundIssue, incompleteIssue);
+        BeanUtils.copyProperties(foundIssue, inRangeIssue);
 
-        i1.setCompletedAt(LocalDate.parse("2022-06-01").atStartOfDay());
-        i2.setCompletedAt(LocalDate.parse("2022-06-25").atStartOfDay());
-        i3.setCompletedAt(null);
+        beforeIssue.setCompletedAt(LocalDate.parse("2022-06-01").atStartOfDay());
+        afterIssue.setCompletedAt(LocalDate.parse("2022-06-25").atStartOfDay());
+        incompleteIssue.setCompletedAt(null);
 
         LocalDateTime startDate = LocalDate.parse("2022-06-05").atStartOfDay();
         LocalDateTime endDate = LocalDate.parse("2022-06-20").atStartOfDay();
 
-        Assertions.assertThat(issueService.filterCompletedAtByDateRange(List.of(foundIssue, i1, i2, i3), startDate, endDate)).hasSize(1);
+        assertThat(issueService.filterCompletedAtByDateRange(List.of(inRangeIssue, beforeIssue, afterIssue, incompleteIssue), startDate, endDate)).hasSize(1);
     }
 
     @Test
     void should_get_issues_by_project_id_and_date_range() {
         doReturn(Optional.of(List.of(foundIssue))).when(repository).findAllIssuesByProjectIdAndCompletedAtDateRange(anyLong(), any(), any());
-        List<Issue> foundIssues = repository.findAllIssuesByProjectIdAndCompletedAtDateRange(
+        List<Issue> foundIssues = issueService.findAllIssuesByProjectIdAndCompletedAtDateRange(
                 1L,
                 LocalDate.parse("2022-01-01").atStartOfDay(),
                 LocalDateTime.now()
-        ).orElseThrow(() -> new EntityNotFoundException("Not Found"));
+        );
 
-        Assertions.assertThat(foundIssues).hasSize(1);
+        assertThat(foundIssues).hasSize(1);
     }
 
     @Test
     void should_get_no_issues_by_project_id_and_date_range() {
         doReturn(Optional.of(List.of())).when(repository).findAllIssuesByProjectIdAndCompletedAtDateRange(anyLong(), any(), any());
-        List<Issue> noIssuesFound = repository.findAllIssuesByProjectIdAndCompletedAtDateRange(
+        List<Issue> noIssuesFound = issueService.findAllIssuesByProjectIdAndCompletedAtDateRange(
                 1L,
                 LocalDateTime.now(),
                 LocalDateTime.now()
-        ).orElseThrow(() -> new EntityNotFoundException("Not Found"));
+        );
 
-        Assertions.assertThat(noIssuesFound).hasSize(0);
+        assertThat(noIssuesFound).hasSize(0);
     }
 
 }

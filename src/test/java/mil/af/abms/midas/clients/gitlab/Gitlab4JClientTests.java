@@ -298,21 +298,6 @@ class Gitlab4JClientTests {
     }
 
     @ParameterizedTest
-    @CsvSource(value = { "OK; [{\"iid\":42}]", "BAD_REQUEST; [{}]", "OK; ---" }, delimiter = ';')
-    void should_get_sub_epics_from_Api(String status, String response) {
-        ResponseEntity<String> testResponse = new ResponseEntity<>(response, HttpStatus.valueOf(status));
-        doReturn(testResponse).when(gitClient).requestGet(anyString());
-
-        if (response.equals("[{\"iid\":42}]")) {
-            assertThat(gitClient.getSubEpicsFromEpicAndGroup(1, 42).get(0).getEpicIid()).isEqualTo(42);
-        } else if (response.equals("---")) {
-            assertThrows(GitApiException.class, () ->  gitClient.getSubEpicsFromEpicAndGroup(1, 42));
-        } else {
-            assertThrows(HttpClientErrorException.class, () -> gitClient.getSubEpicsFromEpicAndGroup(1, 42));
-        }
-    }
-
-    @ParameterizedTest
     @CsvSource(value = { "OK: true", "BAD_REQUEST: false" }, delimiter = ':')
     void should_get_Issue_from_Api(String status, boolean isOk) {
         ResponseEntity<String> testResponse = new ResponseEntity<>("{ \"iid\": 42}", HttpStatus.valueOf(status));

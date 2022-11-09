@@ -29,7 +29,7 @@ public class IssueController extends AbstractCRUDController<Issue, IssueDTO, Iss
 
     @PostMapping
     public IssueDTO create(@Valid @RequestBody AddGitLabIssueWithProductDTO addGitLabIssueWithProductDTO) {
-        return service.create(addGitLabIssueWithProductDTO).toDto();
+        return service.createOrUpdate(addGitLabIssueWithProductDTO).toDto();
     }
 
     @GetMapping("/sync/{id}")
@@ -39,7 +39,7 @@ public class IssueController extends AbstractCRUDController<Issue, IssueDTO, Iss
 
     @GetMapping("/sync/project/{projectId}")
     public List<IssueDTO> syncAllIssuesForProject(@PathVariable Long projectId) {
-        return service.syncGitlabIssueForProject(projectId).stream().map(Issue::toDto).collect(Collectors.toList());
+        return service.gitlabIssueSync(projectId).stream().map(Issue::toDto).collect(Collectors.toList());
     }
 
     @GetMapping("/project/{projectId}")

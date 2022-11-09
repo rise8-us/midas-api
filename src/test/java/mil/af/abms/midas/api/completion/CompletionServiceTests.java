@@ -172,16 +172,6 @@ class CompletionServiceTests {
     }
 
     @Test
-    void should_update_target() {
-        doReturn(completion).when(completionService).findByIdOrNull(anyLong());
-
-        completionService.updateTarget(1L, 2F);
-        verify(repository, times(1)).save(completionCaptor.capture());
-
-        assertThat(completion.getTarget()).isEqualTo(3F);
-    }
-
-    @Test
     void should_set_completion_completed_at_and_value_to_target() {
         doReturn(completion).when(completionService).findById(anyLong());
 
@@ -214,8 +204,6 @@ class CompletionServiceTests {
         completionService.linkGitlabEpic(1L, completion2);
 
         assertThat(completion2.getEpic()).isEqualTo(epicWithProduct);
-        assertThat(completion2.getValue()).isEqualTo(epicWithProduct.getCompletedWeight().floatValue());
-        assertThat(completion2.getTarget()).isEqualTo(epicWithProduct.getTotalWeight().floatValue());
         assertThat(completion2.getStartDate()).isEqualTo(epicWithProduct.getStartDate());
         assertThat(completion2.getDueDate()).isEqualTo(epicWithProduct.getDueDate());
         assertThat(completion2.getCompletedAt()).isEqualTo(epicWithProduct.getCompletedAt());
@@ -229,8 +217,6 @@ class CompletionServiceTests {
         completionService.linkGitlabEpic(1L, completion2);
 
         assertThat(completion2.getEpic()).isEqualTo(epicWithPortfolio);
-        assertThat(completion2.getValue()).isEqualTo(epicWithPortfolio.getCompletedWeight().floatValue());
-        assertThat(completion2.getTarget()).isEqualTo(epicWithPortfolio.getTotalWeight().floatValue());
         assertThat(completion2.getStartDate()).isEqualTo(epicWithPortfolio.getStartDate());
         assertThat(completion2.getDueDate()).isEqualTo(epicWithPortfolio.getDueDate());
         assertThat(completion2.getCompletedAt()).isEqualTo(epicWithPortfolio.getCompletedAt());
@@ -271,14 +257,5 @@ class CompletionServiceTests {
         completionService.updateLinkedIssue(issue);
 
         verify(completionService, times(1)).updateLinkedIssue(any());
-    }
-
-    @Test
-    void should_update_linked_epic() {
-        doNothing().when(completionService).updateCompletionWithGitlabEpic(any(), any());
-
-        completionService.updateLinkedEpic(epicWithProduct);
-
-        verify(completionService, times(1)).updateLinkedEpic(any());
     }
 }

@@ -32,12 +32,12 @@ public class EpicController extends AbstractCRUDController<Epic, EpicDTO, EpicSe
 
     @PostMapping("/product")
     public EpicDTO createForProduct(@Valid @RequestBody AddGitLabEpicWithProductDTO addGitLabEpicWithProductDTO) {
-        return service.createForProduct(addGitLabEpicWithProductDTO).toDto();
+        return service.createOrUpdateForProduct(addGitLabEpicWithProductDTO).toDto();
     }
 
     @PostMapping("/portfolio")
     public EpicDTO createForPortfolio(@Valid @RequestBody AddGitLabEpicWithPortfolioDTO addGitLabEpicWithPortfolioDTO) {
-        return service.createForPortfolio(addGitLabEpicWithPortfolioDTO).toDto();
+        return service.createOrUpdateForPortfolio(addGitLabEpicWithPortfolioDTO).toDto();
     }
 
     @GetMapping("/sync/product/{id}")

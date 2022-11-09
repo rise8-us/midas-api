@@ -2,6 +2,7 @@ package mil.af.abms.midas.api.issue;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -95,33 +96,29 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
                 .flatMap(p -> gitlabIssueSync(p).stream()).collect(Collectors.toSet());
     }
 
-    public Issue create(AddGitLabIssueWithProductDTO dto) {
+    public Issue createOrUpdate(AddGitLabIssueWithProductDTO dto) {
         Project project = projectService.findById(dto.getProjectId());
         Long sourceControlId = project.getSourceControl().getId();
         Integer gitlabProjectId = project.getGitlabProjectId();
         GitLabIssue issueConversion = getIssueFromClient(project, dto.getIId());
         String uId = generateUniqueId(sourceControlId, gitlabProjectId, dto.getIId());
 
-        return repository.findByIssueUid(uId)
+        Issue issueToSave = repository.findByIssueUid(uId)
                 .map(issue -> syncIssue(issueConversion, issue))
                 .orElseGet(() -> convertToIssue(issueConversion, project));
-
-    }
-
-    public Set<Issue> syncGitlabIssueForProject(Long projectId) {
-        Project project = projectService.findById(projectId);
-        return gitlabIssueSync(project);
+        return repository.save(issueToSave);
     }
 
     public Issue updateById(Long id) {
         Issue foundIssue = findById(id);
         Project project = foundIssue.getProject();
-        return syncOrDeleteIssue(foundIssue, getIssueFromClient(project, foundIssue.getIssueIid()));
+        return updateOrDeleteIssue(foundIssue, getIssueFromClient(project, foundIssue.getIssueIid()));
     }
 
-    private Issue syncOrDeleteIssue(Issue foundIssue, GitLabIssue issueFromClient) {
+    private Issue updateOrDeleteIssue(Issue foundIssue, GitLabIssue issueFromClient) {
         try {
-            return syncIssue(issueFromClient, foundIssue);
+            Issue updatedIssue = syncIssue(issueFromClient, foundIssue);
+            return repository.save(updatedIssue);
         } catch (Exception e) {
             foundIssue.getCompletions().forEach(c -> completionService.setCompletionTypeToFailure(c.getId()));
 
@@ -130,9 +127,9 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
         }
     }
 
-    public void removeAllUntrackedIssues(Long projectId, Set<Issue> fetchedIssueSet) {
-        Set<Integer> issueIids = fetchedIssueSet.stream().map(Issue::getIssueIid).collect(Collectors.toSet());
-        List<Issue> midasProjectIssues = getAllIssuesByProjectId(projectId);
+    public void removeAllUntrackedIssues(Long projectId, Set<Issue> newIssueSet) {
+        Set<Integer> issueIids = newIssueSet.stream().map(Issue::getIssueIid).collect(Collectors.toSet());
+        ArrayList<Issue> midasProjectIssues = new ArrayList<>(getAllIssuesByProjectId(projectId));
         Set<Integer> midasProjectIssuesIids = midasProjectIssues.stream().map(Issue::getIssueIid).collect(Collectors.toSet());
 
         midasProjectIssuesIids.removeAll(issueIids);
@@ -148,8 +145,13 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
         ));
     }
 
-    public Set<Issue> gitlabIssueSync(Project project) {
-        if (!hasGitlabDetails(project)) { return Set.of(); }
+    public List<Issue> gitlabIssueSync(Long projectId) {
+        Project project = projectService.findById(projectId);
+        return gitlabIssueSync(project);
+    }
+
+    public List<Issue> gitlabIssueSync(Project project) {
+        if (!hasGitlabDetails(project)) { return List.of(); }
 
         PaginationProgressDTO paginationProgressDTO = new PaginationProgressDTO();
         paginationProgressDTO.setId(project.getId());
@@ -168,7 +170,7 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
 
         removeAllUntrackedIssues(project.getId(), allIssues);
 
-        return allIssues;
+        return repository.saveAll(allIssues);
     }
 
     public Set<Issue> processIssues(List<GitLabIssue> issues, Project project) {
@@ -208,19 +210,14 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
         newIssue.setIssueUid(uId);
         newIssue.setProject(project);
 
-        Issue updatedIssue = setWeight(newIssue);
-
-        return repository.save(updatedIssue);
+        return newIssue;
     }
 
     protected Issue syncIssue(GitLabIssue gitLabIssue, Issue issue) {
         BeanUtils.copyProperties(gitLabIssue, issue);
+        issue.setSyncedAt(LocalDateTime.now());
 
-        Issue updatedIssue = setWeight(issue);
-        completionService.updateLinkedIssue(updatedIssue);
-        updatedIssue.setSyncedAt(LocalDateTime.now());
-
-        return repository.save(updatedIssue);
+        return issue;
     }
 
     protected boolean hasGitlabDetails(Project project) {
@@ -229,14 +226,6 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
                 project.getSourceControl() != null &&
                 project.getSourceControl().getToken() != null &&
                 project.getSourceControl().getBaseUrl() != null;
-    }
-
-    protected Issue setWeight(Issue issue) {
-        if (issue.getWeight() == null) {
-            issue.setWeight(0L);
-        }
-
-        return issue;
     }
 
     public List<Issue> filterCompletedAtByDateRange(List<Issue> issues, LocalDateTime startDateTime, LocalDateTime endDateTime) {

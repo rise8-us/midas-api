@@ -167,18 +167,6 @@ public class GitLab4JClient {
         return getTotalPagesForResponse(url, GET_EPICS_ERROR_MESSAGE);
     }
 
-    public List<GitLabEpic> getSubEpicsFromEpicAndGroup(Integer groupId, Integer iid) {
-        String url = String.format("%s/api/v4/groups/%d/epics/%d/epics", this.baseUrl, groupId, iid);
-        return getGitLabEpics(url);
-    }
-
-    private void fetchGitLabEpics(ArrayList<GitLabEpic> epics, ResponseEntity<String> response) throws IOException {
-        var epicArray = JsonMapper.dateMapper().readTree(response.getBody());
-        for (var epic : epicArray) {
-            epics.add(mapEpicFromJson(epic.toString()));
-        }
-    }
-
     private void fetchGitLabIssues(ArrayList<GitLabIssue> issues, ResponseEntity<String> response) throws IOException {
         var issueArray = JsonMapper.dateMapper().readTree(response.getBody());
         for (var issue : issueArray) {
@@ -226,23 +214,6 @@ public class GitLab4JClient {
             throw new HttpClientErrorException(response.getStatusCode());
         }
         return issues;
-    }
-
-    private List<GitLabEpic> getGitLabEpics(String url) {
-        ResponseEntity<String> response = requestGet(url);
-        var epics = new ArrayList<GitLabEpic>();
-
-        if (response.getStatusCode().equals(HttpStatus.OK)) {
-            try {
-                fetchGitLabEpics(epics, response);
-            } catch (Exception e) {
-                throw new GitApiException(GET_EPICS_ERROR_MESSAGE);
-            }
-        } else {
-            throw new HttpClientErrorException((response.getStatusCode()));
-        }
-
-        return epics;
     }
 
     private List<GitLabIssue> getGitLabIssues(String url) {

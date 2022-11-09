@@ -29,8 +29,6 @@ public class EpicDTO implements AbstractDTO {
     private String state;
     private String webUrl;
     private String epicUid;
-    private Long totalWeight;
-    private Long completedWeight;
     private Long productId;
     private Long portfolioId;
 
