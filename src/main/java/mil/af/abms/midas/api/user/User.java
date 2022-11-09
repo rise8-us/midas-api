@@ -52,9 +52,6 @@ public class User extends AbstractEntity<UserDTO> {
     @Column(columnDefinition = "VARCHAR(100)")
     private String displayName;
 
-    @Column(columnDefinition = "BIGINT")
-    private Long dodId;
-
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(70) DEFAULT 'ACTIVE'", nullable = false)
     private UserType userType = UserType.ACTIVE;
@@ -85,7 +82,7 @@ public class User extends AbstractEntity<UserDTO> {
 
     public UserDTO toDto() {
         return new UserDTO(id, keycloakUid, username, email, displayName,
-            creationDate, dodId, userType, isDisabled, roles, lastLogin, getTeamIds(), phone, company);
+            creationDate, userType, isDisabled, roles, lastLogin, getTeamIds(), phone, company);
     }
 
     public BasicUserDTO toBasicDto() {

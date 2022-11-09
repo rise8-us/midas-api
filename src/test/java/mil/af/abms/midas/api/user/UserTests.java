@@ -34,7 +34,6 @@ public class UserTests {
             .with(u -> u.setUsername("grogu"))
             .with(u -> u.setEmail("a.b@c"))
             .with(u -> u.setDisplayName("baby yoda"))
-            .with(u -> u.setDodId(1L))
             .with(u -> u.setTeams(Set.of(team)))
             .with(u -> u.setRoles(0L))
             .with(u -> u.setUserType(UserType.ACTIVE))
@@ -55,7 +54,6 @@ public class UserTests {
             .with(d -> d.setEmail("a.b@c"))
             .with(d -> d.setDisplayName("baby yoda"))
             .with(d -> d.setCreationDate(user.getCreationDate()))
-            .with(d -> d.setDodId(1L))
             .with(d -> d.setTeamIds(Set.of(1L)))
             .with(d -> d.setRoles(0L))
             .with(d -> d.setUserType(UserType.ACTIVE))
@@ -97,7 +95,6 @@ public class UserTests {
         assertThat(user.getUsername()).isEqualTo("grogu");
         assertThat(user.getEmail()).isEqualTo("a.b@c");
         assertThat(user.getDisplayName()).isEqualTo("baby yoda");
-        assertThat(user.getDodId()).isEqualTo(1);
         assertThat(user.getRoles()).isEqualTo(0L);
         assertThat(user.getIsDisabled()).isEqualTo(false);
         assertThat(user.getUserType()).isEqualTo(UserType.ACTIVE);
