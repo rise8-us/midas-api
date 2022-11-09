@@ -121,4 +121,9 @@ public class Issue extends AbstractTimeConstrainedEntity<IssueDTO> {
         if (labels == null || labels.length() == 0) { return List.of(); }
         return Arrays.stream(labels.split(",")).collect(Collectors.toList());
     }
+
+    public void setWeight(Long weight) {
+        if (weight == null) this.weight = 0L;
+        else this.weight = weight;
+    }
 }

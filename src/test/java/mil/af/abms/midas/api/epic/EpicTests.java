@@ -37,14 +37,14 @@ public class EpicTests {
             .with(e -> e.setId(1L))
             .with(e -> e.setCreationDate(epic.getCreationDate()))
             .with(e -> e.setProductId(product.getId()))
-            .with(e -> e.setCompletedWeight(0L))
-            .with(e -> e.setTotalWeight(0L))
             .get();
 
     @Test
     void should_have_all_epicDTO_fields() {
         List<Field> fields = new LinkedList<>();
-        ReflectionUtils.doWithFields(Epic.class, fields::add);
+        ReflectionUtils.doWithFields(Epic.class, field -> {
+            if (!field.isAnnotationPresent(Deprecated.class)) fields.add(field);
+        });
         assertThat(fields.size()).isEqualTo(EpicDTO.class.getDeclaredFields().length + ENTITY_DTO_FIELD_OFFSET);
     }
 

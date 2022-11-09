@@ -14,8 +14,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -87,7 +87,7 @@ public class EpicControllerTests extends ControllerTestHarness {
     @Test
     void throw_should_create_epic_gitLab_not_found_for_product() throws Exception {
         when(productService.findById(any())).thenReturn(product);
-        when(epicService.createForProduct(any(AddGitLabEpicWithProductDTO.class))).thenReturn(epicWithProduct);
+        when(epicService.createOrUpdateForProduct(any(AddGitLabEpicWithProductDTO.class))).thenReturn(epicWithProduct);
 
         mockMvc.perform(post("/api/epics/product")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -102,7 +102,7 @@ public class EpicControllerTests extends ControllerTestHarness {
     @Test
     void throw_should_create_epic_gitLab_not_found_for_portfolio() throws Exception {
         when(portfolioService.findById(any())).thenReturn(portfolio);
-        when(epicService.createForPortfolio(any(AddGitLabEpicWithPortfolioDTO.class))).thenReturn(epicWithPortfolio);
+        when(epicService.createOrUpdateForPortfolio(any(AddGitLabEpicWithPortfolioDTO.class))).thenReturn(epicWithPortfolio);
 
         mockMvc.perform(post("/api/epics/portfolio")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -118,7 +118,7 @@ public class EpicControllerTests extends ControllerTestHarness {
     void should_create_epic_for_product() throws Exception {
         when(productService.findById(any())).thenReturn(product);
         when(epicService.canAddEpic(any(), any())).thenReturn(true);
-        when(epicService.createForProduct(any(AddGitLabEpicWithProductDTO.class))).thenReturn(epicWithProduct);
+        when(epicService.createOrUpdateForProduct(any(AddGitLabEpicWithProductDTO.class))).thenReturn(epicWithProduct);
 
         mockMvc.perform(post("/api/epics/product")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -133,7 +133,7 @@ public class EpicControllerTests extends ControllerTestHarness {
     void should_create_epic_for_portfolio() throws Exception {
         when(portfolioService.findById(any())).thenReturn(portfolio);
         when(epicService.canAddEpic(any(), any())).thenReturn(true);
-        when(epicService.createForPortfolio(any(AddGitLabEpicWithPortfolioDTO.class))).thenReturn(epicWithPortfolio);
+        when(epicService.createOrUpdateForPortfolio(any(AddGitLabEpicWithPortfolioDTO.class))).thenReturn(epicWithPortfolio);
 
         mockMvc.perform(post("/api/epics/portfolio")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -185,7 +185,7 @@ public class EpicControllerTests extends ControllerTestHarness {
 
     @Test
     void should_get_all_epics_by_product_id() throws Exception {
-        Set<Epic> epics = Set.of(epicWithProduct);
+        List<Epic> epics = List.of(epicWithProduct);
 
         when(epicService.gitlabEpicSync(any())).thenReturn(epics);
         when(epicService.getProductById(2L)).thenReturn(product);
@@ -200,7 +200,7 @@ public class EpicControllerTests extends ControllerTestHarness {
 
     @Test
     void should_get_all_epics_by_portfolio_id() throws Exception {
-        Set<Epic> epics = Set.of(epicWithPortfolio);
+        List<Epic> epics = List.of(epicWithPortfolio);
 
         when(epicService.gitlabEpicSync(any())).thenReturn(epics);
         when(epicService.getPortfolioById(2L)).thenReturn(portfolio);

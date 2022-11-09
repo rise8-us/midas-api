@@ -64,7 +64,7 @@ class IssueControllerTests extends ControllerTestHarness {
     @Test
     void throw_should_create_issue_gitLab_not_found() throws Exception {
         when(projectService.findById(any())).thenReturn(project);
-        when(issueService.create(any(AddGitLabIssueWithProductDTO.class))).thenReturn(issue);
+        when(issueService.createOrUpdate(any(AddGitLabIssueWithProductDTO.class))).thenReturn(issue);
 
         mockMvc.perform(post("/api/issues")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -80,7 +80,7 @@ class IssueControllerTests extends ControllerTestHarness {
     void should_create_issue() throws Exception {
         when(projectService.findById(any())).thenReturn(project);
         when(issueService.canAddIssue(any(), any())).thenReturn(true);
-        when(issueService.create(any(AddGitLabIssueWithProductDTO.class))).thenReturn(issue);
+        when(issueService.createOrUpdate(any(AddGitLabIssueWithProductDTO.class))).thenReturn(issue);
 
         mockMvc.perform(post("/api/issues")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -103,7 +103,7 @@ class IssueControllerTests extends ControllerTestHarness {
 
     @Test
     void should_sync_all_issues_by_project_id() throws Exception {
-        when(issueService.syncGitlabIssueForProject(any())).thenReturn(Set.of(issue));
+        when(issueService.gitlabIssueSync(anyLong())).thenReturn(List.of(issue));
 
         mockMvc.perform(get("/api/issues/sync/project/2"))
                 .andExpect(status().isOk())

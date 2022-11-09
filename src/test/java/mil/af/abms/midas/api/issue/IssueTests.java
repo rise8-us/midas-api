@@ -73,6 +73,7 @@ class IssueTests {
         BeanUtils.copyProperties(expectedDTO, expectedDTO2);
         issue2.setLabels("foo");
         expectedDTO2.setLabels(List.of("foo"));
+        expectedDTO2.setWeight(0L);
 
         assertThat(issue.toDto()).isEqualTo(expectedDTO);
         assertThat(issue2.toDto()).isEqualTo(expectedDTO2);

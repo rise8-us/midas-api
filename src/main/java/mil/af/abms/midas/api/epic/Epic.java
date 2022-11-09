@@ -76,9 +76,19 @@ public class Epic extends AbstractTimeConstrainedEntity<EpicDTO> {
     @Column(columnDefinition = "VARCHAR(255)")
     private String epicUid;
 
+    /**
+     * @deprecated to reduce number of calls to Gitlab and remove progress bars
+     * May be updated for future use
+     */
+    @Deprecated
     @Column(columnDefinition = "BIGINT DEFAULT 0")
     private Long totalWeight = 0L;
 
+    /**
+     * @deprecated to reduce number of calls to Gitlab and remove progress bars
+     * May be updated for future use
+     */
+    @Deprecated
     @Column(columnDefinition = "BIGINT DEFAULT 0")
     private Long completedWeight = 0L;
 
@@ -114,8 +124,6 @@ public class Epic extends AbstractTimeConstrainedEntity<EpicDTO> {
             state,
             webUrl,
             epicUid,
-            totalWeight,
-            completedWeight,
             getIdOrNull(product),
             getIdOrNull(portfolio)
         );

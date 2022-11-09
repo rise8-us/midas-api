@@ -89,13 +89,6 @@ public class CompletionService extends AbstractCRUDService<Completion, Completio
     }
 
     @Transactional
-    public void updateTarget(Long id, Float value) {
-        var foundCompletion = findByIdOrNull(id);
-        foundCompletion.setTarget(foundCompletion.getTarget() + value);
-        repository.save(foundCompletion);
-    }
-
-    @Transactional
     public void setCompletedAtAndValueToTarget(Long id) {
         Completion foundCompletion = findById(id);
         foundCompletion.setValue(foundCompletion.getTarget());
@@ -142,27 +135,16 @@ public class CompletionService extends AbstractCRUDService<Completion, Completio
         });
     }
 
-    public void updateLinkedEpic(Epic epic) {
-        epic.getCompletions().forEach(completion -> {
-            updateCompletionWithGitlabEpic(completion, epic);
-            repository.save(completion);
-        });
-    }
-
     protected void updateCompletionWithGitlabEpic(Completion completion, Epic epic) {
-        completion.setValue(epic.getCompletedWeight().floatValue());
-        completion.setTarget(epic.getTotalWeight().floatValue());
         completion.setStartDate(epic.getStartDate());
         completion.setDueDate(epic.getDueDate());
         completion.setCompletedAt(epic.getCompletedAt());
     }
 
     protected void updateCompletionWithGitlabIssue(Completion completion, Issue issue) {
-        completion.setTarget(issue.getWeight().floatValue());
         completion.setStartDate(issue.getStartDate());
         completion.setDueDate(issue.getDueDate());
         completion.setCompletedAt(issue.getCompletedAt());
-
         if (issue.getCompletedAt() != null) {
             completion.setValue(issue.getWeight().floatValue());
         } else {
