@@ -46,7 +46,6 @@ public class UserService extends AbstractCRUDService<User, UserDTO, UserReposito
         Long rolesAsLong = Roles.setRoles(0L, Map.of(Roles.ADMIN, isAdmin));
         User user = Builder.build(User.class)
                 .with(u -> u.setKeycloakUid(token.getKeycloakUid()))
-                .with(u -> u.setDodId(token.getDodId()))
                 .with(u -> u.setDisplayName(token.getDisplayName()))
                 .with(u -> u.setUsername(token.getDisplayName()))
                 .with(u -> u.setRoles(rolesAsLong))

@@ -76,11 +76,11 @@ class UserServiceTests {
             .with(u -> u.setUsername("grogu"))
             .with(u -> u.setEmail("a.b@c"))
             .with(u -> u.setDisplayName("Baby Yoda"))
-            .with(u -> u.setDodId(1L))
             .with(u -> u.setIsDisabled(false))
             .with(u -> u.setCompany("rise8"))
             .with(u -> u.setPhone("(555) 867-5309"))
-            .with(u -> u.setCreationDate(CREATION_DATE)).get();
+            .with(u -> u.setCreationDate(CREATION_DATE))
+            .get();
     private final User expectedUser2 = Builder.build(User.class)
             .with(u -> u.setId(2L))
             .with(u -> u.setKeycloakUid("def-456"))
@@ -88,7 +88,7 @@ class UserServiceTests {
             .with(u -> u.setEmail("d.e@f"))
             .with(u -> u.setDisplayName("Yoda he is"))
             .with(u -> u.setCreationDate(CREATION_DATE))
-            .with(u -> u.setDodId(1L)).get();
+            .get();
     private final List<String> groups = List.of("midas-IL2-admin");
     private final PlatformOneAuthenticationToken token = new PlatformOneAuthenticationToken(
             "abc-123", 1L, "grogu", "a.b@c", groups);
@@ -107,7 +107,6 @@ class UserServiceTests {
         User userCaptured = userCaptor.getValue();
 
         assertThat(userCaptured.getKeycloakUid()).isEqualTo(token.getKeycloakUid());
-        assertThat(userCaptured.getDodId()).isEqualTo(token.getDodId());
         assertThat(userCaptured.getDisplayName()).isEqualTo(token.getDisplayName());
         assertThat(userCaptured.getUsername()).isEqualTo(token.getDisplayName());
         assertThat(userCaptured.getEmail()).isEqualTo(token.getEmail());

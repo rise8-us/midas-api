@@ -54,7 +54,6 @@ class UserControllerTests extends ControllerTestHarness {
             .with(u -> u.setId(1L))
             .with(u -> u.setKeycloakUid(UID))
             .with(u -> u.setDisplayName(DISPLAY_NAME))
-            .with(u -> u.setDodId(1L))
             .with(u -> u.setCreationDate(CREATION_DATE))
             .with(u -> u.setRoles(0L)).get();
     private final User user2 = Builder.build(User.class)
@@ -64,7 +63,6 @@ class UserControllerTests extends ControllerTestHarness {
             .with(u -> u.setEmail("e.b@c"))
             .with(u -> u.setDisplayName("baby yoda"))
             .with(u -> u.setCreationDate(CREATION_DATE))
-            .with(u -> u.setDodId(1L))
             .with(u -> u.setRoles(0L)).get();
     private final UserDTO userDTO = user.toDto();
     private final UpdateUserDTO updateUserDTO = Builder.build(UpdateUserDTO.class)

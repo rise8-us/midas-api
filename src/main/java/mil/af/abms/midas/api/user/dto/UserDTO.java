@@ -20,7 +20,6 @@ public class UserDTO implements AbstractDTO {
     private String email;
     private String displayName;
     private LocalDateTime creationDate;
-    private Long dodId;
     private UserType userType;
     private Boolean isDisabled;
     private Long roles;
