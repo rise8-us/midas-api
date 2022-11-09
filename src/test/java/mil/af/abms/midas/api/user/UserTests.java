@@ -22,7 +22,7 @@ import mil.af.abms.midas.enums.UserType;
 
 public class UserTests {
 
-    private static final int ENTITY_DTO_FIELD_OFFSET = 6;
+    private static final int ENTITY_DTO_FIELD_OFFSET = 5;
 
     private final Team team = Builder.build(Team.class)
             .with(t -> t.setId(1L))
