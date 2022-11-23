@@ -2,6 +2,7 @@ package mil.af.abms.midas.api.epic;
 
 import javax.validation.Valid;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,6 +49,16 @@ public class EpicController extends AbstractCRUDController<Epic, EpicDTO, EpicSe
     @GetMapping("/sync/portfolio/{id}")
     public EpicDTO syncByIdForPortfolio(@PathVariable Long id) {
         return service.updateByIdForPortfolio(id).toDto();
+    }
+
+    @GetMapping("/last-synced/product/{id}")
+    public LocalDateTime getLastSyncedAtForProduct(@PathVariable Long id) {
+        return service.getLastSyncedAtForProduct(id);
+    }
+
+    @GetMapping("/last-synced/portfolio/{id}")
+    public LocalDateTime getLastSyncedAtForPortfolio(@PathVariable Long id) {
+        return service.getLastSyncedAtForPortfolio(id);
     }
 
     @GetMapping("/all/product/{productId}")

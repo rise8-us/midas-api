@@ -1,6 +1,7 @@
 package mil.af.abms.midas.api.epic;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
@@ -213,4 +214,25 @@ public class EpicControllerTests extends ControllerTestHarness {
         verify(epicService, times(1)).gitlabEpicSync(portfolio);
     }
 
+    @Test
+    void getLastSyncedAtForProduct() throws Exception {
+        LocalDateTime now = LocalDateTime.now();
+        when(epicService.getLastSyncedAtForProduct(19L)).thenReturn(now);
+
+        mockMvc.perform(get("/api/epics/last-synced/product/19"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$", is(now.toString())));
+    }
+
+    @Test
+    void getLastSyncedAtForPortfolio() throws Exception {
+        LocalDateTime now = LocalDateTime.now();
+        when(epicService.getLastSyncedAtForPortfolio(91L)).thenReturn(now);
+
+        mockMvc.perform(get("/api/epics/last-synced/portfolio/91"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$", is(now.toString())));
+    }
 }

@@ -181,18 +181,32 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
         return portfolioService.findById(portfolioId);
     }
 
+    public LocalDateTime getLastSyncedAtForProduct(Long productId) {
+        return repository.getLatestSyncTimeForProduct(productId).orElse(null);
+    }
+
+    public LocalDateTime getLastSyncedAtForPortfolio(Long portfolioId) {
+        return repository.getLatestSyncTimeForPortfolio(portfolioId).orElse(null);
+    }
+
+    private void publishSyncError(PaginationProgressDTO paginationProgressDTO) {
+        paginationProgressDTO.setStatus(SyncStatus.SYNC_ERROR);
+        websocket.convertAndSend("/topic/fetchGitlabEpicsPagination", paginationProgressDTO);
+    }
+
     public List<Epic> gitlabEpicSync(AppGroup appGroup) {
+        PaginationProgressDTO paginationProgressDTO = new PaginationProgressDTO();
+        paginationProgressDTO.setId(appGroup.getId());
+
         if (!hasGitlabDetails(appGroup)) {
+            publishSyncError(paginationProgressDTO);
             return List.of();
         }
 
-        PaginationProgressDTO paginationProgressDTO = new PaginationProgressDTO();
-        paginationProgressDTO.setId(appGroup.getId());
         GitLab4JClient client = getGitlabClient(appGroup);
         int totalPageCount = client.getTotalEpicsPages(appGroup);
         if (totalPageCount == -1) {
-            paginationProgressDTO.setStatus(SyncStatus.SYNC_ERROR);
-            websocket.convertAndSend("/topic/fetchGitlabEpicsPagination", paginationProgressDTO);
+            publishSyncError(paginationProgressDTO);
             return List.of();
         }
 
