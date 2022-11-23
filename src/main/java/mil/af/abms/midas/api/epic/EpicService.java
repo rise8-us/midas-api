@@ -3,7 +3,7 @@ package mil.af.abms.midas.api.epic;
 import javax.transaction.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -140,7 +140,7 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
         return repository.findAllEpicsByPortfolioId(portfolioId).orElse(List.of());
     }
 
-    public void removeAllUntrackedEpicsForProducts(Long productId, Set<Epic> fetchedEpicsSet) {
+    public void removeAllUntrackedEpicsForProducts(Long productId, List<Epic> fetchedEpicsSet) {
         Set<Integer> epicIids = fetchedEpicsSet.stream().map(Epic::getEpicIid).collect(Collectors.toSet());
         List<Epic> midasProductEpics = getAllEpicsByProductId(productId);
         Set<Integer> midasProductEpicIids = getEpicIids(midasProductEpics);
@@ -152,7 +152,7 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
         repository.deleteAll(midasProductEpics);
     }
 
-    public void removeAllUntrackedEpicsForPortfolios(Long portfolioId, Set<Epic> fetchedEpicsSet) {
+    public void removeAllUntrackedEpicsForPortfolios(Long portfolioId, List<Epic> fetchedEpicsSet) {
         Set<Integer> epicIids = fetchedEpicsSet.stream().map(Epic::getEpicIid).collect(Collectors.toSet());
         List<Epic> midasPortfolioEpics = getAllEpicsByPortfolioId(portfolioId);
         Set<Integer> midasPortfolioEpicIids = getEpicIids(midasPortfolioEpics);
@@ -190,7 +190,7 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
         paginationProgressDTO.setId(appGroup.getId());
         GitLab4JClient client = getGitlabClient(appGroup);
         int totalPageCount = client.getTotalEpicsPages(appGroup);
-        Set<Epic> allEpics = new HashSet<>();
+        List<Epic> allEpics = new ArrayList<>();
 
         for (int i = 1; i <= totalPageCount; i++) {
             allEpics.addAll(processEpics(client.fetchGitLabEpicByPage(appGroup, i), appGroup));
@@ -211,16 +211,16 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
         return repository.saveAll(allEpics);
     }
 
-    public Set<Epic> processEpics(List<GitLabEpic> epics, AppGroup appGroup) {
+    public List<Epic> processEpics(List<GitLabEpic> epics, AppGroup appGroup) {
         Long sourceControlId = appGroup.getSourceControl().getId();
         Integer groupId = appGroup.getGitlabGroupId();
 
         return epics.stream()
                 .map(e ->
-                    repository.findByEpicUid(generateUniqueId(sourceControlId, groupId, e.getEpicIid()))
-                            .map(epic -> syncEpic(e, epic))
-                            .orElseGet(() -> convertToEpic(e, appGroup))
-                ).collect(Collectors.toSet());
+                        repository.findByEpicUid(generateUniqueId(sourceControlId, groupId, e.getEpicIid()))
+                                .map(epic -> syncEpic(e, epic))
+                                .orElseGet(() -> convertToEpic(e, appGroup))
+                ).collect(Collectors.toList());
     }
 
     public boolean canAddEpic(Integer iid, AppGroup appGroup) {

@@ -8,7 +8,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -75,7 +74,7 @@ class EpicServiceTests {
     @Captor
     ArgumentCaptor<Epic> captor;
     @Captor
-    ArgumentCaptor<Set<Epic>> setCaptor;
+    ArgumentCaptor<List<Epic>> listCaptor;
 
     private static final LocalDateTime CREATED_AT = LocalDateTime.now().minusDays(1L);
     private static final LocalDateTime CLOSED_AT = LocalDateTime.now();
@@ -336,14 +335,14 @@ class EpicServiceTests {
 
         when(epicService.getGitlabClient(foundProduct)).thenReturn(client);
         when(client.getTotalEpicsPages(foundProduct)).thenReturn(1);
-        when(epicService.processEpics(List.of(), foundProduct)).thenReturn(Set.of(expectedEpic));
-        doNothing().when(epicService).removeAllUntrackedEpicsForProducts(anyLong(), anySet());
+        when(epicService.processEpics(List.of(), foundProduct)).thenReturn(List.of(expectedEpic));
+        doNothing().when(epicService).removeAllUntrackedEpicsForProducts(anyLong(), anyList());
         doReturn(foundEpicForProduct).when(epicService).convertToEpic(any(), any());
         doReturn(user).when(userService).getUserBySecContext();
 
         epicService.gitlabEpicSync(foundProduct);
-        verify(repository, times(1)).saveAll(setCaptor.capture());
-        Set<Epic> epicsSaved = setCaptor.getValue();
+        verify(repository, times(1)).saveAll(listCaptor.capture());
+        List<Epic> epicsSaved = listCaptor.getValue();
 
         assertThat(epicsSaved).hasSize(1);
         assertThat(epicsSaved.stream().findFirst().get()).isEqualTo(expectedEpic);
@@ -359,13 +358,13 @@ class EpicServiceTests {
         doReturn(expectedEpic).when(repository).save(any(Epic.class));
         when(epicService.getGitlabClient(foundPortfolio)).thenReturn(client);
         when(client.getTotalEpicsPages(foundPortfolio)).thenReturn(1);
-        when(epicService.processEpics(List.of(), foundPortfolio)).thenReturn(Set.of(expectedEpic));
-        doNothing().when(epicService).removeAllUntrackedEpicsForPortfolios(anyLong(), anySet());
+        when(epicService.processEpics(List.of(), foundPortfolio)).thenReturn(List.of(expectedEpic));
+        doNothing().when(epicService).removeAllUntrackedEpicsForPortfolios(anyLong(), anyList());
         doReturn(foundEpicForPortfolio).when(epicService).convertToEpic(any(), any());
 
         epicService.gitlabEpicSync(foundPortfolio);
-        verify(repository, times(1)).saveAll(setCaptor.capture());
-        Set<Epic> epicsSaved = setCaptor.getValue();
+        verify(repository, times(1)).saveAll(listCaptor.capture());
+        List<Epic> epicsSaved = listCaptor.getValue();
 
         assertThat(epicsSaved).hasSize(1);
         assertThat(epicsSaved.stream().findFirst().get()).isEqualTo(expectedEpic);
@@ -435,8 +434,8 @@ class EpicServiceTests {
         when(productService.findById(foundProduct.getId())).thenReturn(foundProduct);
         when(portfolioService.findById(foundPortfolio.getId())).thenReturn(foundPortfolio);
         doReturn(gitLab4JClient).when(epicService).getGitlabClient(any());
-        doNothing().when(epicService).removeAllUntrackedEpicsForProducts(anyLong(), anySet());
-        doNothing().when(epicService).removeAllUntrackedEpicsForPortfolios(anyLong(), anySet());
+        doNothing().when(epicService).removeAllUntrackedEpicsForProducts(anyLong(), anyList());
+        doNothing().when(epicService).removeAllUntrackedEpicsForPortfolios(anyLong(), anyList());
 
         epicService.runScheduledEpicSync();
 
@@ -477,7 +476,7 @@ class EpicServiceTests {
 
         doReturn(new ArrayList<>(List.of(foundEpicForProduct, expectedEpic))).when(epicService).getAllEpicsByProductId(anyLong());
 
-        epicService.removeAllUntrackedEpicsForProducts(foundProduct.getId(), Set.of(epic));
+        epicService.removeAllUntrackedEpicsForProducts(foundProduct.getId(), List.of(epic));
 
         verify(repository, times(1)).deleteAll(List.of(expectedEpic));
 
@@ -492,7 +491,7 @@ class EpicServiceTests {
 
         doReturn(new ArrayList<>(List.of(foundEpicForPortfolio, expectedEpic))).when(epicService).getAllEpicsByPortfolioId(anyLong());
 
-        epicService.removeAllUntrackedEpicsForPortfolios(foundPortfolio.getId(), Set.of(epic));
+        epicService.removeAllUntrackedEpicsForPortfolios(foundPortfolio.getId(), List.of(epic));
 
         verify(repository, times(1)).deleteAll(anyList());
 
@@ -527,7 +526,7 @@ class EpicServiceTests {
         when(repository.findByEpicUid("3-42-2")).thenReturn(Optional.of(foundEpicForProduct));
         when(repository.findByEpicUid("3-42-500")).thenReturn(Optional.empty());
 
-        Set<Epic> epics = epicService.processEpics(List.of(gitLabEpic, unmatchedEpic), foundProduct);
+        List<Epic> epics = epicService.processEpics(List.of(gitLabEpic, unmatchedEpic), foundProduct);
 
         assertThat(epics).hasSize(2);
         assertTrue(epics.contains(foundEpicForProduct));
@@ -542,7 +541,7 @@ class EpicServiceTests {
         when(repository.findByEpicUid("3-42-2")).thenReturn(Optional.of(foundEpicForPortfolio));
         when(repository.findByEpicUid("3-42-500")).thenReturn(Optional.empty());
 
-        Set<Epic> epics = epicService.processEpics(List.of(gitLabEpic, unmatchedEpic), foundPortfolio);
+        List<Epic> epics = epicService.processEpics(List.of(gitLabEpic, unmatchedEpic), foundPortfolio);
 
         assertThat(epics).hasSize(2);
         assertTrue(epics.contains(foundEpicForPortfolio));
