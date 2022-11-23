@@ -39,6 +39,7 @@ import mil.af.abms.midas.api.completion.CompletionService;
 import mil.af.abms.midas.api.dtos.AddGitLabEpicWithPortfolioDTO;
 import mil.af.abms.midas.api.dtos.AddGitLabEpicWithProductDTO;
 import mil.af.abms.midas.api.dtos.IsHiddenDTO;
+import mil.af.abms.midas.api.dtos.PaginationProgressDTO;
 import mil.af.abms.midas.api.helper.Builder;
 import mil.af.abms.midas.api.portfolio.Portfolio;
 import mil.af.abms.midas.api.portfolio.PortfolioService;
@@ -49,6 +50,7 @@ import mil.af.abms.midas.api.user.User;
 import mil.af.abms.midas.api.user.UserService;
 import mil.af.abms.midas.clients.gitlab.GitLab4JClient;
 import mil.af.abms.midas.clients.gitlab.models.GitLabEpic;
+import mil.af.abms.midas.enums.SyncStatus;
 
 @ExtendWith(SpringExtension.class)
 @Import(EpicService.class)
@@ -75,6 +77,10 @@ class EpicServiceTests {
     ArgumentCaptor<Epic> captor;
     @Captor
     ArgumentCaptor<List<Epic>> listCaptor;
+    @Captor
+    ArgumentCaptor<String> stringCaptor;
+    @Captor
+    ArgumentCaptor<PaginationProgressDTO> progressCaptor;
 
     private static final LocalDateTime CREATED_AT = LocalDateTime.now().minusDays(1L);
     private static final LocalDateTime CLOSED_AT = LocalDateTime.now();
@@ -355,7 +361,6 @@ class EpicServiceTests {
         expectedEpic.setTitle(gitLabEpic.getTitle());
         expectedEpic.setId(6L);
 
-        doReturn(expectedEpic).when(repository).save(any(Epic.class));
         when(epicService.getGitlabClient(foundPortfolio)).thenReturn(client);
         when(client.getTotalEpicsPages(foundPortfolio)).thenReturn(1);
         when(epicService.processEpics(List.of(), foundPortfolio)).thenReturn(List.of(expectedEpic));
@@ -368,6 +373,21 @@ class EpicServiceTests {
 
         assertThat(epicsSaved).hasSize(1);
         assertThat(epicsSaved.stream().findFirst().get()).isEqualTo(expectedEpic);
+    }
+
+    @Test
+    void gitlabEpicSync_should_return_empty_list_when_gitlab_error() {
+        when(epicService.getGitlabClient(foundPortfolio)).thenReturn(client);
+        when(client.getTotalEpicsPages(foundPortfolio)).thenReturn(-1);
+
+        List<Epic> epics = epicService.gitlabEpicSync(foundPortfolio);
+        verify(websocket, times(1)).convertAndSend(stringCaptor.capture(), progressCaptor.capture());
+        String topic = stringCaptor.getValue();
+        PaginationProgressDTO progressDTO = progressCaptor.getValue();
+
+        assertThat(epics).hasSize(0);
+        assertThat(topic).isEqualTo("/topic/fetchGitlabEpicsPagination");
+        assertThat(progressDTO.getStatus()).isEqualTo(SyncStatus.SYNC_ERROR);
     }
 
     @Test

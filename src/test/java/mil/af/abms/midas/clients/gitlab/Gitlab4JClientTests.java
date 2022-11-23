@@ -286,7 +286,7 @@ class Gitlab4JClientTests {
         ResponseEntity<String> testResponse = new ResponseEntity<>(response, headers, HttpStatus.valueOf(status));
         doReturn(testResponse).when(gitClient).requestGet(anyString());
         when(repository.findByEpicUid("3-42-42")).thenReturn(Optional.of(foundEpicForProduct));
-        doReturn(Set.of(foundEpicForProduct)).when(epicService()).processEpics(any(), any());
+        doReturn(List.of(foundEpicForProduct)).when(epicService()).processEpics(any(), any());
 
         if (response.equals("[{\"iid\":42}]")) {
             assertThat(gitClient.fetchGitLabEpicByPage(foundProduct, 1).iterator().next().getEpicIid()).isEqualTo(42);
