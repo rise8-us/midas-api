@@ -190,6 +190,12 @@ public class EpicService extends AbstractCRUDService<Epic, EpicDTO, EpicReposito
         paginationProgressDTO.setId(appGroup.getId());
         GitLab4JClient client = getGitlabClient(appGroup);
         int totalPageCount = client.getTotalEpicsPages(appGroup);
+        if (totalPageCount == -1) {
+            paginationProgressDTO.setStatus(SyncStatus.SYNC_ERROR);
+            websocket.convertAndSend("/topic/fetchGitlabEpicsPagination", paginationProgressDTO);
+            return List.of();
+        }
+
         List<Epic> allEpics = new ArrayList<>();
 
         for (int i = 1; i <= totalPageCount; i++) {
