@@ -114,6 +114,7 @@ class EpicServiceTests {
             .with(e -> e.setEpicIid(2))
             .with(e -> e.setProduct(foundProduct))
             .with((e -> e.setCompletions(Set.of(completion))))
+            .with((e -> e.setSyncedAt(LocalDateTime.of(2020, 3, 16, 1, 1))))
             .get();
 
     private final Epic foundEpicForPortfolio = Builder.build(Epic.class)
@@ -123,6 +124,7 @@ class EpicServiceTests {
             .with(e -> e.setEpicIid(2))
             .with(e -> e.setPortfolio(foundPortfolio))
             .with((e -> e.setCompletions(Set.of(completion))))
+            .with((e -> e.setSyncedAt(LocalDateTime.of(2021, 3, 16, 1, 1))))
             .get();
     private final Epic epic = Builder.build(Epic.class)
             .with(e -> e.setTitle("title"))
@@ -579,5 +581,28 @@ class EpicServiceTests {
         doReturn(foundPortfolio).when(portfolioService).findById(anyLong());
 
         assertThat(epicService.getPortfolioById(1L)).isEqualTo(foundPortfolio);
+    }
+
+    @Test
+    void getLastSyncedAtForProduct() {
+        doReturn(Optional.of(foundEpicForProduct.getSyncedAt())).when(repository).getLatestSyncTimeForProduct(19L);
+
+        assertThat(epicService.getLastSyncedAtForProduct(19L)).isEqualTo(foundEpicForProduct.getSyncedAt());
+    }
+
+    @Test
+    void getLastSyncedAtForPortfolio() {
+        doReturn(Optional.of(foundEpicForPortfolio.getSyncedAt())).when(repository).getLatestSyncTimeForPortfolio(91L);
+
+        assertThat(epicService.getLastSyncedAtForPortfolio(91L)).isEqualTo(foundEpicForPortfolio.getSyncedAt());
+    }
+
+    @Test
+    void getLastSyncedAt_return_null_when_no_epics_found() {
+        doReturn(Optional.empty()).when(repository).getLatestSyncTimeForProduct(19L);
+        doReturn(Optional.empty()).when(repository).getLatestSyncTimeForPortfolio(91L);
+
+        assertThat(epicService.getLastSyncedAtForProduct(19L)).isNull();
+        assertThat(epicService.getLastSyncedAtForPortfolio(91L)).isNull();
     }
 }
