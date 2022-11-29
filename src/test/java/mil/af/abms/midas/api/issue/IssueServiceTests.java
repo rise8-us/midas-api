@@ -237,13 +237,13 @@ public class IssueServiceTests {
 
         when(issueService.getGitlabClient(foundProject)).thenReturn(gitLab4JClient);
         doReturn(1).when(gitLab4JClient).getTotalIssuesPages(foundProject.getGitlabProjectId());
-        doReturn(Set.of(expectedIssue)).when(issueService).processIssues(List.of(), foundProject);
+        doReturn(List.of(expectedIssue)).when(issueService).processIssues(List.of(), foundProject);
 
         issueService.gitlabIssueSync(foundProject);
-        verify(repository, times(1)).saveAll(setCaptor.capture());
-        Set<Issue> savedIssues = setCaptor.getValue();
+        verify(repository, times(1)).saveAll(listCaptor.capture());
+        List<Issue> savedIssues = listCaptor.getValue();
         assertThat(savedIssues).hasSize(1);
-        assertThat(savedIssues).isEqualTo(Set.of(expectedIssue));
+        assertThat(savedIssues).isEqualTo(List.of(expectedIssue));
     }
 
     @Test
@@ -328,7 +328,7 @@ public class IssueServiceTests {
 
         doReturn(new ArrayList<>(List.of(issueToKeep, issueToRemove))).when(issueService).getAllIssuesByProjectId(foundProject.getId());
 
-        issueService.removeAllUntrackedIssues(foundProject.getId(), Set.of(foundIssue));
+        issueService.removeAllUntrackedIssues(foundProject.getId(), List.of(foundIssue));
 
         verify(repository, times(1)).deleteAll(listCaptor.capture());
         List<Issue> issuesDeleted = listCaptor.getValue();

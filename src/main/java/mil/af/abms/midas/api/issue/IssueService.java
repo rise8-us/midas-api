@@ -3,7 +3,6 @@ package mil.af.abms.midas.api.issue;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -127,8 +126,8 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
         }
     }
 
-    public void removeAllUntrackedIssues(Long projectId, Set<Issue> newIssueSet) {
-        Set<Integer> issueIids = newIssueSet.stream().map(Issue::getIssueIid).collect(Collectors.toSet());
+    public void removeAllUntrackedIssues(Long projectId, List<Issue> newIssueList) {
+        Set<Integer> issueIids = newIssueList.stream().map(Issue::getIssueIid).collect(Collectors.toSet());
         ArrayList<Issue> midasProjectIssues = new ArrayList<>(getAllIssuesByProjectId(projectId));
         Set<Integer> midasProjectIssuesIids = midasProjectIssues.stream().map(Issue::getIssueIid).collect(Collectors.toSet());
 
@@ -159,7 +158,7 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
         GitLab4JClient client = getGitlabClient(project);
         int totalPageCount = client.getTotalIssuesPages(project.getGitlabProjectId());
 
-        Set<Issue> allIssues = new HashSet<>();
+        List<Issue> allIssues = new ArrayList<>();
         for (int i = 1; i <= totalPageCount; i++) {
             allIssues.addAll(processIssues(client.fetchGitLabIssueByPage(project, i), project));
             paginationProgressDTO.setValue((double) i / totalPageCount);
@@ -173,7 +172,7 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
         return repository.saveAll(allIssues);
     }
 
-    public Set<Issue> processIssues(List<GitLabIssue> issues, Project project) {
+    public List<Issue> processIssues(List<GitLabIssue> issues, Project project) {
         Long sourceControlId = project.getSourceControl().getId();
         Integer gitlabProjectId = project.getGitlabProjectId();
 
@@ -181,7 +180,7 @@ public class IssueService extends AbstractCRUDService<Issue, IssueDTO, IssueRepo
                 repository.findByIssueUid(generateUniqueId(sourceControlId, gitlabProjectId, i.getIssueIid()))
                         .map(issue -> syncIssue(i, issue))
                         .orElseGet(() -> convertToIssue(i, project))
-        ).collect(Collectors.toSet());
+        ).collect(Collectors.toList());
     }
 
     public boolean canAddIssue(Integer iid, Project project) {
